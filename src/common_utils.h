@@ -1,23 +1,85 @@
-07T01:44:19.769+08:00| vmx| I125:   cap[176]: 0x000001e7 (DXFMT_R32_UINT)
-2016-05-07T01:44:19.769+08:00| vmx| I125:   cap[177]: 0x000001e7 (DXFMT_R32_SINT)
-2016-05-07T01:44:19.769+08:00| vmx| I125:   cap[178]: 0x00000061 (DXFMT_R24G8_TYPELESS)
-2016-05-07T01:44:19.769+08:00| vmx| I125:   cap[179]: 0x00000069 (DXFMT_D24_UNORM_S8_UINT)
-2016-05-07T01:44:19.769+08:00| vmx| I125:   cap[180]: 0x00000061 (DXFMT_R24_UNORM_X8_TYPELESS)
-2016-05-07T01:44:19.769+08:00| vmx| I125:   cap[181]: 0x00000061 (DXFMT_X24_TYPELESS_G8_UINT)
-2016-05-07T01:44:19.769+08:00| vmx| I125:   cap[182]: 0x000000e1 (DXFMT_R8G8_TYPELESS)
-2016-05-07T01:44:19.769+08:00| vmx| I125:   cap[183]: 0x000001f7 (DXFMT_R8G8_UNORM)
-2016-05-07T01:44:19.769+08:00| vmx| I125:   cap[184]: 0x000001e7 (DXFMT_R8G8_UINT)
-2016-05-07T01:44:19.769+08:00| vmx| I125:   cap[185]: 0x000001e7 (DXFMT_R8G8_SINT)
-2016-05-07T01:44:19.769+08:00| vmx| I125:   cap[186]: 0x000000e1 (DXFMT_R16_TYPELESS)
-2016-05-07T01:44:19.769+08:00| vmx| I125:   cap[187]: 0x000001f7 (DXFMT_R16_UNORM)
-2016-05-07T01:44:19.769+08:00| vmx| I125:   cap[188]: 0x000001e7 (DXFMT_R16_UINT)
-2016-05-07T01:44:19.769+08:00| vmx| I125:   cap[189]: 0x000001e7 (DXFMT_R16_SNORM)
-2016-05-07T01:44:19.769+08:00| vmx| I125:   cap[190]: 0x000001e7 (DXFMT_R16_SINT)
-2016-05-07T01:44:19.769+08:00| vmx| I125:   cap[191]: 0x000000e1 (DXFMT_R8_TYPELESS)
-2016-05-07T01:44:19.769+08:00| vmx| I125:   cap[192]: 0x000001f7 (DXFMT_R8_UNORM)
-2016-05-07T01:44:19.769+08:00| vmx| I125:   cap[193]: 0x000001e7 (DXFMT_R8_UINT)
-2016-05-07T01:44:19.769+08:00| vmx| I125:   cap[194]: 0x000001e7 (DXFMT_R8_SNORM)
-2016-05-07T01:44:19.769+08:00| vmx| I125:   cap[195]: 0x000001e7 (DXFMT_R8_SINT)
-2016-05-07T01:44:19.769+08:00| vmx| I125:   cap[196]: 0x00000001 (DXFMT_P8)
-2016-05-07T01:44:19.769+08:00| vmx| I125:   cap[197]: 0x000000e3 (DXFMT_R9G9B9E5_SHAREDEXP)
-2016-05-07T01:44:19.769
+#ifndef _COMMON_UTILS_H_
+#define _COMMON_UTILS_H_
+
+#include <string>
+#include <map>
+#include <set>
+#include <memory>
+#include <sstream>
+#include <functional>
+
+namespace BigRLab {
+
+
+struct InvalidInput : std::exception {
+    explicit InvalidInput( const std::string &what )
+            : whatString("InvalidInput: ") 
+    { whatString.append(what); }
+
+    explicit InvalidInput( const std::ostream &os )
+            : whatString("InvalidInput: ") 
+    { 
+        using namespace std;
+        const stringstream &_str = dynamic_cast<const stringstream&>(os);
+        whatString.append(_str.str()); 
+    }
+
+    explicit InvalidInput( const std::string &inputStr,
+                                    const std::string &desc )
+            : whatString("InvalidInput: input string \"")
+    { whatString.append( inputStr ).append( "\" is not valid! " ).append(desc); }
+
+    virtual const char* what() const throw()
+    { return whatString.c_str(); }
+
+    std::string     whatString;
+};
+
+inline
+void throw_runtime_error( const std::ostream &os )
+{
+    using namespace std;
+    const stringstream &_str = dynamic_cast<const stringstream&>(os);
+    throw runtime_error(_str.str());
+}
+
+inline
+void throw_runtime_error( const std::string &msg )
+{
+    using namespace std;
+    throw runtime_error(msg);
+}
+
+
+inline
+std::string& strip_string( std::string &s )
+{
+    using namespace std;
+
+    static const char *SPACES = " \t\f\r\v\n";
+
+    string::size_type pEnd = s.find_last_not_of( SPACES );
+    if (string::npos != pEnd) {
+        ++pEnd;
+    } else {
+        s.clear();
+        return s;
+    } // if
+
+    string::size_type pStart = s.find_first_not_of( SPACES );
+    s = s.substr(pStart, pEnd - pStart);
+
+    return s;
+}
+
+
+typedef std::map< std::string, std::set<std::string> > PropertyTable;
+
+extern void parse_config_file( const char *filename, PropertyTable &propTable );
+
+} // namespace BigRLab
+
+
+
+#endif
+
