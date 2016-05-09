@@ -1,4 +1,4 @@
-#include "service_factory.h"
+#include "service_manager.h"
 #include <dlfcn.h>
 
 // 要求函数指针名和库中的函数sym名一样
@@ -15,20 +15,20 @@
 
 namespace BigRLab {
 
-ServiceFactory::pointer ServiceFactory::m_pInstance;
+ServiceManager::pointer ServiceManager::m_pInstance;
 
-ServiceFactory::pointer ServiceFactory::getInstance()
+ServiceManager::pointer ServiceManager::getInstance()
 {
     static boost::once_flag     onceFlag;
     boost::call_once(onceFlag, [] {
         if (!m_pInstance)
-            m_pInstance.reset( new ServiceFactory );
+            m_pInstance.reset( new ServiceManager );
     });
 
     return m_pInstance;
 }
 
-void ServiceFactory::addService( const char *confFileName )
+void ServiceManager::addService( const char *confFileName )
 {
     using namespace std;
 
@@ -53,9 +53,13 @@ void ServiceFactory::addService( const char *confFileName )
     if (!libPath)
         throw InvalidInput( stringstream() << "Cannot find property \"libpath\" in "
                "conf file " << confFileName );
-
-    if (m_mapServices.find(srvName) != m_mapServices.end())
-        throw_runtime_error(stringstream() << "Service " << srvName << " already exists!");
+    
+    // check exist
+    {
+        boost::shared_lock<ServiceTable> lock(m_mapServices);
+        if (m_mapServices.find(srvName) != m_mapServices.end())
+            throw_runtime_error(stringstream() << "Service " << srvName << " already exists!");
+    } // check exist
 
     void *srvHandle = dlopen(libPath, RTLD_LAZY);
     if (!srvHandle)
@@ -71,16 +75,35 @@ void ServiceFactory::addService( const char *confFileName )
     pSrv->properties() = std::move(srvPpt);
 
     ServiceInfoPtr pSrvInfo(new ServiceInfo(pSrv, srvHandle));
-    m_mapServices[srvName] = std::move(pSrvInfo);
+    // insert
+    {
+        boost::unique_lock<ServiceTable> lock(m_mapServices);
+        auto ret = m_mapServices.insert(std::make_pair(srvName, std::move(pSrvInfo)));
+        if (!ret.second)
+            throw_runtime_error(stringstream() << "Service " << srvName << " already exists!");
+    } // insert
+
+    return;
 }
 
-bool ServiceFactory::removeService( const std::string &srvName )
+bool ServiceManager::removeService( const std::string &srvName )
 {
     // TODO
+    boost::unique_lock<ServiceTable> lock(m_mapServices);
     return m_mapServices.erase( srvName );
 }
 
-ServiceFactory::ServiceInfo::~ServiceInfo()
+bool ServiceManager::getService( const std::string &srvName, Service::pointer &pSrv )
+{
+    boost::shared_lock<ServiceTable> lock(m_mapServices);
+    auto it = m_mapServices.find( srvName );
+    if (it == m_mapServices.end())
+        return false;
+    pSrv = it->second->pService;
+    return true;
+}
+
+ServiceManager::ServiceInfo::~ServiceInfo()
 {
     if (pHandle) {
         dlclose(pHandle);

@@ -44,7 +44,7 @@ void parse_config_file( const char *filename, PropertyTable &propTable )
                    << " invalid property name!" );
         // read values seperated by ':'
         stringstream inStream(right);
-        while (getline(inStream, value, ':')) {
+        while (getline(inStream, value, ';')) {
             strip_string( value );
             if (value.empty())
                 throw InvalidInput( stringstream() << "In " << filename << " line " << lineno

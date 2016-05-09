@@ -7,6 +7,8 @@
 #include <memory>
 #include <sstream>
 #include <functional>
+#include <boost/thread.hpp>
+#include <boost/thread/lockable_adapter.hpp>
 
 namespace BigRLab {
 
@@ -70,6 +72,25 @@ std::string& strip_string( std::string &s )
     s = s.substr(pStart, pEnd - pStart);
 
     return s;
+}
+
+template < typename T >
+bool read_from_string( const std::string &s, T &value )
+{
+    std::stringstream str(s);
+    str >> value;
+    bool ret = (str.good() || str.eof());
+    if ( !ret )
+        value = T();
+    return ret;
+}
+
+template < typename T >
+std::string to_string( const T &value )
+{
+    std::stringstream os;
+    os << value << std::flush;
+    return os.str();
 }
 
 

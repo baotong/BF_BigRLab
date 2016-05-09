@@ -8,7 +8,7 @@
 namespace BigRLab {
 
 class Service {
-    friend class ServiceFactory;
+    friend class ServiceManager;
 public:
     typedef std::shared_ptr<Service>    pointer;
 

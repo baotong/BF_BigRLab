@@ -1,14 +1,14 @@
-#ifndef _SERVICE_FACTORY_H_
-#define _SERVICE_FACTORY_H_
+#ifndef _SERVICE_MANAGER_H_
+#define _SERVICE_MANAGER_H_
 
 #include "service.h"
 #include <boost/thread.hpp>
 
 namespace BigRLab {
 
-class ServiceFactory {
+class ServiceManager {
 public:
-    typedef std::shared_ptr<ServiceFactory> pointer;
+    typedef std::shared_ptr<ServiceManager> pointer;
 
     struct ServiceInfo {
         ServiceInfo( const Service::pointer &_Service, void *_Handle )
@@ -21,22 +21,26 @@ public:
     };
 
     typedef std::shared_ptr<ServiceInfo>            ServiceInfoPtr;
-    typedef std::map<std::string, ServiceInfoPtr>   ServiceTable;
+
+    struct ServiceTable : std::map<std::string, ServiceInfoPtr>
+                        , boost::upgrade_lockable_adapter<boost::shared_mutex>
+    {};
 
 public:
     static pointer getInstance();
 
     void addService( const char *confFileName );
     bool removeService( const std::string &srvName );
+    bool getService( const std::string &srvName, Service::pointer &pSrv );
 
     ServiceTable& services() { return m_mapServices; }
 
 private:
-    ServiceFactory() = default;
-    ServiceFactory( const ServiceFactory &rhs ) = delete;
-    ServiceFactory( ServiceFactory &&rhs ) = delete;
-    ServiceFactory& operator= (const ServiceFactory &rhs) = delete;
-    ServiceFactory& operator= (ServiceFactory &&rhs) = delete;
+    ServiceManager() = default;
+    ServiceManager( const ServiceManager &rhs ) = delete;
+    ServiceManager( ServiceManager &&rhs ) = delete;
+    ServiceManager& operator= (const ServiceManager &rhs) = delete;
+    ServiceManager& operator= (ServiceManager &&rhs) = delete;
 
     static pointer m_pInstance;
 
