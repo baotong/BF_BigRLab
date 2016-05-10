@@ -9,9 +9,13 @@
 #include <functional>
 #include <boost/thread.hpp>
 #include <boost/thread/lockable_adapter.hpp>
+#include <boost/date_time.hpp>
+
+#define THIS_THREAD_ID        boost::this_thread::get_id()
+#define SLEEP_SECONDS(x)      boost::this_thread::sleep_for(boost::chrono::seconds(x))
+#define SLEEP_MILLISECONDS(x) boost::this_thread::sleep_for(boost::chrono::milliseconds(x))
 
 namespace BigRLab {
-
 
 struct InvalidInput : std::exception {
     explicit InvalidInput( const std::string &what )
