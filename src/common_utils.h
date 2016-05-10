@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include <set>
+#include <deque>
 #include <memory>
 #include <sstream>
 #include <functional>

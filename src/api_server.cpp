@@ -4,6 +4,9 @@
 
 namespace BigRLab {
 
+std::unique_ptr<WorkQueue>   g_pWorkQueue;
+
+
 APIServer::APIServer( const ServerType::options &_Opts,
         const IoServicePtr &_pIoSrv, 
         const ThreadGroupPtr &_pThrgrp ) 
@@ -16,7 +19,6 @@ APIServer::APIServer( const ServerType::options &_Opts,
       , m_pIoService(_pIoSrv)
       , m_pIoThrgrp(_pThrgrp)
 { 
-    std::cout << "APIServer default constructor" << std::endl;
     options().address("0.0.0.0").reuse_address(true)
         .io_service(m_pIoService); 
 }
@@ -79,6 +81,28 @@ void APIServer::stop()
     // 不能在这里join这些 io thread 需要io_service结束后
     // m_pIoThrgrp->join_all();
 }
+
+void APIServerHandler::operator()(const ServerType::request& req,
+        ServerType::connection_ptr conn) 
+{
+    using namespace std;
+
+    cout << "Received client request from " << req.source << endl; // source 已经包含port
+    cout << "destination = " << req.destination << endl;  // 去除了URL port
+    cout << "method = " << req.method << endl;
+    cout << "http version = " << (uint32_t)(req.http_version_major) 
+        << "." << (uint32_t)(req.http_version_minor) << endl;
+    cout << "headers:" << endl;
+    for (const auto &header : req.headers)
+        cout << header.name << " = " << header.value << endl;
+
+    SLEEP_SECONDS(1);
+
+    stringstream os;
+    os << "Hello, from server thread " << THIS_THREAD_ID << endl << flush;
+    conn->write(os.str());
+}
+
 
 } // namespace BigRLab
 

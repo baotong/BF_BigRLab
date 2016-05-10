@@ -93,6 +93,31 @@ private:
     std::shared_ptr<ThreadGroup>                m_pIoThrgrp;
 };
 
+struct WorkItem : std::enable_shared_from_this<WorkItem> {
+    WorkItem( std::size_t _n2Read ) : left2Read(_n2Read) 
+    { content.reserve(left2Read); }
+
+    void handleRead(ServerType::connection::input_range &range, 
+            const boost::system::error_code &error, size_t size, 
+            const ServerType::connection_ptr &conn)
+    {
+        
+    }
+
+    std::string     content;
+    std::size_t     left2Read;
+};
+
+
+class WorkQueue {
+public:
+
+private:
+    std::deque<WorkItem*>   m_Queue;
+};
+
+extern std::unique_ptr<WorkQueue>   g_pWorkQueue;
+
 } // namespace BigRLab
 
 

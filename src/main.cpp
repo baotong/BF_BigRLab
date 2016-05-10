@@ -39,28 +39,6 @@ namespace Test {
 
 } // namespace Test
 
-void APIServerHandler::operator()(const ServerType::request& req,
-        ServerType::connection_ptr conn) 
-{
-    using namespace std;
-
-    cout << "Received client request from " << req.source << endl; // source 已经包含port
-    cout << "destination = " << req.destination << endl;  // 去除了URL port
-    cout << "method = " << req.method << endl;
-    cout << "http version = " << (uint32_t)(req.http_version_major) 
-        << "." << (uint32_t)(req.http_version_minor) << endl;
-    cout << "headers:" << endl;
-    for (const auto &header : req.headers)
-        cout << header.name << " = " << header.value << endl;
-
-    SLEEP_SECONDS(1);
-
-    stringstream os;
-    os << "Hello, from server thread " << THIS_THREAD_ID << endl << flush;
-    conn->write(os.str());
-}
-
-
 static
 void init()
 {
@@ -68,6 +46,7 @@ void init()
     g_pWork = std::make_shared<asio::io_service::work>(std::ref(*g_pIoService));
     g_pIoThrgrp = std::make_shared<ThreadGroup>();
     g_pWorkThrgrp = std::make_shared<ThreadGroup>();
+    g_pWorkQueue.reset( new WorkQueue );
 
     APIServerHandler handler;
     ServerType::options opts(handler);
