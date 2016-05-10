@@ -8,13 +8,19 @@
 using namespace BigRLab;
 using namespace std;
 
+using ThreadPool = boost::network::utils::thread_pool;
+using ThreadGroup = boost::network::utils::thread_group;
+typedef std::shared_ptr<ThreadGroup>            ThreadGroupPtr;
+typedef std::shared_ptr<asio::io_service>       IoServicePtr;
+typedef std::shared_ptr<asio::io_service::work> IoServiceWorkPtr;
+
 // TODO set by arg
 static const char                   *g_cstrServerConfFileName = "conf/server.conf";
 // IO service 除了server用之外，还可用作信号处理和定时器，不应该为server所独有
-typedef std::shared_ptr<asio::io_service>       IoServicePtr;
-typedef std::shared_ptr<asio::io_service::work> IoServiceWorkPtr;
 static IoServicePtr          g_pIoService;
 static IoServiceWorkPtr      g_pWork;
+static ThreadGroupPtr        g_pIoThrgrp;
+static ThreadGroupPtr        g_pWorkThrgrp;
 
 struct ServerHandler;
 typedef boost::network::http::server<ServerHandler> ServerType;
@@ -40,26 +46,40 @@ struct ServerHandler {
     }
 };
 
+// 正确的结束方式: gracefully cleanly terminate
+/*
+ * 1. server->stop();
+ * 2. io_service->stop();       g_pWork.reset(); g_pIoService->stop();
+ * 3. threadgroup->join_all()
+ */
 class APIServer {
 public:
     static const uint32_t       DEFAULT_N_IO_THREADS = 5;
     static const uint32_t       DEFAULT_N_WORK_THREADS = 100;
     static const uint16_t       DEFAULT_PORT = 9000;
 public:
-    using ThreadPool = boost::network::utils::thread_pool;
-    using ThreadGroup = boost::network::utils::thread_group;
-
 public:
-    explicit APIServer( const IoServicePtr &_pIoSrv ) 
+    explicit APIServer( const ServerType::options &_Opts,
+                        const IoServicePtr &_pIoSrv, 
+                        const ThreadGroupPtr &_pThrgrp ) 
                 : m_pServer(NULL)
                 , m_bRunning(false)
                 , m_nPort( DEFAULT_PORT )
                 , m_nIoThreads( DEFAULT_N_IO_THREADS )
                 , m_nWorkThreads( DEFAULT_N_WORK_THREADS )
+                , m_Options(std::move(_Opts))
                 , m_pIoService(_pIoSrv)
-    {}
+                , m_pIoThrgrp(_pThrgrp)
+    { 
+        LOG(INFO) << "APIServer default constructor";
+        options().address("0.0.0.0").reuse_address(true)
+                 .io_service(m_pIoService); 
+    }
 
-    explicit APIServer( const IoServicePtr &_pIoSrv, const char *confFileName );
+    explicit APIServer( const ServerType::options &_Opts,
+                        const IoServicePtr &_pIoSrv, 
+                        const ThreadGroupPtr &_pThrgrp, 
+                        const char *confFileName );
 
     ~APIServer()
     {
@@ -71,7 +91,7 @@ public:
     // void setHandler( ServerHandler *_pH )
     // { m_pHandler = _pH; }
     
-    void run( ServerHandler &handler );
+    void run();
     void stop();
 
     std::string toString() const
@@ -91,8 +111,8 @@ public:
     std::shared_ptr<asio::io_service> ioService()
     { return m_pIoService; }
 
-    std::shared_ptr<ThreadGroup> threadGroup()
-    { return m_pIoThrgrp; }
+    ServerType::options& options()
+    { return m_Options; }
 
     bool isRunning() const
     { return m_bRunning; }
@@ -104,6 +124,7 @@ private:
     uint32_t            m_nWorkThreads;
     bool                m_bRunning;
     ServerType*         m_pServer;
+    ServerType::options m_Options;
 
     std::shared_ptr<asio::io_service>           m_pIoService;
     std::shared_ptr<ThreadGroup>                m_pIoThrgrp;
@@ -111,8 +132,11 @@ private:
 
 static std::unique_ptr<APIServer>       g_pApiServer;
 
-APIServer::APIServer( const IoServicePtr &_pIoSrv, const char *confFileName ) 
-                : APIServer(_pIoSrv)
+APIServer::APIServer( const ServerType::options &_Opts,
+                      const IoServicePtr &_pIoSrv, 
+                      const ThreadGroupPtr &_pThrgrp, 
+                      const char *confFileName ) 
+                : APIServer(_Opts, _pIoSrv, _pThrgrp)
 {
     parse_config_file( confFileName, m_mapProperties );
 
@@ -137,26 +161,21 @@ APIServer::APIServer( const IoServicePtr &_pIoSrv, const char *confFileName )
             } // if
         } // if
     } // for
+
+    options().port(to_string(m_nPort))
+        .thread_pool(std::make_shared<ThreadPool>(m_nIoThreads, m_pIoService, m_pIoThrgrp));
 }
 
-void APIServer::run( ServerHandler &handler )
+void APIServer::run()
 {
     if ( m_bRunning ) {
         cerr << "APIServer already running!" << endl;
         return;
-    }
+    } // if
 
     m_bRunning = true;
 
-    m_pIoThrgrp = std::make_shared<ThreadGroup>();
-    
-    ServerType::options     opts(handler);
-    opts.address("0.0.0.0").port(to_string(m_nPort))
-        .io_service(m_pIoService)
-        .reuse_address(true)
-        .thread_pool(std::make_shared<ThreadPool>(m_nIoThreads, m_pIoService, m_pIoThrgrp));
-
-    m_pServer = new ServerType(opts);
+    m_pServer = new ServerType(m_Options);
     m_pServer->run();
 }
 
@@ -198,7 +217,12 @@ void init()
 {
     g_pIoService = std::make_shared<asio::io_service>();
     g_pWork = std::make_shared<asio::io_service::work>(std::ref(*g_pIoService));
-    g_pApiServer.reset( new APIServer(g_pIoService, g_cstrServerConfFileName) );
+    g_pIoThrgrp = std::make_shared<ThreadGroup>();
+    g_pWorkThrgrp = std::make_shared<ThreadGroup>();
+
+    ServerHandler handler;
+    ServerType::options opts(handler);
+    g_pApiServer.reset(new APIServer(opts, g_pIoService, g_pIoThrgrp, g_cstrServerConfFileName));
     cout << g_pApiServer->toString() << endl;
 }
 
@@ -227,13 +251,13 @@ int main( int argc, char **argv )
         signals.async_wait( [](const std::error_code& error, int signal)
                 { shutdown(); } );
 
-        ServerHandler handler;
-        g_pApiServer->run(handler);
+        g_pApiServer->run();
 
         cout << "Terminating server program..." << endl;
         g_pWork.reset();
         g_pIoService->stop();
-        g_pApiServer->threadGroup()->join_all();
+        g_pIoThrgrp->join_all();
+        g_pWorkThrgrp->join_all();
 
     } catch ( const std::exception &ex ) {
         cerr << "Exception caught by main: " << ex.what() << endl;
