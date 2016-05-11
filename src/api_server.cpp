@@ -1,5 +1,7 @@
 #include "api_server.h"
 #include <glog/logging.h>
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 
 
 namespace BigRLab {
@@ -8,8 +10,8 @@ std::unique_ptr<WorkQueue>   g_pWorkQueue;
 
 
 APIServer::APIServer( const ServerType::options &_Opts,
-        const IoServicePtr &_pIoSrv, 
-        const ThreadGroupPtr &_pThrgrp ) 
+        const IoServicePtr &_pIoSrv,
+        const ThreadGroupPtr &_pThrgrp )
       : m_pServer(NULL)
       , m_bRunning(false)
       , m_nPort( DEFAULT_PORT )
@@ -18,15 +20,15 @@ APIServer::APIServer( const ServerType::options &_Opts,
       , m_Options(std::move(_Opts))
       , m_pIoService(_pIoSrv)
       , m_pIoThrgrp(_pThrgrp)
-{ 
+{
     options().address("0.0.0.0").reuse_address(true)
-        .io_service(m_pIoService); 
+        .io_service(m_pIoService);
 }
 
 APIServer::APIServer( const ServerType::options &_Opts,
-                      const IoServicePtr &_pIoSrv, 
-                      const ThreadGroupPtr &_pThrgrp, 
-                      const char *confFileName ) 
+                      const IoServicePtr &_pIoSrv,
+                      const ThreadGroupPtr &_pThrgrp,
+                      const char *confFileName )
                 : APIServer(_Opts, _pIoSrv, _pThrgrp)
 {
     using namespace std;
@@ -36,19 +38,19 @@ APIServer::APIServer( const ServerType::options &_Opts,
     for (auto &v : m_mapProperties) {
         if ("port" == v.first) {
             if (!(read_from_string(*(v.second.begin()), m_nPort))) {
-                cout << "APIServer Invalid value " << *(v.second.begin()) 
+                cout << "APIServer Invalid value " << *(v.second.begin())
                         << " for port number, set to default." << endl;
                 m_nPort = DEFAULT_PORT;
             } // if
         } else if ("n_io_threads" == v.first) {
             if (!(read_from_string(*(v.second.begin()), m_nIoThreads))) {
-                cout << "APIServer Invalid value " << *(v.second.begin()) 
+                cout << "APIServer Invalid value " << *(v.second.begin())
                         << " for n_io_threads, set to default." << endl;
                 m_nIoThreads = DEFAULT_N_IO_THREADS;
             } // if
         } else if ("n_work_threads" == v.first) {
             if (!(read_from_string(*(v.second.begin()), m_nWorkThreads))) {
-                cout << "APIServer Invalid value " << *(v.second.begin()) 
+                cout << "APIServer Invalid value " << *(v.second.begin())
                         << " for n_work_threads, set to default." << endl;
                 m_nWorkThreads = DEFAULT_N_WORK_THREADS;
             } // if
@@ -83,25 +85,86 @@ void APIServer::stop()
 }
 
 void APIServerHandler::operator()(const ServerType::request& req,
-        ServerType::connection_ptr conn) 
+        ServerType::connection_ptr conn)
 {
     using namespace std;
 
-    cout << "Received client request from " << req.source << endl; // source 已经包含port
-    cout << "destination = " << req.destination << endl;  // 去除了URL port
-    cout << "method = " << req.method << endl;
-    cout << "http version = " << (uint32_t)(req.http_version_major) 
-        << "." << (uint32_t)(req.http_version_minor) << endl;
-    cout << "headers:" << endl;
-    for (const auto &header : req.headers)
-        cout << header.name << " = " << header.value << endl;
+    if (boost::to_lower_copy(req.method) != "post") {
+        LOG(ERROR) << "Wrong request from " << req.source << ", only accept POST.";
+        return;
+    } // if
 
-    SLEEP_SECONDS(1);
+    size_t nRead;
+    for (const auto &v : req.headers) {
+        if (boost::iequals(v.name, "Content-Type")) {
+            if (!boost::iequals(v.value, "application/json")) {
+                LOG(ERROR) << "Wrong request from " << req.source << ", only accept json content.";
+                return;
+            } // if
+        } else if (boost::iequals(v.name, "Content-Length")) {
+            nRead = boost::lexical_cast<size_t>(v.value);
+        } // if
+    } // for
 
-    stringstream os;
-    os << "Hello, from server thread " << THIS_THREAD_ID << endl << flush;
-    conn->write(os.str());
+    WorkItemPtr pWork( new WorkItem(req.source, req.destination, nRead) );
+    pWork->readBody(conn);
 }
+
+void WorkItem::readBody( const ServerType::connection_ptr &conn )
+{
+    using namespace std::placeholders;
+
+    if (left2Read)
+        conn->read( std::bind(&WorkItem::handleRead, shared_from_this()),
+               _1, _2, _3, _4 );
+}
+
+void WorkItem::handleRead(ServerType::connection::input_range &range, 
+        const boost::system::error_code &error, std::size_t size, 
+        const ServerType::connection_ptr &conn)
+{
+    if (error) {
+        LOG(ERROR) << "Read connection from " << source << " error: " << error;
+        return;
+    } // if
+
+    if (size > left2Read) {
+        LOG(ERROR) << "Invalid size " << size << " left2Read = " << left2Read;
+        return;
+    } // if
+
+    body.append(boost::begin(range), size);
+    left2Read -= size;
+    
+    if (0 == left2Read) {
+        g_pWorkQueue->push( shared_from_this() );
+    } else {
+        readBody( conn );
+    } // if
+}
+
+/*
+ * void APIServerHandler::operator()(const ServerType::request& req,
+ *         ServerType::connection_ptr conn)
+ * {
+ *     using namespace std;
+ *
+ *     cout << "Received client request from " << req.source << endl; // source 已经包含port
+ *     cout << "destination = " << req.destination << endl;  // 去除了URL port
+ *     cout << "method = " << req.method << endl;
+ *     cout << "http version = " << (uint32_t)(req.http_version_major)
+ *         << "." << (uint32_t)(req.http_version_minor) << endl;
+ *     cout << "headers:" << endl;
+ *     for (const auto &header : req.headers)
+ *         cout << header.name << " = " << header.value << endl;
+ *
+ *     SLEEP_SECONDS(1);
+ *
+ *     stringstream os;
+ *     os << "Hello, from server thread " << THIS_THREAD_ID << endl << flush;
+ *     conn->write(os.str());
+ * }
+ */
 
 
 } // namespace BigRLab

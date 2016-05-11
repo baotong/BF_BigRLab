@@ -10,6 +10,7 @@
 #include <functional>
 #include <boost/thread.hpp>
 #include <boost/thread/lockable_adapter.hpp>
+#include <boost/thread/condition_variable.hpp>
 #include <boost/date_time.hpp>
 
 #define THIS_THREAD_ID        boost::this_thread::get_id()
@@ -17,6 +18,50 @@
 #define SLEEP_MILLISECONDS(x) boost::this_thread::sleep_for(boost::chrono::milliseconds(x))
 
 namespace BigRLab {
+
+template < typename T >
+class SharedQueue : std::deque<T> {
+public:
+    SharedQueue( std::size_t _MaxSize = UINT_MAX ) 
+                : maxSize(_MaxSize) {}
+
+    bool full() const { return this->size() >= maxSize; }
+
+    void push( const T &elem )
+    {
+        boost::unique_lock<boost::mutex> lk(lock);
+
+        while( this->full() )
+            condWr.wait( lk );
+
+        this->push_back( elem );
+
+        lk.unlock();
+        condRd.notify_one();
+    }
+
+    T pop()
+    {
+        boost::unique_lock<boost::mutex> lk(lock);
+        
+        while( this->empty() )
+            condRd.wait( lk );
+
+        T retval = this->front();
+        this->pop_front();
+
+        lk.unlock();
+        condWr.notify_one();
+
+        return retval;
+    }
+
+protected:
+    std::size_t                   maxSize;
+    boost::mutex                  lock;
+    boost::condition_variable     condRd;
+    boost::condition_variable     condWr;
+};
 
 struct InvalidInput : std::exception {
     explicit InvalidInput( const std::string &what )

@@ -94,27 +94,28 @@ private:
 };
 
 struct WorkItem : std::enable_shared_from_this<WorkItem> {
-    WorkItem( std::size_t _n2Read ) : left2Read(_n2Read) 
-    { content.reserve(left2Read); }
+    WorkItem(const std::string &_Src, const std::string &_Dest, std::size_t nRead) 
+            : source(_Src)
+            , dest(_Dest)
+            , left2Read(nRead) 
+    { body.reserve(nRead); }
+
+    void readBody( const ServerType::connection_ptr &conn );
 
     void handleRead(ServerType::connection::input_range &range, 
-            const boost::system::error_code &error, size_t size, 
-            const ServerType::connection_ptr &conn)
-    {
-        
-    }
+            const boost::system::error_code &error, std::size_t size, 
+            const ServerType::connection_ptr &conn);
 
-    std::string     content;
+    std::string     source;
+    std::string     dest;
+    std::string     body;
     std::size_t     left2Read;
 };
 
+typedef std::shared_ptr<WorkItem>   WorkItemPtr;
 
-class WorkQueue {
-public:
 
-private:
-    std::deque<WorkItem*>   m_Queue;
-};
+typedef SharedQueue<WorkItemPtr>    WorkQueue;
 
 extern std::unique_ptr<WorkQueue>   g_pWorkQueue;
 
