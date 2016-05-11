@@ -5,9 +5,10 @@
 #include <map>
 #include <set>
 #include <deque>
-#include <memory>
+// #include <memory>
 #include <sstream>
 #include <functional>
+#include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/lockable_adapter.hpp>
 #include <boost/thread/condition_variable.hpp>

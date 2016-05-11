@@ -6,7 +6,7 @@
 
 namespace BigRLab {
 
-std::unique_ptr<WorkQueue>   g_pWorkQueue;
+boost::shared_ptr<WorkQueue>   g_pWorkQueue;
 
 
 APIServer::APIServer( const ServerType::options &_Opts,
@@ -58,7 +58,7 @@ APIServer::APIServer( const ServerType::options &_Opts,
     } // for
 
     options().port(to_string(m_nPort))
-        .thread_pool(std::make_shared<ThreadPool>(m_nIoThreads, m_pIoService, m_pIoThrgrp));
+        .thread_pool(boost::make_shared<ThreadPool>(m_nIoThreads, m_pIoService, m_pIoThrgrp));
 }
 
 void APIServer::run()
@@ -91,6 +91,7 @@ void APIServerHandler::operator()(const ServerType::request& req,
 
     if (boost::to_lower_copy(req.method) != "post") {
         LOG(ERROR) << "Wrong request from " << req.source << ", only accept POST.";
+        // TODO set conn error
         return;
     } // if
 
@@ -99,6 +100,7 @@ void APIServerHandler::operator()(const ServerType::request& req,
         if (boost::iequals(v.name, "Content-Type")) {
             if (!boost::iequals(v.value, "application/json")) {
                 LOG(ERROR) << "Wrong request from " << req.source << ", only accept json content.";
+                // TODO set conn error
                 return;
             } // if
         } else if (boost::iequals(v.name, "Content-Length")) {
@@ -112,16 +114,16 @@ void APIServerHandler::operator()(const ServerType::request& req,
 
 void WorkItem::readBody( const ServerType::connection_ptr &conn )
 {
-    using namespace std::placeholders;
+    using namespace std;
 
     if (left2Read)
-        conn->read( std::bind(&WorkItem::handleRead, shared_from_this()),
-               _1, _2, _3, _4 );
+        conn->read( std::bind(&WorkItem::handleRead, shared_from_this(),
+               placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4) );
 }
 
-void WorkItem::handleRead(ServerType::connection::input_range &range, 
-        const boost::system::error_code &error, std::size_t size, 
-        const ServerType::connection_ptr &conn)
+void WorkItem::handleRead(ServerType::connection::input_range range, 
+        boost::system::error_code error, std::size_t size, 
+        ServerType::connection_ptr conn)
 {
     if (error) {
         LOG(ERROR) << "Read connection from " << source << " error: " << error;
@@ -138,9 +140,12 @@ void WorkItem::handleRead(ServerType::connection::input_range &range,
     
     if (0 == left2Read) {
         g_pWorkQueue->push( shared_from_this() );
+        LOG(INFO) << "Received from " << source << " msg: " << body;
     } else {
         readBody( conn );
     } // if
+
+    conn->set_status(ServerType::connection::ok);
 }
 
 /*

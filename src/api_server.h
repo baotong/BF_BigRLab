@@ -2,21 +2,20 @@
 #define _API_SERVER_H_
 
 #include "service_manager.h"
-#include <boost/network/utils/thread_group.hpp>
 #include <boost/network/include/http/server.hpp>
 #include <boost/network/uri.hpp>
-#include <asio.hpp>
+#include <boost/asio.hpp>
 
 namespace BigRLab {
 
 using ThreadPool = boost::network::utils::thread_pool;
-using ThreadGroup = boost::network::utils::thread_group;
-typedef std::shared_ptr<ThreadGroup>            ThreadGroupPtr;
-typedef std::shared_ptr<asio::io_service>       IoServicePtr;
-typedef std::shared_ptr<asio::io_service::work> IoServiceWorkPtr;
+using ThreadGroup = boost::thread_group;
+typedef boost::shared_ptr<ThreadGroup>                   ThreadGroupPtr;
+typedef boost::shared_ptr<boost::asio::io_service>       IoServicePtr;
+typedef boost::shared_ptr<boost::asio::io_service::work> IoServiceWorkPtr;
 
 struct APIServerHandler;
-typedef boost::network::http::server<APIServerHandler> ServerType;
+typedef boost::network::http::async_server<APIServerHandler> ServerType;
 
 struct APIServerHandler {
     void operator()(const ServerType::request& req,
@@ -71,7 +70,7 @@ public:
         return os.str();
     }
 
-    std::shared_ptr<asio::io_service> ioService()
+    IoServicePtr ioService()
     { return m_pIoService; }
 
     ServerType::options& options()
@@ -89,11 +88,11 @@ private:
     ServerType*         m_pServer;
     ServerType::options m_Options;
 
-    std::shared_ptr<asio::io_service>           m_pIoService;
-    std::shared_ptr<ThreadGroup>                m_pIoThrgrp;
+    IoServicePtr        m_pIoService;
+    ThreadGroupPtr      m_pIoThrgrp;
 };
 
-struct WorkItem : std::enable_shared_from_this<WorkItem> {
+struct WorkItem : boost::enable_shared_from_this<WorkItem> {
     WorkItem(const std::string &_Src, const std::string &_Dest, std::size_t nRead) 
             : source(_Src)
             , dest(_Dest)
@@ -102,9 +101,9 @@ struct WorkItem : std::enable_shared_from_this<WorkItem> {
 
     void readBody( const ServerType::connection_ptr &conn );
 
-    void handleRead(ServerType::connection::input_range &range, 
-            const boost::system::error_code &error, std::size_t size, 
-            const ServerType::connection_ptr &conn);
+    void handleRead(ServerType::connection::input_range range, 
+            boost::system::error_code error, std::size_t size, 
+            ServerType::connection_ptr conn);
 
     std::string     source;
     std::string     dest;
@@ -112,12 +111,12 @@ struct WorkItem : std::enable_shared_from_this<WorkItem> {
     std::size_t     left2Read;
 };
 
-typedef std::shared_ptr<WorkItem>   WorkItemPtr;
+typedef boost::shared_ptr<WorkItem>   WorkItemPtr;
 
 
 typedef SharedQueue<WorkItemPtr>    WorkQueue;
 
-extern std::unique_ptr<WorkQueue>   g_pWorkQueue;
+extern boost::shared_ptr<WorkQueue>   g_pWorkQueue;
 
 } // namespace BigRLab
 

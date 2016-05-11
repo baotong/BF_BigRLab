@@ -12,7 +12,7 @@ static IoServicePtr          g_pIoService;
 static IoServiceWorkPtr      g_pWork;
 static ThreadGroupPtr        g_pIoThrgrp;
 static ThreadGroupPtr        g_pWorkThrgrp;
-static std::unique_ptr<APIServer>       g_pApiServer;
+static boost::shared_ptr<APIServer>       g_pApiServer;
 
 namespace Test {
 
@@ -42,10 +42,10 @@ namespace Test {
 static
 void init()
 {
-    g_pIoService = std::make_shared<asio::io_service>();
-    g_pWork = std::make_shared<asio::io_service::work>(std::ref(*g_pIoService));
-    g_pIoThrgrp = std::make_shared<ThreadGroup>();
-    g_pWorkThrgrp = std::make_shared<ThreadGroup>();
+    g_pIoService = boost::make_shared<boost::asio::io_service>();
+    g_pWork = boost::make_shared<boost::asio::io_service::work>(std::ref(*g_pIoService));
+    g_pIoThrgrp = boost::make_shared<ThreadGroup>();
+    g_pWorkThrgrp = boost::make_shared<ThreadGroup>();
     g_pWorkQueue.reset( new WorkQueue );
 
     APIServerHandler handler;
@@ -80,8 +80,8 @@ int main( int argc, char **argv )
         
         init();
 
-        asio::signal_set signals(*g_pIoService, SIGINT, SIGTERM);
-        signals.async_wait( [](const std::error_code& error, int signal)
+        boost::asio::signal_set signals(*g_pIoService, SIGINT, SIGTERM);
+        signals.async_wait( [](const boost::system::error_code& error, int signal)
                 { shutdown(); } );
 
         run_server();
