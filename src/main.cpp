@@ -173,6 +173,7 @@ int main( int argc, char **argv )
         start_shell();
 
         cout << "Terminating server program..." << endl;
+        stop_server();
         g_pWork.reset();
         g_pIoService->stop();
         g_pIoThrgrp->join_all();
