@@ -6,7 +6,7 @@
 
 namespace BigRLab {
 
-boost::shared_ptr<WorkQueue>   g_pWorkQueue;
+boost::shared_ptr< WorkManager<WorkItem> >   g_pWorkMgr;
 
 
 APIServer::APIServer( const ServerType::options &_Opts,
@@ -139,7 +139,7 @@ void WorkItem::handleRead(ServerType::connection::input_range range,
     left2Read -= size;
     
     if (0 == left2Read) {
-        g_pWorkQueue->push( shared_from_this() );
+        g_pWorkMgr->addWork( shared_from_this() );
         LOG(INFO) << "Received from " << source << " msg: " << body;
     } else {
         readBody( conn );

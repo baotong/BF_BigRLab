@@ -1,7 +1,7 @@
 #ifndef _API_SERVER_H_
 #define _API_SERVER_H_
 
-#include "service_manager.h"
+#include "common_utils.h"
 #include <boost/network/include/http/server.hpp>
 #include <boost/network/uri.hpp>
 #include <boost/asio.hpp>
@@ -79,6 +79,9 @@ public:
     bool isRunning() const
     { return m_bRunning; }
 
+    uint32_t nWorkThreads() const
+    { return m_nWorkThreads; }
+
 private:
     PropertyTable       m_mapProperties;
     uint16_t            m_nPort;
@@ -105,6 +108,8 @@ struct WorkItem : boost::enable_shared_from_this<WorkItem> {
             boost::system::error_code error, std::size_t size, 
             ServerType::connection_ptr conn);
 
+    void run() {}
+
     std::string     source;
     std::string     dest;
     std::string     body;
@@ -114,9 +119,50 @@ struct WorkItem : boost::enable_shared_from_this<WorkItem> {
 typedef boost::shared_ptr<WorkItem>   WorkItemPtr;
 
 
-typedef SharedQueue<WorkItemPtr>    WorkQueue;
+template < typename WorkType, typename Pointer = boost::shared_ptr<WorkType> >
+class WorkManager {
+public:
+    explicit WorkManager( std::size_t _nWorker )
+            : m_nWorkThreads(_nWorker) {}
 
-extern boost::shared_ptr<WorkQueue>   g_pWorkQueue;
+    void start()
+    {
+        for (std::size_t i = 0; i < m_nWorkThreads; ++i)
+            m_Thrgrp.create_thread( 
+                    std::bind(&WorkManager<WorkType, Pointer>::run, this) );
+    }
+
+    void stop()
+    {
+        for (std::size_t i = 0; i < 2 * m_nWorkThreads; ++i)
+            m_WorkQueue.push( Pointer() );
+        m_Thrgrp.join_all();
+        m_WorkQueue.clear();
+    }
+
+    void addWork( const Pointer &pWork )
+    { m_WorkQueue.push(pWork); }
+
+private:
+    void run()
+    {
+        while (true) {
+            Pointer pWork = m_WorkQueue.pop();
+            // 空指针表示结束工作线程
+            if (!pWork)
+                return;
+            pWork->run();
+        } // while
+    }
+
+private:
+    SharedQueue<Pointer>    m_WorkQueue;
+    boost::thread_group     m_Thrgrp;
+    std::size_t             m_nWorkThreads;
+};
+
+
+extern boost::shared_ptr< WorkManager<WorkItem> >   g_pWorkMgr;
 
 } // namespace BigRLab
 

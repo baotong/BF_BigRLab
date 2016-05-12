@@ -1,4 +1,5 @@
 #include "api_server.h"
+#include "service_manager.h"
 #include <glog/logging.h>
 
 
@@ -11,7 +12,6 @@ static const char            *g_cstrServerConfFileName = "conf/server.conf";
 static IoServicePtr          g_pIoService;
 static IoServiceWorkPtr      g_pWork;
 static ThreadGroupPtr        g_pIoThrgrp;
-static ThreadGroupPtr        g_pWorkThrgrp;
 static boost::shared_ptr<APIServer>       g_pApiServer;
 
 namespace Test {
@@ -45,17 +45,16 @@ void init()
     g_pIoService = boost::make_shared<boost::asio::io_service>();
     g_pWork = boost::make_shared<boost::asio::io_service::work>(std::ref(*g_pIoService));
     g_pIoThrgrp = boost::make_shared<ThreadGroup>();
-    g_pWorkThrgrp = boost::make_shared<ThreadGroup>();
-    g_pWorkQueue.reset( new WorkQueue );
 
     APIServerHandler handler;
     ServerType::options opts(handler);
     g_pApiServer.reset(new APIServer(opts, g_pIoService, g_pIoThrgrp, g_cstrServerConfFileName));
+    g_pWorkMgr.reset(new WorkManager<WorkItem>(g_pApiServer->nWorkThreads()) );
     cout << g_pApiServer->toString() << endl;
 }
 
 static
-void shutdown() 
+void stop_server() 
 {
     if (g_pApiServer && g_pApiServer->isRunning())
         g_pApiServer->stop();
@@ -65,8 +64,9 @@ void shutdown()
 }
 
 static
-void run_server()
+void start_server()
 {
+    g_pWorkMgr->start();
     g_pApiServer->run();
 }
 
@@ -82,15 +82,15 @@ int main( int argc, char **argv )
 
         boost::asio::signal_set signals(*g_pIoService, SIGINT, SIGTERM);
         signals.async_wait( [](const boost::system::error_code& error, int signal)
-                { shutdown(); } );
+                { stop_server(); } );
 
-        run_server();
+        start_server();
 
         cout << "Terminating server program..." << endl;
         g_pWork.reset();
         g_pIoService->stop();
         g_pIoThrgrp->join_all();
-        g_pWorkThrgrp->join_all();
+        g_pWorkMgr->stop();
 
     } catch ( const std::exception &ex ) {
         cerr << "Exception caught by main: " << ex.what() << endl;

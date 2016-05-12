@@ -5,7 +5,6 @@
 #include <map>
 #include <set>
 #include <deque>
-// #include <memory>
 #include <sstream>
 #include <functional>
 #include <boost/smart_ptr.hpp>
@@ -17,23 +16,17 @@
 #define THIS_THREAD_ID        boost::this_thread::get_id()
 #define SLEEP_SECONDS(x)      boost::this_thread::sleep_for(boost::chrono::seconds(x))
 #define SLEEP_MILLISECONDS(x) boost::this_thread::sleep_for(boost::chrono::milliseconds(x))
+#define SPACES                " \t\f\r\v\n"
 
 namespace BigRLab {
 
 template < typename T >
-class SharedQueue : std::deque<T> {
+class SharedQueue : private std::deque<T> {
+    typedef typename std::deque<T>   BaseType;
 public:
-    SharedQueue( std::size_t _MaxSize = UINT_MAX ) 
-                : maxSize(_MaxSize) {}
-
-    bool full() const { return this->size() >= maxSize; }
-
     void push( const T &elem )
     {
         boost::unique_lock<boost::mutex> lk(lock);
-
-        while( this->full() )
-            condWr.wait( lk );
 
         this->push_back( elem );
 
@@ -51,17 +44,18 @@ public:
         T retval = this->front();
         this->pop_front();
 
-        lk.unlock();
-        condWr.notify_one();
-
         return retval;
     }
 
+    void clear()
+    {
+        boost::unique_lock<boost::mutex> lk(lock);
+        BaseType::clear();
+    }
+
 protected:
-    std::size_t                   maxSize;
     boost::mutex                  lock;
     boost::condition_variable     condRd;
-    boost::condition_variable     condWr;
 };
 
 struct InvalidInput : std::exception {
@@ -109,7 +103,7 @@ std::string& strip_string( std::string &s )
 {
     using namespace std;
 
-    static const char *SPACES = " \t\f\r\v\n";
+    // static const char *SPACES = " \t\f\r\v\n";
 
     string::size_type pEnd = s.find_last_not_of( SPACES );
     if (string::npos != pEnd) {

@@ -2,7 +2,7 @@
 #define _SERVICE_H_
 
 #include <memory>
-#include "common_utils.h"
+#include "api_server.h"
 
 
 namespace BigRLab {
@@ -17,7 +17,8 @@ public:
 
     virtual bool handleCommand( std::stringstream &stream ) = 0;
     // TODO  use json
-    virtual bool handleRequest( std::string &req ) = 0;
+    virtual bool handleRequest(const ServerType::request& req,
+                               ServerType::connection_ptr conn) = 0;
 
 protected:
     PropertyTable& properties()
