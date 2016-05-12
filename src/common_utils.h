@@ -138,6 +138,9 @@ std::string to_string( const T &value )
     return os.str();
 }
 
+template< typename StreamType >
+bool bad_stream( const StreamType &stream )
+{ return (stream.fail() || stream.bad()); }
 
 typedef std::map< std::string, std::set<std::string> > PropertyTable;
 

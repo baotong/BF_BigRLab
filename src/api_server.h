@@ -96,10 +96,12 @@ private:
 };
 
 struct WorkItem : boost::enable_shared_from_this<WorkItem> {
-    WorkItem(const std::string &_Src, const std::string &_Dest, std::size_t nRead) 
-            : source(_Src)
-            , dest(_Dest)
-            , left2Read(nRead) 
+    WorkItem(const ServerType::request &_Req, 
+             const ServerType::connection_ptr &_Conn, 
+             std::size_t nRead) 
+                : req(_Req)
+                , conn(_Conn)
+                , left2Read(nRead) 
     { body.reserve(nRead); }
 
     void readBody( const ServerType::connection_ptr &conn );
@@ -108,10 +110,10 @@ struct WorkItem : boost::enable_shared_from_this<WorkItem> {
             boost::system::error_code error, std::size_t size, 
             ServerType::connection_ptr conn);
 
-    void run() {}
+    void run(); 
 
-    std::string     source;
-    std::string     dest;
+    ServerType::request        req;
+    ServerType::connection_ptr conn;
     std::string     body;
     std::size_t     left2Read;
 };
@@ -160,6 +162,16 @@ private:
     boost::thread_group     m_Thrgrp;
     std::size_t             m_nWorkThreads;
 };
+
+inline
+void send_response(const ServerType::connection_ptr &conn,
+                   ServerType::connection::status_t status,
+                   const std::string &content = "")
+{
+    conn->set_status(status);
+    if (!content.empty())
+        conn->write(content);
+}
 
 
 extern boost::shared_ptr< WorkManager<WorkItem> >   g_pWorkMgr;

@@ -15,10 +15,8 @@ public:
 public:
     virtual ~Service() = default;
 
-    virtual bool handleCommand( std::stringstream &stream ) = 0;
-    // TODO  use json
-    virtual bool handleRequest(const ServerType::request& req,
-                               ServerType::connection_ptr conn) = 0;
+    virtual void handleCommand( std::stringstream &stream ) = 0;
+    virtual void handleRequest(const WorkItemPtr &pWork) = 0;
 
 protected:
     PropertyTable& properties()

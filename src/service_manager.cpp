@@ -1,5 +1,6 @@
 #include "service_manager.h"
 #include <dlfcn.h>
+#include <glog/logging.h>
 
 // 要求函数指针名和库中的函数sym名一样
 #define LOAD_FUNC( handle, name ) do {                  \
@@ -33,6 +34,8 @@ void ServiceManager::addService( const char *confFileName )
     using namespace std;
 
     PropertyTable   srvPpt;
+
+    // LOG(INFO) << "ServiceManager::addService() confFileName = " << confFileName;
 
     parse_config_file( confFileName, srvPpt );
 
