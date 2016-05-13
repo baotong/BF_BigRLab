@@ -104,7 +104,7 @@ void APIServer::stop()
 
 void APIServerHandler::operator()(const ServerType::request& req,
         ServerType::connection_ptr conn)
-{
+try {
     using namespace std;
 
     Test::print_request(req);
@@ -124,12 +124,18 @@ void APIServerHandler::operator()(const ServerType::request& req,
                 return;
             } // if
         } else if (boost::iequals(v.name, "Content-Length")) {
-            nRead = boost::lexical_cast<size_t>(v.value);
+            // nRead = boost::lexical_cast<size_t>(v.value);
+            if (!boost::conversion::try_lexical_convert(v.value, nRead)) {
+                send_response(conn, ServerType::connection::bad_request, "Content-Length not valid");
+                return;
+            } // if
         } // if
     } // for
 
     WorkItemPtr pWork( new WorkItem(req, conn, nRead) );
     pWork->readBody(conn);
+} catch (const std::exception &ex) {
+    LOG(ERROR) << "APIServerHandler exception " << ex.what();
 }
 
 void WorkItem::readBody( const ServerType::connection_ptr &conn )
@@ -139,6 +145,8 @@ void WorkItem::readBody( const ServerType::connection_ptr &conn )
     if (left2Read)
         conn->read( std::bind(&WorkItem::handleRead, shared_from_this(),
                placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4) );
+    else
+        g_pWorkMgr->addWork( shared_from_this() );
 }
 
 void WorkItem::handleRead(ServerType::connection::input_range range, 
@@ -158,14 +166,7 @@ void WorkItem::handleRead(ServerType::connection::input_range range,
     body.append(boost::begin(range), size);
     left2Read -= size;
     
-    if (0 == left2Read) {
-        g_pWorkMgr->addWork( shared_from_this() );
-        // LOG(INFO) << "Received from " << req.source << " msg: " << body;
-    } else {
-        readBody( conn );
-    } // if
-
-    conn->set_status(ServerType::connection::ok);
+    readBody( conn );
 }
 
 void WorkItem::run()

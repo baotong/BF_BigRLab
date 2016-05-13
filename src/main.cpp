@@ -1,6 +1,5 @@
 #include "api_server.h"
 #include "service_manager.h"
-#include <glog/logging.h>
 
 
 using namespace BigRLab;
@@ -72,7 +71,12 @@ void start_server()
     g_pWorkMgr->start();
 
     g_pRunServerThread.reset(new boost::thread([]{
-                g_pApiServer->run();
+                try {
+                    g_pApiServer->run();
+                } catch ( const std::exception &ex ) {
+                    LOG(ERROR) << "Start server fail " << ex.what();
+                    g_pApiServer->stop();
+                } // try
         }));
 }
 
@@ -116,6 +120,13 @@ void start_shell()
         if (bad_stream(stream)) \
             INVALID_CMD }
 
+    // wait server start
+    for (int i = 0; i < 20; ++i) {
+        SLEEP_MILLISECONDS(100);
+        if (g_pApiServer->isRunning())
+            break;
+    } // for
+
     while (true) {
         if (!g_pApiServer->isRunning()) {
             cout << "Server has been shutdown!" << endl;
@@ -125,6 +136,9 @@ void start_shell()
         cout << "\nBigRLab: " << flush;
         if (!getline(cin, line))
             break;
+
+        if (line.empty())
+            continue;
 
         stringstream stream(line);
         string cmd1, cmd2;

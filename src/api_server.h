@@ -153,7 +153,11 @@ private:
             // 空指针表示结束工作线程
             if (!pWork)
                 return;
-            pWork->run();
+            try {
+                pWork->run();
+            } catch (const std::exception &ex) {
+                LOG(ERROR) << "Run service exception " << ex.what();
+            } // try
         } // while
     }
 

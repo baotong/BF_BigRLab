@@ -12,6 +12,7 @@
 #include <boost/thread/lockable_adapter.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/date_time.hpp>
+#include <glog/logging.h>
 
 #define THIS_THREAD_ID        boost::this_thread::get_id()
 #define SLEEP_SECONDS(x)      boost::this_thread::sleep_for(boost::chrono::seconds(x))

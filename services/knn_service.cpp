@@ -9,7 +9,8 @@ Service* create_instance()
 void KnnService::handleRequest(const BigRLab::WorkItemPtr &pWork)
 {
     cout << "Service knn received request: " << pWork->body << endl;
-    pWork->conn->write("Service knn running...\n");
+    // throw InvalidInput("Service knn test exception.");
+    send_response(pWork->conn, ServerType::connection::ok, "Service knn running...\n");
 }
 
 void KnnService::handleCommand( std::stringstream &stream )
