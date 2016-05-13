@@ -102,12 +102,13 @@ void APIServer::stop()
     // m_pIoThrgrp->join_all();
 }
 
+// run in io thread
 void APIServerHandler::operator()(const ServerType::request& req,
         ServerType::connection_ptr conn)
 try {
     using namespace std;
 
-    Test::print_request(req);
+    // Test::print_request(req);
 
     if (!boost::iequals(req.method, "POST")) {
         LOG(ERROR) << "Wrong request from " << req.source << ", only accept POST.";
@@ -149,6 +150,7 @@ void WorkItem::readBody( const ServerType::connection_ptr &conn )
         g_pWorkMgr->addWork( shared_from_this() );
 }
 
+// run in io thread
 void WorkItem::handleRead(ServerType::connection::input_range range, 
         boost::system::error_code error, std::size_t size, 
         ServerType::connection_ptr conn)
@@ -169,6 +171,7 @@ void WorkItem::handleRead(ServerType::connection::input_range range,
     readBody( conn );
 }
 
+// run in work thread
 void WorkItem::run()
 {
     using namespace std;
