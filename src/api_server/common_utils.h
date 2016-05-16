@@ -21,6 +21,7 @@
 
 namespace BigRLab {
 
+// TODO use boost::lockfree queue instead
 template < typename T >
 class SharedQueue : private std::deque<T> {
     typedef typename std::deque<T>   BaseType;

@@ -2,7 +2,7 @@ all: knn_service.so
 
 CC = c++
 
-INCLUDE = -I../src
+INCLUDE = -I../src/api_server
 
 # LIBS = -lcppnetlib-uri -lcppnetlib-client-connections -lcppnetlib-server-parsers -lssl -lcrypto
 

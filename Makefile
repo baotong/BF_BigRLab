@@ -1,4 +1,4 @@
-all: server.bin
+all: apiserver.bin
 
 CC = c++
 
@@ -9,9 +9,9 @@ LIBS = -lcppnetlib-uri -lcppnetlib-client-connections -lcppnetlib-server-parsers
 
 FLAGS = -std=c++11 -pthread -g -O3
 
-SRC = $(shell find src -type f -name '*.cpp')
+SRC = $(shell find src/api_server -type f -name '*.cpp')
 
-server.bin:
+apiserver.bin:
 	$(CC) -o $@ $(SRC) $(LIBS) $(FLAGS)
 
 clean:
