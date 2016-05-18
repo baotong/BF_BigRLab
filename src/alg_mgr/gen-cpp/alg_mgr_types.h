@@ -76,9 +76,10 @@ inline std::ostream& operator<<(std::ostream& out, const InvalidRequest& obj)
 }
 
 typedef struct _AlgSvrInfo__isset {
-  _AlgSvrInfo__isset() : addr(false), port(false) {}
+  _AlgSvrInfo__isset() : addr(false), port(false), nWorkThread(false) {}
   bool addr :1;
   bool port :1;
+  bool nWorkThread :1;
 } _AlgSvrInfo__isset;
 
 class AlgSvrInfo {
@@ -88,18 +89,21 @@ class AlgSvrInfo {
   AlgSvrInfo(AlgSvrInfo&&);
   AlgSvrInfo& operator=(const AlgSvrInfo&);
   AlgSvrInfo& operator=(AlgSvrInfo&&);
-  AlgSvrInfo() : addr(), port(0) {
+  AlgSvrInfo() : addr(), port(0), nWorkThread(0) {
   }
 
   virtual ~AlgSvrInfo() throw();
   std::string addr;
   int16_t port;
+  int32_t nWorkThread;
 
   _AlgSvrInfo__isset __isset;
 
   void __set_addr(const std::string& val);
 
   void __set_port(const int16_t val);
+
+  void __set_nWorkThread(const int32_t val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);

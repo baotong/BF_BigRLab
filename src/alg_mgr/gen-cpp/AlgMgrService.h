@@ -21,7 +21,6 @@ namespace BigRLab {
 class AlgMgrServiceIf {
  public:
   virtual ~AlgMgrServiceIf() {}
-  virtual int16_t availablePort() = 0;
   virtual int32_t addSvr(const std::string& algName, const AlgSvrInfo& svrInfo) = 0;
   virtual void rmSvr(const std::string& algName, const AlgSvrInfo& svrInfo) = 0;
   virtual void informAlive(const std::string& algName, const AlgSvrInfo& svrInfo) = 0;
@@ -55,10 +54,6 @@ class AlgMgrServiceIfSingletonFactory : virtual public AlgMgrServiceIfFactory {
 class AlgMgrServiceNull : virtual public AlgMgrServiceIf {
  public:
   virtual ~AlgMgrServiceNull() {}
-  int16_t availablePort() {
-    int16_t _return = 0;
-    return _return;
-  }
   int32_t addSvr(const std::string& /* algName */, const AlgSvrInfo& /* svrInfo */) {
     int32_t _return = 0;
     return _return;
@@ -72,86 +67,6 @@ class AlgMgrServiceNull : virtual public AlgMgrServiceIf {
   void getAlgSvrList(std::vector<AlgSvrInfo> & /* _return */, const std::string& /* name */) {
     return;
   }
-};
-
-
-class AlgMgrService_availablePort_args {
- public:
-
-  AlgMgrService_availablePort_args(const AlgMgrService_availablePort_args&);
-  AlgMgrService_availablePort_args(AlgMgrService_availablePort_args&&);
-  AlgMgrService_availablePort_args& operator=(const AlgMgrService_availablePort_args&);
-  AlgMgrService_availablePort_args& operator=(AlgMgrService_availablePort_args&&);
-  AlgMgrService_availablePort_args() {
-  }
-
-  virtual ~AlgMgrService_availablePort_args() throw();
-
-  template <class Protocol_>
-  uint32_t read(Protocol_* iprot);
-  template <class Protocol_>
-  uint32_t write(Protocol_* oprot) const;
-
-};
-
-
-class AlgMgrService_availablePort_pargs {
- public:
-
-
-  virtual ~AlgMgrService_availablePort_pargs() throw();
-
-  template <class Protocol_>
-  uint32_t write(Protocol_* oprot) const;
-
-};
-
-typedef struct _AlgMgrService_availablePort_result__isset {
-  _AlgMgrService_availablePort_result__isset() : success(false) {}
-  bool success :1;
-} _AlgMgrService_availablePort_result__isset;
-
-class AlgMgrService_availablePort_result {
- public:
-
-  AlgMgrService_availablePort_result(const AlgMgrService_availablePort_result&);
-  AlgMgrService_availablePort_result(AlgMgrService_availablePort_result&&);
-  AlgMgrService_availablePort_result& operator=(const AlgMgrService_availablePort_result&);
-  AlgMgrService_availablePort_result& operator=(AlgMgrService_availablePort_result&&);
-  AlgMgrService_availablePort_result() : success(0) {
-  }
-
-  virtual ~AlgMgrService_availablePort_result() throw();
-  int16_t success;
-
-  _AlgMgrService_availablePort_result__isset __isset;
-
-  void __set_success(const int16_t val);
-
-  template <class Protocol_>
-  uint32_t read(Protocol_* iprot);
-  template <class Protocol_>
-  uint32_t write(Protocol_* oprot) const;
-
-};
-
-typedef struct _AlgMgrService_availablePort_presult__isset {
-  _AlgMgrService_availablePort_presult__isset() : success(false) {}
-  bool success :1;
-} _AlgMgrService_availablePort_presult__isset;
-
-class AlgMgrService_availablePort_presult {
- public:
-
-
-  virtual ~AlgMgrService_availablePort_presult() throw();
-  int16_t* success;
-
-  _AlgMgrService_availablePort_presult__isset __isset;
-
-  template <class Protocol_>
-  uint32_t read(Protocol_* iprot);
-
 };
 
 typedef struct _AlgMgrService_addSvr_args__isset {
@@ -497,9 +412,6 @@ class AlgMgrServiceClientT : virtual public AlgMgrServiceIf {
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> getOutputProtocol() {
     return this->poprot_;
   }
-  int16_t availablePort();
-  void send_availablePort();
-  int16_t recv_availablePort();
   int32_t addSvr(const std::string& algName, const AlgSvrInfo& svrInfo);
   void send_addSvr(const std::string& algName, const AlgSvrInfo& svrInfo);
   int32_t recv_addSvr();
@@ -539,8 +451,6 @@ class AlgMgrServiceProcessorT : public ::apache::thrift::TDispatchProcessorT<Pro
   };
   typedef std::map<std::string, ProcessFunctions> ProcessMap;
   ProcessMap processMap_;
-  void process_availablePort(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_availablePort(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
   void process_addSvr(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_addSvr(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
   void process_rmSvr(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
@@ -552,9 +462,6 @@ class AlgMgrServiceProcessorT : public ::apache::thrift::TDispatchProcessorT<Pro
  public:
   AlgMgrServiceProcessorT(boost::shared_ptr<AlgMgrServiceIf> iface) :
     iface_(iface) {
-    processMap_["availablePort"] = ProcessFunctions(
-      &AlgMgrServiceProcessorT::process_availablePort,
-      &AlgMgrServiceProcessorT::process_availablePort);
     processMap_["addSvr"] = ProcessFunctions(
       &AlgMgrServiceProcessorT::process_addSvr,
       &AlgMgrServiceProcessorT::process_addSvr);
@@ -600,15 +507,6 @@ class AlgMgrServiceMultiface : virtual public AlgMgrServiceIf {
     ifaces_.push_back(iface);
   }
  public:
-  int16_t availablePort() {
-    size_t sz = ifaces_.size();
-    size_t i = 0;
-    for (; i < (sz - 1); ++i) {
-      ifaces_[i]->availablePort();
-    }
-    return ifaces_[i]->availablePort();
-  }
-
   int32_t addSvr(const std::string& algName, const AlgSvrInfo& svrInfo) {
     size_t sz = ifaces_.size();
     size_t i = 0;
@@ -677,9 +575,6 @@ class AlgMgrServiceConcurrentClientT : virtual public AlgMgrServiceIf {
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> getOutputProtocol() {
     return this->poprot_;
   }
-  int16_t availablePort();
-  int32_t send_availablePort();
-  int16_t recv_availablePort(const int32_t seqid);
   int32_t addSvr(const std::string& algName, const AlgSvrInfo& svrInfo);
   int32_t send_addSvr(const std::string& algName, const AlgSvrInfo& svrInfo);
   int32_t recv_addSvr(const int32_t seqid);

@@ -19,12 +19,17 @@ using namespace apache::thrift::transport;
 using namespace apache::thrift::server;
 
 
-template <typename Processor, 
+template <typename Handler,
+          typename Processor, 
           typename ServerType = TNonblockingServer,
           typename ProtocolFactory = TBinaryProtocolFactory>
 class ThriftServer {
 public:
-    explicit ThriftServer( const boost::shared_ptr<TProcessor> &_Processor,
+    typedef typename boost::shared_ptr< ThriftServer<Handler, 
+                Processor, ServerType, ProtocolFactory> >  Pointer;
+
+public:
+    explicit ThriftServer( const boost::shared_ptr<Handler> &_Handler,
                            uint16_t _Port,
                            uint32_t _nIoThread = 5, uint32_t _nWorkThread = 100 )
                 : m_nPort(_Port)
@@ -34,8 +39,9 @@ public:
     {
         m_pThrMgr = ThreadManager::newSimpleThreadManager( m_nIoThread + m_nWorkThread );
         m_pThrMgr->threadFactory( boost::make_shared<PlatformThreadFactory>() );
-        auto pProtocolFactory = boost::make_shared<ProtocolFactory>();
-        m_pServer = boost::make_shared<ServerType>(_Processor, pProtocolFactory, m_nPort, m_pThrMgr);
+        boost::shared_ptr<TProtocolFactory> pProtocolFactory = boost::make_shared<ProtocolFactory>();
+        boost::shared_ptr<TProcessor> pProcessor = boost::make_shared<Processor>(_Handler);
+        m_pServer = boost::make_shared<ServerType>(pProcessor, pProtocolFactory, m_nPort, m_pThrMgr);
         m_pServer->setNumIOThreads( m_nIoThread );
     }
 
@@ -81,7 +87,7 @@ public:
     {
         auto pSocket = boost::make_shared<TSocket>(_SvrAddr, _SvrPort);
         m_pTransport = boost::make_shared<Transport>(pSocket);
-        auto pProtocol = boost::make_shared<Protocol>(m_pTransport);
+        boost::shared_ptr<TProtocol> pProtocol = boost::make_shared<Protocol>(m_pTransport);
         m_pClient = boost::make_shared<ClientType>(pProtocol);
     }
 

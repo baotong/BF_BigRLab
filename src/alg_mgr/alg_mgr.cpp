@@ -42,8 +42,8 @@ public:
 
 public:
     // for alg servers
-    virtual int16_t availablePort() // TODO upper limit
-    { return (int16_t)(++s_nNextPort); }
+    // virtual int16_t availablePort() // TODO upper limit
+    // { return (int16_t)(++s_nNextPort); }
 
     virtual int32_t addSvr(const std::string& algName, const AlgSvrInfo& svrInfo);
     virtual void rmSvr(const std::string& algName, const AlgSvrInfo& svrInfo);
@@ -53,13 +53,13 @@ public:
     virtual void getAlgSvrList(std::vector<AlgSvrInfo> & _return, const std::string& name);
 
 private:
-    static const uint16_t       START_PORT = 9020;
-    static std::atomic_ushort   s_nNextPort;
+    // static const uint16_t       START_PORT = 9020;
+    // static std::atomic_ushort   s_nNextPort;
 
     AlgSvrTable     m_mapSvrTable;
 };
 
-std::atomic_ushort AlgSvrServiceHandler::s_nNextPort = START_PORT;
+// std::atomic_ushort AlgSvrServiceHandler::s_nNextPort = START_PORT;
 
 
 int32_t AlgSvrServiceHandler::addSvr(const std::string& algName, const AlgSvrInfo& svrInfo)
@@ -157,12 +157,31 @@ void AlgSvrServiceHandler::getAlgSvrList(std::vector<AlgSvrInfo> & _return, cons
         _return.push_back( v.second->svrInfo );
 }
 
+
+typedef ThriftServer< AlgMgrServiceIf, AlgMgrServiceProcessor > AlgMgrServer;
+
 } // namespace BigRLab
 
 
 int main( int argc, char **argv )
 {
+    using namespace BigRLab;
 
+    try {
+        google::InitGoogleLogging(argv[0]);
+
+        boost::shared_ptr< AlgMgrServiceIf > pHandler = boost::make_shared<AlgSvrServiceHandler>();
+        auto pServer = boost::make_shared<AlgMgrServer>(pHandler, 9001);
+        pServer->start();
+
+        cout << "AlgMgr server Done!" << endl;
+
+    } catch (const std::exception &ex) {
+        LOG(ERROR) << "Exception caught by main " << ex.what();
+        exit(-1); 
+    } // try
+
+    return 0;
 }
 
 /*

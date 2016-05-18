@@ -120,6 +120,14 @@ uint32_t AlgSvrInfo::read(Protocol_* iprot) {
           xfer += iprot->skip(ftype);
         }
         break;
+      case 3:
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->nWorkThread);
+          this->__isset.nWorkThread = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
       default:
         xfer += iprot->skip(ftype);
         break;
@@ -144,6 +152,10 @@ uint32_t AlgSvrInfo::write(Protocol_* oprot) const {
 
   xfer += oprot->writeFieldBegin("port", ::apache::thrift::protocol::T_I16, 2);
   xfer += oprot->writeI16(this->port);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("nWorkThread", ::apache::thrift::protocol::T_I32, 3);
+  xfer += oprot->writeI32(this->nWorkThread);
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldStop();

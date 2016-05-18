@@ -99,32 +99,41 @@ void AlgSvrInfo::__set_port(const int16_t val) {
   this->port = val;
 }
 
+void AlgSvrInfo::__set_nWorkThread(const int32_t val) {
+  this->nWorkThread = val;
+}
+
 void swap(AlgSvrInfo &a, AlgSvrInfo &b) {
   using ::std::swap;
   swap(a.addr, b.addr);
   swap(a.port, b.port);
+  swap(a.nWorkThread, b.nWorkThread);
   swap(a.__isset, b.__isset);
 }
 
 AlgSvrInfo::AlgSvrInfo(const AlgSvrInfo& other5) {
   addr = other5.addr;
   port = other5.port;
+  nWorkThread = other5.nWorkThread;
   __isset = other5.__isset;
 }
 AlgSvrInfo::AlgSvrInfo( AlgSvrInfo&& other6) {
   addr = std::move(other6.addr);
   port = std::move(other6.port);
+  nWorkThread = std::move(other6.nWorkThread);
   __isset = std::move(other6.__isset);
 }
 AlgSvrInfo& AlgSvrInfo::operator=(const AlgSvrInfo& other7) {
   addr = other7.addr;
   port = other7.port;
+  nWorkThread = other7.nWorkThread;
   __isset = other7.__isset;
   return *this;
 }
 AlgSvrInfo& AlgSvrInfo::operator=(AlgSvrInfo&& other8) {
   addr = std::move(other8.addr);
   port = std::move(other8.port);
+  nWorkThread = std::move(other8.nWorkThread);
   __isset = std::move(other8.__isset);
   return *this;
 }
@@ -133,6 +142,7 @@ void AlgSvrInfo::printTo(std::ostream& out) const {
   out << "AlgSvrInfo(";
   out << "addr=" << to_string(addr);
   out << ", " << "port=" << to_string(port);
+  out << ", " << "nWorkThread=" << to_string(nWorkThread);
   out << ")";
 }
 

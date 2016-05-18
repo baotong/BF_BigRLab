@@ -10,22 +10,6 @@
 namespace BigRLab {
 
 
-AlgMgrService_availablePort_args::~AlgMgrService_availablePort_args() throw() {
-}
-
-
-AlgMgrService_availablePort_pargs::~AlgMgrService_availablePort_pargs() throw() {
-}
-
-
-AlgMgrService_availablePort_result::~AlgMgrService_availablePort_result() throw() {
-}
-
-
-AlgMgrService_availablePort_presult::~AlgMgrService_availablePort_presult() throw() {
-}
-
-
 AlgMgrService_addSvr_args::~AlgMgrService_addSvr_args() throw() {
 }
 
