@@ -65,6 +65,9 @@ private:
 
 int32_t AlgMgrServiceHandler::addSvr(const std::string& algName, const AlgSvrInfo& svrInfo)
 {
+    LOG(INFO) << "received addSvr request: name = " << algName << " info = "
+        << svrInfo.addr << ":" << svrInfo.port << " nWorkThread = " << svrInfo.nWorkThread;
+
     boost::upgrade_lock< AlgSvrTable > sLock(m_mapSvrTable);
     auto it = m_mapSvrTable.find( algName );
     // algName not exist
@@ -102,11 +105,15 @@ int32_t AlgMgrServiceHandler::addSvr(const std::string& algName, const AlgSvrInf
                 boost::make_shared<AlgSvrRecord>(svrInfo)) );
     // subTable.insert( range.second, std::make_pair(svrInfo.addr,
                 // boost::make_shared<AlgSvrRecord>(svrInfo)) );
+    
     return SUCCESS;
 }
 
 void AlgMgrServiceHandler::rmSvr(const std::string& algName, const AlgSvrInfo& svrInfo)
 {
+    LOG(INFO) << "received rmSvr request: name = " << algName << " info = "
+        << svrInfo.addr << ":" << svrInfo.port << " nWorkThread = " << svrInfo.nWorkThread;
+
     boost::upgrade_lock< AlgSvrTable > sLock(m_mapSvrTable);
     auto it = m_mapSvrTable.find( algName );
     if ( it == m_mapSvrTable.end() )
@@ -192,17 +199,3 @@ int main( int argc, char **argv )
     return 0;
 }
 
-/*
- * struct AlgSvrInfoCmp {
- *     bool operator() (const AlgSvrInfo &lhs, const AlgSvrInfo &rhs) const
- *     {
- *         uint16_t lhsPort = (uint16_t)(lhs.port);
- *         uint16_t rhsPort = (uint16_t)(rhs.port);
- *
- *         int cmp = lhs.addr.compare( rhs.addr );
- *         if (cmp)
- *             return (cmp < 0);
- *         return (lhsPort < rhsPort);
- *     }
- * };
- */

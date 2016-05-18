@@ -80,6 +80,10 @@ template <typename ClientType,
           typename Protocol = TBinaryProtocol>
 class ThriftClient {
 public:
+    typedef typename boost::shared_ptr< ThriftClient<ClientType, 
+                Transport, Protocol> > Pointer;
+
+public:
     explicit ThriftClient( const std::string &_SvrAddr, uint16_t _SvrPort )
                 : m_strSvrAddr(_SvrAddr)
                 , m_nSvrPort(_SvrPort)
@@ -107,8 +111,11 @@ public:
         if (m_bRunning) {
             m_pTransport->close();
             m_bRunning = false;
-        }
+        } // if
     }
+
+    boost::shared_ptr<ClientType> client()
+    { return m_pClient; }
 
 private:
     std::string                         m_strSvrAddr;

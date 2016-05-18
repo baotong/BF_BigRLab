@@ -29,6 +29,6 @@ service AlgMgrService {
     oneway void informAlive( 1:string algName, 2:AlgSvrInfo svrInfo ),
 
     // For api server
-    list<AlgSvrInfo> getAlgSvrList( 1:string name ) throws (1:InvalidRequest err)
+    list<AlgSvrInfo> getAlgSvrList( 1:string name )
 }
 
