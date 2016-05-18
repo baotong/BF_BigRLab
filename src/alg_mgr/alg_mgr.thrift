@@ -12,7 +12,7 @@ enum ErrCodeType {
 
 exception InvalidRequest {
     1: string desc,
-    2: ErrCodeType errno
+    2: ErrCodeType errCode
 }
 
 struct AlgSvrInfo {

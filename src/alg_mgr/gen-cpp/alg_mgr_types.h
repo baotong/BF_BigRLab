@@ -32,9 +32,9 @@ class InvalidRequest;
 class AlgSvrInfo;
 
 typedef struct _InvalidRequest__isset {
-  _InvalidRequest__isset() : desc(false), errno(false) {}
+  _InvalidRequest__isset() : desc(false), errCode(false) {}
   bool desc :1;
-  bool errno :1;
+  bool errCode :1;
 } _InvalidRequest__isset;
 
 class InvalidRequest : public ::apache::thrift::TException {
@@ -44,18 +44,18 @@ class InvalidRequest : public ::apache::thrift::TException {
   InvalidRequest(InvalidRequest&&);
   InvalidRequest& operator=(const InvalidRequest&);
   InvalidRequest& operator=(InvalidRequest&&);
-  InvalidRequest() : desc(), errno((ErrCodeType)0) {
+  InvalidRequest() : desc(), errCode((ErrCodeType)0) {
   }
 
   virtual ~InvalidRequest() throw();
   std::string desc;
-  ErrCodeType errno;
+  ErrCodeType errCode;
 
   _InvalidRequest__isset __isset;
 
   void __set_desc(const std::string& val);
 
-  void __set_errno(const ErrCodeType val);
+  void __set_errCode(const ErrCodeType val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);

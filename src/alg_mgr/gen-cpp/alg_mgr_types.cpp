@@ -34,36 +34,36 @@ void InvalidRequest::__set_desc(const std::string& val) {
   this->desc = val;
 }
 
-void InvalidRequest::__set_errno(const ErrCodeType val) {
-  this->errno = val;
+void InvalidRequest::__set_errCode(const ErrCodeType val) {
+  this->errCode = val;
 }
 
 void swap(InvalidRequest &a, InvalidRequest &b) {
   using ::std::swap;
   swap(a.desc, b.desc);
-  swap(a.errno, b.errno);
+  swap(a.errCode, b.errCode);
   swap(a.__isset, b.__isset);
 }
 
 InvalidRequest::InvalidRequest(const InvalidRequest& other1) : TException() {
   desc = other1.desc;
-  errno = other1.errno;
+  errCode = other1.errCode;
   __isset = other1.__isset;
 }
 InvalidRequest::InvalidRequest( InvalidRequest&& other2) : TException() {
   desc = std::move(other2.desc);
-  errno = std::move(other2.errno);
+  errCode = std::move(other2.errCode);
   __isset = std::move(other2.__isset);
 }
 InvalidRequest& InvalidRequest::operator=(const InvalidRequest& other3) {
   desc = other3.desc;
-  errno = other3.errno;
+  errCode = other3.errCode;
   __isset = other3.__isset;
   return *this;
 }
 InvalidRequest& InvalidRequest::operator=(InvalidRequest&& other4) {
   desc = std::move(other4.desc);
-  errno = std::move(other4.errno);
+  errCode = std::move(other4.errCode);
   __isset = std::move(other4.__isset);
   return *this;
 }
@@ -71,7 +71,7 @@ void InvalidRequest::printTo(std::ostream& out) const {
   using ::apache::thrift::to_string;
   out << "InvalidRequest(";
   out << "desc=" << to_string(desc);
-  out << ", " << "errno=" << to_string(errno);
+  out << ", " << "errCode=" << to_string(errCode);
   out << ")";
 }
 

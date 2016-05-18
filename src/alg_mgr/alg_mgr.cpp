@@ -1,10 +1,11 @@
 #include "rpc_module.h"
-#include "AlgSvrService.h"
-#include "ApiSvrService.h"
+#include "AlgMgrService.h"
 #include <map>
 #include <string>
 #include <ctime>
+#include <iostream>
 #include <atomic>
+#include <boost/thread.hpp>
 #include <boost/thread/lockable_adapter.hpp>
 #include <glog/logging.h>
 
@@ -62,15 +63,17 @@ private:
 // std::atomic_ushort AlgSvrServiceHandler::s_nNextPort = START_PORT;
 
 
-int32_t AlgSvrServiceHandler::addSvr(const std::string& algName, const AlgSvrInfo& svrInfo)
+int32_t AlgMgrServiceHandler::addSvr(const std::string& algName, const AlgSvrInfo& svrInfo)
 {
     boost::upgrade_lock< AlgSvrTable > sLock(m_mapSvrTable);
     auto it = m_mapSvrTable.find( algName );
     // algName not exist
     if ( it == m_mapSvrTable.end() ) {
         boost::upgrade_to_unique_lock< AlgSvrTable > uLock(sLock);
-        m_mapSvrTable[algName].insert( it, std::make_pair(svrInfo.addr,
+        m_mapSvrTable[algName].insert( std::make_pair(svrInfo.addr,
                             boost::make_shared<AlgSvrRecord>(svrInfo)) );
+        // m_mapSvrTable[algName].insert( it, std::make_pair(svrInfo.addr,
+                            // boost::make_shared<AlgSvrRecord>(svrInfo)) );
         return SUCCESS;
     } // if
 
@@ -81,8 +84,10 @@ int32_t AlgSvrServiceHandler::addSvr(const std::string& algName, const AlgSvrInf
     // addr not exist
     if (range.first == range.second) {
         boost::upgrade_to_unique_lock< AlgSvrSubTable > uSubLock(sSubLock);
-        subTable.insert( range.second, std::make_pair(svrInfo.addr,
+        subTable.insert( std::make_pair(svrInfo.addr,
                             boost::make_shared<AlgSvrRecord>(svrInfo)) );
+        // subTable.insert( range.second, std::make_pair(svrInfo.addr,
+                            // boost::make_shared<AlgSvrRecord>(svrInfo)) );
         return SUCCESS;
     } // if
 
@@ -93,12 +98,14 @@ int32_t AlgSvrServiceHandler::addSvr(const std::string& algName, const AlgSvrInf
     } // for
 
     boost::upgrade_to_unique_lock< AlgSvrSubTable > uSubLock(sSubLock);
-    subTable.insert( range.second, std::make_pair(svrInfo.addr,
+    subTable.insert( std::make_pair(svrInfo.addr,
                 boost::make_shared<AlgSvrRecord>(svrInfo)) );
+    // subTable.insert( range.second, std::make_pair(svrInfo.addr,
+                // boost::make_shared<AlgSvrRecord>(svrInfo)) );
     return SUCCESS;
 }
 
-void AlgSvrServiceHandler::rmSvr(const std::string& algName, const AlgSvrInfo& svrInfo)
+void AlgMgrServiceHandler::rmSvr(const std::string& algName, const AlgSvrInfo& svrInfo)
 {
     boost::upgrade_lock< AlgSvrTable > sLock(m_mapSvrTable);
     auto it = m_mapSvrTable.find( algName );
@@ -121,7 +128,7 @@ void AlgSvrServiceHandler::rmSvr(const std::string& algName, const AlgSvrInfo& s
     } // for
 }
 
-void AlgSvrServiceHandler::informAlive(const std::string& algName, const AlgSvrInfo& svrInfo)
+void AlgMgrServiceHandler::informAlive(const std::string& algName, const AlgSvrInfo& svrInfo)
 {
     boost::upgrade_lock< AlgSvrTable > sLock(m_mapSvrTable);
     auto it = m_mapSvrTable.find( algName );
@@ -142,7 +149,7 @@ void AlgSvrServiceHandler::informAlive(const std::string& algName, const AlgSvrI
     return;
 }
 
-void AlgSvrServiceHandler::getAlgSvrList(std::vector<AlgSvrInfo> & _return, const std::string& name)
+void AlgMgrServiceHandler::getAlgSvrList(std::vector<AlgSvrInfo> & _return, const std::string& name)
 {
     _return.clear();
     boost::upgrade_lock< AlgSvrTable > sLock(m_mapSvrTable);
@@ -166,11 +173,12 @@ typedef ThriftServer< AlgMgrServiceIf, AlgMgrServiceProcessor > AlgMgrServer;
 int main( int argc, char **argv )
 {
     using namespace BigRLab;
+    using namespace std;
 
     try {
         google::InitGoogleLogging(argv[0]);
 
-        boost::shared_ptr< AlgMgrServiceIf > pHandler = boost::make_shared<AlgSvrServiceHandler>();
+        boost::shared_ptr< AlgMgrServiceIf > pHandler = boost::make_shared<AlgMgrServiceHandler>();
         auto pServer = boost::make_shared<AlgMgrServer>(pHandler, 9001);
         pServer->start();
 

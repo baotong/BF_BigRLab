@@ -45,8 +45,8 @@ uint32_t InvalidRequest::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_I32) {
           int32_t ecast0;
           xfer += iprot->readI32(ecast0);
-          this->errno = (ErrCodeType)ecast0;
-          this->__isset.errno = true;
+          this->errCode = (ErrCodeType)ecast0;
+          this->__isset.errCode = true;
         } else {
           xfer += iprot->skip(ftype);
         }
@@ -73,8 +73,8 @@ uint32_t InvalidRequest::write(Protocol_* oprot) const {
   xfer += oprot->writeString(this->desc);
   xfer += oprot->writeFieldEnd();
 
-  xfer += oprot->writeFieldBegin("errno", ::apache::thrift::protocol::T_I32, 2);
-  xfer += oprot->writeI32((int32_t)this->errno);
+  xfer += oprot->writeFieldBegin("errCode", ::apache::thrift::protocol::T_I32, 2);
+  xfer += oprot->writeI32((int32_t)this->errCode);
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldStop();

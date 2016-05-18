@@ -3,7 +3,7 @@ all: server
 CC = c++
 
 COMM_SRC = $(shell find gen-cpp -type f -name '*.cpp')
-INCLUDE = -I./src/gen-cpp 
+INCLUDE = -I./gen-cpp 
 COMM_LIBS = -lglog -lthrift -lboost_thread -lboost_system
 COMM_FLAGS = -std=c++11 -O3 -g
 
