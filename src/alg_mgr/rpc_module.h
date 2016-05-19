@@ -65,6 +65,9 @@ public:
         } // if
     }
 
+    boost::shared_ptr<ServerType> server()
+    { return m_pServer; }
+
 private:
     uint16_t                            m_nPort;
     uint32_t                            m_nIoThread;

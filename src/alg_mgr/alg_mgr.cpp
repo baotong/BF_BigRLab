@@ -4,7 +4,7 @@
 #include <string>
 #include <ctime>
 #include <iostream>
-#include <atomic>
+// #include <atomic>
 #include <boost/thread.hpp>
 #include <boost/thread/lockable_adapter.hpp>
 #include <glog/logging.h>
@@ -43,12 +43,12 @@ public:
 
 public:
     // for alg servers
-    // virtual int16_t availablePort() // TODO upper limit
+    // virtual int16_t availablePort()
     // { return (int16_t)(++s_nNextPort); }
 
     virtual int32_t addSvr(const std::string& algName, const AlgSvrInfo& svrInfo);
     virtual void rmSvr(const std::string& algName, const AlgSvrInfo& svrInfo);
-    virtual void informAlive(const std::string& algName, const AlgSvrInfo& svrInfo);
+    virtual void informAlive(const std::string& algName, const AlgSvrInfo& svrInfo); // TODO timer
 
     // for api server
     virtual void getAlgSvrList(std::vector<AlgSvrInfo> & _return, const std::string& name);
