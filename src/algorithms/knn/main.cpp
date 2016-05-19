@@ -5,7 +5,9 @@
 #include <iostream>
 #include <fstream>
 #include <cctype>
+#include <thread>
 #include <boost/asio.hpp>
+#include <boost/lexical_cast.hpp>
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 
@@ -76,25 +78,95 @@ static const bool wt_dummy = gflags::RegisterFlagValidator(&FLAGS_wt, &validate_
 static 
 bool validate_algmgr(const char* flagname, const std::string &value) 
 {
+    using namespace std;
+
     if (FLAGS_build)
         return true;
 
     if (!check_not_empty(flagname, value))
         return false;
 
+    string::size_type pos = value.find_last_of(':');
+    if (string::npos == pos) {
+        cerr << "Invalid addr format specified by arg " << flagname << endl;
+        return false;
+    } // if
+
+    g_strAlgMgrAddr = value.substr(0, pos);
+    if (g_strAlgMgrAddr.empty()) {
+        cerr << "Invalid addr format specified by arg " << flagname << endl;
+        return false;
+    } // if
+
+    string strPort = value.substr(pos + 1, string::npos);
+    if (strPort.empty()) {
+        cerr << "Invalid addr format specified by arg " << flagname << endl;
+        return false;
+    } // if
+
+    if (!boost::conversion::try_lexical_convert(strPort, g_nAlgMgrPort)) {
+        cerr << "Invalid addr format specified by arg " << flagname << endl;
+        return false;
+    } // if
+
+    if (!g_nAlgMgrPort) {
+        cerr << "Invalid port number specified by arg " << flagname << endl;
+        return false;
+    } // if
+
+    return true;
 }
 static const bool algmgr_dummy = gflags::RegisterFlagValidator(&FLAGS_algmgr, &validate_algmgr);
+
+static 
+bool validate_svraddr(const char* flagname, const std::string &value) 
+{
+    using namespace std;
+
+    if (FLAGS_build)
+        return true;
+
+    if (!check_not_empty(flagname, value))
+        return false;
+
+    string::size_type pos = value.find_last_of(':');
+    if (string::npos == pos) {
+        cerr << "Invalid addr format specified by arg " << flagname << endl;
+        return false;
+    } // if
+
+    g_strThisAddr = value.substr(0, pos);
+    if (g_strThisAddr.empty()) {
+        cerr << "Invalid addr format specified by arg " << flagname << endl;
+        return false;
+    } // if
+
+    string strPort = value.substr(pos + 1, string::npos);
+    if (strPort.empty()) {
+        cerr << "Invalid addr format specified by arg " << flagname << endl;
+        return false;
+    } // if
+
+    if (!boost::conversion::try_lexical_convert(strPort, g_nThisPort)) {
+        cerr << "Invalid addr format specified by arg " << flagname << endl;
+        return false;
+    } // if
+
+    if (!g_nThisPort) {
+        cerr << "Invalid port number specified by arg " << flagname << endl;
+        return false;
+    } // if
+
+    return true;
+}
+static const bool svraddr_dummy = gflags::RegisterFlagValidator(&FLAGS_svraddr, &validate_svraddr);
 
 static 
 bool validate_n_work_threads(const char* flagname, gflags::int32 value) 
 {
     if (FLAGS_build)
         return true;
-    if (value <= 0) {
-        cerr << "Invalid num of work threads value!" << endl;
-        return false;
-    } // if
-    return true;
+    return check_above_zero(flagname, value);
 }
 static const bool n_work_threads_dummy = gflags::RegisterFlagValidator(&FLAGS_n_work_threads, &validate_n_work_threads);
 
@@ -103,11 +175,7 @@ bool validate_n_io_threads(const char* flagname, gflags::int32 value)
 {
     if (FLAGS_build)
         return true;
-    if (value <= 0) {
-        cerr << "Invalid num of io threads value!" << endl;
-        return false;
-    } // if
-    return true;
+    return check_above_zero(flagname, value);
 }
 static const bool n_io_threads_dummy = gflags::RegisterFlagValidator(&FLAGS_n_io_threads, &validate_n_io_threads);
 
@@ -175,8 +243,8 @@ void KnnServiceHandler::queryByVector(std::vector<Result> & _return,
 } // namespace KNN
 
 
-typedef BigRLab::ThriftClient< AlgMgrServiceClient > AlgMgrClient;
-typedef BigRLab::ThriftServer< KnnServiceIf, KnnServiceProcessor > KnnAlgServer;
+typedef BigRLab::ThriftClient< BigRLab::AlgMgrServiceClient > AlgMgrClient;
+typedef BigRLab::ThriftServer< KNN::KnnServiceIf, KNN::KnnServiceProcessor > KnnAlgServer;
 static AlgMgrClient::Pointer    g_pAlgMgrClient;
 static KnnAlgServer::Pointer    g_pKnnAlgServer;
 static boost::shared_ptr<BigRLab::AlgSvrInfo>  g_pSvrInfo;
@@ -221,21 +289,21 @@ void start_rpc_service()
     // fill svrinfo
     string addr, line;
     if (get_local_ip(addr)) {
-        if (addr != FLAGS_address) {
-            cout << "The local addr you provided is " << FLAGS_address 
+        if (addr != g_strThisAddr) {
+            cout << "The local addr you provided is " << g_strThisAddr 
                 << " which differs with that system detected " << addr
                 << " Do you want to use the system detected addr? (y/n)y?" << endl;
             getline(cin, line);
             if (!line.empty() && tolower(line[0]) == 'n' )
-                addr = FLAGS_address;
+                addr = g_strThisAddr;
         } // if
     } else {
-        addr = FLAGS_address;
+        addr = g_strThisAddr;
     } // if
 
     g_pSvrInfo = boost::make_shared<BigRLab::AlgSvrInfo>();
     g_pSvrInfo->addr = addr;
-    g_pSvrInfo->port = (int16_t)FLAGS_port;
+    g_pSvrInfo->port = (int16_t)g_nThisPort;
     g_pSvrInfo->nWorkThread = FLAGS_n_work_threads;
 
     // start client to alg_mgr
