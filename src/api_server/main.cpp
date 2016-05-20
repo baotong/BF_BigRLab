@@ -62,6 +62,28 @@ namespace Test {
         exit(0);
     }
 
+    void test()
+    {
+        using namespace std;
+
+        SharedQueue<int> que;
+
+        boost::thread thr1([&]{
+                SLEEP_SECONDS(7);    
+                que.push(501);
+            });
+
+        int x;
+        if (que.timed_pop(x, 5000))
+            cout << "Successfully get value " << x << endl;
+        else
+            cout << "timeout" << endl;
+
+        thr1.join();
+
+        exit(0);
+    }
+
 } // namespace Test
 
 static
@@ -210,6 +232,7 @@ int main( int argc, char **argv )
         gflags::ParseCommandLineFlags(&argc, &argv, true);
 
         // Test::test1(argc, argv);
+        // Test::test();
         
         init();
 

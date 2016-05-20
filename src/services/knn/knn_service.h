@@ -5,6 +5,7 @@
 #include <deque>
 #include <string>
 #include <boost/thread/lockable_adapter.hpp>
+#include <boost/thread/condition_variable.hpp>
 
 extern "C" {
     extern BigRLab::Service* create_instance();
@@ -18,9 +19,8 @@ class KnnService : public BigRLab::Service {
                           , boost::upgrade_lockable_adapter<boost::shared_mutex>
     {};
 
-    // TODO suitable for lockfree queue
-    struct KnnClientPool : std::deque< boost::weak_ptr<KnnClient> >
-                         , boost::basic_lockable_adapter<boost::mutex>
+    struct IdleClientQueue : std::deque< boost::weak_ptr<KnnClient> >
+                           , boost::basic_lockable_adapter<boost::mutex>
     {};
 
 public:
@@ -31,7 +31,7 @@ public:
     virtual void handleCommand( std::stringstream &stream );
 private:
     KnnClientTable   m_mapClientTable;
-    KnnClientPool    m_arrClientPool;
+    IdleClientQueue  m_queIdleClients;
 };
 
 

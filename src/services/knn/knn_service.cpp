@@ -1,5 +1,7 @@
 #include "knn_service.h"
 #include <sstream>
+#include <random>
+#include <algorithm>
 #include <glog/logging.h>
 
 using namespace BigRLab;
@@ -27,7 +29,7 @@ void KnnService::handleCommand( std::stringstream &stream )
 
 bool KnnService::init( int argc, char **argv )
 {
-    int nInstances = 0;    
+    int nInstances = 0;
 
     for (const auto &v : this->algServerList()) {
         stringstream stream;
@@ -37,7 +39,7 @@ bool KnnService::init( int argc, char **argv )
             nInstances = v.nWorkThread;
         } else {
             nInstances = v.nWorkThread / 10;
-            if (nInstances < 5) 
+            if (nInstances < 5)
                 nInstances = 5;
             else if (nInstances > 10)
                 nInstances = 10;
@@ -52,8 +54,15 @@ bool KnnService::init( int argc, char **argv )
                 continue;
             } // try
             m_mapClientTable[addr].push_back(pClient);
-            m_arrClientPool.push_back(pClient);
+            m_queIdleClients.push_back(pClient);
         } // for
     } // for
+
+    // shuffle
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(m_queIdleClients.begin(), m_queIdleClients.end(), g);
+
+    LOG(INFO) << "Totally " << m_queIdleClients.size() << " client instances for service " << this->name();
 }
 
