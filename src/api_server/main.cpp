@@ -1,6 +1,10 @@
 /*
  * GLOG_logtostderr=1 ./apiserver.bin -conf ../../conf/server.conf
  */
+/*
+ * TODO list
+ * 1. alg 的新加入和离开 algmgr要主动通知apiserver，然后转发给具体的service
+ */
 #include "api_server.h"
 #include "service_manager.h"
 #include <gflags/gflags.h>
@@ -12,7 +16,6 @@ using namespace std;
 static IoServicePtr          g_pIoService;
 static IoServiceWorkPtr      g_pWork;
 static ThreadGroupPtr        g_pIoThrgrp;
-static boost::shared_ptr<APIServer>       g_pApiServer;
 static boost::shared_ptr< boost::thread > g_pRunServerThread;
 
 DEFINE_string(conf, "", "server conf file path");
@@ -105,20 +108,28 @@ void start_server()
 static
 void start_shell()
 {
+    using namespace std;
     //!! 第一种方法编译错误，必须先 typedef
     // typedef std::map< std::string, std::function<bool(std::stringstream&) > CmdProcessTable;
     typedef std::function<bool(std::stringstream&)> CmdProcessor;
     typedef std::map< std::string, CmdProcessor > CmdProcessTable;
 
     auto addService = [](stringstream &stream)->bool {
-        string conf;
-        stream >> conf;
-        
-        if (bad_stream(stream))
+        vector<string> strArgs;
+        string arg;
+
+        while (stream >> arg)
+            strArgs.push_back(arg);
+
+        if (strArgs.size() == 0)
             return false;
 
+        vector<char*> cstrArgs( strArgs.size() );
+        for (size_t i = 0; i < strArgs.size(); ++i)
+            cstrArgs[i] = const_cast<char*>(strArgs[i].c_str());
+
         try {
-            ServiceManager::getInstance()->addService(conf.c_str());
+            ServiceManager::getInstance()->addService( (int)(cstrArgs.size()), &cstrArgs[0] );
         } catch (const std::exception &ex) {
             cout << ex.what() << endl;
         } // try

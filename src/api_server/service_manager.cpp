@@ -7,7 +7,7 @@
                             *(void **) (&(name)) = dlsym(handle, #name);        \
                             if ((__load_func_error_str = dlerror()) != NULL) {       \
                                 dlclose(handle);                \
-                                throw_runtime_error( stringstream() << "addService cannot find symbol " \
+                                THROW_RUNTIME_ERROR( "addService cannot find symbol " \
                                         << #name << " in lib file!" );       \
                             }                                       \
                         } while(0) 
@@ -28,45 +28,18 @@ ServiceManager::pointer ServiceManager::getInstance()
     return m_pInstance;
 }
 
-void ServiceManager::addService( const char *confFileName )
+void ServiceManager::addService( int argc, char **argv )
 {
     using namespace std;
 
-    PropertyTable   srvPpt;
-
     // LOG(INFO) << "ServiceManager::addService() confFileName = " << confFileName;
 
-    parse_config_file( confFileName, srvPpt );
+    const char *libpath = argv[0];
 
-    const char *srvName = NULL, *libPath = NULL;
-
-    for ( const auto &v : srvPpt ) {
-        if (v.first == "name") {
-            srvName = v.second.begin()->c_str();
-        } else if (v.first == "libpath") {
-            libPath = v.second.begin()->c_str();
-        } // if
-    } // for
-
-    if (!srvName)
-        throw InvalidInput( stringstream() << "Cannot find property \"name\" in "
-               "conf file " << confFileName );
-
-    if (!libPath)
-        throw InvalidInput( stringstream() << "Cannot find property \"libpath\" in "
-               "conf file " << confFileName );
-    
-    // check exist
-    {
-        boost::shared_lock<ServiceTable> lock(m_mapServices);
-        if (m_mapServices.find(srvName) != m_mapServices.end())
-            throw_runtime_error(stringstream() << "Service " << srvName << " already exists!");
-    } // check exist
-
-    void *srvHandle = dlopen(libPath, RTLD_LAZY);
+    void *srvHandle = dlopen(libpath, RTLD_LAZY);
     if (!srvHandle)
-        throw_runtime_error( stringstream() << "addService cannot load service lib "
-               << libPath << " " << dlerror() );
+        THROW_RUNTIME_ERROR( "addService cannot load service lib "
+               << libpath << " " << dlerror() );
 
     dlerror();
 
@@ -74,16 +47,27 @@ void ServiceManager::addService( const char *confFileName )
     LOAD_FUNC(srvHandle, create_instance);
 
     ServicePtr pSrv(create_instance());
-    pSrv->properties() = std::move(srvPpt);
+
+    g_pApiServer->algMgrClient()->client()->getAlgSvrList(pSrv->algServerList(), pSrv->name());
+    if (pSrv->algServerList().size() == 0)
+        THROW_RUNTIME_ERROR("No alg server found for service " << pSrv->name());
+
+    if (!pSrv->init(argc, argv))
+        THROW_RUNTIME_ERROR("addService init service" << pSrv->name() << " fail!");
 
     ServiceInfoPtr pSrvInfo(new ServiceInfo(pSrv, srvHandle));
     // insert
     {
         boost::unique_lock<ServiceTable> lock(m_mapServices);
-        auto ret = m_mapServices.insert(std::make_pair(srvName, std::move(pSrvInfo)));
+        auto ret = m_mapServices.insert(std::make_pair(pSrv->name(), std::move(pSrvInfo)));
         if (!ret.second)
-            throw_runtime_error(stringstream() << "Service " << srvName << " already exists!");
+            THROW_RUNTIME_ERROR("Service " << pSrv->name() << " already exists!");
     } // insert
+
+    cout << "Add service " << pSrv->name() << " success." << endl;
+    cout << "Algorithm servers for " << pSrv->name() << ":" << endl;
+    for (const auto &v : pSrv->algServerList())
+        cout << v.addr << ":" << v.port << endl;
 
     return;
 }

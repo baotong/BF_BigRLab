@@ -8,7 +8,7 @@ namespace BigRLab {
 
 class ServiceManager {
 public:
-    typedef std::shared_ptr<ServiceManager> pointer;
+    typedef boost::shared_ptr<ServiceManager> pointer;
 
     struct ServiceInfo {
         ServiceInfo( const Service::pointer &_Service, void *_Handle )
@@ -20,7 +20,7 @@ public:
         void*               pHandle;
     };
 
-    typedef std::shared_ptr<ServiceInfo>            ServiceInfoPtr;
+    typedef boost::shared_ptr<ServiceInfo>            ServiceInfoPtr;
 
     struct ServiceTable : std::map<std::string, ServiceInfoPtr>
                         , boost::upgrade_lockable_adapter<boost::shared_mutex>
@@ -29,7 +29,7 @@ public:
 public:
     static pointer getInstance();
 
-    void addService( const char *confFileName );
+    void addService( int argc, char **argv );
     bool removeService( const std::string &srvName );
     bool getService( const std::string &srvName, Service::pointer &pSrv );
 

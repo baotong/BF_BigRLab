@@ -10,22 +10,31 @@ namespace BigRLab {
 class Service {
     friend class ServiceManager;
 public:
-    typedef std::shared_ptr<Service>    pointer;
+    typedef boost::shared_ptr<Service>    pointer;
 
 public:
+    Service( const std::string &_Name ) 
+                    : m_strName(_Name) {}
+
     virtual ~Service() = default;
 
     virtual void handleCommand( std::stringstream &stream ) = 0;
     virtual void handleRequest(const WorkItemPtr &pWork) = 0;
 
-protected:
-    PropertyTable& properties()
-    { return m_mapProperties; }
+    const std::string& name() const
+    { return m_strName; }
 
-    PropertyTable       m_mapProperties;
+    virtual bool init( int argc, char **argv ) = 0;
+    
+    std::vector<AlgSvrInfo>& algServerList()
+    { return m_arrAlgSvrInfo; }
+
+protected:
+    std::string         m_strName;
+    std::vector<AlgSvrInfo>     m_arrAlgSvrInfo;
 };
 
-typedef std::shared_ptr<Service>    ServicePtr;
+typedef boost::shared_ptr<Service>    ServicePtr;
 
 
 } // namespace BigRLab

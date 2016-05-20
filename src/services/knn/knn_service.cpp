@@ -4,7 +4,7 @@ using namespace BigRLab;
 using namespace std;
 
 Service* create_instance()
-{ return new KnnService; }
+{ return new KnnService("knn_star"); }
 
 void KnnService::handleRequest(const BigRLab::WorkItemPtr &pWork)
 {

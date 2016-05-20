@@ -25,6 +25,7 @@ namespace Test {
 namespace BigRLab {
 
 boost::shared_ptr< WorkManager<WorkItem> >   g_pWorkMgr;
+boost::shared_ptr<APIServer>                 g_pApiServer;
 
 
 APIServer::APIServer( const ServerType::options &_Opts,
@@ -53,6 +54,26 @@ APIServer::APIServer( const ServerType::options &_Opts,
 
     parse_config_file( confFileName, m_mapProperties );
 
+    auto check_addr = [](const std::string &value, std::string &addr, uint16_t &port) {
+        string::size_type pos = value.find_last_of(':');
+        if (string::npos == pos)
+            THROW_RUNTIME_ERROR("Invalid address format for algmgr_server");
+
+        addr = value.substr(0, pos);
+        if (addr.empty())
+            THROW_RUNTIME_ERROR("Invalid address format for algmgr_server");
+
+        string strPort = value.substr(pos + 1, string::npos);
+        if (strPort.empty())
+            THROW_RUNTIME_ERROR("Invalid address format for algmgr_server");
+
+        if (!boost::conversion::try_lexical_convert(strPort, port))
+            THROW_RUNTIME_ERROR("Invalid port format for algmgr_server");
+
+        if (!port)
+            THROW_RUNTIME_ERROR("Invalid port format for algmgr_server");
+    };
+
     for (auto &v : m_mapProperties) {
         if ("port" == v.first) {
             if (!(read_from_string(*(v.second.begin()), m_nPort))) {
@@ -72,8 +93,16 @@ APIServer::APIServer( const ServerType::options &_Opts,
                         << " for n_work_threads, set to default." << endl;
                 m_nWorkThreads = DEFAULT_N_WORK_THREADS;
             } // if
+        } else if ("algmgr_server" == v.first) {
+            const string &addr = *(v.second.begin());
+            check_addr(addr, m_strAlgMgrAddr, m_nAlgMgrPort);
         } // if
     } // for
+
+    if (m_strAlgMgrAddr.empty())
+        THROW_RUNTIME_ERROR("No item \"algmgr_server\" found in config file");
+
+    m_pAlgMgrClient = boost::make_shared< AlgMgrClient >(m_strAlgMgrAddr, m_nAlgMgrPort);
 
     options().port(to_string(m_nPort))
         .thread_pool(boost::make_shared<ThreadPool>(m_nIoThreads, m_pIoService, m_pIoThrgrp));
@@ -90,6 +119,7 @@ void APIServer::run()
 
     m_bRunning = true;
 
+    m_pAlgMgrClient->start();
     m_pServer = new ServerType(m_Options);
     m_pServer->run();
 }
@@ -99,13 +129,15 @@ void APIServer::stop()
     m_bRunning = false;
     if (m_pServer)
         m_pServer->stop();   // 是异步的 async_stop
+    if (m_pAlgMgrClient)
+        m_pAlgMgrClient->stop();
     // 不能在这里join这些 io thread 需要io_service结束后
     // m_pIoThrgrp->join_all();
 }
 
 // run in io thread
 void APIServerHandler::operator()(const ServerType::request& req,
-        ServerType::connection_ptr conn)
+                    ServerType::connection_ptr conn)
 try {
     using namespace std;
 

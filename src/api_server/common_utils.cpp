@@ -11,7 +11,7 @@ void parse_config_file( const char *filename, PropertyTable &propTable )
     ifstream ifs(filename, ios::in);
 
     if (!ifs)
-        throw_runtime_error(stringstream() << "parse_config_file() cannot open "
+        THROW_RUNTIME_ERROR("parse_config_file() cannot open "
                 << filename << " for reading!");
 
     propTable.clear();

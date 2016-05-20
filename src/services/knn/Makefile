@@ -1,17 +1,15 @@
-all: wordknn
-wordknn: wordknn.bin
+all: knn_service.so
 
 CC = c++
+API_SERVER_DIR = ../../api_server
 ALG_MGR_DIR = ../../alg_mgr
 
 SRC = $(shell find . -type f -name '*.cpp')
-SRC += $(shell find $(ALG_MGR_DIR)/gen-cpp -type f -name '*.cpp')
-INCLUDE = -I./gen-cpp -I$(ALG_MGR_DIR) -I$(ALG_MGR_DIR)/gen-cpp
-LIBS = -lthriftnb -lthrift -lboost_thread -lboost_system -levent -lglog -lgflags
-FLAGS = -std=c++11 -pthread -O3 -g
+INCLUDE = -I$(API_SERVER_DIR) -I$(ALG_MGR_DIR) -I$(ALG_MGR_DIR)/gen-cpp
+FLAGS = -std=c++11 -fPIC -shared -O3 
 
-wordknn.bin:
+knn_service.so:
 	$(CC) -o $@ $(SRC) $(INCLUDE) $(LIBS) $(FLAGS)
 
 clean:
-	rm -rf *.bin *.bin.*
+	rm -f *.so

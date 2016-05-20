@@ -19,9 +19,17 @@
 #define SLEEP_MILLISECONDS(x) boost::this_thread::sleep_for(boost::chrono::milliseconds(x))
 #define SPACES                " \t\f\r\v\n"
 
+#define THROW_RUNTIME_ERROR(x) \
+    do { \
+        std::stringstream __err_stream; \
+        __err_stream << x; \
+        __err_stream.flush(); \
+        throw std::runtime_error( __err_stream.str() ); \
+    } while (0)
+
 namespace BigRLab {
 
-// TODO use boost::lockfree queue instead
+// TODO use boost::ioService 
 template < typename T >
 class SharedQueue : private std::deque<T> {
     typedef typename std::deque<T>   BaseType;
@@ -83,21 +91,6 @@ struct InvalidInput : std::exception {
 
     std::string     whatString;
 };
-
-inline
-void throw_runtime_error( const std::ostream &os )
-{
-    using namespace std;
-    const stringstream &_str = dynamic_cast<const stringstream&>(os);
-    throw runtime_error(_str.str());
-}
-
-inline
-void throw_runtime_error( const std::string &msg )
-{
-    using namespace std;
-    throw runtime_error(msg);
-}
 
 
 inline
