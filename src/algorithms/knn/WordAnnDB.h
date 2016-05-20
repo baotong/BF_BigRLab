@@ -59,7 +59,7 @@ public:
 
     typedef std::map< StringPtr, uint32_t, StringPtrCmp >       WordIdTable;
     typedef std::map< uint32_t, StringPtr >                     IdWordTable;
-    typedef AnnoyIndex< uint32_t, double, Angular, RandRandom >  WordAnnIndex;
+    typedef AnnoyIndex< uint32_t, float, Angular, RandRandom >  WordAnnIndex;
 
     static const uint32_t   INVALID_ID = (uint32_t)-1;
     static const uint32_t   ID_WORD_HASH_SIZE = (UCHAR_MAX + 1) * (UCHAR_MAX + 1);
@@ -114,7 +114,7 @@ public:
     /**
      * @brief   查询两单词的相似度
      */
-    double getDistance( const std::string &s1, const std::string &s2 )
+    float getDistance( const std::string &s1, const std::string &s2 )
     {
         uint32_t i = getWordId( s1 );
         if (i == INVALID_ID)
@@ -127,10 +127,10 @@ public:
         return getDistance( i, j );
     }
 
-    double getDistance( uint32_t i, uint32_t j )
+    float getDistance( uint32_t i, uint32_t j )
     { return m_AnnIndex.get_distance(i, j); }
 
-    void getVector( const std::string &word, std::vector<double> &ret )
+    void getVector( const std::string &word, std::vector<float> &ret )
     {
         uint32_t i = getWordId( word );
         if (i == INVALID_ID)
@@ -139,7 +139,7 @@ public:
         getVector( i, ret );
     }
 
-    void getVector( uint32_t i, std::vector<double> &ret )
+    void getVector( uint32_t i, std::vector<float> &ret )
     {
         ret.resize( m_nFields );
         m_AnnIndex.get_item(i, &ret[0]);
@@ -172,7 +172,7 @@ public:
      * @param search_k    参见Annoy文档
      */
     void kNN_By_Word(const std::string &word, size_t n, 
-                    std::vector<std::string> &result, std::vector<double> &distances,
+                    std::vector<std::string> &result, std::vector<float> &distances,
                     size_t search_k = (size_t)-1 )
     {
         uint32_t id = getWordId( word );
@@ -191,7 +191,7 @@ public:
     }
 
     void kNN_By_Id(uint32_t id, size_t n, 
-                    std::vector<uint32_t> &result, std::vector<double> &distances,
+                    std::vector<uint32_t> &result, std::vector<float> &distances,
                     size_t search_k = (size_t)-1 )
     {
         result.clear(); distances.clear();
@@ -200,8 +200,8 @@ public:
         m_AnnIndex.get_nns_by_item( id, n, search_k, &result, &distances );
     }
 
-    void kNN_By_Vector(const std::vector<double> &v, size_t n, 
-                    std::vector<uint32_t> &result, std::vector<double> &distances,
+    void kNN_By_Vector(const std::vector<float> &v, size_t n, 
+                    std::vector<uint32_t> &result, std::vector<float> &distances,
                     size_t search_k = (size_t)-1 )
     {
         if (v.size() != m_nFields)
@@ -210,8 +210,8 @@ public:
         m_AnnIndex.get_nns_by_vector( &v[0], n, search_k, &result, &distances );
     }
 
-    void kNN_By_Vector(const std::vector<double> &v, size_t n, 
-                    std::vector<std::string> &result, std::vector<double> &distances,
+    void kNN_By_Vector(const std::vector<float> &v, size_t n, 
+                    std::vector<std::string> &result, std::vector<float> &distances,
                     size_t search_k = (size_t)-1 )
     {
         vector<uint32_t>    resultIds;

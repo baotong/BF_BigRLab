@@ -1,3 +1,9 @@
+/*
+ * BUILD:
+ * GLOG_logtostderr=1 ./wordknn.bin -build -idata vec3.txt -nfields 200 -ntrees 10 -idx index.ann -wt words_table.txt
+ * LOAD & Start Server
+ * GLOG_logtostderr=1 ./wordknn.bin -nfields 200 -idx index.ann -wt words_table.txt -algname knn_star -algmgr localhost:9001 -svraddr 192.168.210.128:10080
+ */
 #include "rpc_module.h"
 #include "AlgMgrService.h"
 #include "KnnService.h"
@@ -28,10 +34,11 @@ DEFINE_int32(ntrees, 0, "num of trees to build.");
 DEFINE_string(idx, "", "filename to save the tree.");
 DEFINE_string(wt, "", "filename to save words table.");
 // args for server
+DEFINE_string(algname, "", "Name of this algorithm");
 DEFINE_string(algmgr, "", "Address algorithm server manager, in form of addr:port");
 DEFINE_string(svraddr, "", "Address of this RPC algorithm server, in form of addr:port");
 DEFINE_int32(n_work_threads, 10, "Number of work threads on RPC server");
-DEFINE_int32(n_io_threads, 3, "Number of io threads on RPC server");
+DEFINE_int32(n_io_threads, 4, "Number of io threads on RPC server");
 
 namespace {
 
@@ -56,7 +63,11 @@ bool check_not_empty(const char* flagname, const std::string &value)
 }
 
 static bool validate_idata(const char* flagname, const std::string &value) 
-{ return check_not_empty(flagname, value); }
+{ 
+    if (!FLAGS_build)
+        return true;
+    return check_not_empty(flagname, value); 
+}
 static const bool idata_dummy = gflags::RegisterFlagValidator(&FLAGS_idata, &validate_idata);
 
 static bool validate_nfields(const char* flagname, gflags::int32 value) 
@@ -64,7 +75,11 @@ static bool validate_nfields(const char* flagname, gflags::int32 value)
 static const bool nfields_dummy = gflags::RegisterFlagValidator(&FLAGS_nfields, &validate_nfields);
 
 static bool validate_ntrees(const char* flagname, gflags::int32 value) 
-{ return check_above_zero(flagname, value); }
+{ 
+    if (!FLAGS_build)
+        return true;
+    return check_above_zero(flagname, value); 
+}
 static const bool ntrees_dummy = gflags::RegisterFlagValidator(&FLAGS_ntrees, &validate_ntrees);
 
 static bool validate_idx(const char* flagname, const std::string &value) 
@@ -74,6 +89,14 @@ static const bool idx_dummy = gflags::RegisterFlagValidator(&FLAGS_idx, &validat
 static bool validate_wt(const char* flagname, const std::string &value) 
 { return check_not_empty(flagname, value); }
 static const bool wt_dummy = gflags::RegisterFlagValidator(&FLAGS_wt, &validate_wt);
+
+static bool validate_algname(const char* flagname, const std::string &value) 
+{ 
+    if (FLAGS_build)
+        return true;
+    return check_not_empty(flagname, value); 
+}
+static const bool algname_dummy = gflags::RegisterFlagValidator(&FLAGS_algname, &validate_algname);
 
 static 
 bool validate_algmgr(const char* flagname, const std::string &value) 
@@ -193,6 +216,7 @@ public:
     do { \
         std::stringstream __err_stream; \
         __err_stream << args; \
+        __err_stream.flush(); \
         InvalidRequest __input_request_err; \
         __input_request_err.reason = std::move(__err_stream.str()); \
         throw __input_request_err; \
@@ -207,7 +231,7 @@ void KnnServiceHandler::queryByItem(std::vector<Result> & _return,
         THROW_INVALID_REQUEST("Invalid n value " << n);
 
     vector<string>    result;
-    vector<double>    distances;
+    vector<float>    distances;
 
     g_pWordAnnDB->kNN_By_Word( item, n, result, distances );
 
@@ -218,6 +242,7 @@ void KnnServiceHandler::queryByItem(std::vector<Result> & _return,
     } // for
 }
 
+// 若用double，annoy buildidx会崩溃
 void KnnServiceHandler::queryByVector(std::vector<Result> & _return, 
             const std::vector<double> & values, const int32_t n)
 {
@@ -227,9 +252,10 @@ void KnnServiceHandler::queryByVector(std::vector<Result> & _return,
         THROW_INVALID_REQUEST("Invalid n value " << n);
 
     vector<string>    result;
-    vector<double>    distances;
+    vector<float>    distances;
+    vector<float>       fValues( values.begin(), values.end() );
 
-    g_pWordAnnDB->kNN_By_Vector( values, n, result, distances );
+    g_pWordAnnDB->kNN_By_Vector( fValues, n, result, distances );
 
     _return.resize( result.size() );
     for (size_t i = 0; i < result.size(); ++i) {
@@ -246,8 +272,9 @@ void KnnServiceHandler::queryByVector(std::vector<Result> & _return,
 typedef BigRLab::ThriftClient< BigRLab::AlgMgrServiceClient > AlgMgrClient;
 typedef BigRLab::ThriftServer< KNN::KnnServiceIf, KNN::KnnServiceProcessor > KnnAlgServer;
 static AlgMgrClient::Pointer    g_pAlgMgrClient;
-static KnnAlgServer::Pointer    g_pKnnAlgServer;
+static KnnAlgServer::Pointer    g_pThisServer;
 static boost::shared_ptr<BigRLab::AlgSvrInfo>  g_pSvrInfo;
+static boost::asio::io_service                 g_io_service;
 
 static
 bool get_local_ip( std::string &result )
@@ -307,6 +334,28 @@ void start_rpc_service()
     g_pSvrInfo->nWorkThread = FLAGS_n_work_threads;
 
     // start client to alg_mgr
+    g_pAlgMgrClient = boost::make_shared< AlgMgrClient >(g_strAlgMgrAddr, g_nAlgMgrPort);
+    try {
+        g_pAlgMgrClient->start();
+        int ret = (*g_pAlgMgrClient)()->addSvr(FLAGS_algname, *g_pSvrInfo);
+        if (ret != BigRLab::SUCCESS) {
+            cerr << "Register alg server fail, return value is " << ret << endl;
+            exit(-1);
+        } // if
+    } catch (const std::exception &ex) {
+        cerr << "Unable to connect to algmgr server, " << ex.what() << endl;
+        exit(-1);
+    } // try
+
+    // start this alg server
+    boost::shared_ptr< KNN::KnnServiceIf > pHandler = boost::make_shared< KNN::KnnServiceHandler >();
+    g_pThisServer = boost::make_shared< KnnAlgServer >(pHandler, g_nThisPort);
+    try {
+        g_pThisServer->start();
+    } catch (const std::exception &ex) {
+        cerr << "Start this alg server fail, " << ex.what() << endl;
+        exit(-1);
+    } // try
 }
 
 static
@@ -361,6 +410,13 @@ void do_load_routine()
     start_rpc_service();
 }
 
+static
+void finish()
+{
+    (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
+    g_pAlgMgrClient->stop();
+    g_pThisServer->stop();
+}
 
 int main( int argc, char **argv )
 {
@@ -370,6 +426,14 @@ int main( int argc, char **argv )
         google::InitGoogleLogging(argv[0]);
         gflags::ParseCommandLineFlags(&argc, &argv, true);
 
+        // install signal handler
+        auto pIoServiceWork = boost::make_shared< boost::asio::io_service::work >(std::ref(g_io_service));
+        boost::asio::signal_set signals(g_io_service, SIGINT, SIGTERM);
+        signals.async_wait( [](const boost::system::error_code& error, int signal)
+                { finish(); } );
+
+        auto io_service_thr = std::thread( [&]{ g_io_service.run(); } );
+
         g_pWordAnnDB.reset( new WordAnnDB(FLAGS_nfields) );
 
         if (FLAGS_build)
@@ -377,9 +441,11 @@ int main( int argc, char **argv )
         else
             do_load_routine();
 
-        // Test::test();
-        // Test::test_kNN_By_Vector();
-        // Test::handle_cmd();
+        pIoServiceWork.reset();
+        g_io_service.stop();
+        if (io_service_thr.joinable())
+            io_service_thr.join();
+        cout << argv[0] << " done!" << endl;
 
     } catch (const std::exception &ex) {
         cerr << "main caught exception: " << ex.what() << endl;
@@ -388,307 +454,5 @@ int main( int argc, char **argv )
 
     return 0;
 }
-
-
-
-
-
-
-/*
- * namespace Test {
- *     void test_annoy_write()
- *     {
- *         using namespace std;
- *         ifstream ifs("vectors_10.txt", ios::in);
- *         string line, word;
- *         int nFields;
- * 
- *         getline( ifs, line );
- *         // getline( ifs, line );
- * 
- *         stringstream str(line);
- *         str >> word;
- *         cout << word << endl;
- * 
- *         vector<float> vec;
- *         read_into_container( str, vec );
- *         nFields = vec.size();
- *         cout << nFields << endl;
- *         Test::print_container( cout, vec );
- * 
- *         AnnoyIndex< uint32_t, float, Angular, RandRandom > aIndex( nFields );
- *         aIndex.add_item( 5, &vec[0] );
- *         aIndex.build( 10 );
- *         aIndex.save( "test.ann" );
- * 
- *         exit(0);
- *     }
- * 
- *     void test_annoy_read( int nFields )
- *     {
- *         using namespace std;
- * 
- *         AnnoyIndex< uint32_t, float, Angular, RandRandom > aIndex( nFields );
- *         aIndex.load( "test.ann" );
- * 
- *         vector<float> vec(nFields);
- *         // id 错了不会改变vec
- *         aIndex.get_item( 4, &vec[0] );
- *         Test::print_container( cout, vec );
- * 
- *         exit(0);
- *     }
- * } // namespace Test
- */
-
-/*
- * static
- * void parse_args( int argc, char **argv )
- * {
- *     auto print_and_exit = [] {
- *         print_usage();
- *         exit(0);
- *     };
- * 
- *     if (argc < 4)
- *         print_and_exit();
- * 
- *     char    *parg = NULL;
- *     char    optc;
- *     int     i;
- * 
- *     if (strcmp(argv[1], "build") == 0) {
- *         g_eRunType = BUILD;
- *         for (i = 2; i < argc;) {
- *             parg = argv[i];
- *             if ( *parg++ != '-' )
- *                 print_and_exit();
- *             optc = *parg;
- *             if (optc == 'i') {
- *                 g_cstrInputDataFile = argv[++i];
- *             } else if (optc == 'f') {
- *                 if (sscanf(argv[++i], "%d", &g_nVecSize) != 1)
- *                     print_and_exit();
- *             } else if (strcmp(parg, "nt") == 0) {
- *                 if (sscanf(argv[++i], "%d", &g_nTrees) != 1)
- *                     print_and_exit();
- *             } else if (strcmp(parg, "oIdx") == 0) {
- *                 g_cstrOutputIdxFile = argv[++i];
- *             } else if (strcmp(parg, "oWt") == 0) {
- *                 g_cstrOutputWordFile = argv[++i];
- *             } else {
- *                 print_and_exit();
- *             } // if
- * 
- *             ++i;
- *         } // for
- * 
- *     } else if (strcmp(argv[1], "load") == 0) {
- *         g_eRunType = LOAD;
- *         for (i = 2; i < argc;) {
- *             parg = argv[i];
- *             if ( *parg++ != '-' )
- *                 print_and_exit();
- *             optc = *parg;
- *             if (strcmp(parg, "iIdx") == 0) {
- *                 g_cstrInputIdxFile = argv[++i];
- *             } else if (strcmp(parg, "iWt") == 0) {
- *                 g_cstrInputWordFile = argv[++i];
- *             } else if (optc == 'f') {
- *                 if (sscanf(argv[++i], "%d", &g_nVecSize) != 1)
- *                     print_and_exit();
- *             } else {
- *                 print_and_exit();
- *             } // if
- * 
- *             ++i;
- *         } // for
- *     } else {
- *         print_and_exit();
- *     } // if
- * }
- */
-
-
-/*
- * static
- * void check_args()
- * {
- *     using namespace std;
- * 
- *     auto err_exit = [] (const char *msg) {
- *         cerr << msg << endl;
- *         exit(-1);
- *     };
- * 
- *     if (g_eRunType == BUILD) {
- *         if (!g_cstrInputDataFile)
- *             err_exit( "no input data file specified." );
- *         if (g_nVecSize <= 0)
- *             err_exit( "Invalid vector size." );
- *         if (g_nTrees <= 0)
- *             err_exit( "Invalid number of trees." );
- *         if (!g_cstrOutputIdxFile)
- *             err_exit( "no output index file specified." );
- *         if (!g_cstrOutputWordFile)
- *             err_exit( "no output word table file specified." );
- * 
- *     } else if (g_eRunType == LOAD) {
- *         if (!g_cstrInputIdxFile)
- *             err_exit( "no input index file specified." );
- *         if (!g_cstrInputWordFile)
- *             err_exit( "no input word table file specified." );
- *         if (g_nVecSize <= 0)
- *             err_exit( "Invalid vector size." );
- *     } // if
- * }
- */
-
-
-/*
- * namespace Test {
- * 
- *     template < typename T >
- *     std::ostream& print_container( std::ostream &os, const T &c )
- *     {
- *         typedef typename T::value_type value_type;
- *         std::copy( c.begin(), c.end(), std::ostream_iterator<value_type>(os, " ") );
- *         os << std::endl;
- * 
- *         return os;
- *     }
- * 
- *     void handle_cmd()
- *     {
- *         using namespace std;
- * 
- *         cout << "Input command: " << endl;
- * 
- *         string line, cmd;
- *         while ( getline(cin, line) ) {
- *             stringstream str(line);
- *             str >> cmd;
- *             try {
- *                 if ("query" == cmd) {
- *                     string word;
- *                     vector<float> v;
- *                     str >> word;
- *                     g_pWordAnnDB->getVector(word, v);
- *                     cout << "values of word " << word << ":" << endl;
- *                     print_container(cout, v);
- *                 } else if ("knn" == cmd) {
- *                     string            word;
- *                     size_t            n;
- *                     vector<string>    result;
- *                     vector<float>     distances;
- * 
- *                     str >> word >> n;
- *                     g_pWordAnnDB->kNN_By_Word( word, n, result, distances );
- *                     cout << "got " << result.size() << " results:" << endl;
- *                     for (size_t i = 0; i < result.size(); ++i)
- *                         cout << result[i] << "\t" << distances[i] << endl;
- * 
- *                 }  else if ("dist" == cmd) {
- *                     string w1, w2;
- *                     str >> w1 >> w2;
- *                     float dist = g_pWordAnnDB->getDistance(w1, w2);
- *                     cout << "Distance between " << w1 << " and " << w2 << " is: " << dist << endl;
- * 
- *                 } else if ("quit" == cmd) {
- *                     break;
- *                 } else {
- *                     cout << "Invalid command!" << endl;
- *                     continue;
- *                 } // if
- * 
- *             } catch (const InvalidInput &err) {
- *                 cerr << err.what() << endl;
- *                 continue;
- *             } // try
- *         } // while
- * 
- *         cout << "handle_cmd() Done!" << endl;
- *     }
- * 
- *     void test_kNN_By_Vector()
- *     {
- *         using namespace std;
- * 
- *         size_t              n;
- *         vector<float>       inputVec;
- *         vector<string>      result;
- *         vector<uint32_t>    resultIds;
- *         vector<float>       distances;
- *         string              line;
- * 
- *         // read n
- *         {
- *             getline(cin, line);
- *             stringstream str(line);
- *             str >> n;
- *         }
- * 
- *         // read inputvec
- *         {
- *             getline(cin, line);
- *             stringstream str(line);
- *             read_into_container( str, inputVec );
- *         }
- * 
- * 
- *         g_pWordAnnDB->kNN_By_Vector( inputVec, n, resultIds, distances );
- * 
- *         result.resize( resultIds.size() );
- *         for (std::size_t i = 0; i != resultIds.size(); ++i) {
- *             g_pWordAnnDB->getWordById( resultIds[i], result[i] );
- *             // LOG_IF(WARNING, !ret) << "cannot find word with id " << resultIds[i];
- *         } // for
- * 
- *         cout << "got " << result.size() << " results:" << endl;
- *         for (size_t i = 0; i < result.size(); ++i)
- *             cout << result[i] << "\t" << distances[i] << endl;
- * 
- *         exit(0);
- *     }
- * 
- *     void print_args()
- *     {
- *         using namespace std;
- *         cout << "g_cstrInputDataFile = " << (g_cstrInputDataFile ? g_cstrInputDataFile : "NULL") << endl;
- *         cout << "g_cstrInputIdxFile = " << (g_cstrInputIdxFile ? g_cstrInputIdxFile : "NULL") << endl;
- *         cout << "g_cstrInputWordFile = " << (g_cstrInputWordFile ? g_cstrInputWordFile : "NULL") << endl;
- *         cout << "g_cstrOutputIdxFile = " << (g_cstrOutputIdxFile ? g_cstrOutputIdxFile : "NULL") << endl;
- *         cout << "g_cstrOutputWordFile = " << (g_cstrOutputWordFile ? g_cstrOutputWordFile : "NULL") << endl;
- *         cout << "g_nVecSize = " << g_nVecSize << endl;
- *         cout << "g_nTrees = " << g_nTrees << endl;
- *         cout << "g_eRunType = " << (g_eRunType == BUILD ? "BUILD" : "LOAD") << endl;
- *     }
- * 
- *     void test()
- *     {
- *         using namespace std;
- *         cout << "Total words in database: " << g_pWordAnnDB->size() << endl;    
- *         exit(0);
- *     }
- * 
- * } // namespace Test
- */
-
-/*
- * static inline
- * void print_usage()
- * {
- *     using namespace std;
- * 
- *     cout << "Usage: " << endl;
- *     cout << "For building index from data file:" << endl;
- *     cout << "\t" << "./wordann build -i input_data_file -f n_vector_size "
- *          << "-nt n_trees " << "-oIdx output_index_file " 
- *          << "-oWt output_words_file" << endl;
- *     cout << "For loading index file from previous built:" << endl;
- *     cout << "\t" << "./wordann load -f n_vector_size -iIdx input_index_file " 
- *          << "-iWt input_words_file" << endl;
- * }
- */
 
 

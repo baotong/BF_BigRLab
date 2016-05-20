@@ -65,7 +65,10 @@ public:
         } // if
     }
 
-    boost::shared_ptr<ServerType> server()
+    boost::shared_ptr<ServerType> operator()(void) const
+    { return server(); }
+
+    boost::shared_ptr<ServerType> server() const
     { return m_pServer; }
 
 private:
@@ -117,8 +120,17 @@ public:
         } // if
     }
 
-    boost::shared_ptr<ClientType> client()
+    boost::shared_ptr<ClientType> operator()(void) const
+    { return client(); }
+
+    boost::shared_ptr<ClientType> client() const
     { return m_pClient; }
+
+    boost::shared_ptr<ClientType> operator->() const
+	{ return client(); }
+
+    ClientType& operator*() const
+    { return *client(); }
 
 private:
     std::string                         m_strSvrAddr;

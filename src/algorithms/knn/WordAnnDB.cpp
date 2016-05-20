@@ -16,7 +16,7 @@ std::pair<uint32_t, bool> WordAnnDB::addRecord( const std::string &line )
     if (!str)
         throw InvalidInput( line, "Incorrect format" );
 
-    vector<double> values;
+    vector<float> values;
     read_into_container( str, values );
 
     if ( !(str.eof() || str.good()) )

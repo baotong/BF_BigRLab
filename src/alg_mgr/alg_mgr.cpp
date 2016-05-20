@@ -4,7 +4,7 @@
 #include <string>
 #include <ctime>
 #include <iostream>
-// #include <atomic>
+#include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/lockable_adapter.hpp>
 #include <glog/logging.h>
@@ -177,6 +177,17 @@ typedef ThriftServer< AlgMgrServiceIf, AlgMgrServiceProcessor > AlgMgrServer;
 } // namespace BigRLab
 
 
+// global vars
+static boost::shared_ptr< BigRLab::AlgMgrServer >   g_pServer;
+static boost::asio::io_service                 g_io_service;
+
+static
+void finish()
+{
+    g_pServer->stop();
+}
+
+
 int main( int argc, char **argv )
 {
     using namespace BigRLab;
@@ -185,10 +196,22 @@ int main( int argc, char **argv )
     try {
         google::InitGoogleLogging(argv[0]);
 
-        boost::shared_ptr< AlgMgrServiceIf > pHandler = boost::make_shared<AlgMgrServiceHandler>();
-        auto pServer = boost::make_shared<AlgMgrServer>(pHandler, 9001);
-        pServer->start();
+        // install signal handler
+        auto pIoServiceWork = boost::make_shared< boost::asio::io_service::work >(std::ref(g_io_service));
+        boost::asio::signal_set signals(g_io_service, SIGINT, SIGTERM);
+        signals.async_wait( [](const boost::system::error_code& error, int signal)
+                { finish(); } );
 
+        auto io_service_thr = boost::thread( [&]{ g_io_service.run(); } );
+
+        boost::shared_ptr< AlgMgrServiceIf > pHandler = boost::make_shared<AlgMgrServiceHandler>();
+        g_pServer = boost::make_shared<AlgMgrServer>(pHandler, 9001);
+        g_pServer->start();
+
+        pIoServiceWork.reset();
+        g_io_service.stop();
+        if (io_service_thr.joinable())
+            io_service_thr.join();
         cout << "AlgMgr server Done!" << endl;
 
     } catch (const std::exception &ex) {

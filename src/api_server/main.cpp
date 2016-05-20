@@ -1,18 +1,40 @@
+/*
+ * GLOG_logtostderr=1 ./apiserver.bin -conf ../../conf/server.conf
+ */
 #include "api_server.h"
 #include "service_manager.h"
-
+#include <gflags/gflags.h>
 
 using namespace BigRLab;
 using namespace std;
 
-// TODO set by arg
-static const char            *g_cstrServerConfFileName = "conf/server.conf";
 // IO service 除了server用之外，还可用作信号处理和定时器，不应该为server所独有
 static IoServicePtr          g_pIoService;
 static IoServiceWorkPtr      g_pWork;
 static ThreadGroupPtr        g_pIoThrgrp;
 static boost::shared_ptr<APIServer>       g_pApiServer;
 static boost::shared_ptr< boost::thread > g_pRunServerThread;
+
+DEFINE_string(conf, "", "server conf file path");
+
+namespace {
+
+static inline
+bool check_not_empty(const char* flagname, const std::string &value) 
+{
+    if (value.empty()) {
+        cerr << "value of " << flagname << " cannot be empty" << endl;
+        return false;
+    } // if
+    return true;
+}
+
+static bool validate_conf(const char* flagname, const std::string &value) 
+{ return check_not_empty(flagname, value); }
+static const bool conf_dummy = gflags::RegisterFlagValidator(&FLAGS_conf, &validate_conf);
+
+} // namespace
+
 
 namespace Test {
 
@@ -48,7 +70,7 @@ void init()
 
     APIServerHandler handler;
     ServerType::options opts(handler);
-    g_pApiServer.reset(new APIServer(opts, g_pIoService, g_pIoThrgrp, g_cstrServerConfFileName));
+    g_pApiServer.reset(new APIServer(opts, g_pIoService, g_pIoThrgrp, FLAGS_conf.c_str()));
     g_pWorkMgr.reset(new WorkManager<WorkItem>(g_pApiServer->nWorkThreads()) );
     cout << g_pApiServer->toString() << endl;
 }
@@ -174,6 +196,7 @@ int main( int argc, char **argv )
 {
     try {
         google::InitGoogleLogging(argv[0]);
+        gflags::ParseCommandLineFlags(&argc, &argv, true);
 
         // Test::test1(argc, argv);
         

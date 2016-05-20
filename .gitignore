@@ -2,4 +2,8 @@
 *.bin*
 *.swp
 *.so
+*.ann
+*.txt
+*.old
+*.bak
 tags

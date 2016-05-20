@@ -1,11 +1,11 @@
-all: server client
+all: server
 
 CC = c++
 
 COMM_SRC = $(shell find gen-cpp -type f -name '*.cpp')
 INCLUDE = -I./gen-cpp 
 COMM_LIBS = -lglog -lthrift -lboost_thread -lboost_system
-COMM_FLAGS = -std=c++11 -O3 -g
+COMM_FLAGS = -std=c++11 -pthread -O3 -g
 
 server: alg_mgr_svr.bin
 client: test_client.bin

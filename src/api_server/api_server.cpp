@@ -97,7 +97,8 @@ void APIServer::run()
 void APIServer::stop()
 {
     m_bRunning = false;
-    m_pServer->stop();   // 是异步的 async_stop
+    if (m_pServer)
+        m_pServer->stop();   // 是异步的 async_stop
     // 不能在这里join这些 io thread 需要io_service结束后
     // m_pIoThrgrp->join_all();
 }
