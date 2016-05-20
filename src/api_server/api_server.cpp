@@ -172,7 +172,7 @@ try {
     LOG(ERROR) << "APIServerHandler exception " << ex.what();
 }
 
-// TODO use boost::asio_read on socket directly
+// NOT sure, use boost::asio_read on socket directly
 void WorkItem::readBody( const ServerType::connection_ptr &conn )
 {
     using namespace std;
