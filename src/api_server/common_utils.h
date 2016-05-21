@@ -11,7 +11,6 @@
 #include <boost/thread.hpp>
 #include <boost/thread/lockable_adapter.hpp>
 #include <boost/thread/condition_variable.hpp>
-// #include <boost/date_time.hpp>
 #include <boost/chrono.hpp>
 #include <glog/logging.h>
 
@@ -30,9 +29,8 @@
 
 namespace BigRLab {
 
-// TODO use boost::ioService 
 template < typename T >
-class SharedQueue : private std::deque<T> {
+class SharedQueue : public std::deque<T> {
     typedef typename std::deque<T>   BaseType;
 public:
     SharedQueue( std::size_t _MaxSize = UINT_MAX ) 
@@ -40,7 +38,7 @@ public:
 
     bool full() const { return this->size() >= maxSize; }
 
-    void push( const T &elem )
+    void push( const T& elem )
     {
         boost::unique_lock<boost::mutex> lk(lock);
 
@@ -53,20 +51,70 @@ public:
         condRd.notify_one();
     }
 
-    T pop()
+    void push( T&& elem )
+    {
+        boost::unique_lock<boost::mutex> lk(lock);
+
+        while( this->full() )
+            condWr.wait( lk );
+
+        this->push_back( std::move(elem) );
+
+        lk.unlock();
+        condRd.notify_one();
+    }
+
+    void pop( T& retval )
     {
         boost::unique_lock<boost::mutex> lk(lock);
         
         while( this->empty() )
             condRd.wait( lk );
 
-        T retval = std::move(this->front());
+        retval = std::move(this->front());
         this->pop_front();
 
         lk.unlock();
         condWr.notify_one();
+    }
 
+    T pop()
+    {
+        T retval;
+        this->pop( retval );
         return retval;
+    }
+
+    bool timed_push( const T& elem, std::size_t timeout )
+    {
+        boost::unique_lock<boost::mutex> lk(lock);
+
+        if (!condWr.wait_for(lk, boost::chrono::milliseconds(timeout),
+                    [this]()->bool {return !this->full();}))
+            return false;
+
+        this->push_back( elem );
+
+        lk.unlock();
+        condRd.notify_one();
+
+        return true;
+    }
+
+    bool timed_push( T&& elem, std::size_t timeout )
+    {
+        boost::unique_lock<boost::mutex> lk(lock);
+
+        if (!condWr.wait_for(lk, boost::chrono::milliseconds(timeout),
+                    [this]()->bool {return !this->full();}))
+            return false;
+
+        this->push_back( std::move(elem) );
+
+        lk.unlock();
+        condRd.notify_one();
+
+        return true;
     }
 
     bool timed_pop( T& retval, std::size_t timeout )
