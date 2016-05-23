@@ -24,7 +24,9 @@ namespace Test {
 
 namespace BigRLab {
 
-boost::shared_ptr< WorkManager<WorkItemBase> >   g_pWorkMgr;
+WorkManager::Pointer WorkManager::pInstance;
+
+boost::shared_ptr< WorkManager >             g_pWorkMgr;
 boost::shared_ptr<APIServer>                 g_pApiServer;
 
 

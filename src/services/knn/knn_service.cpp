@@ -65,14 +65,17 @@ void KnnService::handleCommand( std::stringstream &stream )
             auto ret = querySet.insert( std::make_pair(item, QuerySet::mapped_type()) );
             WorkItemBasePtr pQueryWork = boost::make_shared<QueryWork>( ret.first, k, &counter, 
                     &cond, &m_queIdleClients, this->name().c_str() );
+            WorkManager::getInstance()->addWork( pQueryWork );
         } // while
 
         if (querySet.empty())
             ERR_RET("Service " << name() << ": item list cannot be empty!");
 
         boost::unique_lock<boost::mutex> lock(mtx);
-        cond.wait_for( lock, boost::chrono::milliseconds(2 * TIMEOUT), 
-                [&]()->bool {return counter >= querySet.size();} );
+        if (!cond.wait_for( lock, boost::chrono::milliseconds(2 * TIMEOUT), 
+                    [&]()->bool {return counter >= querySet.size();} )) {
+            cout << "Wait timeout, " << " result may be incomplete." << endl;
+        } // if
 
         // print the result
         for (const auto &v : querySet) {

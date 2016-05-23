@@ -36,6 +36,7 @@ void ServiceManager::addService( int argc, char **argv )
 
     const char *libpath = argv[0];
 
+    dlerror();
     void *srvHandle = dlopen(libpath, RTLD_LAZY);
     if (!srvHandle)
         THROW_RUNTIME_ERROR( "addService cannot load service lib "

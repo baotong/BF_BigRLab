@@ -146,13 +146,12 @@ struct WorkItem : WorkItemBase
 typedef boost::shared_ptr<WorkItem>   WorkItemPtr;
 
 
-template < typename WorkType, typename PointerType = boost::shared_ptr<WorkType> >
 class WorkManager {
 public:
-    typedef typename boost::shared_ptr< WorkManager<WorkType, PointerType> >    Pointer;
+    typedef typename boost::shared_ptr< WorkManager >    Pointer;
 
     static void init( std::size_t nWorker )
-    { pInstance.reset(new WorkManager<WorkType, PointerType>(nWorker)); }
+    { pInstance.reset(new WorkManager(nWorker)); }
 
     static Pointer getInstance()
     { return pInstance; }
@@ -162,24 +161,24 @@ public:
     {
         for (std::size_t i = 0; i < m_nWorkThreads; ++i)
             m_Thrgrp.create_thread( 
-                    std::bind(&WorkManager<WorkType, PointerType>::run, this) );
+                    std::bind(&WorkManager::run, this) );
     }
 
     void stop()
     {
         for (std::size_t i = 0; i < 2 * m_nWorkThreads; ++i)
-            m_WorkQueue.push( PointerType() );
+            m_WorkQueue.push( WorkItemBasePtr() );
         m_Thrgrp.join_all();
         m_WorkQueue.clear();
     }
 
-    void addWork( const PointerType &pWork )
+    void addWork( const WorkItemBasePtr &pWork )
     { m_WorkQueue.push(pWork); }
 
     template <typename U>
     void addWork( const U &p )
     { 
-        PointerType pWork = boost::dynamic_pointer_cast<WorkItemBase>(p);
+        WorkItemBasePtr pWork = boost::dynamic_pointer_cast<WorkItemBase>(p);
         if (!pWork)
             throw std::bad_cast();
         m_WorkQueue.push(pWork); 
@@ -197,7 +196,7 @@ private:
     void run()
     {
         while (true) {
-            PointerType pWork = m_WorkQueue.pop();
+            auto pWork = m_WorkQueue.pop();
             // 空指针表示结束工作线程
             if (!pWork)
                 return;
@@ -212,7 +211,7 @@ private:
 private:
     static Pointer      pInstance;
 
-    SharedQueue<PointerType>    m_WorkQueue;
+    SharedQueue<WorkItemBasePtr>    m_WorkQueue;
     boost::thread_group     m_Thrgrp;
     std::size_t             m_nWorkThreads;
 };
@@ -228,7 +227,7 @@ void send_response(const ServerType::connection_ptr &conn,
 }
 
 
-extern boost::shared_ptr< WorkManager<WorkItemBase> >   g_pWorkMgr;
+extern boost::shared_ptr< WorkManager >   g_pWorkMgr;
 
 } // namespace BigRLab
 
