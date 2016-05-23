@@ -2,6 +2,7 @@
 #include <sstream>
 #include <random>
 #include <algorithm>
+#include <iterator>
 #include <glog/logging.h>
 
 using namespace BigRLab;
@@ -17,14 +18,35 @@ void KnnService::handleRequest(const BigRLab::WorkItemPtr &pWork)
     send_response(pWork->conn, ServerType::connection::ok, "Service knn running...\n");
 }
 
+/**
+ * @brief 
+ * service knn items k item1 item2 ... itemn
+ * service knn file k input output
+ */
 void KnnService::handleCommand( std::stringstream &stream )
 {
-    cout << "Service knn got command: ";
+    using namespace std;
 
     string cmd;
-    while (stream >> cmd)
-        cout << cmd << " ";
-    cout << endl;
+    stream >> cmd;
+
+    if (cmd.empty())
+        ERR_RET("Service " << name() << ": command cannot be empty!");
+
+    if ("items" == cmd) {
+        vector<string> itemList;
+        std::copy( istream_iterator<string>(stream),
+                istream_iterator<string>(), back_inserter(itemList) );
+
+    } // if
+
+
+    // cout << "Service knn got command: ";
+
+    // string cmd;
+    // while (stream >> cmd)
+        // cout << cmd << " ";
+    // cout << endl;
 }
 
 bool KnnService::init( int argc, char **argv )

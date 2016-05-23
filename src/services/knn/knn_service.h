@@ -13,15 +13,35 @@ extern "C" {
 
 
 class KnnService : public BigRLab::Service {
+public:
+    static const uint32_t       TIMEOUT = 5000;     // 5s
+public:
     typedef BigRLab::ThriftClient< KNN::KnnServiceClient > KnnClient;
+    typedef boost::shared_ptr<KnnClient>                   KnnClientPtr;
+    typedef boost::weak_ptr<KnnClient>                     KnnClientWptr;
 
     struct KnnClientTable : std::map< std::string, std::vector<KnnClient::Pointer> >
                           , boost::upgrade_lockable_adapter<boost::shared_mutex>
     {};
 
-    struct IdleClientQueue : std::deque< boost::weak_ptr<KnnClient> >
-                           , boost::basic_lockable_adapter<boost::mutex>
-    {};
+    struct IdleClientQueue : BigRLab::SharedQueue< KnnClientWptr > {
+        KnnClientPtr getIdleClient()
+        {
+            KnnClientPtr pRet;
+
+            do {
+                KnnClientWptr wptr;
+                if (!this->timed_pop(wptr, TIMEOUT))
+                    return KnnClientPtr();      // return empty ptr when no client available
+                pRet = wptr.lock();
+            } while (!pRet);
+
+            return pRet;
+        }
+        
+        void putBack( const KnnClientPtr &pClient )
+        { this->push( pClient ); }
+    };
 
 public:
     KnnService( const std::string &name ) : Service(name) {}

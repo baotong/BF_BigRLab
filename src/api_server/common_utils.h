@@ -27,6 +27,24 @@
         throw std::runtime_error( __err_stream.str() ); \
     } while (0)
 
+#define ERR_RET(args) \
+    do { \
+        std::stringstream __err_stream; \
+        __err_stream << args; \
+        __err_stream.flush(); \
+        std::cerr << __err_stream.str() << std::endl; \
+        return; \
+    } while (0)
+
+#define ERR_RET_VAL(val, args) \
+    do { \
+        std::stringstream __err_stream; \
+        __err_stream << args; \
+        __err_stream.flush(); \
+        std::cerr << __err_stream.str() << std::endl; \
+        return val; \
+    } while (0)
+
 namespace BigRLab {
 
 template < typename T >
@@ -42,7 +60,7 @@ public:
     {
         boost::unique_lock<boost::mutex> lk(lock);
 
-        while( this->full() )
+        while ( this->full() )
             condWr.wait( lk );
 
         this->push_back( elem );
@@ -55,7 +73,7 @@ public:
     {
         boost::unique_lock<boost::mutex> lk(lock);
 
-        while( this->full() )
+        while ( this->full() )
             condWr.wait( lk );
 
         this->push_back( std::move(elem) );
@@ -68,7 +86,7 @@ public:
     {
         boost::unique_lock<boost::mutex> lk(lock);
         
-        while( this->empty() )
+        while ( this->empty() )
             condRd.wait( lk );
 
         retval = std::move(this->front());
