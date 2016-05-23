@@ -11,11 +11,27 @@ using namespace std;
 Service* create_instance()
 { return new KnnService("knn_star"); }
 
-void KnnService::handleRequest(const BigRLab::WorkItemPtr &pWork)
+void KnnService::QueryWork::run()
 {
-    cout << "Service knn received request: " << pWork->body << endl;
-    // throw InvalidInput("Service knn test exception.");
-    send_response(pWork->conn, ServerType::connection::ok, "Service knn running...\n");
+    LOG(INFO) << "Service " << srvName << " querying \"" << iter->first << "\"";
+
+    auto pClient = idleClients->getIdleClient();
+    if (!pClient) {
+        LOG(ERROR) << "Service " << srvName << " query \"" 
+                << iter->first << "\" fail! no client obj available.";
+        return;
+    } // if
+
+    try {
+        pClient->client()->queryByItem( iter->second, iter->first, k );
+    } catch (const std::exception &ex) {
+        LOG(ERROR) << "Service " << srvName << " query \"" 
+                << iter->first << "\" fail! " << ex.what();
+    } // try
+
+    idleClients->putBack( pClient );
+    ++*counter;
+    condCounter->notify_all();
 }
 
 /**
@@ -34,10 +50,37 @@ void KnnService::handleCommand( std::stringstream &stream )
         ERR_RET("Service " << name() << ": command cannot be empty!");
 
     if ("items" == cmd) {
-        vector<string> itemList;
-        std::copy( istream_iterator<string>(stream),
-                istream_iterator<string>(), back_inserter(itemList) );
+        int k;
+        stream >> k;
+        if (bad_stream(stream))
+            ERR_RET("Service " << name() << ": read k value fail!");
 
+        QuerySet querySet;
+        string item;
+        atomic_size_t counter;
+        boost::mutex                  mtx;
+        boost::condition_variable     cond;
+        counter = 0;
+        while (stream >> item) {
+            auto ret = querySet.insert( std::make_pair(item, QuerySet::mapped_type()) );
+            WorkItemBasePtr pQueryWork = boost::make_shared<QueryWork>( ret.first, k, &counter, 
+                    &cond, &m_queIdleClients, this->name().c_str() );
+        } // while
+
+        if (querySet.empty())
+            ERR_RET("Service " << name() << ": item list cannot be empty!");
+
+        boost::unique_lock<boost::mutex> lock(mtx);
+        cond.wait_for( lock, boost::chrono::milliseconds(2 * TIMEOUT), 
+                [&]()->bool {return counter >= querySet.size();} );
+
+        // print the result
+        for (const auto &v : querySet) {
+            cout << "Query results for item \"" << v.first << "\":" << endl;
+            for (const auto &sub : v.second)
+                cout << sub.item << "\t\t" << sub.weight << endl;
+        } // for
+        cout << endl;
     } // if
 
 
@@ -47,6 +90,13 @@ void KnnService::handleCommand( std::stringstream &stream )
     // while (stream >> cmd)
         // cout << cmd << " ";
     // cout << endl;
+}
+
+void KnnService::handleRequest(const BigRLab::WorkItemPtr &pWork)
+{
+    cout << "Service knn received request: " << pWork->body << endl;
+    // throw InvalidInput("Service knn test exception.");
+    send_response(pWork->conn, ServerType::connection::ok, "Service knn running...\n");
 }
 
 bool KnnService::init( int argc, char **argv )
@@ -86,5 +136,7 @@ bool KnnService::init( int argc, char **argv )
     std::shuffle(m_queIdleClients.begin(), m_queIdleClients.end(), g);
 
     LOG(INFO) << "Totally " << m_queIdleClients.size() << " client instances for service " << this->name();
+
+    return true;
 }
 

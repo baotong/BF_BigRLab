@@ -5,6 +5,12 @@
  * TODO list
  * 1. alg 的新加入和离开 algmgr要主动通知apiserver，然后转发给具体的service
  */
+/*
+ * Tests
+ * Service knn
+ * addservice ../services/knn/knn_service.so
+ * service knn_star items 10 李宇春 姚明
+ */
 #include "api_server.h"
 #include "service_manager.h"
 #include <gflags/gflags.h>
@@ -89,6 +95,7 @@ namespace Test {
 static
 void init()
 {
+    // LOG(INFO) << "Initializing...";
     g_pIoService = boost::make_shared<boost::asio::io_service>();
     g_pWork = boost::make_shared<boost::asio::io_service::work>(std::ref(*g_pIoService));
     g_pIoThrgrp = boost::make_shared<ThreadGroup>();
@@ -96,7 +103,9 @@ void init()
     APIServerHandler handler;
     ServerType::options opts(handler);
     g_pApiServer.reset(new APIServer(opts, g_pIoService, g_pIoThrgrp, FLAGS_conf.c_str()));
-    g_pWorkMgr.reset(new WorkManager<WorkItem>(g_pApiServer->nWorkThreads()) );
+    // g_pWorkMgr.reset(new WorkManager<WorkItemBase>(g_pApiServer->nWorkThreads()) );
+    WorkManager<WorkItemBase>::init(g_pApiServer->nWorkThreads());
+    g_pWorkMgr = WorkManager<WorkItemBase>::getInstance();
     cout << g_pApiServer->toString() << endl;
 }
 
@@ -159,8 +168,14 @@ void start_shell()
         return true;
     };
 
+    auto lsService = [](stringstream &stream)->bool {
+        return true;
+    };
+
     CmdProcessTable cmdTable;
     cmdTable["addservice"] = addService;
+    cmdTable["lsservice"] = lsService;
+    // TODO rmservice, lsservice
 
     string line;
 

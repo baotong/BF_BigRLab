@@ -24,7 +24,7 @@ namespace Test {
 
 namespace BigRLab {
 
-boost::shared_ptr< WorkManager<WorkItem> >   g_pWorkMgr;
+boost::shared_ptr< WorkManager<WorkItemBase> >   g_pWorkMgr;
 boost::shared_ptr<APIServer>                 g_pApiServer;
 
 
@@ -181,7 +181,7 @@ void WorkItem::readBody( const ServerType::connection_ptr &conn )
         conn->read( std::bind(&WorkItem::handleRead, shared_from_this(),
                placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4) );
     else
-        g_pWorkMgr->addWork( shared_from_this() );
+        g_pWorkMgr->addWork( boost::dynamic_pointer_cast<WorkItemBase>(shared_from_this()) );
 }
 
 // run in io thread
@@ -211,6 +211,8 @@ void WorkItem::run()
     using namespace std;
     using connection = ServerType::connection;
 
+    // LOG(INFO) << "WorkItem::run()";
+
     string::size_type startPos = req.destination.find_first_not_of('/');
     if (string::npos == startPos) {
         send_response(conn, connection::bad_request, "Invalid service name");
@@ -229,8 +231,10 @@ void WorkItem::run()
         return;
     } // if
     
+    // LOG(INFO) << "Forwarding request to " << srvName;
     ServicePtr pSrv;
     if (!ServiceManager::getInstance()->getService(srvName, pSrv)) {
+        // LOG(INFO) << "Service " << srvName << " not available!";
         send_response(conn, connection::service_unavailable, "Cannot find requested service");
         return;
     } // if
