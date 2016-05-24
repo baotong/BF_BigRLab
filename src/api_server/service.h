@@ -34,6 +34,17 @@ public:
     WorkManager::Pointer getWorkMgr() const
     { return m_pWorkMgr; }
 
+    std::string toString() const 
+    {
+        std::stringstream stream;
+        stream << "Service " << name() << std::endl;
+        stream << "Online servers:\n" << "IP:Port\t\tnWorkes:" << std::endl; 
+        for (const auto &v : m_arrAlgSvrInfo)
+            stream << v.addr << ":" << v.port << "\t\t" << v.nWorkThread << std::endl;
+        stream.flush();
+        return stream.str();
+    }
+
 protected:
     std::string                 m_strName;
     std::vector<AlgSvrInfo>     m_arrAlgSvrInfo;

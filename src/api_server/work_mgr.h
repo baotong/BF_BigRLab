@@ -16,13 +16,10 @@ class WorkManager {
 public:
     typedef typename boost::shared_ptr< WorkManager >    Pointer;
 
-    static void init( std::size_t nWorker )
-    { pInstance.reset(new WorkManager(nWorker)); }
-
-    static Pointer getInstance()
-    { return pInstance; }
-
 public:
+    explicit WorkManager( std::size_t _nWorker )
+            : m_nWorkThreads(_nWorker) {}
+
     void start()
     {
         for (std::size_t i = 0; i < m_nWorkThreads; ++i)
@@ -51,9 +48,6 @@ public:
     }
 
 private:
-    explicit WorkManager( std::size_t _nWorker )
-            : m_nWorkThreads(_nWorker) {}
-
     WorkManager(const WorkManager&) = delete;
     WorkManager(WorkManager&&) = delete;
     WorkManager& operator = (const WorkManager&) = delete;
@@ -75,8 +69,6 @@ private:
     }
 
 private:
-    static Pointer      pInstance;
-
     SharedQueue<WorkItemBasePtr>    m_WorkQueue;
     boost::thread_group     m_Thrgrp;
     std::size_t             m_nWorkThreads;

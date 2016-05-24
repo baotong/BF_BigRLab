@@ -103,9 +103,9 @@ void init()
     APIServerHandler handler;
     ServerType::options opts(handler);
     g_pApiServer.reset(new APIServer(opts, g_pIoService, g_pIoThrgrp, FLAGS_conf.c_str()));
-    // g_pWorkMgr.reset(new WorkManager<WorkItemBase>(g_pApiServer->nWorkThreads()) );
-    WorkManager::init(g_pApiServer->nWorkThreads());
-    g_pWorkMgr = WorkManager::getInstance();
+    g_pWorkMgr.reset(new WorkManager(g_pApiServer->nWorkThreads()) );
+    // WorkManager::init(g_pApiServer->nWorkThreads());
+    // g_pWorkMgr = WorkManager::getInstance();
     cout << g_pApiServer->toString() << endl;
 }
 
@@ -169,13 +169,50 @@ void start_shell()
     };
 
     auto lsService = [](stringstream &stream)->bool {
+        vector<string> strArgs;
+        string arg;
+
+        while (stream >> arg)
+            strArgs.push_back(arg);
+
+        ServiceManager::ServiceTable &table = ServiceManager::getInstance()->services();
+        if (strArgs.size() == 0) {
+            boost::shared_lock<ServiceManager::ServiceTable> lock(table);
+            for (const auto &v : table)
+                cout << v.second->pService->toString() << endl;
+        } else {
+            for (const auto &name : strArgs) {
+                Service::pointer pSrv;
+                if (ServiceManager::getInstance()->getService(name, pSrv))
+                    cout << pSrv->toString() << endl;
+                else
+                    cout << "No service named " << name << " found!" << endl;
+            } // for
+        } // if
+
+        return true;
+    };
+
+    auto rmService = [](stringstream &stream)->bool {
+        vector<string> strArgs;
+        string arg;
+
+        while (stream >> arg)
+            strArgs.push_back(arg);
+
+        if (strArgs.size() == 0)
+            return false;
+
+        for (const auto &name : strArgs)
+            ServiceManager::getInstance()->removeService( name );
+
         return true;
     };
 
     CmdProcessTable cmdTable;
     cmdTable["addservice"] = addService;
     cmdTable["lsservice"] = lsService;
-    // TODO rmservice, lsservice
+    cmdTable["rmservice"] = rmService;
 
     string line;
 

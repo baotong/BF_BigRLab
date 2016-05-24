@@ -34,6 +34,15 @@ void ServiceManager::addService( int argc, char **argv )
 
     // LOG(INFO) << "ServiceManager::addService() confFileName = " << confFileName;
 
+#define CLOSE_HANDLE_THROW_ERROR(handle, args) \
+    do { \
+        if (handle) { \
+            dlclose(handle); \
+            handle = NULL; \
+        } \
+        THROW_RUNTIME_ERROR(args); \
+    } while (0)
+
     const char *libpath = argv[0];
 
     dlerror();
@@ -52,10 +61,10 @@ void ServiceManager::addService( int argc, char **argv )
 
     g_pApiServer->algMgrClient()->client()->getAlgSvrList(pSrv->algServerList(), pSrv->name());
     if (pSrv->algServerList().size() == 0)
-        THROW_RUNTIME_ERROR("No alg server found for service " << pSrv->name());
+        CLOSE_HANDLE_THROW_ERROR(srvHandle, "No alg server found for service " << pSrv->name());
 
     if (!pSrv->init(argc, argv))
-        THROW_RUNTIME_ERROR("addService init service" << pSrv->name() << " fail!");
+        CLOSE_HANDLE_THROW_ERROR(srvHandle, "addService init service" << pSrv->name() << " fail!");
 
     ServiceInfoPtr pSrvInfo(new ServiceInfo(pSrv, srvHandle));
     // insert
@@ -66,17 +75,14 @@ void ServiceManager::addService( int argc, char **argv )
             THROW_RUNTIME_ERROR("Service " << pSrv->name() << " already exists!");
     } // insert
 
-    cout << "Add service " << pSrv->name() << " success." << endl;
-    cout << "Algorithm servers for " << pSrv->name() << ":" << endl;
-    for (const auto &v : pSrv->algServerList())
-        cout << v.addr << ":" << v.port << endl;
+    cout << "Add service success." << endl;
+    cout << pSrv->toString() << endl;
 
     return;
 }
 
 bool ServiceManager::removeService( const std::string &srvName )
 {
-    // TODO
     boost::unique_lock<ServiceTable> lock(m_mapServices);
     return m_mapServices.erase( srvName );
 }
@@ -94,6 +100,7 @@ bool ServiceManager::getService( const std::string &srvName, Service::pointer &p
 ServiceManager::ServiceInfo::~ServiceInfo()
 {
     if (pHandle) {
+        LOG(INFO) << "Closing handle for service " << this->pService->name();
         dlclose(pHandle);
         pHandle = NULL;
     } // if

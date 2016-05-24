@@ -1,5 +1,4 @@
 #include "knn_service.h"
-#include "work_mgr.h"
 #include <sstream>
 #include <random>
 #include <algorithm>
