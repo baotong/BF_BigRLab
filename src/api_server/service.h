@@ -29,9 +29,15 @@ public:
     std::vector<AlgSvrInfo>& algServerList()
     { return m_arrAlgSvrInfo; }
 
+    void setWorkMgr( const WorkManager::Pointer &_Ptr )
+    { m_pWorkMgr = _Ptr; }
+    WorkManager::Pointer getWorkMgr() const
+    { return m_pWorkMgr; }
+
 protected:
-    std::string         m_strName;
+    std::string                 m_strName;
     std::vector<AlgSvrInfo>     m_arrAlgSvrInfo;
+    WorkManager::Pointer        m_pWorkMgr;
 };
 
 typedef boost::shared_ptr<Service>    ServicePtr;

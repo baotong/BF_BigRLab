@@ -48,6 +48,7 @@ void ServiceManager::addService( int argc, char **argv )
     LOAD_FUNC(srvHandle, create_instance);
 
     ServicePtr pSrv(create_instance());
+    pSrv->setWorkMgr( g_pWorkMgr );
 
     g_pApiServer->algMgrClient()->client()->getAlgSvrList(pSrv->algServerList(), pSrv->name());
     if (pSrv->algServerList().size() == 0)

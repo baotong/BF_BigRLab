@@ -1,4 +1,5 @@
 #include "knn_service.h"
+#include "work_mgr.h"
 #include <sstream>
 #include <random>
 #include <algorithm>
@@ -55,6 +56,8 @@ void KnnService::handleCommand( std::stringstream &stream )
         if (bad_stream(stream))
             ERR_RET("Service " << name() << ": read k value fail!");
 
+        // LOG(INFO) << "k = " << k;
+
         QuerySet querySet;
         string item;
         atomic_size_t counter;
@@ -65,7 +68,8 @@ void KnnService::handleCommand( std::stringstream &stream )
             auto ret = querySet.insert( std::make_pair(item, QuerySet::mapped_type()) );
             WorkItemBasePtr pQueryWork = boost::make_shared<QueryWork>( ret.first, k, &counter, 
                     &cond, &m_queIdleClients, this->name().c_str() );
-            WorkManager::getInstance()->addWork( pQueryWork );
+            // LOG_IF(FATAL, !getWorkMgr()) << "getWorkMgr() returned nullptr!";
+            getWorkMgr()->addWork( pQueryWork );
         } // while
 
         if (querySet.empty())
