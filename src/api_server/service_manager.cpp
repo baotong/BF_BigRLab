@@ -2,15 +2,16 @@
 #include <dlfcn.h>
 
 // 要求函数指针名和库中的函数sym名一样
-#define LOAD_FUNC( handle, name ) do {                  \
-                            char *__load_func_error_str = 0;    \
-                            *(void **) (&(name)) = dlsym(handle, #name);        \
-                            if ((__load_func_error_str = dlerror()) != NULL) {       \
-                                dlclose(handle);                \
-                                THROW_RUNTIME_ERROR( "addService cannot find symbol " \
-                                        << #name << " in lib file!" );       \
-                            }                                       \
-                        } while(0) 
+#define LOAD_FUNC( handle, name ) \
+    do { \
+        char *__load_func_error_str = 0; \
+        *(void **) (&(name)) = dlsym(handle, #name); \
+        if ((__load_func_error_str = dlerror()) != NULL) { \
+            dlclose(handle); \
+            THROW_RUNTIME_ERROR( "addService cannot find symbol " \
+                    << #name << " in lib file!" ); \
+        } \
+    } while(0) 
 
 
 namespace BigRLab {
@@ -59,9 +60,11 @@ void ServiceManager::addService( int argc, char **argv )
     ServicePtr pSrv(create_instance());
     pSrv->setWorkMgr( g_pWorkMgr );
 
-    g_pApiServer->algMgrClient()->client()->getAlgSvrList(pSrv->algServerList(), pSrv->name());
-    if (pSrv->algServerList().size() == 0)
-        CLOSE_HANDLE_THROW_ERROR(srvHandle, "No alg server found for service " << pSrv->name());
+    // TODO 若在加载lib之前有alg server启动，那么加载lib，创建service实例时候应该读取这些已加入的server
+    // 像之前一样
+    // g_pApiServer->algMgrClient()->client()->getAlgSvrList(pSrv->algServerList(), pSrv->name());
+    // if (pSrv->algServerList().size() == 0)
+        // CLOSE_HANDLE_THROW_ERROR(srvHandle, "No alg server found for service " << pSrv->name());
 
     if (!pSrv->init(argc, argv))
         CLOSE_HANDLE_THROW_ERROR(srvHandle, "addService init service" << pSrv->name() << " fail!");
@@ -95,6 +98,13 @@ bool ServiceManager::getService( const std::string &srvName, Service::pointer &p
         return false;
     pSrv = it->second->pService;
     return true;
+}
+
+void ServiceManager::addAlgServer( const std::string& algName, const AlgSvrInfo& svrInfo )
+{
+    ServicePtr pSrv;
+    if (getService(algName, pSrv))
+        pSrv->addServer( svrInfo );
 }
 
 ServiceManager::ServiceInfo::~ServiceInfo()

@@ -37,7 +37,7 @@ public:
     static const uint32_t       DEFAULT_N_WORK_THREADS = 100;
     static const uint16_t       DEFAULT_PORT = 9000;
 public:
-    typedef ThriftClient< AlgMgrServiceClient > AlgMgrClient;
+    // typedef ThriftClient< AlgMgrServiceClient > AlgMgrClient;
 
 public:
     explicit APIServer( const ServerType::options &_Opts,
@@ -72,8 +72,6 @@ public:
         os << "port: " << m_nPort << endl;
         os << "n_io_threads: " << m_nIoThreads << endl;
         os << "n_work_threads: " << m_nWorkThreads << endl;
-        os << "algmgr server addr: " << m_strAlgMgrAddr << endl;
-        os << "algmgr server port: " << m_nAlgMgrPort << endl;
 
         return os.str();
     }
@@ -90,8 +88,8 @@ public:
     uint32_t nWorkThreads() const
     { return m_nWorkThreads; }
 
-    AlgMgrClient::Pointer algMgrClient() const
-    { return m_pAlgMgrClient; }
+    // AlgMgrClient::Pointer algMgrClient() const
+    // { return m_pAlgMgrClient; }
 
 private:
     PropertyTable       m_mapProperties;
@@ -106,9 +104,9 @@ private:
     ThreadGroupPtr      m_pIoThrgrp;
     
     // AlgMgrSvr
-    std::string         m_strAlgMgrAddr;
-    uint16_t            m_nAlgMgrPort;
-    AlgMgrClient::Pointer    m_pAlgMgrClient;
+    // std::string         m_strAlgMgrAddr;
+    // uint16_t            m_nAlgMgrPort;
+    // AlgMgrClient::Pointer    m_pAlgMgrClient;
 };
 
 extern boost::shared_ptr<APIServer>       g_pApiServer;

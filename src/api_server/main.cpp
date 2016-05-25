@@ -13,6 +13,7 @@
  */
 #include "api_server.h"
 #include "service_manager.h"
+#include "alg_mgr.h"
 #include <gflags/gflags.h>
 
 using namespace BigRLab;
@@ -122,7 +123,7 @@ void stop_server()
 static
 void start_server()
 {
-    cout << "Launching api server..." << endl;
+    cout << "Launching API server..." << endl;
 
     g_pWorkMgr->start();
 
@@ -134,6 +135,12 @@ void start_server()
                     g_pApiServer->stop();
                 } // try
         }));
+
+    cout << "API server ready!" << endl;
+
+    cout << "Launching Algorithm Manager server..." << endl;
+    start_alg_mgr();
+    cout << "Algorithm Manager server ready!" << endl;
 }
 
 static
@@ -177,10 +184,12 @@ void start_shell()
 
         ServiceManager::ServiceTable &table = ServiceManager::getInstance()->services();
         if (strArgs.size() == 0) {
+            // list all
             boost::shared_lock<ServiceManager::ServiceTable> lock(table);
             for (const auto &v : table)
                 cout << v.second->pService->toString() << endl;
         } else {
+            // only list specified in args
             for (const auto &name : strArgs) {
                 Service::pointer pSrv;
                 if (ServiceManager::getInstance()->getService(name, pSrv))
@@ -214,8 +223,6 @@ void start_shell()
     cmdTable["lsservice"] = lsService;
     cmdTable["rmservice"] = rmService;
 
-    string line;
-
     cout << "BigRLab shell launched." << endl;
 
 #define INVALID_CMD { \
@@ -230,13 +237,19 @@ void start_shell()
     // wait server start
     for (int i = 0; i < 20; ++i) {
         SLEEP_MILLISECONDS(100);
-        if (g_pApiServer->isRunning())
+        if (g_pApiServer->isRunning() && g_pAlgMgrServer->isRunning())
             break;
     } // for
 
+    string line;
     while (true) {
         if (!g_pApiServer->isRunning()) {
-            cout << "Server has been shutdown!" << endl;
+            cout << "API server not running!" << endl;
+            break;
+        } // if
+
+        if (!g_pAlgMgrServer->isRunning()) {
+            cout << "Algorithm Manager server not running!" << endl;
             break;
         } // if
 
@@ -297,6 +310,7 @@ int main( int argc, char **argv )
 
         cout << "Terminating server program..." << endl;
         stop_server();
+        stop_alg_mgr();
         g_pWork.reset();
         g_pIoService->stop();
         g_pIoThrgrp->join_all();

@@ -21,6 +21,7 @@ public:
     typedef KnnClient::Pointer                             KnnClientPtr;
     typedef boost::weak_ptr<KnnClient>                     KnnClientWptr;
 
+    // {"ip:port" : [client]}
     struct KnnClientTable : std::map< std::string, std::vector<KnnClientPtr> >
                           , boost::upgrade_lockable_adapter<boost::shared_mutex>
     {};

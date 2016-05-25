@@ -32,6 +32,7 @@ public:
     void addService( int argc, char **argv );
     bool removeService( const std::string &srvName );
     bool getService( const std::string &srvName, Service::pointer &pSrv );
+    void addAlgServer( const std::string& algName, const AlgSvrInfo& svrInfo );
 
     ServiceTable& services() { return m_mapServices; }
 
