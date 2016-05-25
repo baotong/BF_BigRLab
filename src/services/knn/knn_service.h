@@ -18,10 +18,10 @@ public:
     static const uint32_t       TIMEOUT = 5000;     // 5s
 public:
     typedef BigRLab::ThriftClient< KNN::KnnServiceClient > KnnClient;
-    typedef boost::shared_ptr<KnnClient>                   KnnClientPtr;
+    typedef KnnClient::Pointer                             KnnClientPtr;
     typedef boost::weak_ptr<KnnClient>                     KnnClientWptr;
 
-    struct KnnClientTable : std::map< std::string, std::vector<KnnClient::Pointer> >
+    struct KnnClientTable : std::map< std::string, std::vector<KnnClientPtr> >
                           , boost::upgrade_lockable_adapter<boost::shared_mutex>
     {};
 

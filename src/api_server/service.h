@@ -34,7 +34,7 @@ public:
     WorkManager::Pointer getWorkMgr() const
     { return m_pWorkMgr; }
 
-    std::string toString() const 
+    virtual std::string toString() const 
     {
         std::stringstream stream;
         stream << "Service " << name() << std::endl;
