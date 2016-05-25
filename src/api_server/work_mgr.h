@@ -41,7 +41,7 @@ public:
     template <typename U>
     void addWork( const U &p )
     { 
-        WorkItemBasePtr pWork = boost::dynamic_pointer_cast<WorkItemBase>(p);
+        WorkItemBasePtr pWork = boost::static_pointer_cast<WorkItemBase>(p);
         if (!pWork)
             throw std::bad_cast();
         m_WorkQueue.push(pWork); 

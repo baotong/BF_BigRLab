@@ -181,7 +181,7 @@ void WorkItem::readBody( const ServerType::connection_ptr &conn )
         conn->read( std::bind(&WorkItem::handleRead, shared_from_this(),
                placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4) );
     else
-        g_pWorkMgr->addWork( boost::dynamic_pointer_cast<WorkItemBase>(shared_from_this()) );
+        g_pWorkMgr->addWork( boost::static_pointer_cast<WorkItemBase>(shared_from_this()) );
 }
 
 // run in io thread

@@ -50,12 +50,18 @@ public:
     virtual void addServer( const AlgSvrInfo& svrInfo )
     {
         boost::unique_lock<ServerSet> lock(m_setAlgSvrInfo);
-        // overwrite
         auto ret = m_setAlgSvrInfo.insert( svrInfo );
+        // overwrite
         if (!ret.second) {
             auto it = m_setAlgSvrInfo.erase(ret.first);
             m_setAlgSvrInfo.insert( it, svrInfo );
         } // if
+    }
+
+    virtual void rmServer( const AlgSvrInfo& svrInfo )
+    {
+        boost::unique_lock<ServerSet> lock(m_setAlgSvrInfo);
+        m_setAlgSvrInfo.erase( svrInfo );
     }
 
     virtual std::string toString() const 

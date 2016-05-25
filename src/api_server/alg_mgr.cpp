@@ -4,12 +4,19 @@
 
 namespace BigRLab {
 
-AlgMgrServer::Pointer   g_pAlgMgrServer;
+AlgMgrServer::Pointer                   g_pAlgMgrServer;
+boost::shared_ptr<AlgMgrServiceHandler> g_pAlgMgrHandler;
 
 int32_t AlgMgrServiceHandler::addSvr(const std::string& algName, const AlgSvrInfo& svrInfo)
 {
     LOG(INFO) << "received addSvr request: name = " << algName << " info = "
         << svrInfo.addr << ":" << svrInfo.port << " maxConcurrency = " << svrInfo.maxConcurrency;
+
+#define ADD_TO_SRVMGR_RET_SUCCESS \
+    do { \
+        ServiceManager::getInstance()->addAlgServer( algName, svrInfo ); \
+        return SUCCESS; \
+    } while (0)
 
     boost::upgrade_lock< AlgSvrTable > sLock(m_mapSvrTable);
     auto it = m_mapSvrTable.find( algName );
@@ -20,7 +27,7 @@ int32_t AlgMgrServiceHandler::addSvr(const std::string& algName, const AlgSvrInf
                             boost::make_shared<AlgSvrRecord>(svrInfo)) );
         // m_mapSvrTable[algName].insert( it, std::make_pair(svrInfo.addr,
                             // boost::make_shared<AlgSvrRecord>(svrInfo)) );
-        return SUCCESS;
+        ADD_TO_SRVMGR_RET_SUCCESS;
     } // if
 
     // else
@@ -34,7 +41,7 @@ int32_t AlgMgrServiceHandler::addSvr(const std::string& algName, const AlgSvrInf
                             boost::make_shared<AlgSvrRecord>(svrInfo)) );
         // subTable.insert( range.second, std::make_pair(svrInfo.addr,
                             // boost::make_shared<AlgSvrRecord>(svrInfo)) );
-        return SUCCESS;
+        ADD_TO_SRVMGR_RET_SUCCESS;
     } // if
 
     // else
@@ -49,7 +56,9 @@ int32_t AlgMgrServiceHandler::addSvr(const std::string& algName, const AlgSvrInf
     // subTable.insert( range.second, std::make_pair(svrInfo.addr,
                 // boost::make_shared<AlgSvrRecord>(svrInfo)) );
     
-    return SUCCESS;
+    ADD_TO_SRVMGR_RET_SUCCESS;
+
+#undef ADD_TO_SRVMGR_RET_SUCCESS
 }
 
 void AlgMgrServiceHandler::rmSvr(const std::string& algName, const AlgSvrInfo& svrInfo)
@@ -76,6 +85,8 @@ void AlgMgrServiceHandler::rmSvr(const std::string& algName, const AlgSvrInfo& s
             ++sit;
         } // if
     } // for
+
+    ServiceManager::getInstance()->rmAlgServer( algName, svrInfo );
 }
 
 void AlgMgrServiceHandler::informAlive(const std::string& algName, const AlgSvrInfo& svrInfo)
@@ -99,20 +110,20 @@ void AlgMgrServiceHandler::informAlive(const std::string& algName, const AlgSvrI
     return;
 }
 
-// void AlgMgrServiceHandler::getAlgSvrList(std::vector<AlgSvrInfo> & _return, const std::string& name)
-// {
-    // _return.clear();
-    // boost::upgrade_lock< AlgSvrTable > sLock(m_mapSvrTable);
-    // auto it = m_mapSvrTable.find( name );
-    // if ( it == m_mapSvrTable.end() )
-        // return;
+void AlgMgrServiceHandler::getAlgSvrList(std::vector<AlgSvrInfo> & _return, const std::string& name)
+{
+    _return.clear();
+    boost::upgrade_lock< AlgSvrTable > sLock(m_mapSvrTable);
+    auto it = m_mapSvrTable.find( name );
+    if ( it == m_mapSvrTable.end() )
+        return;
 
-    // AlgSvrSubTable &subTable = it->second;
-    // boost::upgrade_lock< AlgSvrSubTable > sSubLock(subTable);
-    // _return.reserve( subTable.size() );
-    // for (auto &v : subTable)
-        // _return.push_back( v.second->svrInfo );
-// }
+    AlgSvrSubTable &subTable = it->second;
+    boost::upgrade_lock< AlgSvrSubTable > sSubLock(subTable);
+    _return.reserve( subTable.size() );
+    for (auto &v : subTable)
+        _return.push_back( v.second->svrInfo );
+}
 
 
 static boost::shared_ptr<boost::thread> s_pAlgMgrSvrThread;
@@ -124,9 +135,10 @@ void start_alg_mgr()
 
     auto thr_func = [&] {
         try {
-            boost::shared_ptr< AlgMgrServiceIf > pHandler = boost::make_shared<AlgMgrServiceHandler>();
+            g_pAlgMgrHandler = boost::make_shared<AlgMgrServiceHandler>();
             // TODO m_nIoThreads && m_nWorkThreads configurable
-            g_pAlgMgrServer = boost::make_shared<AlgMgrServer>(pHandler, ALG_MGR_SERV_PORT);
+            g_pAlgMgrServer = boost::make_shared<AlgMgrServer>(
+                    boost::static_pointer_cast<AlgMgrServiceIf>(g_pAlgMgrHandler), ALG_MGR_SERV_PORT);
             g_pAlgMgrServer->start();
         } catch (const std::exception &ex) {
             LOG(ERROR) << "Start algmgr server fail!";

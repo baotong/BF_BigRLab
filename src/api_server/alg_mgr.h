@@ -48,8 +48,7 @@ public:
     virtual void rmSvr(const std::string& algName, const AlgSvrInfo& svrInfo);
     virtual void informAlive(const std::string& algName, const AlgSvrInfo& svrInfo); // TODO timer
 
-    // for api server
-    // virtual void getAlgSvrList(std::vector<AlgSvrInfo> & _return, const std::string& name);
+    void getAlgSvrList(std::vector<AlgSvrInfo> & _return, const std::string& name);
 
 private:
     AlgSvrTable     m_mapSvrTable;
@@ -58,6 +57,7 @@ private:
 
 typedef ThriftServer< AlgMgrServiceIf, AlgMgrServiceProcessor > AlgMgrServer;
 extern AlgMgrServer::Pointer   g_pAlgMgrServer;
+extern boost::shared_ptr<AlgMgrServiceHandler> g_pAlgMgrHandler;
 
 extern void start_alg_mgr();
 extern void stop_alg_mgr();

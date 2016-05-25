@@ -33,6 +33,7 @@ public:
     bool removeService( const std::string &srvName );
     bool getService( const std::string &srvName, Service::pointer &pSrv );
     void addAlgServer( const std::string& algName, const AlgSvrInfo& svrInfo );
+    void rmAlgServer( const std::string& algName, const AlgSvrInfo& svrInfo );
 
     ServiceTable& services() { return m_mapServices; }
 
@@ -48,6 +49,8 @@ private:
 private:
     ServiceTable   m_mapServices;
 };
+
+// extern ServiceManager::pointer      g_pServiceMgr;
 
 
 } // namespace BigRLab
