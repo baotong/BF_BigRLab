@@ -21,28 +21,24 @@ public:
     typedef KnnClient::Pointer                             KnnClientPtr;
     typedef boost::weak_ptr<KnnClient>                     KnnClientWptr;
 
-    // {"ip:port" : [client]}
-    struct KnnClientTable : std::map< std::string, std::vector<KnnClientPtr> >
-                          , boost::upgrade_lockable_adapter<boost::shared_mutex>
-    {};
-
     struct IdleClientQueue : BigRLab::SharedQueue< KnnClientWptr > {
-        KnnClientPtr getIdleClient()
-        {
-            KnnClientPtr pRet;
-
-            do {
-                KnnClientWptr wptr;
-                if (!this->timed_pop(wptr, TIMEOUT))
-                    return KnnClientPtr();      // return empty ptr when no client available
-                pRet = wptr.lock();
-            } while (!pRet);
-
-            return pRet;
-        }
+        KnnClientPtr getIdleClient();
         
         void putBack( const KnnClientPtr &pClient )
         { this->push( pClient ); }
+    };
+
+    struct KnnClientArr : ServerAttr {
+        KnnClientArr(const BigRLab::AlgSvrInfo &svr, 
+                     IdleClientQueue *idleQue, int n);
+
+        bool empty() const
+        { return clients.empty(); }
+
+        std::size_t size() const
+        { return clients.size(); }
+
+        std::vector<KnnClientPtr> clients;
     };
 
     typedef std::map< std::string, std::vector<KNN::Result> >  QuerySet;
@@ -73,11 +69,15 @@ public:
 public:
     KnnService( const std::string &name ) : Service(name) {}
 
-    virtual bool init( int argc, char **argv );
+    virtual bool init( int argc, char **argv ) { return true; }
     virtual void handleRequest(const BigRLab::WorkItemPtr &pWork);
     virtual void handleCommand( std::stringstream &stream );
+    virtual void addServer( const BigRLab::AlgSvrInfo& svrInfo,
+                            const ServerAttr::Pointer &p = ServerAttr::Pointer() );
+    virtual std::string toString() const;
+    // use Service::rmServer()
+    // virtual void rmServer( const BigRLab::AlgSvrInfo& svrInfo );
 private:
-    KnnClientTable   m_mapClientTable;
     IdleClientQueue  m_queIdleClients;
 };
 

@@ -159,6 +159,9 @@ public:
         BaseType::clear();
     }
 
+    boost::mutex& mutex()
+    { return std::ref(lock); }
+
 protected:
     const std::size_t             maxSize;
     boost::mutex                  lock;

@@ -65,11 +65,8 @@ void ServiceManager::addService( int argc, char **argv )
     // get servers already registered
     std::vector<AlgSvrInfo> _servers;
     g_pAlgMgrHandler->getAlgSvrList( _servers, pSrv->name() );
-    // insert 
-    {
-        boost::unique_lock<Service::ServerSet> lock(pSrv->servers());
-        pSrv->servers().insert( _servers.begin(), _servers.end() );
-    } // insert
+    for (const auto &v : _servers)
+        pSrv->addServer( v );
 
     if (!pSrv->init(argc, argv))
         CLOSE_HANDLE_THROW_ERROR(srvHandle, "addService init service" << pSrv->name() << " fail!");
