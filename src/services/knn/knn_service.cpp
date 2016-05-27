@@ -298,15 +298,9 @@ void KnnService::handleCommand( std::stringstream &stream )
         do_with_items();
     } else if ("file" == cmd) {
         do_with_file();
-    } // if
-
-
-    // cout << "Service knn got command: ";
-
-    // string cmd;
-    // while (stream >> cmd)
-        // cout << cmd << " ";
-    // cout << endl;
+    } else {
+        cerr << "Invalid command!" << endl;
+    }// if
 }
 
 void KnnService::handleRequest(const BigRLab::WorkItemPtr &pWork)

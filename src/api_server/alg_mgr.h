@@ -38,7 +38,7 @@ public:
                           , boost::upgrade_lockable_adapter<boost::shared_mutex>
     {};
 
-    // { algname : {addr : Record} }
+    // { algname : {addr_without_port : Record} }
     struct AlgSvrTable : std::map<std::string, AlgSvrSubTable>
                        , boost::upgrade_lockable_adapter<boost::shared_mutex>
     {};

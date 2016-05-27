@@ -338,6 +338,7 @@ void start_rpc_service()
     g_pAlgMgrClient = boost::make_shared< AlgMgrClient >(g_strAlgMgrAddr, g_nAlgMgrPort);
     try {
         g_pAlgMgrClient->start();
+        (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
         int ret = (*g_pAlgMgrClient)()->addSvr(FLAGS_algname, *g_pSvrInfo);
         if (ret != BigRLab::SUCCESS) {
             cerr << "Register alg server fail, return value is " << ret << endl;
@@ -412,15 +413,14 @@ void do_load_routine()
     start_rpc_service();
 }
 
+// 信号处理函数中只做 stop server, 其他工作在main函数中完成，不宜在此做。
+// 否则如果apiserver已经退出，SIGINT 退出本程序会core dump
 static
-void finish()
+void stop_server()
 {
-    if (g_pAlgMgrClient)
-        (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
-    if (g_pAlgMgrClient)
-        g_pAlgMgrClient->stop();
     if (g_pThisServer)
         g_pThisServer->stop();
+    // LOG(INFO) << "stop server done!";
 }
 
 int main( int argc, char **argv )
@@ -435,7 +435,7 @@ int main( int argc, char **argv )
         auto pIoServiceWork = boost::make_shared< boost::asio::io_service::work >(std::ref(g_io_service));
         boost::asio::signal_set signals(g_io_service, SIGINT, SIGTERM);
         signals.async_wait( [](const boost::system::error_code& error, int signal)
-                { finish(); } );
+                { stop_server(); } );
 
         auto io_service_thr = std::thread( [&]{ g_io_service.run(); } );
 
@@ -450,6 +450,12 @@ int main( int argc, char **argv )
         g_io_service.stop();
         if (io_service_thr.joinable())
             io_service_thr.join();
+
+        if (g_pAlgMgrClient) {
+            (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
+            g_pAlgMgrClient->stop();
+        } // if
+
         cout << argv[0] << " done!" << endl;
 
     } catch (const std::exception &ex) {
