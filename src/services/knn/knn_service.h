@@ -42,31 +42,6 @@ public:
         std::vector<KnnClientPtr> clients;
     };
 
-    typedef std::map< std::string, std::vector<KNN::Result> >  QuerySet;
-
-    struct QueryWork : BigRLab::WorkItemBase {
-        QueryWork( QuerySet::iterator _Iter,
-                   int _K,
-                   std::atomic_size_t *_Counter,
-                   boost::condition_variable *_Cond,
-                   IdleClientQueue *_Clients,
-                   const char *_SrvName )
-            : iter(_Iter), k(_K)
-            , counter(_Counter)
-            , condCounter(_Cond)
-            , idleClients(_Clients)
-            , srvName(_SrvName) {}
-
-        virtual void run();
-
-        int k;
-        IdleClientQueue   *idleClients;
-        std::atomic_size_t  *counter;
-        boost::condition_variable *condCounter;
-        QuerySet::iterator iter;
-        const char *srvName;
-    };
-
 public:
     KnnService( const std::string &name ) : Service(name) {}
 
