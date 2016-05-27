@@ -62,12 +62,6 @@ void ServiceManager::addService( int argc, char **argv )
     ServicePtr pSrv(create_instance());
     pSrv->setWorkMgr( g_pWorkMgr );
 
-    // get servers already registered
-    std::vector<AlgSvrInfo> _servers;
-    g_pAlgMgrHandler->getAlgSvrList( _servers, pSrv->name() );
-    for (const auto &v : _servers)
-        pSrv->addServer( v );
-
     if (!pSrv->init(argc, argv))
         CLOSE_HANDLE_THROW_ERROR(srvHandle, "addService init service" << pSrv->name() << " fail!");
 
@@ -79,6 +73,12 @@ void ServiceManager::addService( int argc, char **argv )
         if (!ret.second)
             THROW_RUNTIME_ERROR("Service " << pSrv->name() << " already exists!");
     } // insert
+
+    // get servers already registered
+    std::vector<AlgSvrInfo> _servers;
+    g_pAlgMgrHandler->getAlgSvrList( _servers, pSrv->name() );
+    for (const auto &v : _servers)
+        pSrv->addServer( v );
 
     cout << "Add service success." << endl;
     cout << pSrv->toString() << endl;
@@ -104,6 +104,9 @@ bool ServiceManager::getService( const std::string &srvName, Service::pointer &p
 
 void ServiceManager::addAlgServer( const std::string& algName, const AlgSvrInfo& svrInfo )
 {
+    LOG(INFO) << "ServiceManager::addAlgServer() algName = " << algName
+              << ", server = " << svrInfo.addr << ":" << svrInfo.port;
+
     ServicePtr pSrv;
     if (getService(algName, pSrv))
         pSrv->addServer( svrInfo );
@@ -111,6 +114,9 @@ void ServiceManager::addAlgServer( const std::string& algName, const AlgSvrInfo&
 
 void ServiceManager::rmAlgServer( const std::string& algName, const AlgSvrInfo& svrInfo )
 {
+    LOG(INFO) << "ServiceManager::rmAlgServer() algName = " << algName
+              << ", server = " << svrInfo.addr << ":" << svrInfo.port;
+
     ServicePtr pSrv;
     if (getService(algName, pSrv))
         pSrv->rmServer( svrInfo );

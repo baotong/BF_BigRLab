@@ -131,7 +131,7 @@ static boost::shared_ptr<boost::thread> s_pAlgMgrSvrThread;
 void start_alg_mgr()
 {
     if (g_pAlgMgrServer && g_pAlgMgrServer->isRunning())
-        stop_alg_mgr();
+        return;
 
     auto thr_func = [&] {
         try {
@@ -151,6 +151,9 @@ void start_alg_mgr()
 
 void stop_alg_mgr()
 {
+    if (!g_pAlgMgrServer)
+        return;
+
     try {
         g_pAlgMgrServer->stop();
         if (s_pAlgMgrSvrThread && s_pAlgMgrSvrThread->joinable())

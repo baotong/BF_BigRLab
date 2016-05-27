@@ -17,8 +17,9 @@ public:
     typedef typename boost::shared_ptr< WorkManager >    Pointer;
 
 public:
-    explicit WorkManager( std::size_t _nWorker )
-            : m_nWorkThreads(_nWorker) {}
+    explicit WorkManager( std::size_t _nWorker, std::size_t _WorkQueSize = UINT_MAX )
+            : m_nWorkThreads(_nWorker) 
+            , m_WorkQueue(_WorkQueSize) {}
 
     void start()
     {

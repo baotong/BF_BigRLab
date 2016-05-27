@@ -2,7 +2,7 @@
  * BUILD:
  * GLOG_logtostderr=1 ./wordknn.bin -build -idata vec3.txt -nfields 200 -ntrees 10 -idx index.ann -wt words_table.txt
  * LOAD & Start Server
- * GLOG_logtostderr=1 ./wordknn.bin -nfields 200 -idx index.ann -wt words_table.txt -algname knn_star -algmgr localhost:9001 -svraddr 192.168.210.128:10080
+ * GLOG_logtostderr=1 ./wordknn.bin -nfields 200 -idx index.ann -wt words_table.txt -algname knn_star -algmgr localhost:9001 -svraddr 192.168.210.129:10080
  */
 #include "rpc_module.h"
 #include "AlgMgrService.h"
@@ -331,9 +331,10 @@ void start_rpc_service()
     g_pSvrInfo = boost::make_shared<BigRLab::AlgSvrInfo>();
     g_pSvrInfo->addr = addr;
     g_pSvrInfo->port = (int16_t)g_nThisPort;
-    g_pSvrInfo->nWorkThread = FLAGS_n_work_threads;
+    g_pSvrInfo->maxConcurrency = FLAGS_n_work_threads;
 
     // start client to alg_mgr
+    cout << "Registering server..." << endl;
     g_pAlgMgrClient = boost::make_shared< AlgMgrClient >(g_strAlgMgrAddr, g_nAlgMgrPort);
     try {
         g_pAlgMgrClient->start();
@@ -348,10 +349,11 @@ void start_rpc_service()
     } // try
 
     // start this alg server
+    cout << "Launching alogrithm server... " << endl;
     boost::shared_ptr< KNN::KnnServiceIf > pHandler = boost::make_shared< KNN::KnnServiceHandler >();
     g_pThisServer = boost::make_shared< KnnAlgServer >(pHandler, g_nThisPort);
     try {
-        g_pThisServer->start();
+        g_pThisServer->start(); //!! NOTE blocking until quit
     } catch (const std::exception &ex) {
         cerr << "Start this alg server fail, " << ex.what() << endl;
         exit(-1);
@@ -413,9 +415,12 @@ void do_load_routine()
 static
 void finish()
 {
-    (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
-    g_pAlgMgrClient->stop();
-    g_pThisServer->stop();
+    if (g_pAlgMgrClient)
+        (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
+    if (g_pAlgMgrClient)
+        g_pAlgMgrClient->stop();
+    if (g_pThisServer)
+        g_pThisServer->stop();
 }
 
 int main( int argc, char **argv )

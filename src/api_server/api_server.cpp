@@ -194,10 +194,8 @@ void WorkItem::handleRead(ServerType::connection::input_range range,
         return;
     } // if
 
-    if (size > left2Read) {
-        LOG(ERROR) << "Invalid size " << size << " left2Read = " << left2Read;
-        return;
-    } // if
+    if (size > left2Read)
+        size = left2Read;
 
     body.append(boost::begin(range), size);
     left2Read -= size;

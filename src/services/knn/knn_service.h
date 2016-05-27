@@ -1,5 +1,6 @@
 #include "service.h"
 #include "KnnService.h"
+#include "AlgMgrService.h"
 #include <map>
 #include <vector>
 #include <deque>

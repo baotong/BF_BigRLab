@@ -50,10 +50,13 @@ public:
 
     void start()
     {
-        stop();
-        m_bRunning = true;
-        m_pThrMgr->start();
-        m_pServer->serve();
+        if (!m_bRunning) {
+            m_bRunning = true;
+            m_pThrMgr->start();
+            m_pServer->serve();
+        } // if
+
+        // LOG_IF(ERROR, m_bRunning) << "rpc_module server already running!";
     }
 
     void stop()
@@ -108,9 +111,12 @@ public:
 
     void start()
     { 
-        stop();
-        m_bRunning = true;
-        m_pTransport->open(); 
+        if (!m_bRunning) {
+            m_bRunning = true;
+            m_pTransport->open(); 
+        } // if
+
+        // LOG_IF(ERROR, m_bRunning) << "rpc_module client already running!";
     }
 
     void stop()

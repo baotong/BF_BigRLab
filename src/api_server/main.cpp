@@ -104,7 +104,7 @@ void init()
     APIServerHandler handler;
     ServerType::options opts(handler);
     g_pApiServer.reset(new APIServer(opts, g_pIoService, g_pIoThrgrp, FLAGS_conf.c_str()));
-    g_pWorkMgr.reset(new WorkManager(g_pApiServer->nWorkThreads()) );
+    g_pWorkMgr.reset(new WorkManager(g_pApiServer->nWorkThreads(), 30000) );
     // WorkManager::init(g_pApiServer->nWorkThreads());
     // g_pWorkMgr = WorkManager::getInstance();
     cout << g_pApiServer->toString() << endl;

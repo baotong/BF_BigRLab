@@ -54,6 +54,7 @@ public:
     virtual void addServer( const AlgSvrInfo& svrInfo,
                             const ServerAttr::Pointer &p = ServerAttr::Pointer() )
     {
+        LOG(INFO) << "Service::addServer() " << svrInfo.addr << ":" << svrInfo.port;
         boost::unique_lock<ServerTable> lock(m_mapServers);
         m_mapServers.insert( std::make_pair(svrInfo, p) );
         // overwrite ??
@@ -61,6 +62,7 @@ public:
 
     virtual void rmServer( const AlgSvrInfo& svrInfo )
     {
+        LOG(INFO) << "Service::rmServer() " << svrInfo.addr << ":" << svrInfo.port;
         boost::unique_lock<ServerTable> lock(m_mapServers);
         m_mapServers.erase( svrInfo );
     }

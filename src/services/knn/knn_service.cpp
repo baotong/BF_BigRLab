@@ -27,21 +27,34 @@ KnnService::KnnClientPtr KnnService::IdleClientQueue::getIdleClient()
 
 KnnService::KnnClientArr::KnnClientArr(const BigRLab::AlgSvrInfo &svr, 
                                     IdleClientQueue *idleQue, int n) 
-                        : clients(n) 
 {
+    LOG(INFO) << "KnnClientArr constructor " << svr.addr << ":" << svr.port
+            << " n = " << n;
+    
+    auto start_client = [](const KnnClient::Pointer &pClient)->bool {
+        for (int i = 0; i < 30; ++i) { // totally wait 9s
+            try {
+                pClient->start();
+                return true;
+            } catch (const std::exception &ex) {
+                SLEEP_MILLISECONDS(300);
+            } // try
+        } // for
+        return false;
+    };
+
     clients.reserve(n);
     for (int i = 0; i < n; ++i) {
         auto pClient = boost::make_shared<KnnClient>(svr.addr, (uint16_t)(svr.port));
-        try {
-            pClient->start();
+        if (start_client(pClient))
             clients.push_back(pClient);
-            // idleQue->push( pClient );
-        } catch (const std::exception &ex) {
-            LOG(ERROR) << "KnnService::init() fail to connect with alg server "
-                << svr.addr << ":" << (uint16_t)(svr.port) << ", " << ex.what();
-            continue;
-        } // try
+#ifndef NDEBUG
+        else
+            DLOG(INFO) << "Fail to create client instance to " << svr.addr << ":" << svr.port;
+#endif
     } // for
+
+    LOG(INFO) << "clients.size() = " << clients.size();
 
     // idleQue insert and shuffle
     if (!clients.empty()) {
@@ -57,23 +70,31 @@ void KnnService::QueryWork::run()
 {
     LOG(INFO) << "Service " << srvName << " querying \"" << iter->first << "\"";
 
-    auto pClient = idleClients->getIdleClient();
-    if (!pClient) {
-        LOG(ERROR) << "Service " << srvName << " query \"" 
+    bool done = false;
+
+    do {
+        auto pClient = idleClients->getIdleClient();
+        if (!pClient) {
+            LOG(ERROR) << "Service " << srvName << " query \"" 
                 << iter->first << "\" fail! no client obj available.";
-        return;
-    } // if
+            return;
+        } // if
 
-    try {
-        pClient->client()->queryByItem( iter->second, iter->first, k );
-    } catch (const std::exception &ex) {
-        LOG(ERROR) << "Service " << srvName << " query \"" 
+        try {
+            pClient->client()->queryByItem( iter->second, iter->first, k );
+            done = true;
+            idleClients->putBack( pClient );
+            ++*counter;
+            condCounter->notify_all();
+
+        } catch (const KNN::InvalidRequest &err) {
+            LOG(ERROR) << "Service " << srvName << " query \"" 
+                << iter->first << "\" caught InvalidRequest: " << err.reason;
+        } catch (const std::exception &ex) {
+            LOG(ERROR) << "Service " << srvName << " query \"" 
                 << iter->first << "\" fail! " << ex.what();
-    } // try
-
-    idleClients->putBack( pClient );
-    ++*counter;
-    condCounter->notify_all();
+        } // try
+    } while (!done);
 }
 
 /**
@@ -155,7 +176,12 @@ void KnnService::addServer( const BigRLab::AlgSvrInfo& svrInfo, const ServerAttr
     else if (n > 20)
         n = 20;
 
+    LOG(INFO) << "KnnService::addServer() " << svrInfo.addr << ":" << svrInfo.port
+              << " maxConcurrency = " << svrInfo.maxConcurrency
+              << ", going to create " << n << " client instances.";
+    // SLEEP_SECONDS(1);
     auto pClient = boost::make_shared<KnnClientArr>(svrInfo, &m_queIdleClients, n);
+    LOG(INFO) << "pClient->size() = " << pClient->size();
     if (!pClient->empty())
         Service::addServer(svrInfo, boost::static_pointer_cast<ServerAttr>(pClient));
 }
@@ -166,7 +192,7 @@ std::string KnnService::toString() const
     stream << "Service " << name() << std::endl;
     stream << "Online servers:\n" << "IP:Port\t\tmaxConcurrency\t\tnClientInst" << std::endl; 
     for (const auto &v : m_mapServers) {
-        stream << v.first.addr << ":" << v.first.port << "\t\t" << v.first.maxConcurrency;
+        stream << v.first.addr << ":" << v.first.port << "\t\t" << v.first.maxConcurrency << "\t\t";
         auto sp = v.second;
         KnnClientArr *p = static_cast<KnnClientArr*>(sp.get());
         stream << p->size() << std::endl;
