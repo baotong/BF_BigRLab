@@ -334,20 +334,33 @@ void start_rpc_service()
     g_pSvrInfo->maxConcurrency = FLAGS_n_work_threads;
 
     // start client to alg_mgr
+    // 需要在单独线程中执行，防止和alg_mgr形成死锁
+    // 这里调用addSvr，alg_mgr那边调用 Service::addServer
+    // 尝试连接本server，而本server还没有启动
     cout << "Registering server..." << endl;
     g_pAlgMgrClient = boost::make_shared< AlgMgrClient >(g_strAlgMgrAddr, g_nAlgMgrPort);
-    try {
-        g_pAlgMgrClient->start();
-        (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
-        int ret = (*g_pAlgMgrClient)()->addSvr(FLAGS_algname, *g_pSvrInfo);
-        if (ret != BigRLab::SUCCESS) {
-            cerr << "Register alg server fail, return value is " << ret << endl;
+    auto register_svr = [&] {
+        try {
+            g_pAlgMgrClient->start();
+            (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
+            int ret = (*g_pAlgMgrClient)()->addSvr(FLAGS_algname, *g_pSvrInfo);
+            if (ret != BigRLab::SUCCESS) {
+                cerr << "Register alg server fail!";
+                switch (ret) {
+                    case BigRLab::ALREADY_EXIST:
+                        cerr << " server with same addr:port already exists!";
+                        break;
+                } // switch
+                cerr << endl;
+                exit(-1);
+            } // if
+        } catch (const std::exception &ex) {
+            cerr << "Unable to connect to algmgr server, " << ex.what() << endl;
             exit(-1);
-        } // if
-    } catch (const std::exception &ex) {
-        cerr << "Unable to connect to algmgr server, " << ex.what() << endl;
-        exit(-1);
-    } // try
+        } // try
+    };
+    boost::thread register_thr(register_svr);
+    register_thr.detach();
 
     // start this alg server
     cout << "Launching alogrithm server... " << endl;

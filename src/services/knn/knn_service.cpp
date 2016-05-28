@@ -30,7 +30,14 @@ struct QueryWork : BigRLab::WorkItemBase {
 
     virtual void run()
     {
-        LOG(INFO) << "Service " << srvName << " querying \"" << iter->first << "\"";
+        DLOG(INFO) << "Service " << srvName << " querying \"" << iter->first << "\"";
+
+        auto on_finish = [this](void*) {
+            ++*counter;
+            condCounter->notify_all();
+        };
+
+        boost::shared_ptr<void> pOnFinish((void*)0, on_finish);
 
         bool done = false;
 
@@ -46,8 +53,6 @@ struct QueryWork : BigRLab::WorkItemBase {
                 pClient->client()->queryByItem( iter->second, iter->first, k );
                 done = true;
                 idleClients->putBack( pClient );
-                ++*counter;
-                condCounter->notify_all();
 
             } catch (const KNN::InvalidRequest &err) {
                 LOG(ERROR) << "Service " << srvName << " query \"" 
@@ -89,6 +94,13 @@ struct QueryWorkFile : BigRLab::WorkItemBase {
     {
         LOG(INFO) << "Service " << srvName << " querying \"" << item << "\"";
 
+        auto on_finish = [this](void*) {
+            ++*counter;
+            condCounter->notify_all();
+        };
+
+        boost::shared_ptr<void> pOnFinish((void*)0, on_finish);
+
         bool done = false;
 
         do {
@@ -108,14 +120,11 @@ struct QueryWorkFile : BigRLab::WorkItemBase {
                 // write to file
                 if (!result.empty()) {
                     boost::unique_lock<boost::mutex> flk( *fileMtx );
-                    *ofs << k << " most like items for " << item << endl;
+                    *ofs << result.size() << " most like items for " << item << endl;
                     for (const auto &v : result)
                         *ofs << v.item << "\t\t" << v.weight << endl;
                     flk.unlock();
                 } // if
-
-                ++*counter;
-                condCounter->notify_all();
 
             } catch (const KNN::InvalidRequest &err) {
                 LOG(ERROR) << "Service " << srvName << " query \"" 
@@ -141,6 +150,8 @@ struct QueryWorkFile : BigRLab::WorkItemBase {
 
 KnnService::KnnClientPtr KnnService::IdleClientQueue::getIdleClient()
 {
+    // DLOG(INFO) << "IdleClientQueue::getIdleClient() size = " << this->size();
+
     KnnClientPtr pRet;
 
     do {
@@ -148,6 +159,7 @@ KnnService::KnnClientPtr KnnService::IdleClientQueue::getIdleClient()
         if (!this->timed_pop(wptr, TIMEOUT))
             return KnnClientPtr();      // return empty ptr when no client available
         pRet = wptr.lock();
+        // DLOG_IF(INFO, !pRet) << "IdleClientQueue::getIdleClient() got empty ptr";
     } while (!pRet);
 
     return pRet;
@@ -156,25 +168,13 @@ KnnService::KnnClientPtr KnnService::IdleClientQueue::getIdleClient()
 KnnService::KnnClientArr::KnnClientArr(const BigRLab::AlgSvrInfo &svr, 
                                     IdleClientQueue *idleQue, int n) 
 {
-    LOG(INFO) << "KnnClientArr constructor " << svr.addr << ":" << svr.port
-            << " n = " << n;
+    // DLOG(INFO) << "KnnClientArr constructor " << svr.addr << ":" << svr.port
+            // << " n = " << n;
     
-    auto start_client = [](const KnnClient::Pointer &pClient)->bool {
-        for (int i = 0; i < 50; ++i) { // totally wait 15s
-            try {
-                pClient->start();
-                return true;
-            } catch (const std::exception &ex) {
-                SLEEP_MILLISECONDS(300);
-            } // try
-        } // for
-        return false;
-    };
-
     clients.reserve(n);
     for (int i = 0; i < n; ++i) {
         auto pClient = boost::make_shared<KnnClient>(svr.addr, (uint16_t)(svr.port));
-        if (start_client(pClient))
+        if (pClient->start(50, 300)) // totally wait 15s
             clients.push_back(pClient);
 #ifndef NDEBUG
         else
@@ -182,7 +182,7 @@ KnnService::KnnClientArr::KnnClientArr(const BigRLab::AlgSvrInfo &svr,
 #endif
     } // for
 
-    LOG(INFO) << "clients.size() = " << clients.size();
+    // DLOG(INFO) << "clients.size() = " << clients.size();
 
     // idleQue insert and shuffle
     if (!clients.empty()) {
@@ -288,7 +288,7 @@ void KnnService::handleCommand( std::stringstream &stream )
         } // while
 
         boost::unique_lock<boost::mutex> lock(condMtx);
-        if (!cond.wait_for( lock, boost::chrono::milliseconds(2 * TIMEOUT), 
+        if (!cond.wait_for( lock, boost::chrono::seconds(300), 
                     [&]()->bool {return counter >= itemCount;} )) {
             cout << "Wait timeout, " << " result may be incomplete." << endl;
         } // if
@@ -318,14 +318,16 @@ void KnnService::addServer( const BigRLab::AlgSvrInfo& svrInfo, const ServerAttr
     else if (n > 20)
         n = 20;
 
-    LOG(INFO) << "KnnService::addServer() " << svrInfo.addr << ":" << svrInfo.port
+    DLOG(INFO) << "KnnService::addServer() " << svrInfo.addr << ":" << svrInfo.port
               << " maxConcurrency = " << svrInfo.maxConcurrency
               << ", going to create " << n << " client instances.";
     // SLEEP_SECONDS(1);
     auto pClient = boost::make_shared<KnnClientArr>(svrInfo, &m_queIdleClients, n);
-    LOG(INFO) << "pClient->size() = " << pClient->size();
+    // DLOG(INFO) << "pClient->size() = " << pClient->size();
     if (!pClient->empty())
         Service::addServer(svrInfo, boost::static_pointer_cast<ServerAttr>(pClient));
+
+    DLOG(INFO) << "KnnService::addServer() m_queIdleClients.size() = " << m_queIdleClients.size();
 }
 
 std::string KnnService::toString() const

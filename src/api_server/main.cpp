@@ -10,6 +10,7 @@
  * Service knn
  * addservice ../services/knn/knn_service.so
  * service knn_star items 10 李宇春 姚明 章子怡
+ * service knn_star file 10 test.txt out.txt
  */
 #include "api_server.h"
 #include "service_manager.h"

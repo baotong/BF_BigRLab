@@ -9,6 +9,8 @@
 #include <thrift/transport/TServerSocket.h>
 #include <thrift/transport/TBufferTransports.h>
 #include <boost/make_shared.hpp>
+#include <boost/thread.hpp>
+#include <boost/chrono.hpp>
 
 namespace BigRLab {
 
@@ -50,13 +52,10 @@ public:
 
     void start()
     {
-        if (!m_bRunning) {
-            m_bRunning = true;
-            m_pThrMgr->start();
-            m_pServer->serve();
-        } // if
-
-        // LOG_IF(ERROR, m_bRunning) << "rpc_module server already running!";
+        stop();
+        m_bRunning = true;
+        m_pThrMgr->start();
+        m_pServer->serve();
     }
 
     void stop()
@@ -109,14 +108,22 @@ public:
     ~ThriftClient()
     { stop(); }
 
-    void start()
+    bool start( int try_count = 1, int interval = 0 )
     { 
-        if (!m_bRunning) {
-            m_bRunning = true;
-            m_pTransport->open(); 
-        } // if
+        stop();
 
-        // LOG_IF(ERROR, m_bRunning) << "rpc_module client already running!";
+        for (int i = 0; i < try_count; ++i) { // totally wait 15s
+            try {
+                m_pTransport->open(); 
+                m_bRunning = true;
+                return true;
+            } catch (const std::exception &ex) {
+                if (interval)
+                    boost::this_thread::sleep_for(boost::chrono::milliseconds(interval));
+            } // try
+        } // for
+
+        return false;
     }
 
     void stop()
