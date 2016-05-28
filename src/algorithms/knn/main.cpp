@@ -341,7 +341,10 @@ void start_rpc_service()
     g_pAlgMgrClient = boost::make_shared< AlgMgrClient >(g_strAlgMgrAddr, g_nAlgMgrPort);
     auto register_svr = [&] {
         try {
-            g_pAlgMgrClient->start();
+            if (!g_pAlgMgrClient->start(50, 300)) {
+                cerr << "AlgMgr server unreachable!" << endl;
+                exit(-1);
+            } // if
             (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
             int ret = (*g_pAlgMgrClient)()->addSvr(FLAGS_algname, *g_pSvrInfo);
             if (ret != BigRLab::SUCCESS) {

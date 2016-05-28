@@ -6,6 +6,7 @@ namespace BigRLab {
 
 AlgMgrServer::Pointer                   g_pAlgMgrServer;
 boost::shared_ptr<AlgMgrServiceHandler> g_pAlgMgrHandler;
+uint16_t                                g_nAlgMgrPort = 0;
 
 int32_t AlgMgrServiceHandler::addSvr(const std::string& algName, const AlgSvrInfo& svrInfo)
 {
@@ -136,9 +137,9 @@ void start_alg_mgr()
     auto thr_func = [&] {
         try {
             g_pAlgMgrHandler = boost::make_shared<AlgMgrServiceHandler>();
-            // TODO m_nIoThreads && m_nWorkThreads configurable
+            // 2 io threads and 2 work threads
             g_pAlgMgrServer = boost::make_shared<AlgMgrServer>(
-                    boost::static_pointer_cast<AlgMgrServiceIf>(g_pAlgMgrHandler), ALG_MGR_SERV_PORT);
+                    boost::static_pointer_cast<AlgMgrServiceIf>(g_pAlgMgrHandler), g_nAlgMgrPort, 2, 2);
             g_pAlgMgrServer->start();
         } catch (const std::exception &ex) {
             LOG(ERROR) << "Start algmgr server fail!";

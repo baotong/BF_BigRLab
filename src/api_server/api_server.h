@@ -32,22 +32,24 @@ struct APIServerHandler {
  * 3. threadgroup->join_all()
  */
 class APIServer {
-public:
-    static const uint32_t       DEFAULT_N_IO_THREADS = 5;
-    static const uint32_t       DEFAULT_N_WORK_THREADS = 100;
-    static const uint16_t       DEFAULT_PORT = 9000;
+// public:
+    // static const uint32_t       DEFAULT_N_IO_THREADS = 5;
+    // static const uint32_t       DEFAULT_N_WORK_THREADS = 100;
+    // static const uint16_t       DEFAULT_PORT = 9000;
 public:
     // typedef ThriftClient< AlgMgrServiceClient > AlgMgrClient;
 
 public:
-    explicit APIServer( const ServerType::options &_Opts,
-                        const IoServicePtr &_pIoSrv, 
-                        const ThreadGroupPtr &_pThrgrp );
+    explicit APIServer( uint16_t _SvrPort,
+            uint32_t _nIoThreads, uint32_t _nWorkThreads,
+            const ServerType::options &_Opts,
+            const IoServicePtr &_pIoSrv,
+            const ThreadGroupPtr &_pThrgrp );
 
-    explicit APIServer( const ServerType::options &_Opts,
-                        const IoServicePtr &_pIoSrv, 
-                        const ThreadGroupPtr &_pThrgrp, 
-                        const char *confFileName );
+    // explicit APIServer( const ServerType::options &_Opts,
+                        // const IoServicePtr &_pIoSrv, 
+                        // const ThreadGroupPtr &_pThrgrp, 
+                        // const char *confFileName );
 
     ~APIServer()
     {
@@ -147,6 +149,8 @@ void send_response(const ServerType::connection_ptr &conn,
         conn->write(content);
 }
 
+
+extern uint16_t g_nApiSvrPort;
 
 } // namespace BigRLab
 

@@ -24,87 +24,26 @@ namespace Test {
 
 namespace BigRLab {
 
-boost::shared_ptr<APIServer>                 g_pApiServer;
+boost::shared_ptr<APIServer> g_pApiServer;
+uint16_t                     g_nApiSvrPort = 0;
 
 
-APIServer::APIServer( const ServerType::options &_Opts,
+APIServer::APIServer( uint16_t _SvrPort,
+        uint32_t _nIoThreads, uint32_t _nWorkThreads,
+        const ServerType::options &_Opts,
         const IoServicePtr &_pIoSrv,
         const ThreadGroupPtr &_pThrgrp )
       : m_pServer(NULL)
       , m_bRunning(false)
-      , m_nPort( DEFAULT_PORT )
-      , m_nIoThreads( DEFAULT_N_IO_THREADS )
-      , m_nWorkThreads( DEFAULT_N_WORK_THREADS )
+      , m_nPort( _SvrPort )
+      , m_nIoThreads( _nIoThreads )
+      , m_nWorkThreads( _nWorkThreads )
       , m_Options(std::move(_Opts))
       , m_pIoService(_pIoSrv)
       , m_pIoThrgrp(_pThrgrp)
 {
     options().address("0.0.0.0").reuse_address(true)
-        .io_service(m_pIoService);
-}
-
-APIServer::APIServer( const ServerType::options &_Opts,
-                      const IoServicePtr &_pIoSrv,
-                      const ThreadGroupPtr &_pThrgrp,
-                      const char *confFileName )
-                : APIServer(_Opts, _pIoSrv, _pThrgrp)
-{
-    using namespace std;
-
-    parse_config_file( confFileName, m_mapProperties );
-
-    auto check_addr = [](const std::string &value, std::string &addr, uint16_t &port) {
-        string::size_type pos = value.find_last_of(':');
-        if (string::npos == pos)
-            THROW_RUNTIME_ERROR("Invalid address format for algmgr_server");
-
-        addr = value.substr(0, pos);
-        if (addr.empty())
-            THROW_RUNTIME_ERROR("Invalid address format for algmgr_server");
-
-        string strPort = value.substr(pos + 1, string::npos);
-        if (strPort.empty())
-            THROW_RUNTIME_ERROR("Invalid address format for algmgr_server");
-
-        if (!boost::conversion::try_lexical_convert(strPort, port))
-            THROW_RUNTIME_ERROR("Invalid port format for algmgr_server");
-
-        if (!port)
-            THROW_RUNTIME_ERROR("Invalid port format for algmgr_server");
-    };
-
-    for (auto &v : m_mapProperties) {
-        if ("port" == v.first) {
-            if (!(read_from_string(*(v.second.begin()), m_nPort))) {
-                cout << "APIServer Invalid value " << *(v.second.begin())
-                        << " for port number, set to default." << endl;
-                m_nPort = DEFAULT_PORT;
-            } // if
-        } else if ("n_io_threads" == v.first) {
-            if (!(read_from_string(*(v.second.begin()), m_nIoThreads))) {
-                cout << "APIServer Invalid value " << *(v.second.begin())
-                        << " for n_io_threads, set to default." << endl;
-                m_nIoThreads = DEFAULT_N_IO_THREADS;
-            } // if
-        } else if ("n_work_threads" == v.first) {
-            if (!(read_from_string(*(v.second.begin()), m_nWorkThreads))) {
-                cout << "APIServer Invalid value " << *(v.second.begin())
-                        << " for n_work_threads, set to default." << endl;
-                m_nWorkThreads = DEFAULT_N_WORK_THREADS;
-            } // if
-        } // if 
-        // else if ("algmgr_server" == v.first) {
-            // const string &addr = *(v.second.begin());
-            // check_addr(addr, m_strAlgMgrAddr, m_nAlgMgrPort);
-        // } // if
-    } // for
-
-    // if (m_strAlgMgrAddr.empty())
-        // THROW_RUNTIME_ERROR("No item \"algmgr_server\" found in config file");
-
-    // m_pAlgMgrClient = boost::make_shared< AlgMgrClient >(m_strAlgMgrAddr, m_nAlgMgrPort);
-
-    options().port(to_string(m_nPort))
+        .io_service(m_pIoService).port(to_string(m_nPort))
         .thread_pool(boost::make_shared<ThreadPool>(m_nIoThreads, m_pIoService, m_pIoThrgrp));
 }
 
@@ -267,3 +206,70 @@ void WorkItem::run()
 
 } // namespace BigRLab
 
+/*
+ * APIServer::APIServer( const ServerType::options &_Opts,
+ *                       const IoServicePtr &_pIoSrv,
+ *                       const ThreadGroupPtr &_pThrgrp,
+ *                       const char *confFileName )
+ *                 : APIServer(_Opts, _pIoSrv, _pThrgrp)
+ * {
+ *     using namespace std;
+ * 
+ *     parse_config_file( confFileName, m_mapProperties );
+ * 
+ *     auto check_addr = [](const std::string &value, std::string &addr, uint16_t &port) {
+ *         string::size_type pos = value.find_last_of(':');
+ *         if (string::npos == pos)
+ *             THROW_RUNTIME_ERROR("Invalid address format for algmgr_server");
+ * 
+ *         addr = value.substr(0, pos);
+ *         if (addr.empty())
+ *             THROW_RUNTIME_ERROR("Invalid address format for algmgr_server");
+ * 
+ *         string strPort = value.substr(pos + 1, string::npos);
+ *         if (strPort.empty())
+ *             THROW_RUNTIME_ERROR("Invalid address format for algmgr_server");
+ * 
+ *         if (!boost::conversion::try_lexical_convert(strPort, port))
+ *             THROW_RUNTIME_ERROR("Invalid port format for algmgr_server");
+ * 
+ *         if (!port)
+ *             THROW_RUNTIME_ERROR("Invalid port format for algmgr_server");
+ *     };
+ * 
+ *     for (auto &v : m_mapProperties) {
+ *         if ("port" == v.first) {
+ *             if (!(read_from_string(*(v.second.begin()), m_nPort))) {
+ *                 cout << "APIServer Invalid value " << *(v.second.begin())
+ *                         << " for port number, set to default." << endl;
+ *                 m_nPort = DEFAULT_PORT;
+ *             } // if
+ *         } else if ("n_io_threads" == v.first) {
+ *             if (!(read_from_string(*(v.second.begin()), m_nIoThreads))) {
+ *                 cout << "APIServer Invalid value " << *(v.second.begin())
+ *                         << " for n_io_threads, set to default." << endl;
+ *                 m_nIoThreads = DEFAULT_N_IO_THREADS;
+ *             } // if
+ *         } else if ("n_work_threads" == v.first) {
+ *             if (!(read_from_string(*(v.second.begin()), m_nWorkThreads))) {
+ *                 cout << "APIServer Invalid value " << *(v.second.begin())
+ *                         << " for n_work_threads, set to default." << endl;
+ *                 m_nWorkThreads = DEFAULT_N_WORK_THREADS;
+ *             } // if
+ *         } // if 
+ *         // else if ("algmgr_server" == v.first) {
+ *             // const string &addr = *(v.second.begin());
+ *             // check_addr(addr, m_strAlgMgrAddr, m_nAlgMgrPort);
+ *         // } // if
+ *     } // for
+ * 
+ *     // if (m_strAlgMgrAddr.empty())
+ *         // THROW_RUNTIME_ERROR("No item \"algmgr_server\" found in config file");
+ * 
+ *     // m_pAlgMgrClient = boost::make_shared< AlgMgrClient >(m_strAlgMgrAddr, m_nAlgMgrPort);
+ * 
+ *     options().port(to_string(m_nPort))
+ *         .thread_pool(boost::make_shared<ThreadPool>(m_nIoThreads, m_pIoService, m_pIoThrgrp));
+ * }
+ * 
+ */

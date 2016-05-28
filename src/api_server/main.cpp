@@ -3,7 +3,8 @@
  */
 /*
  * TODO list
- * 1. alg 的新加入和离开 algmgr要主动通知apiserver，然后转发给具体的service
+ * 1. shell can deal with script
+ * 2. auto load lib
  */
 /*
  * Tests
@@ -26,23 +27,63 @@ static IoServiceWorkPtr      g_pWork;
 static ThreadGroupPtr        g_pIoThrgrp;
 static boost::shared_ptr< boost::thread > g_pRunServerThread;
 
-DEFINE_string(conf, "", "server conf file path");
+DEFINE_int32(n_work_threads, 100, "Number of work threads on API server");
+DEFINE_int32(n_io_threads, 5, "Number of io threads on API server");
+DEFINE_int32(port, 9000, "API server port");
+DEFINE_int32(alg_mgr_port, 9001, "Algorithm manager server port");
 
 namespace {
 
 static inline
-bool check_not_empty(const char* flagname, const std::string &value) 
+bool check_above_zero(const char* flagname, gflags::int32 value)
 {
-    if (value.empty()) {
-        cerr << "value of " << flagname << " cannot be empty" << endl;
+    if (value <= 0) {
+        std::cerr << "value of " << flagname << " must be greater than 0" << std::endl;
         return false;
     } // if
     return true;
 }
 
-static bool validate_conf(const char* flagname, const std::string &value) 
-{ return check_not_empty(flagname, value); }
-static const bool conf_dummy = gflags::RegisterFlagValidator(&FLAGS_conf, &validate_conf);
+static inline
+bool check_port(const char *flagname, gflags::int32 value)
+{
+    if (value < 1024 || value > 65535) {
+        std::cerr << "Port number must between 1024 and 65535" << std::endl;
+        return false;
+    } // if
+    return true;
+}
+
+static
+bool validate_port(const char *flagname, gflags::int32 value)
+{
+    bool ret = check_port(flagname, value);
+    if (ret)
+        g_nApiSvrPort = (uint16_t)value;
+    return ret;
+}
+static bool port_dummy = gflags::RegisterFlagValidator(&FLAGS_port, &validate_port);
+
+static
+bool validate_alg_mgr_port(const char *flagname, gflags::int32 value)
+{
+    bool ret = check_port(flagname, value);
+    if (ret)
+        g_nAlgMgrPort = (uint16_t)value;
+    return ret;
+}
+static bool alg_mgr_port_dummy = gflags::RegisterFlagValidator(&FLAGS_alg_mgr_port, &validate_alg_mgr_port);
+
+static 
+bool validate_n_work_threads(const char* flagname, gflags::int32 value) 
+{ return check_above_zero(flagname, value); }
+static const bool n_work_threads_dummy = gflags::RegisterFlagValidator(&FLAGS_n_work_threads, &validate_n_work_threads);
+
+static 
+bool validate_n_io_threads(const char* flagname, gflags::int32 value) 
+{ return check_above_zero(flagname, value); }
+static const bool n_io_threads_dummy = gflags::RegisterFlagValidator(&FLAGS_n_io_threads, &validate_n_io_threads);
+
 
 } // namespace
 
@@ -104,7 +145,8 @@ void init()
 
     APIServerHandler handler;
     ServerType::options opts(handler);
-    g_pApiServer.reset(new APIServer(opts, g_pIoService, g_pIoThrgrp, FLAGS_conf.c_str()));
+    g_pApiServer.reset(new APIServer(g_nApiSvrPort, FLAGS_n_io_threads, FLAGS_n_work_threads, 
+                    opts, g_pIoService, g_pIoThrgrp));
     g_pWorkMgr.reset(new WorkManager(g_pApiServer->nWorkThreads(), 30000) );
     // WorkManager::init(g_pApiServer->nWorkThreads());
     // g_pWorkMgr = WorkManager::getInstance();

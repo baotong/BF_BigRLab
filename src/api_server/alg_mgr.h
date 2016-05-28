@@ -10,7 +10,7 @@
 #include <boost/thread.hpp>
 #include <boost/thread/lockable_adapter.hpp>
 
-#define ALG_MGR_SERV_PORT       9001
+// #define ALG_MGR_SERV_PORT       9001
 
 namespace BigRLab {
 
@@ -62,6 +62,7 @@ extern boost::shared_ptr<AlgMgrServiceHandler> g_pAlgMgrHandler;
 extern void start_alg_mgr();
 extern void stop_alg_mgr();
 
+extern uint16_t g_nAlgMgrPort;
 
 } // namespace BigRLab
 
