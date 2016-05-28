@@ -15,7 +15,12 @@ struct Result {
 
 service KnnService {
     list<Result> queryByItem( 1:string item, 2:i32 n ) throws (1:InvalidRequest err),
-    list<Result> queryByVector( 1:list<double> values, 2:i32 n ) throws (1:InvalidRequest err)
+    list<Result> queryByVector( 1:list<double> values, 2:i32 n ) throws (1:InvalidRequest err),
+    list<string> queryByVectorNoWeight( 1:list<double> values, 2:i32 n ) throws (1:InvalidRequest err),
+    list<string> queryByItemNoWeight( 1:string item, 2:i32 n ) throws (1:InvalidRequest err),
+
+    // for http request, input: json string; return: json string
+    string handleRequest( 1:string request ) throws (1:InvalidRequest err)
 }
 
 

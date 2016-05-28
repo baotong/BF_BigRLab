@@ -174,62 +174,6 @@ protected:
     boost::condition_variable     condWr;
 };
 
-struct InvalidInput : std::exception {
-    explicit InvalidInput( const std::string &what )
-            : whatString("InvalidInput: ") 
-    { whatString.append(what); }
-
-    explicit InvalidInput( const std::ostream &os )
-            : whatString("InvalidInput: ") 
-    { 
-        using namespace std;
-        const stringstream &_str = dynamic_cast<const stringstream&>(os);
-        whatString.append(_str.str()); 
-    }
-
-    explicit InvalidInput( const std::string &inputStr,
-                                    const std::string &desc )
-            : whatString("InvalidInput: input string \"")
-    { whatString.append( inputStr ).append( "\" is not valid! " ).append(desc); }
-
-    virtual const char* what() const throw()
-    { return whatString.c_str(); }
-
-    std::string     whatString;
-};
-
-
-inline
-std::string& strip_string( std::string &s )
-{
-    using namespace std;
-
-    // static const char *SPACES = " \t\f\r\v\n";
-
-    string::size_type pEnd = s.find_last_not_of( SPACES );
-    if (string::npos != pEnd) {
-        ++pEnd;
-    } else {
-        s.clear();
-        return s;
-    } // if
-
-    string::size_type pStart = s.find_first_not_of( SPACES );
-    s = s.substr(pStart, pEnd - pStart);
-
-    return s;
-}
-
-template < typename T >
-bool read_from_string( const std::string &s, T &value )
-{
-    std::stringstream str(s);
-    str >> value;
-    bool ret = (str.good() || str.eof());
-    if ( !ret )
-        value = T();
-    return ret;
-}
 
 template < typename T >
 std::string to_string( const T &value )
@@ -243,9 +187,6 @@ template< typename StreamType >
 bool bad_stream( const StreamType &stream )
 { return (stream.fail() || stream.bad()); }
 
-typedef std::map< std::string, std::set<std::string> > PropertyTable;
-
-extern void parse_config_file( const char *filename, PropertyTable &propTable );
 
 } // namespace BigRLab
 

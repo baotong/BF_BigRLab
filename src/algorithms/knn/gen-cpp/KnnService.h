@@ -23,6 +23,9 @@ class KnnServiceIf {
   virtual ~KnnServiceIf() {}
   virtual void queryByItem(std::vector<Result> & _return, const std::string& item, const int32_t n) = 0;
   virtual void queryByVector(std::vector<Result> & _return, const std::vector<double> & values, const int32_t n) = 0;
+  virtual void queryByVectorNoWeight(std::vector<std::string> & _return, const std::vector<double> & values, const int32_t n) = 0;
+  virtual void queryByItemNoWeight(std::vector<std::string> & _return, const std::string& item, const int32_t n) = 0;
+  virtual void handleRequest(std::string& _return, const std::string& request) = 0;
 };
 
 class KnnServiceIfFactory {
@@ -56,6 +59,15 @@ class KnnServiceNull : virtual public KnnServiceIf {
     return;
   }
   void queryByVector(std::vector<Result> & /* _return */, const std::vector<double> & /* values */, const int32_t /* n */) {
+    return;
+  }
+  void queryByVectorNoWeight(std::vector<std::string> & /* _return */, const std::vector<double> & /* values */, const int32_t /* n */) {
+    return;
+  }
+  void queryByItemNoWeight(std::vector<std::string> & /* _return */, const std::string& /* item */, const int32_t /* n */) {
+    return;
+  }
+  void handleRequest(std::string& /* _return */, const std::string& /* request */) {
     return;
   }
 };
@@ -262,6 +274,304 @@ class KnnService_queryByVector_presult {
 
 };
 
+typedef struct _KnnService_queryByVectorNoWeight_args__isset {
+  _KnnService_queryByVectorNoWeight_args__isset() : values(false), n(false) {}
+  bool values :1;
+  bool n :1;
+} _KnnService_queryByVectorNoWeight_args__isset;
+
+class KnnService_queryByVectorNoWeight_args {
+ public:
+
+  KnnService_queryByVectorNoWeight_args(const KnnService_queryByVectorNoWeight_args&);
+  KnnService_queryByVectorNoWeight_args(KnnService_queryByVectorNoWeight_args&&);
+  KnnService_queryByVectorNoWeight_args& operator=(const KnnService_queryByVectorNoWeight_args&);
+  KnnService_queryByVectorNoWeight_args& operator=(KnnService_queryByVectorNoWeight_args&&);
+  KnnService_queryByVectorNoWeight_args() : n(0) {
+  }
+
+  virtual ~KnnService_queryByVectorNoWeight_args() throw();
+  std::vector<double>  values;
+  int32_t n;
+
+  _KnnService_queryByVectorNoWeight_args__isset __isset;
+
+  void __set_values(const std::vector<double> & val);
+
+  void __set_n(const int32_t val);
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+};
+
+
+class KnnService_queryByVectorNoWeight_pargs {
+ public:
+
+
+  virtual ~KnnService_queryByVectorNoWeight_pargs() throw();
+  const std::vector<double> * values;
+  const int32_t* n;
+
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+};
+
+typedef struct _KnnService_queryByVectorNoWeight_result__isset {
+  _KnnService_queryByVectorNoWeight_result__isset() : success(false), err(false) {}
+  bool success :1;
+  bool err :1;
+} _KnnService_queryByVectorNoWeight_result__isset;
+
+class KnnService_queryByVectorNoWeight_result {
+ public:
+
+  KnnService_queryByVectorNoWeight_result(const KnnService_queryByVectorNoWeight_result&);
+  KnnService_queryByVectorNoWeight_result(KnnService_queryByVectorNoWeight_result&&);
+  KnnService_queryByVectorNoWeight_result& operator=(const KnnService_queryByVectorNoWeight_result&);
+  KnnService_queryByVectorNoWeight_result& operator=(KnnService_queryByVectorNoWeight_result&&);
+  KnnService_queryByVectorNoWeight_result() {
+  }
+
+  virtual ~KnnService_queryByVectorNoWeight_result() throw();
+  std::vector<std::string>  success;
+  InvalidRequest err;
+
+  _KnnService_queryByVectorNoWeight_result__isset __isset;
+
+  void __set_success(const std::vector<std::string> & val);
+
+  void __set_err(const InvalidRequest& val);
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+};
+
+typedef struct _KnnService_queryByVectorNoWeight_presult__isset {
+  _KnnService_queryByVectorNoWeight_presult__isset() : success(false), err(false) {}
+  bool success :1;
+  bool err :1;
+} _KnnService_queryByVectorNoWeight_presult__isset;
+
+class KnnService_queryByVectorNoWeight_presult {
+ public:
+
+
+  virtual ~KnnService_queryByVectorNoWeight_presult() throw();
+  std::vector<std::string> * success;
+  InvalidRequest err;
+
+  _KnnService_queryByVectorNoWeight_presult__isset __isset;
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+
+};
+
+typedef struct _KnnService_queryByItemNoWeight_args__isset {
+  _KnnService_queryByItemNoWeight_args__isset() : item(false), n(false) {}
+  bool item :1;
+  bool n :1;
+} _KnnService_queryByItemNoWeight_args__isset;
+
+class KnnService_queryByItemNoWeight_args {
+ public:
+
+  KnnService_queryByItemNoWeight_args(const KnnService_queryByItemNoWeight_args&);
+  KnnService_queryByItemNoWeight_args(KnnService_queryByItemNoWeight_args&&);
+  KnnService_queryByItemNoWeight_args& operator=(const KnnService_queryByItemNoWeight_args&);
+  KnnService_queryByItemNoWeight_args& operator=(KnnService_queryByItemNoWeight_args&&);
+  KnnService_queryByItemNoWeight_args() : item(), n(0) {
+  }
+
+  virtual ~KnnService_queryByItemNoWeight_args() throw();
+  std::string item;
+  int32_t n;
+
+  _KnnService_queryByItemNoWeight_args__isset __isset;
+
+  void __set_item(const std::string& val);
+
+  void __set_n(const int32_t val);
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+};
+
+
+class KnnService_queryByItemNoWeight_pargs {
+ public:
+
+
+  virtual ~KnnService_queryByItemNoWeight_pargs() throw();
+  const std::string* item;
+  const int32_t* n;
+
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+};
+
+typedef struct _KnnService_queryByItemNoWeight_result__isset {
+  _KnnService_queryByItemNoWeight_result__isset() : success(false), err(false) {}
+  bool success :1;
+  bool err :1;
+} _KnnService_queryByItemNoWeight_result__isset;
+
+class KnnService_queryByItemNoWeight_result {
+ public:
+
+  KnnService_queryByItemNoWeight_result(const KnnService_queryByItemNoWeight_result&);
+  KnnService_queryByItemNoWeight_result(KnnService_queryByItemNoWeight_result&&);
+  KnnService_queryByItemNoWeight_result& operator=(const KnnService_queryByItemNoWeight_result&);
+  KnnService_queryByItemNoWeight_result& operator=(KnnService_queryByItemNoWeight_result&&);
+  KnnService_queryByItemNoWeight_result() {
+  }
+
+  virtual ~KnnService_queryByItemNoWeight_result() throw();
+  std::vector<std::string>  success;
+  InvalidRequest err;
+
+  _KnnService_queryByItemNoWeight_result__isset __isset;
+
+  void __set_success(const std::vector<std::string> & val);
+
+  void __set_err(const InvalidRequest& val);
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+};
+
+typedef struct _KnnService_queryByItemNoWeight_presult__isset {
+  _KnnService_queryByItemNoWeight_presult__isset() : success(false), err(false) {}
+  bool success :1;
+  bool err :1;
+} _KnnService_queryByItemNoWeight_presult__isset;
+
+class KnnService_queryByItemNoWeight_presult {
+ public:
+
+
+  virtual ~KnnService_queryByItemNoWeight_presult() throw();
+  std::vector<std::string> * success;
+  InvalidRequest err;
+
+  _KnnService_queryByItemNoWeight_presult__isset __isset;
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+
+};
+
+typedef struct _KnnService_handleRequest_args__isset {
+  _KnnService_handleRequest_args__isset() : request(false) {}
+  bool request :1;
+} _KnnService_handleRequest_args__isset;
+
+class KnnService_handleRequest_args {
+ public:
+
+  KnnService_handleRequest_args(const KnnService_handleRequest_args&);
+  KnnService_handleRequest_args(KnnService_handleRequest_args&&);
+  KnnService_handleRequest_args& operator=(const KnnService_handleRequest_args&);
+  KnnService_handleRequest_args& operator=(KnnService_handleRequest_args&&);
+  KnnService_handleRequest_args() : request() {
+  }
+
+  virtual ~KnnService_handleRequest_args() throw();
+  std::string request;
+
+  _KnnService_handleRequest_args__isset __isset;
+
+  void __set_request(const std::string& val);
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+};
+
+
+class KnnService_handleRequest_pargs {
+ public:
+
+
+  virtual ~KnnService_handleRequest_pargs() throw();
+  const std::string* request;
+
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+};
+
+typedef struct _KnnService_handleRequest_result__isset {
+  _KnnService_handleRequest_result__isset() : success(false), err(false) {}
+  bool success :1;
+  bool err :1;
+} _KnnService_handleRequest_result__isset;
+
+class KnnService_handleRequest_result {
+ public:
+
+  KnnService_handleRequest_result(const KnnService_handleRequest_result&);
+  KnnService_handleRequest_result(KnnService_handleRequest_result&&);
+  KnnService_handleRequest_result& operator=(const KnnService_handleRequest_result&);
+  KnnService_handleRequest_result& operator=(KnnService_handleRequest_result&&);
+  KnnService_handleRequest_result() : success() {
+  }
+
+  virtual ~KnnService_handleRequest_result() throw();
+  std::string success;
+  InvalidRequest err;
+
+  _KnnService_handleRequest_result__isset __isset;
+
+  void __set_success(const std::string& val);
+
+  void __set_err(const InvalidRequest& val);
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+};
+
+typedef struct _KnnService_handleRequest_presult__isset {
+  _KnnService_handleRequest_presult__isset() : success(false), err(false) {}
+  bool success :1;
+  bool err :1;
+} _KnnService_handleRequest_presult__isset;
+
+class KnnService_handleRequest_presult {
+ public:
+
+
+  virtual ~KnnService_handleRequest_presult() throw();
+  std::string* success;
+  InvalidRequest err;
+
+  _KnnService_handleRequest_presult__isset __isset;
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+
+};
+
 template <class Protocol_>
 class KnnServiceClientT : virtual public KnnServiceIf {
  public:
@@ -294,6 +604,15 @@ class KnnServiceClientT : virtual public KnnServiceIf {
   void queryByVector(std::vector<Result> & _return, const std::vector<double> & values, const int32_t n);
   void send_queryByVector(const std::vector<double> & values, const int32_t n);
   void recv_queryByVector(std::vector<Result> & _return);
+  void queryByVectorNoWeight(std::vector<std::string> & _return, const std::vector<double> & values, const int32_t n);
+  void send_queryByVectorNoWeight(const std::vector<double> & values, const int32_t n);
+  void recv_queryByVectorNoWeight(std::vector<std::string> & _return);
+  void queryByItemNoWeight(std::vector<std::string> & _return, const std::string& item, const int32_t n);
+  void send_queryByItemNoWeight(const std::string& item, const int32_t n);
+  void recv_queryByItemNoWeight(std::vector<std::string> & _return);
+  void handleRequest(std::string& _return, const std::string& request);
+  void send_handleRequest(const std::string& request);
+  void recv_handleRequest(std::string& _return);
  protected:
   boost::shared_ptr< Protocol_> piprot_;
   boost::shared_ptr< Protocol_> poprot_;
@@ -326,6 +645,12 @@ class KnnServiceProcessorT : public ::apache::thrift::TDispatchProcessorT<Protoc
   void process_queryByItem(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
   void process_queryByVector(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_queryByVector(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
+  void process_queryByVectorNoWeight(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_queryByVectorNoWeight(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
+  void process_queryByItemNoWeight(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_queryByItemNoWeight(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
+  void process_handleRequest(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_handleRequest(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
  public:
   KnnServiceProcessorT(boost::shared_ptr<KnnServiceIf> iface) :
     iface_(iface) {
@@ -335,6 +660,15 @@ class KnnServiceProcessorT : public ::apache::thrift::TDispatchProcessorT<Protoc
     processMap_["queryByVector"] = ProcessFunctions(
       &KnnServiceProcessorT::process_queryByVector,
       &KnnServiceProcessorT::process_queryByVector);
+    processMap_["queryByVectorNoWeight"] = ProcessFunctions(
+      &KnnServiceProcessorT::process_queryByVectorNoWeight,
+      &KnnServiceProcessorT::process_queryByVectorNoWeight);
+    processMap_["queryByItemNoWeight"] = ProcessFunctions(
+      &KnnServiceProcessorT::process_queryByItemNoWeight,
+      &KnnServiceProcessorT::process_queryByItemNoWeight);
+    processMap_["handleRequest"] = ProcessFunctions(
+      &KnnServiceProcessorT::process_handleRequest,
+      &KnnServiceProcessorT::process_handleRequest);
   }
 
   virtual ~KnnServiceProcessorT() {}
@@ -388,6 +722,36 @@ class KnnServiceMultiface : virtual public KnnServiceIf {
     return;
   }
 
+  void queryByVectorNoWeight(std::vector<std::string> & _return, const std::vector<double> & values, const int32_t n) {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->queryByVectorNoWeight(_return, values, n);
+    }
+    ifaces_[i]->queryByVectorNoWeight(_return, values, n);
+    return;
+  }
+
+  void queryByItemNoWeight(std::vector<std::string> & _return, const std::string& item, const int32_t n) {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->queryByItemNoWeight(_return, item, n);
+    }
+    ifaces_[i]->queryByItemNoWeight(_return, item, n);
+    return;
+  }
+
+  void handleRequest(std::string& _return, const std::string& request) {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->handleRequest(_return, request);
+    }
+    ifaces_[i]->handleRequest(_return, request);
+    return;
+  }
+
 };
 
 // The 'concurrent' client is a thread safe client that correctly handles
@@ -425,6 +789,15 @@ class KnnServiceConcurrentClientT : virtual public KnnServiceIf {
   void queryByVector(std::vector<Result> & _return, const std::vector<double> & values, const int32_t n);
   int32_t send_queryByVector(const std::vector<double> & values, const int32_t n);
   void recv_queryByVector(std::vector<Result> & _return, const int32_t seqid);
+  void queryByVectorNoWeight(std::vector<std::string> & _return, const std::vector<double> & values, const int32_t n);
+  int32_t send_queryByVectorNoWeight(const std::vector<double> & values, const int32_t n);
+  void recv_queryByVectorNoWeight(std::vector<std::string> & _return, const int32_t seqid);
+  void queryByItemNoWeight(std::vector<std::string> & _return, const std::string& item, const int32_t n);
+  int32_t send_queryByItemNoWeight(const std::string& item, const int32_t n);
+  void recv_queryByItemNoWeight(std::vector<std::string> & _return, const int32_t seqid);
+  void handleRequest(std::string& _return, const std::string& request);
+  int32_t send_handleRequest(const std::string& request);
+  void recv_handleRequest(std::string& _return, const int32_t seqid);
  protected:
   boost::shared_ptr< Protocol_> piprot_;
   boost::shared_ptr< Protocol_> poprot_;

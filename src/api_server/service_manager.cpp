@@ -31,11 +31,26 @@ ServiceManager::pointer ServiceManager::getInstance()
     return m_pInstance;
 }
 
-void ServiceManager::addService( int argc, char **argv )
+// void ServiceManager::addService( int argc, char **argv )
+void ServiceManager::addService( const std::string &cmd )
 {
     using namespace std;
 
-    // LOG(INFO) << "ServiceManager::addService() confFileName = " << confFileName;
+    DLOG(INFO) << "addService() cmd = " << cmd;
+
+    stringstream stream(cmd);
+    vector<string> strArgs;
+    string arg;
+
+    while (stream >> arg)
+        strArgs.push_back(arg);
+
+    if (strArgs.size() == 0)
+        THROW_RUNTIME_ERROR("Invalid command!");
+
+    vector<char*> cstrArgs( strArgs.size() );
+    for (size_t i = 0; i < strArgs.size(); ++i)
+        cstrArgs[i] = const_cast<char*>(strArgs[i].c_str());
 
 #define CLOSE_HANDLE_THROW_ERROR(handle, args) \
     do { \
@@ -46,7 +61,7 @@ void ServiceManager::addService( int argc, char **argv )
         THROW_RUNTIME_ERROR(args); \
     } while (0)
 
-    const char *libpath = argv[0];
+    const char *libpath = cstrArgs[0];
 
     dlerror();
     void *srvHandle = dlopen(libpath, RTLD_LAZY);
@@ -62,10 +77,11 @@ void ServiceManager::addService( int argc, char **argv )
     ServicePtr pSrv(create_instance());
     pSrv->setWorkMgr( g_pWorkMgr );
 
-    if (!pSrv->init(argc, argv))
+    if (!pSrv->init((int)(cstrArgs.size()), &cstrArgs[0]))
         CLOSE_HANDLE_THROW_ERROR(srvHandle, "addService init service" << pSrv->name() << " fail!");
 
     ServiceInfoPtr pSrvInfo(new ServiceInfo(pSrv, srvHandle));
+    pSrvInfo->cmdString = cmd;
     // insert
     {
         boost::unique_lock<ServiceTable> lock(m_mapServices);
@@ -104,7 +120,7 @@ bool ServiceManager::getService( const std::string &srvName, Service::pointer &p
 
 void ServiceManager::addAlgServer( const std::string& algName, const AlgSvrInfo& svrInfo )
 {
-    LOG(INFO) << "ServiceManager::addAlgServer() algName = " << algName
+    DLOG(INFO) << "ServiceManager::addAlgServer() algName = " << algName
               << ", server = " << svrInfo.addr << ":" << svrInfo.port;
 
     ServicePtr pSrv;
@@ -114,7 +130,7 @@ void ServiceManager::addAlgServer( const std::string& algName, const AlgSvrInfo&
 
 void ServiceManager::rmAlgServer( const std::string& algName, const AlgSvrInfo& svrInfo )
 {
-    LOG(INFO) << "ServiceManager::rmAlgServer() algName = " << algName
+    DLOG(INFO) << "ServiceManager::rmAlgServer() algName = " << algName
               << ", server = " << svrInfo.addr << ":" << svrInfo.port;
 
     ServicePtr pSrv;
@@ -125,7 +141,7 @@ void ServiceManager::rmAlgServer( const std::string& algName, const AlgSvrInfo& 
 ServiceManager::ServiceInfo::~ServiceInfo()
 {
     if (pHandle) {
-        LOG(INFO) << "Closing handle for service " << this->pService->name();
+        DLOG(INFO) << "Closing handle for service " << this->pService->name();
         dlclose(pHandle);
         pHandle = NULL;
     } // if

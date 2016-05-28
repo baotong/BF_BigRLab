@@ -1,10 +1,8 @@
 /*
- * GLOG_logtostderr=1 ./apiserver.bin -conf ../../conf/server.conf
+ * GLOG_logtostderr=1 ./apiserver.bin
  */
 /*
  * TODO list
- * 1. shell can deal with script
- * 2. auto load lib
  */
 /*
  * Tests
@@ -16,6 +14,8 @@
 #include "api_server.h"
 #include "service_manager.h"
 #include "alg_mgr.h"
+#include <fstream>
+#include <iomanip>
 #include <gflags/gflags.h>
 
 using namespace BigRLab;
@@ -89,27 +89,6 @@ static const bool n_io_threads_dummy = gflags::RegisterFlagValidator(&FLAGS_n_io
 
 
 namespace Test {
-
-    void print_PropertyTable( const PropertyTable &ppt )
-    {
-        for (const auto &v : ppt) {
-            cout << v.first << ": ";
-            for (const auto &vv : v.second)
-                cout << vv << "; ";
-            cout << endl;
-        } // for
-    }
-
-    void test1(int argc, char **argv)
-    {
-        ServiceManager::pointer pServiceMgr = ServiceManager::getInstance();
-
-        PropertyTable ppt;
-        parse_config_file( argv[1], ppt );
-        print_PropertyTable( ppt );
-
-        exit(0);
-    }
 
     void test()
     {
@@ -190,29 +169,32 @@ static
 void start_shell()
 {
     using namespace std;
+
+    auto autorun = [] {
+        ifstream ifs("autorun.conf", ios::in);
+        if (!ifs)
+            ERR_RET("No autorun.conf found.");
+
+        string cmdLine;
+        while (getline(ifs, cmdLine)) {
+            try {
+                ServiceManager::getInstance()->addService( cmdLine );
+            } catch (const std::exception &ex) {
+                cerr << ex.what() << endl;
+            } // try
+        } // while
+    };
+
     //!! 第一种方法编译错误，必须先 typedef
     // typedef std::map< std::string, std::function<bool(std::stringstream&) > CmdProcessTable;
     typedef std::function<bool(std::stringstream&)> CmdProcessor;
     typedef std::map< std::string, CmdProcessor > CmdProcessTable;
 
     auto addService = [](stringstream &stream)->bool {
-        vector<string> strArgs;
-        string arg;
-
-        while (stream >> arg)
-            strArgs.push_back(arg);
-
-        if (strArgs.size() == 0)
-            return false;
-
-        vector<char*> cstrArgs( strArgs.size() );
-        for (size_t i = 0; i < strArgs.size(); ++i)
-            cstrArgs[i] = const_cast<char*>(strArgs[i].c_str());
-
         try {
-            ServiceManager::getInstance()->addService( (int)(cstrArgs.size()), &cstrArgs[0] );
+            ServiceManager::getInstance()->addService( stream );
         } catch (const std::exception &ex) {
-            cout << ex.what() << endl;
+            cerr << ex.what() << endl;
         } // try
 
         return true;
@@ -261,10 +243,24 @@ void start_shell()
         return true;
     };
 
+    auto save = [](stringstream &stream)->bool {
+        ofstream ofs("autorun.conf", ios::out);
+        if (!ofs)
+            ERR_RET_VAL(false, "Cannot open autorun.conf for writting!");
+
+        ServiceManager::ServiceTable &table = ServiceManager::getInstance()->services();
+        boost::shared_lock<ServiceManager::ServiceTable> lock(table);
+        for (const auto &v : table)
+            ofs << v.second->cmdString << endl;
+    };
+
     CmdProcessTable cmdTable;
     cmdTable["addservice"] = addService;
     cmdTable["lsservice"] = lsService;
     cmdTable["rmservice"] = rmService;
+    cmdTable["save"] = save;
+
+    autorun();
 
     cout << "BigRLab shell launched." << endl;
 

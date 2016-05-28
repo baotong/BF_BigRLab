@@ -18,6 +18,7 @@ public:
 
         Service::pointer    pService;
         void*               pHandle;
+        std::string         cmdString;
     };
 
     typedef boost::shared_ptr<ServiceInfo>            ServiceInfoPtr;
@@ -29,7 +30,15 @@ public:
 public:
     static pointer getInstance();
 
-    void addService( int argc, char **argv );
+    // void addService( int argc, char **argv );
+    void addService( std::stringstream &cmdstream )
+    {
+        std::string cmd;
+        std::getline(cmdstream, cmd);
+        addService( cmd );
+    }
+
+    void addService( const std::string &cmd );
     bool removeService( const std::string &srvName );
     bool getService( const std::string &srvName, Service::pointer &pSrv );
     void addAlgServer( const std::string& algName, const AlgSvrInfo& svrInfo );

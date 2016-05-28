@@ -10,7 +10,7 @@ uint16_t                                g_nAlgMgrPort = 0;
 
 int32_t AlgMgrServiceHandler::addSvr(const std::string& algName, const AlgSvrInfo& svrInfo)
 {
-    LOG(INFO) << "received addSvr request: name = " << algName << " info = "
+    DLOG(INFO) << "received addSvr request: name = " << algName << " info = "
         << svrInfo.addr << ":" << svrInfo.port << " maxConcurrency = " << svrInfo.maxConcurrency;
 
 #define ADD_TO_SRVMGR_RET_SUCCESS \
@@ -64,7 +64,7 @@ int32_t AlgMgrServiceHandler::addSvr(const std::string& algName, const AlgSvrInf
 
 void AlgMgrServiceHandler::rmSvr(const std::string& algName, const AlgSvrInfo& svrInfo)
 {
-    LOG(INFO) << "received rmSvr request: name = " << algName << " info = "
+    DLOG(INFO) << "received rmSvr request: name = " << algName << " info = "
         << svrInfo.addr << ":" << svrInfo.port;
 
     boost::upgrade_lock< AlgSvrTable > sLock(m_mapSvrTable);

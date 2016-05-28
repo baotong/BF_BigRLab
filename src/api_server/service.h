@@ -2,6 +2,7 @@
 #define _SERVICE_H_
 
 #include "api_server.h"
+#include <iomanip>
 
 
 namespace BigRLab {
@@ -54,7 +55,7 @@ public:
     virtual void addServer( const AlgSvrInfo& svrInfo,
                             const ServerAttr::Pointer &p = ServerAttr::Pointer() )
     {
-        LOG(INFO) << "Service::addServer() " << svrInfo.addr << ":" << svrInfo.port;
+        DLOG(INFO) << "Service::addServer() " << svrInfo.addr << ":" << svrInfo.port;
         boost::unique_lock<ServerTable> lock(m_mapServers);
         m_mapServers.insert( std::make_pair(svrInfo, p) );
         // overwrite ??
@@ -62,18 +63,16 @@ public:
 
     virtual void rmServer( const AlgSvrInfo& svrInfo )
     {
-        LOG(INFO) << "Service::rmServer() " << svrInfo.addr << ":" << svrInfo.port;
+        DLOG(INFO) << "Service::rmServer() " << svrInfo.addr << ":" << svrInfo.port;
         boost::unique_lock<ServerTable> lock(m_mapServers);
         m_mapServers.erase( svrInfo );
     }
 
     virtual std::string toString() const 
     {
-        std::stringstream stream;
-        stream << "Service " << name() << std::endl;
-        stream << "Online servers:\n" << "IP:Port\t\tmaxConcurrency" << std::endl; 
-        for (const auto &v : m_mapServers)
-            stream << v.first.addr << ":" << v.first.port << "\t\t" << v.first.maxConcurrency << std::endl;
+        using namespace std;
+        stringstream stream;
+        stream << "Service " << name() << endl;
         stream.flush();
         return stream.str();
     }

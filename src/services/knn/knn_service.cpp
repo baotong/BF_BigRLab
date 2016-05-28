@@ -92,7 +92,7 @@ struct QueryWorkFile : BigRLab::WorkItemBase {
 
     virtual void run()
     {
-        LOG(INFO) << "Service " << srvName << " querying \"" << item << "\"";
+        DLOG(INFO) << "Service " << srvName << " querying \"" << item << "\"";
 
         auto on_finish = [this](void*) {
             ++*counter;
@@ -195,7 +195,7 @@ KnnService::KnnClientArr::KnnClientArr(const BigRLab::AlgSvrInfo &svr,
 }
 
 /**
- * @brief 
+ * @brief  在apiserver的主线程中执行
  * service knn items k item1 item2 ... itemn
  * service knn file k input output
  */
@@ -303,9 +303,10 @@ void KnnService::handleCommand( std::stringstream &stream )
     }// if
 }
 
+// 在apiserver的工作线程中执行
 void KnnService::handleRequest(const BigRLab::WorkItemPtr &pWork)
 {
-    cout << "Service knn received request: " << pWork->body << endl;
+    DLOG(INFO) << "Service " << name() << " received request: " << pWork->body;
     // throw InvalidInput("Service knn test exception.");
     send_response(pWork->conn, ServerType::connection::ok, "Service knn running...\n");
 }
@@ -332,14 +333,21 @@ void KnnService::addServer( const BigRLab::AlgSvrInfo& svrInfo, const ServerAttr
 
 std::string KnnService::toString() const
 {
-    std::stringstream stream;
-    stream << "Service " << name() << std::endl;
-    stream << "Online servers:\n" << "IP:Port\t\tmaxConcurrency\t\tnClientInst" << std::endl; 
+    using namespace std;
+
+    stringstream stream;
+    stream << "Service " << name() << endl;
+    stream << "Online servers:" << endl; 
+    stream << left << setw(30) << "IP:Port" << setw(20) << "maxConcurrency" 
+            << setw(20) << "nClientInst" << endl; 
     for (const auto &v : m_mapServers) {
-        stream << v.first.addr << ":" << v.first.port << "\t\t" << v.first.maxConcurrency << "\t\t";
+        stringstream addrStream;
+        addrStream << v.first.addr << ":" << v.first.port << flush;
+        stream << left << setw(30) << addrStream.str() << setw(20) 
+                << v.first.maxConcurrency << setw(20);
         auto sp = v.second;
         KnnClientArr *p = static_cast<KnnClientArr*>(sp.get());
-        stream << p->size() << std::endl;
+        stream << p->size() << endl;
     } // for
     stream.flush();
     return stream.str();

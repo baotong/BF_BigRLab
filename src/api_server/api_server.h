@@ -94,7 +94,6 @@ public:
     // { return m_pAlgMgrClient; }
 
 private:
-    PropertyTable       m_mapProperties;
     uint16_t            m_nPort;
     uint32_t            m_nIoThreads;
     uint32_t            m_nWorkThreads;

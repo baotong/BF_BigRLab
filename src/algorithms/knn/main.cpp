@@ -12,6 +12,9 @@
 #include <fstream>
 #include <cctype>
 #include <thread>
+#include <boost/foreach.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <boost/range/combine.hpp>
 #include <boost/asio.hpp>
 #include <boost/lexical_cast.hpp>
 #include <glog/logging.h>
@@ -210,6 +213,9 @@ class KnnServiceHandler : virtual public KnnServiceIf {
 public:
     virtual void queryByItem(std::vector<Result> & _return, const std::string& item, const int32_t n);
     virtual void queryByVector(std::vector<Result> & _return, const std::vector<double> & values, const int32_t n);
+    virtual void queryByVectorNoWeight(std::vector<std::string> & _return, const std::vector<double> & values, const int32_t n);
+    virtual void queryByItemNoWeight(std::vector<std::string> & _return, const std::string& item, const int32_t n);
+    virtual void handleRequest(std::string& _return, const std::string& request);
 };
 
 #define THROW_INVALID_REQUEST(args) \
@@ -242,6 +248,19 @@ void KnnServiceHandler::queryByItem(std::vector<Result> & _return,
     } // for
 }
 
+void KnnServiceHandler::queryByItemNoWeight(std::vector<std::string> & _return, 
+            const std::string& item, const int32_t n)
+{
+    std::vector<Result> result;
+    queryByItem(result, item, n);
+    _return.resize( result.size() );
+    
+    // 必须用typedef，否则模板里的逗号会被宏解析为参数分割
+    typedef boost::tuple<std::string&, Result&> IterType;
+    BOOST_FOREACH( IterType v, boost::combine(_return, result) )
+        v.get<0>().swap(v.get<1>().item);
+}
+
 // 若用double，annoy buildidx会崩溃
 void KnnServiceHandler::queryByVector(std::vector<Result> & _return, 
             const std::vector<double> & values, const int32_t n)
@@ -264,17 +283,47 @@ void KnnServiceHandler::queryByVector(std::vector<Result> & _return,
     } // for
 }
 
+void KnnServiceHandler::queryByVectorNoWeight(std::vector<std::string> & _return, 
+            const std::vector<double> & values, const int32_t n)
+{
+    std::vector<Result> result;
+    queryByVector(result, values, n);
+    _return.resize( result.size() );
+    
+    // 必须用typedef，否则模板里的逗号会被宏解析为参数分割
+    typedef boost::tuple<std::string&, Result&> IterType;
+    BOOST_FOREACH( IterType v, boost::combine(_return, result) )
+        v.get<0>().swap(v.get<1>().item);
+}
+
+void KnnServiceHandler::handleRequest(std::string& _return, const std::string& request)
+{
+    // TODO
+    _return = request;
+}
+
 #undef THROW_INVALID_REQUEST
 
 } // namespace KNN
 
+namespace Test {
+    using namespace std;
 
-typedef BigRLab::ThriftClient< BigRLab::AlgMgrServiceClient > AlgMgrClient;
+    void test1( boost::shared_ptr< KNN::KnnServiceIf > pHandler )
+    {
+        vector<string> result;
+        pHandler->queryByItemNoWeight( result, "李宇春", 10 );
+        exit(0);
+    }
+
+} // namespace Test
+
+typedef BigRLab::ThriftClient< BigRLab::AlgMgrServiceClient >                AlgMgrClient;
 typedef BigRLab::ThriftServer< KNN::KnnServiceIf, KNN::KnnServiceProcessor > KnnAlgServer;
-static AlgMgrClient::Pointer    g_pAlgMgrClient;
-static KnnAlgServer::Pointer    g_pThisServer;
-static boost::shared_ptr<BigRLab::AlgSvrInfo>  g_pSvrInfo;
-static boost::asio::io_service                 g_io_service;
+static AlgMgrClient::Pointer                  g_pAlgMgrClient;
+static KnnAlgServer::Pointer                  g_pThisServer;
+static boost::shared_ptr<BigRLab::AlgSvrInfo> g_pSvrInfo;
+static boost::asio::io_service                g_io_service;
 
 static
 bool get_local_ip( std::string &result )
@@ -368,6 +417,7 @@ void start_rpc_service()
     // start this alg server
     cout << "Launching alogrithm server... " << endl;
     boost::shared_ptr< KNN::KnnServiceIf > pHandler = boost::make_shared< KNN::KnnServiceHandler >();
+    // Test::test1(pHandler);
     g_pThisServer = boost::make_shared< KnnAlgServer >(pHandler, g_nThisPort);
     try {
         g_pThisServer->start(); //!! NOTE blocking until quit
