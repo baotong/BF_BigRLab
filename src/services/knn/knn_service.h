@@ -48,7 +48,7 @@ public:
     virtual bool init( int argc, char **argv ) { return true; }
     virtual void handleRequest(const BigRLab::WorkItemPtr &pWork);
     virtual void handleCommand( std::stringstream &stream );
-    virtual void addServer( const BigRLab::AlgSvrInfo& svrInfo,
+    virtual int  addServer( const BigRLab::AlgSvrInfo& svrInfo,
                             const ServerAttr::Pointer &p = ServerAttr::Pointer() );
     virtual std::string toString() const;
     // use Service::rmServer()

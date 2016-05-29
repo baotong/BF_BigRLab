@@ -22,7 +22,8 @@ namespace BigRLab {
 enum ErrCodeType {
   SUCCESS = 0,
   ALREADY_EXIST = 1,
-  NO_SERVER = 2
+  SERVER_UNREACHABLE = 2,
+  NO_SERVER = 3
 };
 
 extern const std::map<int, const char*> _ErrCodeType_VALUES_TO_NAMES;

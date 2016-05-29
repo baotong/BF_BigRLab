@@ -311,7 +311,7 @@ void KnnService::handleRequest(const BigRLab::WorkItemPtr &pWork)
     send_response(pWork->conn, ServerType::connection::ok, "Service knn running...\n");
 }
 
-void KnnService::addServer( const BigRLab::AlgSvrInfo& svrInfo, const ServerAttr::Pointer& )
+int KnnService::addServer( const BigRLab::AlgSvrInfo& svrInfo, const ServerAttr::Pointer& )
 {
     int n = svrInfo.maxConcurrency / 5;
     if (n < 5)
@@ -325,10 +325,12 @@ void KnnService::addServer( const BigRLab::AlgSvrInfo& svrInfo, const ServerAttr
     // SLEEP_SECONDS(1);
     auto pClient = boost::make_shared<KnnClientArr>(svrInfo, &m_queIdleClients, n);
     // DLOG(INFO) << "pClient->size() = " << pClient->size();
-    if (!pClient->empty())
-        Service::addServer(svrInfo, boost::static_pointer_cast<ServerAttr>(pClient));
-
+    if (pClient->empty())
+        return SERVER_UNREACHABLE;
+    
     DLOG(INFO) << "KnnService::addServer() m_queIdleClients.size() = " << m_queIdleClients.size();
+
+    return Service::addServer(svrInfo, boost::static_pointer_cast<ServerAttr>(pClient));
 }
 
 std::string KnnService::toString() const

@@ -7,6 +7,7 @@ namespace * BigRLab
 enum ErrCodeType {
     SUCCESS,
     ALREADY_EXIST,
+    SERVER_UNREACHABLE,
     NO_SERVER
 }
 

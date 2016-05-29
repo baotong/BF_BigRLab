@@ -52,13 +52,13 @@ public:
     WorkManager::Pointer getWorkMgr() const
     { return m_pWorkMgr; }
 
-    virtual void addServer( const AlgSvrInfo& svrInfo,
+    virtual int addServer( const AlgSvrInfo& svrInfo,
                             const ServerAttr::Pointer &p = ServerAttr::Pointer() )
     {
         DLOG(INFO) << "Service::addServer() " << svrInfo.addr << ":" << svrInfo.port;
         boost::unique_lock<ServerTable> lock(m_mapServers);
         m_mapServers.insert( std::make_pair(svrInfo, p) );
-        // overwrite ??
+        return SUCCESS;
     }
 
     virtual void rmServer( const AlgSvrInfo& svrInfo )

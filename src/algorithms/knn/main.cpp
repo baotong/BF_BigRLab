@@ -402,6 +402,9 @@ void start_rpc_service()
                     case BigRLab::ALREADY_EXIST:
                         cerr << " server with same addr:port already exists!";
                         break;
+                    case BigRLab::SERVER_UNREACHABLE:
+                        cerr << " this server is unreachable by algmgr! check the server address setting.";
+                        break;
                 } // switch
                 cerr << endl;
                 exit(-1);

@@ -16,14 +16,16 @@ namespace BigRLab {
 int _kErrCodeTypeValues[] = {
   SUCCESS,
   ALREADY_EXIST,
+  SERVER_UNREACHABLE,
   NO_SERVER
 };
 const char* _kErrCodeTypeNames[] = {
   "SUCCESS",
   "ALREADY_EXIST",
+  "SERVER_UNREACHABLE",
   "NO_SERVER"
 };
-const std::map<int, const char*> _ErrCodeType_VALUES_TO_NAMES(::apache::thrift::TEnumIterator(3, _kErrCodeTypeValues, _kErrCodeTypeNames), ::apache::thrift::TEnumIterator(-1, NULL, NULL));
+const std::map<int, const char*> _ErrCodeType_VALUES_TO_NAMES(::apache::thrift::TEnumIterator(4, _kErrCodeTypeValues, _kErrCodeTypeNames), ::apache::thrift::TEnumIterator(-1, NULL, NULL));
 
 
 InvalidRequest::~InvalidRequest() throw() {

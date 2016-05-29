@@ -118,14 +118,16 @@ bool ServiceManager::getService( const std::string &srvName, Service::pointer &p
     return true;
 }
 
-void ServiceManager::addAlgServer( const std::string& algName, const AlgSvrInfo& svrInfo )
+int ServiceManager::addAlgServer( const std::string& algName, const AlgSvrInfo& svrInfo )
 {
     DLOG(INFO) << "ServiceManager::addAlgServer() algName = " << algName
               << ", server = " << svrInfo.addr << ":" << svrInfo.port;
 
     ServicePtr pSrv;
     if (getService(algName, pSrv))
-        pSrv->addServer( svrInfo );
+        return pSrv->addServer( svrInfo );
+    // 若某个algsvr启动服务器地址设置错误，而相应的lib.so没有加载，是检测不到无法连接错误
+    return SUCCESS;
 }
 
 void ServiceManager::rmAlgServer( const std::string& algName, const AlgSvrInfo& svrInfo )
