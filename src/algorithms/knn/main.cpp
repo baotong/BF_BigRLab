@@ -19,6 +19,7 @@
 #include <boost/lexical_cast.hpp>
 #include <glog/logging.h>
 #include <gflags/gflags.h>
+#include <jsoncpp/json/json.h>
 
 using std::cout; using std::cerr; using std::endl;
 
@@ -298,8 +299,70 @@ void KnnServiceHandler::queryByVectorNoWeight(std::vector<std::string> & _return
 
 void KnnServiceHandler::handleRequest(std::string& _return, const std::string& request)
 {
-    // TODO
-    _return = request;
+    Json::Reader    reader;
+    Json::Value     root;
+    int             n = 0;
+
+    // DLOG(INFO) << "KnnService received request: " << request;
+
+    typedef std::vector<std::string> StringArray;
+    typedef std::map< std::string, StringArray> Query;
+    Query           query;
+
+    if (!reader.parse(request, root))
+        THROW_INVALID_REQUEST("Json parse fail!");
+
+    // get n
+    try {
+        n = root["n"].asInt();
+        if (n <= 0)
+            THROW_INVALID_REQUEST("Invalid n value");
+    } catch (const std::exception &ex) {
+        THROW_INVALID_REQUEST("Json parse fail! " << ex.what());
+    } // try
+
+    // get query items
+    auto items = root["items"];
+    if (items.isNull())
+        THROW_INVALID_REQUEST("Bad request format!");
+
+    if (items.isArray()) {
+        for (auto it = items.begin(); it != items.end(); ++it) {
+            try {
+                string item = (*it).asString();
+                if (!item.empty())
+                    query.insert( std::make_pair(item, StringArray()) );
+            } catch (const std::exception &ex) {;}
+        } // for
+    } else {
+        try {
+            string item = items.asString();
+            if (item.empty())
+                THROW_INVALID_REQUEST("Bad request format!");
+            query.insert( std::make_pair(item, StringArray()) );
+        } catch (const std::exception &ex) {
+            THROW_INVALID_REQUEST("Json parse fail! " << ex.what());
+        } // try
+    } // if
+
+    if (query.empty())
+        THROW_INVALID_REQUEST("Bad request format! no valid query item");
+
+    for (auto &v : query)
+        queryByItemNoWeight(v.second, v.first, n);
+
+    Json::Value     outRoot; // array of record
+    for (auto &v : query) {
+        Json::Value record, mostLike;
+        record["item"] = v.first;
+        for (auto &str : v.second)
+            mostLike.append(str);
+        record["most_like"].swap(mostLike);
+        outRoot.append(Json::Value());
+        outRoot[ outRoot.size()-1 ].swap(record);
+    } // for
+    Json::FastWriter writer;  
+    _return = writer.write(outRoot);
 }
 
 #undef THROW_INVALID_REQUEST

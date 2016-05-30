@@ -306,6 +306,8 @@ void KnnService::handleCommand( std::stringstream &stream )
 // 在apiserver的工作线程中执行
 void KnnService::handleRequest(const BigRLab::WorkItemPtr &pWork)
 {
+    // DLOG(INFO) << "Service " << name() << " received request: " << pWork->body;
+
     bool done = false;
 
     do {
@@ -342,11 +344,12 @@ void KnnService::handleRequest(const BigRLab::WorkItemPtr &pWork)
 
 int KnnService::addServer( const BigRLab::AlgSvrInfo& svrInfo, const ServerAttr::Pointer& )
 {
-    int n = svrInfo.maxConcurrency / 5;
+    // 要根据实际需求确定连接数量
+    int n = svrInfo.maxConcurrency;
     if (n < 5)
         n = 5;
-    else if (n > 20)
-        n = 20;
+    else if (n > 50)
+        n = 50;
 
     DLOG(INFO) << "KnnService::addServer() " << svrInfo.addr << ":" << svrInfo.port
               << " maxConcurrency = " << svrInfo.maxConcurrency

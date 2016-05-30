@@ -84,7 +84,7 @@ try {
 
     if (!boost::iequals(req.method, "POST")) {
         LOG(ERROR) << "Wrong request from " << req.source << ", only accept POST.";
-        send_response(conn, ServerType::connection::bad_request, "Only accept POST request");
+        send_response(conn, ServerType::connection::bad_request, "Only accept POST request\n");
         return;
     } // if
 
@@ -93,13 +93,13 @@ try {
         if (boost::iequals(v.name, "Content-Type")) {
             if (!boost::iequals(v.value, "application/json")) {
                 LOG(ERROR) << "Wrong request from " << req.source << ", only accept json content.";
-                send_response(conn, ServerType::connection::bad_request, "Content-Type is not json");
+                send_response(conn, ServerType::connection::bad_request, "Content-Type is not json\n");
                 return;
             } // if
         } else if (boost::iequals(v.name, "Content-Length")) {
             // nRead = boost::lexical_cast<size_t>(v.value);
             if (!boost::conversion::try_lexical_convert(v.value, nRead)) {
-                send_response(conn, ServerType::connection::bad_request, "Content-Length not valid");
+                send_response(conn, ServerType::connection::bad_request, "Content-Length not valid\n");
                 return;
             } // if
         } // if
@@ -152,7 +152,7 @@ void WorkItem::run()
 
     string::size_type startPos = req.destination.find_first_not_of('/');
     if (string::npos == startPos) {
-        send_response(conn, connection::bad_request, "Invalid service name");
+        send_response(conn, connection::bad_request, "Invalid service name\n");
         return;
     } // if
 
@@ -164,7 +164,7 @@ void WorkItem::run()
     string srvName( req.destination.begin() + startPos, endIt );
 
     if (srvName.empty()) {
-        send_response(conn, connection::bad_request, "Invalid service name");
+        send_response(conn, connection::bad_request, "Invalid service name\n");
         return;
     } // if
     
@@ -172,7 +172,7 @@ void WorkItem::run()
     ServicePtr pSrv;
     if (!ServiceManager::getInstance()->getService(srvName, pSrv)) {
         // LOG(INFO) << "Service " << srvName << " not available!";
-        send_response(conn, connection::service_unavailable, "Cannot find requested service");
+        send_response(conn, connection::service_unavailable, "Cannot find requested service\n");
         return;
     } // if
 

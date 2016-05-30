@@ -151,7 +151,7 @@ void send_response(const ServerType::connection_ptr &conn,
 #define RESPONSE(conn, status, args) \
     do { \
         std::stringstream __response_stream; \
-        __response_stream << args << std::flush; \
+        __response_stream << args << std::endl << std::flush; \
         send_response(conn, status, __response_stream.str()); \
     } while (0)
 
