@@ -306,9 +306,38 @@ void KnnService::handleCommand( std::stringstream &stream )
 // 在apiserver的工作线程中执行
 void KnnService::handleRequest(const BigRLab::WorkItemPtr &pWork)
 {
-    DLOG(INFO) << "Service " << name() << " received request: " << pWork->body;
-    // throw InvalidInput("Service knn test exception.");
-    send_response(pWork->conn, ServerType::connection::ok, "Service knn running...\n");
+    bool done = false;
+
+    do {
+        auto pClient = m_queIdleClients.getIdleClient();
+        if (!pClient) {
+            LOG(ERROR) << "Service " << name() << " handleRequest fail, "
+                    << " no client object available.";
+            RESPONSE(pWork->conn, ServerType::connection::service_unavailable, 
+                "Service " << name() << " handleRequest fail, "
+                            << " no client object available.");
+            return;
+        } // if
+
+        try {
+            std::string result;
+            pClient->client()->handleRequest( result, pWork->body );
+            done = true;
+            m_queIdleClients.putBack( pClient );
+            RESPONSE(pWork->conn, ServerType::connection::ok, result);
+
+        } catch (const KNN::InvalidRequest &err) {
+            LOG(ERROR) << "Service " << name() << " caught InvalidRequest: "
+                    << err.reason;
+            RESPONSE(pWork->conn, ServerType::connection::bad_request, 
+                    "InvalidRequest: " << err.reason);
+        } catch (const std::exception &ex) {
+            LOG(ERROR) << "Service " << name() << " caught exception: "
+                    << ex.what();
+            RESPONSE(pWork->conn, ServerType::connection::internal_server_error, 
+                    "Exception: " << ex.what());
+        } // try
+    } while (!done);
 }
 
 int KnnService::addServer( const BigRLab::AlgSvrInfo& svrInfo, const ServerAttr::Pointer& )

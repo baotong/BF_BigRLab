@@ -148,6 +148,13 @@ void send_response(const ServerType::connection_ptr &conn,
         conn->write(content);
 }
 
+#define RESPONSE(conn, status, args) \
+    do { \
+        std::stringstream __response_stream; \
+        __response_stream << args << std::flush; \
+        send_response(conn, status, __response_stream.str()); \
+    } while (0)
+
 
 extern uint16_t g_nApiSvrPort;
 
@@ -156,3 +163,25 @@ extern uint16_t g_nApiSvrPort;
 
 #endif
 
+/*
+ * enum status_t {
+ *     ok = 200
+ *     , created = 201
+ *     , accepted = 202
+ *     , no_content = 204
+ *     , multiple_choices = 300
+ *     , moved_permanently = 301
+ *     , moved_temporarily = 302
+ *     , not_modified = 304
+ *     , bad_request = 400
+ *     , unauthorized = 401
+ *     , forbidden = 403
+ *     , not_found = 404
+ *     , not_supported = 405
+ *     , not_acceptable = 406
+ *     , internal_server_error = 500
+ *     , not_implemented = 501
+ *     , bad_gateway = 502
+ *     , service_unavailable = 503
+ * };
+ */
