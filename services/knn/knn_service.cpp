@@ -10,7 +10,7 @@ using namespace BigRLab;
 using namespace std;
 
 Service* create_instance()
-{ return new KnnService("knn_star"); }
+{ return new KnnService; }
 
 
 typedef std::map< std::string, std::vector<KNN::Result> >  QuerySet;
@@ -55,6 +55,8 @@ struct QueryWork : BigRLab::WorkItemBase {
                 idleClients->putBack( pClient );
 
             } catch (const KNN::InvalidRequest &err) {
+                done = true;
+                idleClients->putBack( pClient );
                 LOG(ERROR) << "Service " << srvName << " query \"" 
                     << iter->first << "\" caught InvalidRequest: " << err.reason;
             } catch (const std::exception &ex) {
@@ -127,6 +129,8 @@ struct QueryWorkFile : BigRLab::WorkItemBase {
                 } // if
 
             } catch (const KNN::InvalidRequest &err) {
+                done = true;
+                idleClients->putBack( pClient );
                 LOG(ERROR) << "Service " << srvName << " query \"" 
                     << item << "\" caught InvalidRequest: " << err.reason;
             } catch (const std::exception &ex) {
@@ -192,6 +196,11 @@ KnnService::KnnClientArr::KnnClientArr(const BigRLab::AlgSvrInfo &svr,
         std::mt19937 g(rd());
         std::shuffle(idleQue->begin(), idleQue->end(), g);
     } // if
+}
+
+bool KnnService::init( int argc, char **argv )
+{
+    return true;
 }
 
 /**
@@ -329,6 +338,8 @@ void KnnService::handleRequest(const BigRLab::WorkItemPtr &pWork)
             RESPONSE(pWork->conn, ServerType::connection::ok, result);
 
         } catch (const KNN::InvalidRequest &err) {
+            done = true;
+            m_queIdleClients.putBack( pClient );
             LOG(ERROR) << "Service " << name() << " caught InvalidRequest: "
                     << err.reason;
             RESPONSE(pWork->conn, ServerType::connection::bad_request, 
@@ -387,45 +398,3 @@ std::string KnnService::toString() const
     return stream.str();
 }
 
-/*
- * bool KnnService::init( int argc, char **argv )
- * {
- *     int nInstances = 0;
- * 
- *     for (const auto &v : this->algServerList()) {
- *         stringstream stream;
- *         stream << v.addr << ":" << v.port << flush;
- *         string addr = std::move(stream.str());
- *         if (v.nWorkThread < 5) {
- *             nInstances = v.nWorkThread;
- *         } else {
- *             nInstances = v.nWorkThread / 10;
- *             if (nInstances < 5)
- *                 nInstances = 5;
- *             else if (nInstances > 10)
- *                 nInstances = 10;
- *         } // if
- *         for (int i = 0; i < nInstances; ++i) {
- *             auto pClient = boost::make_shared<KnnClient>(v.addr, (uint16_t)(v.port));
- *             try {
- *                 pClient->start();
- *             } catch (const std::exception &ex) {
- *                 LOG(ERROR) << "KnnService::init() fail to connect with alg server "
- *                         << addr << ", " << ex.what();
- *                 continue;
- *             } // try
- *             m_mapClientTable[addr].push_back(pClient);
- *             m_queIdleClients.push_back(pClient);
- *         } // for
- *     } // for
- * 
- *     // shuffle
- *     std::random_device rd;
- *     std::mt19937 g(rd());
- *     std::shuffle(m_queIdleClients.begin(), m_queIdleClients.end(), g);
- * 
- *     LOG(INFO) << "Totally " << m_queIdleClients.size() << " client instances for service " << this->name();
- * 
- *     return true;
- * }
- */

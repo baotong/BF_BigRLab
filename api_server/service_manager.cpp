@@ -78,7 +78,9 @@ void ServiceManager::addService( const std::string &cmd )
     pSrv->setWorkMgr( g_pWorkMgr );
 
     if (!pSrv->init((int)(cstrArgs.size()), &cstrArgs[0]))
-        CLOSE_HANDLE_THROW_ERROR(srvHandle, "addService init service" << pSrv->name() << " fail!");
+        CLOSE_HANDLE_THROW_ERROR(srvHandle, "addService init service fail!");
+    if (pSrv->name().empty())
+        CLOSE_HANDLE_THROW_ERROR(srvHandle, "addService fail! service name cannot be empty!");
 
     ServiceInfoPtr pSrvInfo(new ServiceInfo(pSrv, srvHandle));
     pSrvInfo->cmdString = cmd;

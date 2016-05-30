@@ -43,9 +43,7 @@ public:
     };
 
 public:
-    KnnService( const std::string &name ) : Service(name) {}
-
-    virtual bool init( int argc, char **argv ) { return true; }
+    virtual bool init( int argc, char **argv );
     virtual void handleRequest(const BigRLab::WorkItemPtr &pWork);
     virtual void handleCommand( std::stringstream &stream );
     virtual int  addServer( const BigRLab::AlgSvrInfo& svrInfo,
