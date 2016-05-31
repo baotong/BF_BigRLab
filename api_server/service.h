@@ -38,6 +38,8 @@ public:
     virtual void handleCommand( std::stringstream &stream ) = 0;
     virtual void handleRequest( const WorkItemPtr &pWork ) = 0;
 
+    void setName( const std::string &_Name )
+    { m_strName = _Name; }
     const std::string& name() const
     { return m_strName; }
     
