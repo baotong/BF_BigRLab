@@ -57,17 +57,28 @@ void ServiceManager::ServiceLib::loadLib()
     NewInstFunc create_instance;
     LOAD_FUNC(pHandle, create_instance);
     pNewInstFn = create_instance;
+    LibNameFunc lib_name;
+    LOAD_FUNC(pHandle, lib_name);
+    pLibName = lib_name;
+}
+
+ServiceManager::ServiceLib::~ServiceLib()
+{
+    if (pHandle) {
+        DLOG(INFO) << "Closing handle for lib " << path;
+        dlclose(pHandle);
+        pHandle = NULL;
+    } // if
 }
 
 // run in the shell
-void ServiceManager::loadServiceLib( const std::string &path, const std::string &name )
+void ServiceManager::loadServiceLib( const std::string &path )
 {
-    boost::unique_lock<ServiceLibTable> lock(m_mapServiceLibs);
-    if (m_mapServiceLibs.count(name))
-        THROW_RUNTIME_ERROR("ServiceLib with name " << name << " already exists!");
-
     auto p = boost::make_shared<ServiceLib>(path);
-    m_mapServiceLibs.insert( std::make_pair(name, p) );
+    boost::unique_lock<ServiceLibTable> lock(m_mapServiceLibs);
+    auto ret = m_mapServiceLibs.insert( std::make_pair(p->pLibName(), p) );
+    if (!ret.second)
+        THROW_RUNTIME_ERROR("ServiceLib with name " << p->pLibName() << " already exists!");
 }
 
 bool ServiceManager::rmServiceLib( const std::string &name )
@@ -167,15 +178,6 @@ bool ServiceManager::getService( const std::string &srvName, Service::pointer &p
         return false;
     pSrv = it->second;
     return true;
-}
-
-ServiceManager::ServiceLib::~ServiceLib()
-{
-    if (pHandle) {
-        DLOG(INFO) << "Closing handle for lib " << path;
-        dlclose(pHandle);
-        pHandle = NULL;
-    } // if
 }
 
 

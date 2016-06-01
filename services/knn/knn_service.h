@@ -11,6 +11,7 @@
 
 extern "C" {
     extern BigRLab::Service* create_instance(const char *name);
+    extern const char* lib_name();
 }
 
 
@@ -43,10 +44,12 @@ public:
     };
 
 public:
+    KnnService( const std::string &name ) : BigRLab::Service(name) {}
+
     // virtual bool init( int argc, char **argv );
     virtual void handleRequest(const BigRLab::WorkItemPtr &pWork);
     virtual void handleCommand( std::stringstream &stream );
-    virtual int  addServer( const BigRLab::AlgSvrInfo& svrInfo,
+    virtual std::size_t addServer( const BigRLab::AlgSvrInfo& svrInfo,
                             const ServerAttr::Pointer &p = ServerAttr::Pointer() );
     virtual std::string toString() const;
     // use Service::rmServer()

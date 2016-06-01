@@ -7,7 +7,7 @@
 /*
  * Tests
  * Service knn
- * addservice ../services/knn/knn_service.so
+ * loadlib ../services/knn/knn_service.so
  * service knn_star items 10 李宇春 姚明 章子怡
  * service knn_star file 10 test.txt out.txt
  * curl -i -X POST -H "Content-Type: application/json" -d '{"items":"李宇春","n":10}' http://localhost:9000/knn_star
@@ -173,18 +173,18 @@ void start_shell()
     using namespace std;
 
     auto autorun = [] {
-        // ifstream ifs("autorun.conf", ios::in);
-        // if (!ifs)
-            // ERR_RET("No autorun.conf found.");
+        ifstream ifs("autoload.conf", ios::in);
+        if (!ifs)
+            ERR_RET("No autorun.conf found.");
 
-        // string cmdLine;
-        // while (getline(ifs, cmdLine)) {
-            // try {
-                // ServiceManager::getInstance()->addService( cmdLine );
-            // } catch (const std::exception &ex) {
-                // cerr << ex.what() << endl;
-            // } // try
-        // } // while
+        string path;
+        while (getline(ifs, path)) {
+            try {
+                ServiceManager::getInstance()->loadServiceLib(path);
+            } catch (const std::exception &ex) {
+                cerr << ex.what() << endl;
+            } // try
+        } // while
     };
 
     //!! 第一种方法编译错误，必须先 typedef
@@ -193,15 +193,15 @@ void start_shell()
     typedef std::map< std::string, CmdProcessor > CmdProcessTable;
 
     auto loadLib = [](stringstream &stream)->bool {
-        string path, name;
-        stream >> path >> name;
+        string path;
+        stream >> path;
         if (bad_stream(stream)) {
-            cerr << "Usage: loadlib path name" << endl;
+            cerr << "Usage: loadlib path" << endl;
             return false;
         } // if
 
         try {
-            ServiceManager::getInstance()->loadServiceLib(path, name);
+            ServiceManager::getInstance()->loadServiceLib(path);
         } catch (const std::exception &ex) {
             cerr << ex.what() << endl;
         } // try
@@ -209,15 +209,16 @@ void start_shell()
         return true;
     };
 
-    auto rmLib = [](stringstream &stream)->bool {
-        string name;
-        stream >> name;  
-        if (bad_stream(stream))
-            return false;
+    // 暂不支持此功能，需要将相关service停止并删除
+    // auto rmLib = [](stringstream &stream)->bool {
+        // string name;
+        // stream >> name;  
+        // if (bad_stream(stream))
+            // return false;
 
-        ServiceManager::getInstance()->rmServiceLib(name);
-        return true;
-    };
+        // ServiceManager::getInstance()->rmServiceLib(name);
+        // return true;
+    // };
 
     auto lsLib = [](stringstream &stream)->bool {
         auto &libTable = ServiceManager::getInstance()->serviceLibs();
@@ -257,19 +258,19 @@ void start_shell()
     };
 
     auto save = [](stringstream &stream)->bool {
-        // ofstream ofs("autorun.conf", ios::out);
-        // if (!ofs)
-            // ERR_RET_VAL(false, "Cannot open autorun.conf for writting!");
+        ofstream ofs("autoload.conf", ios::out);
+        if (!ofs)
+            ERR_RET_VAL(false, "Cannot open autorun.conf for writting!");
 
-        // ServiceManager::ServiceTable &table = ServiceManager::getInstance()->services();
-        // boost::shared_lock<ServiceManager::ServiceTable> lock(table);
-        // for (const auto &v : table)
-            // ofs << v.second->cmdString << endl;
+        ServiceManager::ServiceLibTable &table = ServiceManager::getInstance()->serviceLibs();
+        boost::shared_lock<ServiceManager::ServiceLibTable> lock(table);
+        for (const auto &v : table)
+            ofs << v.second->path << endl;
     };
 
     CmdProcessTable cmdTable;
     cmdTable["loadlib"] = loadLib;
-    cmdTable["rmlib"] = rmLib;
+    // cmdTable["rmlib"] = rmLib;
     cmdTable["lslib"] = lsLib;
     cmdTable["lsservice"] = lsService;
     cmdTable["save"] = save;

@@ -13,6 +13,9 @@ using namespace std;
 Service* create_instance(const char *name)
 { return new KnnService(name); }
 
+const char* lib_name()
+{ return "knn"; }
+
 
 typedef std::map< std::string, std::vector<KNN::Result> >  QuerySet;
 
@@ -349,7 +352,7 @@ void KnnService::handleRequest(const BigRLab::WorkItemPtr &pWork)
     } while (!done);
 }
 
-int KnnService::addServer( const BigRLab::AlgSvrInfo& svrInfo, const ServerAttr::Pointer& )
+std::size_t KnnService::addServer( const BigRLab::AlgSvrInfo& svrInfo, const ServerAttr::Pointer& )
 {
     // 要根据实际需求确定连接数量
     int n = svrInfo.maxConcurrency;

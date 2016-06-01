@@ -13,6 +13,7 @@ public:
     struct ServiceLib {
         typedef boost::shared_ptr<ServiceLib>   pointer;
         typedef Service* (*NewInstFunc)(const char*);
+        typedef const char* (*LibNameFunc)();
 
         ServiceLib( const std::string &_Path )
                 : path(_Path), pHandle(NULL), pNewInstFn(NULL)
@@ -23,14 +24,18 @@ public:
 
         Service::pointer newInstance( const std::string &name )
         { 
-            if (pNewInstFn)
-                return Service::pointer(pNewInstFn(name.c_str())); 
-            return Service::pointer();
+            Service::pointer ret;
+            if (pNewInstFn) {
+                ret.reset(pNewInstFn(name.c_str())); 
+                ret->setWorkMgr(g_pWorkMgr);
+            } // if
+            return ret;
         }
 
         std::string    path;
         void           *pHandle;
         NewInstFunc    pNewInstFn;
+        LibNameFunc    pLibName;
     };
 
     struct ServiceLibTable : std::map< std::string, ServiceLib::pointer >
@@ -44,7 +49,7 @@ public:
 public:
     static pointer getInstance();
 
-    void loadServiceLib( const std::string &path, const std::string &name );
+    void loadServiceLib( const std::string &path );
     bool rmServiceLib( const std::string &name );
 
     bool getService( const std::string &srvName, Service::pointer &pSrv );

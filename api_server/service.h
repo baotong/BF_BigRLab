@@ -32,7 +32,7 @@ public:
     {};
 
 public:
-    Service(const char *_Name) : m_strName(_Name) {}
+    Service(const std::string &_Name) : m_strName(_Name) {}
     virtual ~Service() = default;
 
     // virtual bool init( int argc, char **argv ) = 0;

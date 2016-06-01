@@ -21,6 +21,8 @@
 #include <gflags/gflags.h>
 #include <jsoncpp/json/json.h>
 
+#define SERVICE_LIB_NAME        "knn"
+
 using std::cout; using std::cerr; using std::endl;
 
 static boost::shared_ptr<WordAnnDB> g_pWordAnnDB;
@@ -234,6 +236,8 @@ void KnnServiceHandler::queryByItem(std::vector<Result> & _return,
 {
     using namespace std;
 
+    DLOG(INFO) << "Querying item " << item << " n = " << n;
+
     if (n <= 0)
         THROW_INVALID_REQUEST("Invalid n value " << n);
 
@@ -444,6 +448,7 @@ void start_rpc_service()
     g_pSvrInfo->addr = addr;
     g_pSvrInfo->port = (int16_t)g_nThisPort;
     g_pSvrInfo->maxConcurrency = FLAGS_n_work_threads;
+    g_pSvrInfo->serviceName = SERVICE_LIB_NAME;
 
     // start client to alg_mgr
     // 需要在单独线程中执行，防止和alg_mgr形成死锁
