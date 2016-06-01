@@ -17,15 +17,17 @@ int _kErrCodeTypeValues[] = {
   SUCCESS,
   ALREADY_EXIST,
   SERVER_UNREACHABLE,
-  NO_SERVER
+  NO_SERVICE,
+  INTERNAL_FAIL
 };
 const char* _kErrCodeTypeNames[] = {
   "SUCCESS",
   "ALREADY_EXIST",
   "SERVER_UNREACHABLE",
-  "NO_SERVER"
+  "NO_SERVICE",
+  "INTERNAL_FAIL"
 };
-const std::map<int, const char*> _ErrCodeType_VALUES_TO_NAMES(::apache::thrift::TEnumIterator(4, _kErrCodeTypeValues, _kErrCodeTypeNames), ::apache::thrift::TEnumIterator(-1, NULL, NULL));
+const std::map<int, const char*> _ErrCodeType_VALUES_TO_NAMES(::apache::thrift::TEnumIterator(5, _kErrCodeTypeValues, _kErrCodeTypeNames), ::apache::thrift::TEnumIterator(-1, NULL, NULL));
 
 
 InvalidRequest::~InvalidRequest() throw() {
@@ -105,11 +107,16 @@ void AlgSvrInfo::__set_maxConcurrency(const int32_t val) {
   this->maxConcurrency = val;
 }
 
+void AlgSvrInfo::__set_serviceName(const std::string& val) {
+  this->serviceName = val;
+}
+
 void swap(AlgSvrInfo &a, AlgSvrInfo &b) {
   using ::std::swap;
   swap(a.addr, b.addr);
   swap(a.port, b.port);
   swap(a.maxConcurrency, b.maxConcurrency);
+  swap(a.serviceName, b.serviceName);
   swap(a.__isset, b.__isset);
 }
 
@@ -117,18 +124,21 @@ AlgSvrInfo::AlgSvrInfo(const AlgSvrInfo& other5) {
   addr = other5.addr;
   port = other5.port;
   maxConcurrency = other5.maxConcurrency;
+  serviceName = other5.serviceName;
   __isset = other5.__isset;
 }
 AlgSvrInfo::AlgSvrInfo( AlgSvrInfo&& other6) {
   addr = std::move(other6.addr);
   port = std::move(other6.port);
   maxConcurrency = std::move(other6.maxConcurrency);
+  serviceName = std::move(other6.serviceName);
   __isset = std::move(other6.__isset);
 }
 AlgSvrInfo& AlgSvrInfo::operator=(const AlgSvrInfo& other7) {
   addr = other7.addr;
   port = other7.port;
   maxConcurrency = other7.maxConcurrency;
+  serviceName = other7.serviceName;
   __isset = other7.__isset;
   return *this;
 }
@@ -136,6 +146,7 @@ AlgSvrInfo& AlgSvrInfo::operator=(AlgSvrInfo&& other8) {
   addr = std::move(other8.addr);
   port = std::move(other8.port);
   maxConcurrency = std::move(other8.maxConcurrency);
+  serviceName = std::move(other8.serviceName);
   __isset = std::move(other8.__isset);
   return *this;
 }
@@ -145,6 +156,7 @@ void AlgSvrInfo::printTo(std::ostream& out) const {
   out << "addr=" << to_string(addr);
   out << ", " << "port=" << to_string(port);
   out << ", " << "maxConcurrency=" << to_string(maxConcurrency);
+  out << ", " << "serviceName=" << to_string(serviceName);
   out << ")";
 }
 

@@ -10,19 +10,21 @@ uint16_t                                g_nAlgMgrPort = 0;
 
 int32_t AlgMgrServiceHandler::addSvr(const std::string& algName, const AlgSvrInfo& svrInfo)
 {
-    DLOG(INFO) << "received addSvr request: name = " << algName << " info = "
-        << svrInfo.addr << ":" << svrInfo.port << " maxConcurrency = " << svrInfo.maxConcurrency;
+    int ret = SUCCESS;
+
+    DLOG(INFO) << "received addSvr request: name = " << algName << " info = " << svrInfo;
 
     boost::upgrade_lock< AlgSvrTable > sLock(m_mapSvrTable);
     auto it = m_mapSvrTable.find( algName );
     // algName not exist
     if ( it == m_mapSvrTable.end() ) {
-        boost::upgrade_to_unique_lock< AlgSvrTable > uLock(sLock);
-        m_mapSvrTable[algName].insert( std::make_pair(svrInfo.addr,
-                            boost::make_shared<AlgSvrRecord>(svrInfo)) );
-        // m_mapSvrTable[algName].insert( it, std::make_pair(svrInfo.addr,
-                            // boost::make_shared<AlgSvrRecord>(svrInfo)) );
-        return ServiceManager::getInstance()->addAlgServer( algName, svrInfo );
+        ret = ServiceManager::getInstance()->addAlgServer( algName, svrInfo );
+        if (SUCCESS == ret) {
+            boost::upgrade_to_unique_lock< AlgSvrTable > uLock(sLock);
+            m_mapSvrTable[algName].insert( std::make_pair(svrInfo.addr,
+                        boost::make_shared<AlgSvrRecord>(svrInfo)) );
+        } // if
+        return ret;
     } // if
 
     // else
@@ -31,12 +33,13 @@ int32_t AlgMgrServiceHandler::addSvr(const std::string& algName, const AlgSvrInf
     auto range = subTable.equal_range( svrInfo.addr );
     // addr not exist
     if (range.first == range.second) {
-        boost::upgrade_to_unique_lock< AlgSvrSubTable > uSubLock(sSubLock);
-        subTable.insert( std::make_pair(svrInfo.addr,
-                            boost::make_shared<AlgSvrRecord>(svrInfo)) );
-        // subTable.insert( range.second, std::make_pair(svrInfo.addr,
-                            // boost::make_shared<AlgSvrRecord>(svrInfo)) );
-        return ServiceManager::getInstance()->addAlgServer( algName, svrInfo );
+        ret = ServiceManager::getInstance()->addAlgServer( algName, svrInfo );
+        if (SUCCESS == ret) {
+            boost::upgrade_to_unique_lock< AlgSvrSubTable > uSubLock(sSubLock);
+            subTable.insert( std::make_pair(svrInfo.addr,
+                        boost::make_shared<AlgSvrRecord>(svrInfo)) );
+        } // if
+        return ret;
     } // if
 
     // else
@@ -44,20 +47,20 @@ int32_t AlgMgrServiceHandler::addSvr(const std::string& algName, const AlgSvrInf
         if (sit->second->port() == svrInfo.port)
             return ALREADY_EXIST;
     } // for
-
-    boost::upgrade_to_unique_lock< AlgSvrSubTable > uSubLock(sSubLock);
-    subTable.insert( std::make_pair(svrInfo.addr,
-                boost::make_shared<AlgSvrRecord>(svrInfo)) );
-    // subTable.insert( range.second, std::make_pair(svrInfo.addr,
-                // boost::make_shared<AlgSvrRecord>(svrInfo)) );
     
-    return ServiceManager::getInstance()->addAlgServer( algName, svrInfo );
+    ret = ServiceManager::getInstance()->addAlgServer( algName, svrInfo );
+    if (SUCCESS == ret) {
+        boost::upgrade_to_unique_lock< AlgSvrSubTable > uSubLock(sSubLock);
+        subTable.insert( std::make_pair(svrInfo.addr,
+                    boost::make_shared<AlgSvrRecord>(svrInfo)) );
+    } // if
+
+    return ret;
 }
 
 void AlgMgrServiceHandler::rmSvr(const std::string& algName, const AlgSvrInfo& svrInfo)
 {
-    DLOG(INFO) << "received rmSvr request: name = " << algName << " info = "
-        << svrInfo.addr << ":" << svrInfo.port;
+    DLOG(INFO) << "received rmSvr request: name = " << algName << " info = " << svrInfo;
 
     boost::upgrade_lock< AlgSvrTable > sLock(m_mapSvrTable);
     auto it = m_mapSvrTable.find( algName );

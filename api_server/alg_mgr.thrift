@@ -8,7 +8,8 @@ enum ErrCodeType {
     SUCCESS,
     ALREADY_EXIST,
     SERVER_UNREACHABLE,
-    NO_SERVER
+    NO_SERVICE,
+    INTERNAL_FAIL
 }
 
 exception InvalidRequest {
@@ -19,7 +20,8 @@ exception InvalidRequest {
 struct AlgSvrInfo {
     1: string addr,
     2: i16    port,
-    3: i32    maxConcurrency;
+    3: i32    maxConcurrency,
+    4: string serviceName
 }
 
 service AlgMgrService {

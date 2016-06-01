@@ -173,18 +173,18 @@ void start_shell()
     using namespace std;
 
     auto autorun = [] {
-        ifstream ifs("autorun.conf", ios::in);
-        if (!ifs)
-            ERR_RET("No autorun.conf found.");
+        // ifstream ifs("autorun.conf", ios::in);
+        // if (!ifs)
+            // ERR_RET("No autorun.conf found.");
 
-        string cmdLine;
-        while (getline(ifs, cmdLine)) {
-            try {
-                ServiceManager::getInstance()->addService( cmdLine );
-            } catch (const std::exception &ex) {
-                cerr << ex.what() << endl;
-            } // try
-        } // while
+        // string cmdLine;
+        // while (getline(ifs, cmdLine)) {
+            // try {
+                // ServiceManager::getInstance()->addService( cmdLine );
+            // } catch (const std::exception &ex) {
+                // cerr << ex.what() << endl;
+            // } // try
+        // } // while
     };
 
     //!! 第一种方法编译错误，必须先 typedef
@@ -192,12 +192,39 @@ void start_shell()
     typedef std::function<bool(std::stringstream&)> CmdProcessor;
     typedef std::map< std::string, CmdProcessor > CmdProcessTable;
 
-    auto addService = [](stringstream &stream)->bool {
+    auto loadLib = [](stringstream &stream)->bool {
+        string path, name;
+        stream >> path >> name;
+        if (bad_stream(stream)) {
+            cerr << "Usage: loadlib path name" << endl;
+            return false;
+        } // if
+
         try {
-            ServiceManager::getInstance()->addService( stream );
+            ServiceManager::getInstance()->loadServiceLib(path, name);
         } catch (const std::exception &ex) {
             cerr << ex.what() << endl;
         } // try
+
+        return true;
+    };
+
+    auto rmLib = [](stringstream &stream)->bool {
+        string name;
+        stream >> name;  
+        if (bad_stream(stream))
+            return false;
+
+        ServiceManager::getInstance()->rmServiceLib(name);
+        return true;
+    };
+
+    auto lsLib = [](stringstream &stream)->bool {
+        auto &libTable = ServiceManager::getInstance()->serviceLibs();
+        boost::shared_lock< ServiceManager::ServiceLibTable > lock(libTable);
+
+        for (const auto &v : libTable)
+            cout << v.first << "\t\t" << v.second->path;
 
         return true;
     };
@@ -214,7 +241,7 @@ void start_shell()
             // list all
             boost::shared_lock<ServiceManager::ServiceTable> lock(table);
             for (const auto &v : table)
-                cout << v.second->pService->toString() << endl;
+                cout << v.second->toString() << endl;
         } else {
             // only list specified in args
             for (const auto &name : strArgs) {
@@ -229,37 +256,22 @@ void start_shell()
         return true;
     };
 
-    auto rmService = [](stringstream &stream)->bool {
-        vector<string> strArgs;
-        string arg;
-
-        while (stream >> arg)
-            strArgs.push_back(arg);
-
-        if (strArgs.size() == 0)
-            return false;
-
-        for (const auto &name : strArgs)
-            ServiceManager::getInstance()->removeService( name );
-
-        return true;
-    };
-
     auto save = [](stringstream &stream)->bool {
-        ofstream ofs("autorun.conf", ios::out);
-        if (!ofs)
-            ERR_RET_VAL(false, "Cannot open autorun.conf for writting!");
+        // ofstream ofs("autorun.conf", ios::out);
+        // if (!ofs)
+            // ERR_RET_VAL(false, "Cannot open autorun.conf for writting!");
 
-        ServiceManager::ServiceTable &table = ServiceManager::getInstance()->services();
-        boost::shared_lock<ServiceManager::ServiceTable> lock(table);
-        for (const auto &v : table)
-            ofs << v.second->cmdString << endl;
+        // ServiceManager::ServiceTable &table = ServiceManager::getInstance()->services();
+        // boost::shared_lock<ServiceManager::ServiceTable> lock(table);
+        // for (const auto &v : table)
+            // ofs << v.second->cmdString << endl;
     };
 
     CmdProcessTable cmdTable;
-    cmdTable["addservice"] = addService;
+    cmdTable["loadlib"] = loadLib;
+    cmdTable["rmlib"] = rmLib;
+    cmdTable["lslib"] = lsLib;
     cmdTable["lsservice"] = lsService;
-    cmdTable["rmservice"] = rmService;
     cmdTable["save"] = save;
 
     autorun();

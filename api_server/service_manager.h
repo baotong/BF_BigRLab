@@ -10,41 +10,71 @@ class ServiceManager {
 public:
     typedef boost::shared_ptr<ServiceManager> pointer;
 
-    struct ServiceInfo {
-        ServiceInfo( const Service::pointer &_Service, void *_Handle )
-            : pService(_Service), pHandle(_Handle) {}
+    struct ServiceLib {
+        typedef boost::shared_ptr<ServiceLib>   pointer;
+        typedef Service* (*NewInstFunc)(const char*);
 
-        ~ServiceInfo();
+        ServiceLib( const std::string &_Path )
+                : path(_Path), pHandle(NULL), pNewInstFn(NULL)
+        { loadLib(); }
 
-        Service::pointer    pService;
-        void*               pHandle;
-        std::string         cmdString;
+        ~ServiceLib();
+        void loadLib();
+
+        Service::pointer newInstance( const std::string &name )
+        { 
+            if (pNewInstFn)
+                return Service::pointer(pNewInstFn(name.c_str())); 
+            return Service::pointer();
+        }
+
+        std::string    path;
+        void           *pHandle;
+        NewInstFunc    pNewInstFn;
     };
 
-    typedef boost::shared_ptr<ServiceInfo>            ServiceInfoPtr;
+    struct ServiceLibTable : std::map< std::string, ServiceLib::pointer >
+                           , boost::upgrade_lockable_adapter<boost::shared_mutex>
+    {};
 
-    struct ServiceTable : std::map<std::string, ServiceInfoPtr>
+    struct ServiceTable : std::map<std::string, Service::pointer>
                         , boost::upgrade_lockable_adapter<boost::shared_mutex>
     {};
 
 public:
     static pointer getInstance();
 
-    // void addService( int argc, char **argv );
-    void addService( std::stringstream &cmdstream )
-    {
-        std::string cmd;
-        std::getline(cmdstream, cmd);
-        addService( cmd );
-    }
+    void loadServiceLib( const std::string &path, const std::string &name );
+    bool rmServiceLib( const std::string &name );
 
-    void addService( const std::string &cmd );
-    bool removeService( const std::string &srvName );
     bool getService( const std::string &srvName, Service::pointer &pSrv );
     int  addAlgServer( const std::string& algName, const AlgSvrInfo& svrInfo );
     void rmAlgServer( const std::string& algName, const AlgSvrInfo& svrInfo );
 
     ServiceTable& services() { return m_mapServices; }
+    ServiceLibTable& serviceLibs() { return m_mapServiceLibs; }
+
+private:
+    /**
+     * @brief
+     *
+     * @param srvName
+     * @param libName
+     *
+     * @return first: newly added or existed service, or nullptr
+     *         second: status
+     */
+    std::pair<Service::pointer, int> addService( const std::string &srvName, const std::string &libName );
+
+    /**
+     * @brief 
+     *
+     * @param srvName
+     * @param force false: only remove services with 0 servers
+     *
+     * @return 
+     */
+    bool removeService( const std::string &srvName, bool force = false );
 
 private:
     ServiceManager() = default;
@@ -56,7 +86,8 @@ private:
     static pointer m_pInstance;
 
 private:
-    ServiceTable   m_mapServices;
+    ServiceTable       m_mapServices;
+    ServiceLibTable    m_mapServiceLibs;
 };
 
 // extern ServiceManager::pointer      g_pServiceMgr;

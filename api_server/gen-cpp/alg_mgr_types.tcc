@@ -128,6 +128,14 @@ uint32_t AlgSvrInfo::read(Protocol_* iprot) {
           xfer += iprot->skip(ftype);
         }
         break;
+      case 4:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->serviceName);
+          this->__isset.serviceName = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
       default:
         xfer += iprot->skip(ftype);
         break;
@@ -156,6 +164,10 @@ uint32_t AlgSvrInfo::write(Protocol_* oprot) const {
 
   xfer += oprot->writeFieldBegin("maxConcurrency", ::apache::thrift::protocol::T_I32, 3);
   xfer += oprot->writeI32(this->maxConcurrency);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("serviceName", ::apache::thrift::protocol::T_STRING, 4);
+  xfer += oprot->writeString(this->serviceName);
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldStop();

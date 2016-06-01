@@ -23,7 +23,8 @@ enum ErrCodeType {
   SUCCESS = 0,
   ALREADY_EXIST = 1,
   SERVER_UNREACHABLE = 2,
-  NO_SERVER = 3
+  NO_SERVICE = 3,
+  INTERNAL_FAIL = 4
 };
 
 extern const std::map<int, const char*> _ErrCodeType_VALUES_TO_NAMES;
@@ -77,10 +78,11 @@ inline std::ostream& operator<<(std::ostream& out, const InvalidRequest& obj)
 }
 
 typedef struct _AlgSvrInfo__isset {
-  _AlgSvrInfo__isset() : addr(false), port(false), maxConcurrency(false) {}
+  _AlgSvrInfo__isset() : addr(false), port(false), maxConcurrency(false), serviceName(false) {}
   bool addr :1;
   bool port :1;
   bool maxConcurrency :1;
+  bool serviceName :1;
 } _AlgSvrInfo__isset;
 
 class AlgSvrInfo {
@@ -90,13 +92,14 @@ class AlgSvrInfo {
   AlgSvrInfo(AlgSvrInfo&&);
   AlgSvrInfo& operator=(const AlgSvrInfo&);
   AlgSvrInfo& operator=(AlgSvrInfo&&);
-  AlgSvrInfo() : addr(), port(0), maxConcurrency(0) {
+  AlgSvrInfo() : addr(), port(0), maxConcurrency(0), serviceName() {
   }
 
   virtual ~AlgSvrInfo() throw();
   std::string addr;
   int16_t port;
   int32_t maxConcurrency;
+  std::string serviceName;
 
   _AlgSvrInfo__isset __isset;
 
@@ -105,6 +108,8 @@ class AlgSvrInfo {
   void __set_port(const int16_t val);
 
   void __set_maxConcurrency(const int32_t val);
+
+  void __set_serviceName(const std::string& val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);

@@ -10,7 +10,7 @@
 #include <boost/thread/condition_variable.hpp>
 
 extern "C" {
-    extern BigRLab::Service* create_instance();
+    extern BigRLab::Service* create_instance(const char *name);
 }
 
 
@@ -43,7 +43,7 @@ public:
     };
 
 public:
-    virtual bool init( int argc, char **argv );
+    // virtual bool init( int argc, char **argv );
     virtual void handleRequest(const BigRLab::WorkItemPtr &pWork);
     virtual void handleCommand( std::stringstream &stream );
     virtual int  addServer( const BigRLab::AlgSvrInfo& svrInfo,
