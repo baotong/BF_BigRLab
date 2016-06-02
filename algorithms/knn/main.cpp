@@ -473,6 +473,12 @@ void start_rpc_service()
                     case BigRLab::SERVER_UNREACHABLE:
                         cerr << " this server is unreachable by algmgr! check the server address setting.";
                         break;
+                    case BigRLab::NO_SERVICE:
+                        cerr << " service lib has not benn loaded on apiserver!";
+                        break;
+                    case BigRLab::INTERNAL_FAIL:
+                        cerr << " fail due to internal error!";
+                        break;
                 } // switch
                 cerr << endl;
                 exit(-1);

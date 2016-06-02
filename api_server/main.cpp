@@ -128,9 +128,16 @@ void init()
     ServerType::options opts(handler);
     g_pApiServer.reset(new APIServer(g_nApiSvrPort, FLAGS_n_io_threads, FLAGS_n_work_threads, 
                     opts, g_pIoService, g_pIoThrgrp));
-    g_pWorkMgr.reset(new WorkManager(g_pApiServer->nWorkThreads(), 30000) );
-    // WorkManager::init(g_pApiServer->nWorkThreads());
-    // g_pWorkMgr = WorkManager::getInstance();
+
+    std::size_t nWorkQueLen = FLAGS_n_work_threads * 100;
+    if (nWorkQueLen > 30000) {
+        if (FLAGS_n_work_threads > 30000)
+            nWorkQueLen = FLAGS_n_work_threads;
+        else
+            nWorkQueLen = 30000;
+    } // if
+    g_pWorkMgr.reset(new WorkManager(g_pApiServer->nWorkThreads(), nWorkQueLen) );
+
     cout << g_pApiServer->toString() << endl;
 }
 
