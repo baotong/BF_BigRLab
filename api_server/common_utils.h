@@ -50,6 +50,11 @@
         if (cond) ERR_RET(args); \
     } while (0)
 
+#define COND_RET_VAL(cond, val, args) \
+    do { \
+        if (cond) ERR_RET_VAL(val, args); \
+    } while (0)
+
 namespace BigRLab {
 
 template < typename T >

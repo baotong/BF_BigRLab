@@ -1,11 +1,18 @@
-*.DS_Store
-*.bin*
-*.swp
-*.so
-*.ann
-*.txt
-*.old
-*.bak
-*.conf
-tags
-core
+# Blacklist everything
+*
+# Whitelist all directories
+!*/
+# Whitelist the file you're interested in.
+!*.h
+!*.hpp
+!*.c
+!*.cc
+!*.cpp
+!*.cxx
+!*.sh
+!*.py
+!*.thrift
+!*.tcc
+!.gitignore
+!Makefile
+!CMakeLists.txt

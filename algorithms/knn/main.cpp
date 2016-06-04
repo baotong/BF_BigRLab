@@ -244,6 +244,9 @@ void KnnServiceHandler::queryByItem(std::vector<Result> & _return,
     vector<string>    result;
     vector<float>    distances;
 
+    result.reserve(n);
+    distances.reserve(n);
+
     g_pWordAnnDB->kNN_By_Word( item, n, result, distances );
 
     _return.resize( result.size() );
@@ -276,8 +279,11 @@ void KnnServiceHandler::queryByVector(std::vector<Result> & _return,
         THROW_INVALID_REQUEST("Invalid n value " << n);
 
     vector<string>    result;
-    vector<float>    distances;
-    vector<float>       fValues( values.begin(), values.end() );
+    vector<float>     distances;
+    vector<float>     fValues( values.begin(), values.end() );
+
+    result.reserve(n);
+    distances.reserve(n);
 
     g_pWordAnnDB->kNN_By_Vector( fValues, n, result, distances );
 
