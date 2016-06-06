@@ -2,7 +2,7 @@
  * GLOG_log_dir="." ./article2vec.bin -method wordvec -input tagresult.txt -ref vectors.txt -nclasses 500 -output article_vectors.txt
  * GLOG_log_dir="." ./article2vec.bin -method cluster -input tagresult.txt -ref classes.txt -nclasses 500 -output article_vectors.txt
  *
- * FOR DEBUG cluster
+ * For DEBUG cluster
  * GLOG_logtostderr=1 ./article2vec.bin -method cluster -input test.input -ref classes.txt -nclasses 500 -output article_vectors.txt
  * 宝宝 的 孩子 做 好 孩子
  */
