@@ -1,6 +1,10 @@
 /*
- * GLOG_logtostderr=1 ./article2vec.bin -input tagresult.txt -wordvec vectors.txt -veclen 500 -output article_vectors.txt
- * GLOG_log_dir="." ./article2vec.bin -input tagresult.txt -wordvec vectors.txt -veclen 500 -output article_vectors.txt
+ * GLOG_log_dir="." ./article2vec.bin -method wordvec -input tagresult.txt -ref vectors.txt -nclasses 500 -output article_vectors.txt
+ * GLOG_log_dir="." ./article2vec.bin -method cluster -input tagresult.txt -ref classes.txt -nclasses 500 -output article_vectors.txt
+ *
+ * FOR DEBUG cluster
+ * GLOG_logtostderr=1 ./article2vec.bin -method cluster -input test.input -ref classes.txt -nclasses 500 -output article_vectors.txt
+ * 宝宝 的 孩子 做 好 孩子
  */
 #include <iostream>
 #include <fstream>
@@ -8,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 #include <exception>
 #include <algorithm>
 #include <iterator>
@@ -17,6 +22,7 @@
 #include <boost/range/combine.hpp>
 #include <boost/algorithm/string.hpp>
 #include <cassert>
+#include <cmath>
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 
@@ -47,9 +53,20 @@ bool bad_stream( const StreamType &stream )
 { return (stream.fail() || stream.bad()); }
 
 
-DEFINE_int32(veclen, 0, "vector dimension");
+enum MethodType {
+    UNSPECIFIED,
+    WORD_VECTOR,
+    WORD_CLUSTER,
+    WORD_TFIDF
+};
+
+static MethodType g_eMethod = UNSPECIFIED;
+
+
+DEFINE_int32(nclasses, 0, "number of classes");
+DEFINE_string(method, "", "wordvec, cluster, or tfidf");
 DEFINE_string(input, "", "segmented corpus filename");
-DEFINE_string(wordvec, "", "file contains word vectors");
+DEFINE_string(ref, "", "ref file contains word vectors or word clusterids or word idf");
 DEFINE_string(output, "", "file to keep the result");
 
 namespace {
@@ -57,12 +74,12 @@ namespace {
 using namespace std;
 
 static
-bool validate_veclen(const char *flagname, gflags::int32 value)
+bool validate_nclasses(const char *flagname, gflags::int32 value)
 {
     COND_RET_VAL(value <= 0, false, "Invalid value for " << flagname);
     return true;
 }
-static bool veclen_dummy = gflags::RegisterFlagValidator(&FLAGS_veclen, &validate_veclen);
+static bool nclasses_dummy = gflags::RegisterFlagValidator(&FLAGS_nclasses, &validate_nclasses);
 
 static
 bool validate_string_args(const char *flagname, const std::string &value)
@@ -71,22 +88,45 @@ bool validate_string_args(const char *flagname, const std::string &value)
     return true;
 }
 static bool input_dummy = gflags::RegisterFlagValidator(&FLAGS_input, &validate_string_args);
-static bool wordvec_dummy = gflags::RegisterFlagValidator(&FLAGS_wordvec, &validate_string_args);
+static bool wordvec_dummy = gflags::RegisterFlagValidator(&FLAGS_ref, &validate_string_args);
 static bool output_dummy = gflags::RegisterFlagValidator(&FLAGS_output, &validate_string_args);
+
+static
+bool validate_method(const char *flagname, const std::string &value)
+{
+    COND_RET_VAL(!validate_string_args(flagname, value), false, "");
+    if (value == "wordvec")
+        g_eMethod = WORD_VECTOR;
+    else if (value == "cluster")
+        g_eMethod = WORD_CLUSTER;
+    else if (value == "tfidf")
+        g_eMethod = WORD_TFIDF;
+    else
+        ERR_RET_VAL(false, "Invalid method arg!");
+    return true;
+}
+static bool method_dummy = gflags::RegisterFlagValidator(&FLAGS_method, &validate_method);
 
 } // namespace
 
 
 typedef std::map< std::string, std::vector<float> >     WordVecTable;
-WordVecTable g_WordVector;
+typedef std::map< std::string, uint32_t >               WordClusterTable;
+
 
 namespace Test {
 
 using namespace std;
 
-void print_wordvec_table()
+void print_cluster_table( const WordClusterTable &table )
 {
-    for (const auto &v : g_WordVector) {
+    for (const auto &v : table)
+        cout << v.first << " " << v.second << endl;
+}
+
+void print_wordvec_table( const WordVecTable &table )
+{
+    for (const auto &v : table) {
         cout << v.first << " ";
         for (const auto &value : v.second)
             cout << value << " ";
@@ -95,41 +135,51 @@ void print_wordvec_table()
 }
 
 template < typename T >
-void print_container( const T &c )
+ostream& print_non_zero_vector( ostream &os, const T &c )
 {
-    typedef typename T::value_type Type;
-    copy( c.begin(), c.end(), ostream_iterator<Type>(cout, " ") );
-    cout << endl;
+    for (size_t i = 0; i < c.size(); ++i)
+        if (fabs(c[i] - 0.0) > 1e-9)
+            os << i << ":" << c[i] << endl;
+    return os;
 }
 
 } // namespace Test
 
+template < typename T >
+std::ostream& print_container( std::ostream &os, const T &c )
+{
+    typedef typename T::value_type Type;
+    copy( c.begin(), c.end(), ostream_iterator<Type>(os, " ") );
+    os << endl;
+    return os;
+}
+
 static
-void ariticle2vector()
+void do_with_wordvec( WordVecTable &wordVecTable )
 {
     using namespace std;
 
     ifstream ifs(FLAGS_input, ios::in);
     if (!ifs)
-        THROW_RUNTIME_ERROR("ariticle2vector() cannot open " << FLAGS_input << " for reading!");
+        THROW_RUNTIME_ERROR("do_with_wordvec() cannot open " << FLAGS_input << " for reading!");
     ofstream ofs(FLAGS_output, ios::out);
     if (!ofs)
-        THROW_RUNTIME_ERROR("ariticle2vector() cannot open " << FLAGS_output << " for writting!");
+        THROW_RUNTIME_ERROR("do_with_wordvec() cannot open " << FLAGS_output << " for writting!");
 
-    auto processLine = [](const string &line, vector<float> &result) {
+    auto processLine = [&](const string &line, vector<float> &result) {
         typedef boost::tuple<double&, float&> IterType;
 
         result.clear();
-        result.resize(FLAGS_veclen, 0.0);
+        result.resize(FLAGS_nclasses, 0.0);
 
-        vector<double> sumVec( FLAGS_veclen );
+        vector<double> sumVec( FLAGS_nclasses );
         string word;
 
         stringstream stream(line);
         size_t count = 0;
         while (stream >> word) {
-            auto it = g_WordVector.find(word);
-            if (it == g_WordVector.end()) {
+            auto it = wordVecTable.find(word);
+            if (it == wordVecTable.end()) {
                 DLOG(INFO) << "no word " << word << " found in wordvec table.";
                 continue;
             } // if
@@ -151,33 +201,97 @@ void ariticle2vector()
         // Test::print_container(result);
     };
 
-    auto writeToFile = [&](const vector<float> &vec) {
-        std::copy(vec.begin(), vec.end(), ostream_iterator<float>(ofs, " "));
-        ofs << endl;
-    };
+    // auto writeToFile = [&](const vector<float> &vec) {
+        // std::copy(vec.begin(), vec.end(), ostream_iterator<float>(ofs, " "));
+        // ofs << endl;
+    // };
 
     // 重复单词重复统计 yes
     // 若出现vector表中没有的单词，不计入求均值的size分母 yes
     // 空行直接跳过，还是返回全0? yes
     string line;
     vector<float> result;
-    result.reserve(FLAGS_veclen);
+    result.reserve(FLAGS_nclasses);
     while (getline(ifs, line)) {
         boost::trim(line);
         processLine(line, result);
-        writeToFile(result);
+        print_container(ofs, result);
     } // while
 }
 
 static
-void load_wordvec()
+void do_with_cluster(WordClusterTable &clusterTable)
 {
     using namespace std;
 
-    ifstream ifs(FLAGS_wordvec, ios::in);
+    ifstream ifs(FLAGS_input, ios::in);
+    if (!ifs)
+        THROW_RUNTIME_ERROR("do_with_cluster() cannot open " << FLAGS_input << " for reading!");
+    ofstream ofs(FLAGS_output, ios::out);
+    if (!ofs)
+        THROW_RUNTIME_ERROR("do_with_cluster() cannot open " << FLAGS_output << " for writting!");
+
+    auto processLine = [&](const string &line, vector<float> &result) {
+        typedef boost::tuple<double&, float&> IterType;
+
+        result.clear();
+        result.resize(FLAGS_nclasses, 0.0);
+
+        vector<double> workVec( FLAGS_nclasses, 0.0 );
+        set<string>    wordSet;
+        string         word;
+        stringstream   stream(line);
+        double         maxCount = 0.0;
+
+        while (stream >> word) {
+            auto ret = wordSet.insert(word);
+            // 跳过重复单词
+            if (!ret.second)
+                continue;
+
+            auto it = clusterTable.find(word);
+            if (it == clusterTable.end()) {
+                DLOG(INFO) << "no word " << word << " found in cluster table.";
+                continue;
+            } // if
+            uint32_t id = it->second;
+            workVec[id] += 1.0;
+            maxCount = workVec[id] > maxCount ? workVec[id] : maxCount;
+        } // while
+
+        if (maxCount < 1.0)
+            return;
+
+        // DLOG(INFO) << "Before normalization:";
+        // Test::print_non_zero_vector(cout, workVec);
+        std::for_each(workVec.begin(), workVec.end(), 
+                [&](double &v){ v /= maxCount; });
+        // DLOG(INFO) << "After normalization:";
+        // Test::print_non_zero_vector(cout, workVec);
+
+        BOOST_FOREACH( IterType v, boost::combine(workVec, result) )
+            v.get<1>() = (float)(v.get<0>());
+    };
+
+    string line;
+    vector<float> result;
+    result.reserve(FLAGS_nclasses);
+    while (getline(ifs, line)) {
+        boost::trim(line);
+        processLine(line, result);
+        print_container(ofs, result);
+    } // while
+}
+
+static
+void load_wordvec( WordVecTable &wordVecTable )
+{
+    using namespace std;
+
+    ifstream ifs(FLAGS_ref, ios::in);
 
     if (!ifs)
-        THROW_RUNTIME_ERROR("load_wordvec() cannot open " << FLAGS_wordvec);
+        THROW_RUNTIME_ERROR("load_wordvec() cannot open " << FLAGS_ref);
 
     string line, word;
     size_t lineno = 0;
@@ -185,7 +299,7 @@ void load_wordvec()
         ++lineno;
         stringstream stream(line);
         vector<float> vec;
-        vec.reserve(FLAGS_veclen);
+        vec.reserve(FLAGS_nclasses);
         stream >> word;
         if (bad_stream(stream)) {
             LOG(ERROR) << "bad stream error when reading line " << lineno
@@ -194,17 +308,46 @@ void load_wordvec()
         } // if
         copy(istream_iterator<float>(stream), istream_iterator<float>(), 
                     back_inserter(vec));
-        if (vec.size() != FLAGS_veclen) {
+        if (vec.size() != FLAGS_nclasses) {
             LOG(ERROR) << "Invalid vector len when reading line " << lineno
                     << " " << line;
             continue;
         } // if
-        auto ret = g_WordVector.insert(std::make_pair(word, WordVecTable::mapped_type()));
+        auto ret = wordVecTable.insert(std::make_pair(word, WordVecTable::mapped_type()));
         if (!ret.second) {
             LOG(ERROR) << "Duplicate word " << word << " when reading line " << lineno;
             continue;
         } // if
         ret.first->second.swap(vec);
+    } // while
+}
+
+static
+void load_cluster(WordClusterTable &clusterTable)
+{
+    using namespace std;
+    
+    ifstream ifs(FLAGS_ref, ios::in);
+
+    if (!ifs)
+        THROW_RUNTIME_ERROR("load_wordvec() cannot open " << FLAGS_ref);
+
+    string line, word;
+    uint32_t clusterId;
+    size_t lineno = 0;
+    while (getline(ifs, line)) {
+        ++lineno;
+        stringstream stream(line);
+        stream >> word >> clusterId;
+        if (clusterId >= FLAGS_nclasses) {
+            LOG(ERROR) << clusterId << " read in line:" << lineno << " is not valid";
+            continue;
+        } // if
+        auto ret = clusterTable.insert(std::make_pair(word, clusterId));
+        if (!ret.second) {
+            LOG(ERROR) << "Duplicate word " << word << " when reading line " << lineno;
+            continue;
+        } // if
     } // while
 }
 
@@ -216,15 +359,41 @@ int main(int argc, char **argv)
     google::InitGoogleLogging(argv[0]);
     gflags::ParseCommandLineFlags(&argc, &argv, true);
 
-    try {
-        load_wordvec();
-        DLOG(INFO) << "Totally " << g_WordVector.size() << " word vector items loaded.";
-        // Test::print_wordvec_table();
+    auto _do_with_wordvec = [] {
+        WordVecTable wordVecTable;
+        load_wordvec(wordVecTable);
+        DLOG(INFO) << "Totally " << wordVecTable.size() << " word vector items loaded.";
+        // Test::print_wordvec_table( wordVecTable );
 
-        if (!g_WordVector.size())
+        if (!wordVecTable.size())
             ERR_RET_VAL(-1, "No valid word vector read, terminating!");
 
-        ariticle2vector();
+        do_with_wordvec( wordVecTable );
+    };
+
+    auto _do_with_cluster = [] {
+        WordClusterTable clusterTable;
+        load_cluster( clusterTable );
+        DLOG(INFO) << "Totally " << clusterTable.size() << " cluster items loaded.";
+        // Test::print_cluster_table( clusterTable );
+
+        if (!clusterTable.size())
+            ERR_RET_VAL(-1, "No valid word vector read, terminating!");
+
+        do_with_cluster( clusterTable );
+    };
+
+    try {
+        switch (g_eMethod) {
+        case WORD_VECTOR:
+            _do_with_wordvec();
+            break;
+        case WORD_CLUSTER:
+            _do_with_cluster();
+            break;
+        default:
+            cerr << "method not set!" << endl;
+        } // switch
 
     } catch (const std::exception &ex) {
         cerr << "Exception caught by main: " << ex.what() << endl;
