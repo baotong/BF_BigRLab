@@ -1,5 +1,6 @@
 /*
  * GLOG_logtostderr=1 ./article2vec.bin -input tagresult.txt -wordvec vectors.txt -veclen 500 -output article_vectors.txt
+ * GLOG_log_dir="." ./article2vec.bin -input tagresult.txt -wordvec vectors.txt -veclen 500 -output article_vectors.txt
  */
 #include <iostream>
 #include <fstream>
@@ -155,9 +156,9 @@ void ariticle2vector()
         ofs << endl;
     };
 
-    // 重复单词重复统计
-    // 若出现vector表中没有的单词，不计入求均值的size分母
-    // 空行直接跳过，还是返回全0?
+    // 重复单词重复统计 yes
+    // 若出现vector表中没有的单词，不计入求均值的size分母 yes
+    // 空行直接跳过，还是返回全0? yes
     string line;
     vector<float> result;
     result.reserve(FLAGS_veclen);
