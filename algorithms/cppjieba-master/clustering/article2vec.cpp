@@ -16,7 +16,7 @@
 #include <exception>
 #include <algorithm>
 #include <iterator>
-#include <memory>
+#include <boost/shared_ptr.hpp>
 #include <boost/foreach.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/range/combine.hpp>
@@ -107,6 +107,49 @@ bool validate_method(const char *flagname, const std::string &value)
 }
 static bool method_dummy = gflags::RegisterFlagValidator(&FLAGS_method, &validate_method);
 
+
+boost::shared_ptr<std::istream> open_input()
+{
+    auto deleteIfs = [](std::istream *p) {
+        // DLOG_IF(INFO, p == &cin) << "Not delete cin";
+        // DLOG_IF(INFO, p && p != &cin) << "Deleting ordinary in file obj";
+        if (p && p != &cin)
+            delete p;
+    };
+
+    boost::shared_ptr<std::istream> ifs(nullptr, deleteIfs);
+    if (FLAGS_input == "-") {
+        ifs.reset( &cin, deleteIfs );
+    } else {
+        ifs.reset( new ifstream(FLAGS_input, ios::in), deleteIfs );
+        if ( !ifs || !*ifs)
+            THROW_RUNTIME_ERROR("Cannot open " << FLAGS_input << " for reading!");
+    } // if
+
+    return ifs;
+}
+
+boost::shared_ptr<std::ostream> open_output()
+{
+    auto deleteOfs = [](std::ostream *p) {
+        // DLOG_IF(INFO, p == &cout) << "Not delete cout";
+        // DLOG_IF(INFO, p && p != &cout) << "Deleting ordinary out file obj";
+        if (p && p != &cout)
+            delete p;
+    };
+
+    boost::shared_ptr<std::ostream> ofs(nullptr, deleteOfs);
+    if (FLAGS_output == "-") {
+        ofs.reset( &cout, deleteOfs );
+    } else {
+        ofs.reset( new ofstream(FLAGS_output, ios::out), deleteOfs );
+        if ( !ofs || !*ofs)
+            THROW_RUNTIME_ERROR("Cannot open " << FLAGS_output << " for writting!");
+    } // if
+
+    return ofs;
+}
+
 } // namespace
 
 
@@ -117,6 +160,14 @@ typedef std::map< std::string, uint32_t >               WordClusterTable;
 namespace Test {
 
 using namespace std;
+
+void test_file()
+{
+    DLOG(INFO) << "test_file() " << FLAGS_output;
+    // boost::shared_ptr<ostream> ofs = open_output();
+    boost::shared_ptr<istream> ifs = open_input();
+    return;
+}
 
 void print_cluster_table( const WordClusterTable &table )
 {
@@ -154,17 +205,14 @@ std::ostream& print_container( std::ostream &os, const T &c )
     return os;
 }
 
+
 static
 void do_with_wordvec( WordVecTable &wordVecTable )
 {
     using namespace std;
 
-    ifstream ifs(FLAGS_input, ios::in);
-    if (!ifs)
-        THROW_RUNTIME_ERROR("do_with_wordvec() cannot open " << FLAGS_input << " for reading!");
-    ofstream ofs(FLAGS_output, ios::out);
-    if (!ofs)
-        THROW_RUNTIME_ERROR("do_with_wordvec() cannot open " << FLAGS_output << " for writting!");
+    boost::shared_ptr<istream> ifs = open_input();
+    boost::shared_ptr<ostream> ofs = open_output();
 
     auto processLine = [&](const string &line, vector<float> &result) {
         typedef boost::tuple<double&, float&> IterType;
@@ -212,10 +260,10 @@ void do_with_wordvec( WordVecTable &wordVecTable )
     string line;
     vector<float> result;
     result.reserve(FLAGS_nclasses);
-    while (getline(ifs, line)) {
+    while (getline(*ifs, line)) {
         boost::trim(line);
         processLine(line, result);
-        print_container(ofs, result);
+        print_container(*ofs, result);
     } // while
 }
 
@@ -224,12 +272,8 @@ void do_with_cluster(WordClusterTable &clusterTable)
 {
     using namespace std;
 
-    ifstream ifs(FLAGS_input, ios::in);
-    if (!ifs)
-        THROW_RUNTIME_ERROR("do_with_cluster() cannot open " << FLAGS_input << " for reading!");
-    ofstream ofs(FLAGS_output, ios::out);
-    if (!ofs)
-        THROW_RUNTIME_ERROR("do_with_cluster() cannot open " << FLAGS_output << " for writting!");
+    boost::shared_ptr<istream> ifs = open_input();
+    boost::shared_ptr<ostream> ofs = open_output();
 
     auto processLine = [&](const string &line, vector<float> &result) {
         typedef boost::tuple<double&, float&> IterType;
@@ -276,10 +320,10 @@ void do_with_cluster(WordClusterTable &clusterTable)
     string line;
     vector<float> result;
     result.reserve(FLAGS_nclasses);
-    while (getline(ifs, line)) {
+    while (getline(*ifs, line)) {
         boost::trim(line);
         processLine(line, result);
-        print_container(ofs, result);
+        print_container(*ofs, result);
     } // while
 }
 
