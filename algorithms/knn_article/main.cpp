@@ -1,3 +1,7 @@
+/*
+ * GLOG_logtostderr=1 ./article_knn.bin -build -input article_vectors.txt -nfields 500 -ntrees 100 -idx index.ann
+ * GLOG_logtostderr=1 ./article_knn.bin -nfields 500 -idx index.ann
+ */
 #include "AnnDB.h"
 #include <fstream>
 #include <boost/foreach.hpp>
@@ -104,13 +108,15 @@ void do_build_routine()
         std::copy( istream_iterator<ValueType>(stream),
                    istream_iterator<ValueType>(),
                    back_inserter(vec) );
+        // DLOG(INFO) << "Adding line: " << line;
         try {
             g_pAnnDB->addItem( vec );
         } catch (const exception &ex) {
-            LOG(ERROR) << "addItem error on line:" << lineno;
+            LOG(ERROR) << "addItem error on line:" << lineno << " " << ex.what();
         } // try
     } // while
 
+    cout << "Totally " << g_pAnnDB->size() << " items in the tree." << endl;
     cout << "Building Ann index..." << endl;
     g_pAnnDB->buildIndex( FLAGS_ntrees );
     cout << "Saving AnnDB to file..." << endl;

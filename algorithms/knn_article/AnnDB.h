@@ -4,6 +4,7 @@
 #include "common_utils.h"
 #include "annoylib.h"
 #include <vector>
+// #include <glog/logging.h>
 
 /**
  * @brief 
@@ -80,6 +81,7 @@ public:
             THROW_RUNTIME_ERROR("AnnDB::addItem() input vector size " << v.size()
                     << " not equal to predefined size " << m_nFields);
         IdType id = m_AnnIndex.get_n_items();
+        // DLOG(INFO) << "addItem id = " << id;
         m_AnnIndex.add_item( id, &v[0] );
     }
 
