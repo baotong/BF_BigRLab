@@ -7,6 +7,7 @@
 #include <deque>
 #include <sstream>
 #include <functional>
+#include <stdexcept>
 #include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/lockable_adapter.hpp>

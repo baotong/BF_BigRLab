@@ -3,6 +3,8 @@
 #include <glog/logging.h>
 
 
+namespace KNN {
+
 uint32_t WordAnnDB::s_nIdIndex = 0;
 
 std::pair<uint32_t, bool> WordAnnDB::addRecord( const std::string &line )
@@ -14,16 +16,16 @@ std::pair<uint32_t, bool> WordAnnDB::addRecord( const std::string &line )
 
     str >> *pWord;
     if (!str)
-        throw InvalidInput( line, "Incorrect format" );
+        THROW_RUNTIME_ERROR("Incorrect format for line: " << line );
 
     vector<float> values;
     read_into_container( str, values );
 
     if ( !(str.eof() || str.good()) )
-        throw InvalidInput( line, "read stream error" );
+        THROW_RUNTIME_ERROR("Read stream error!");
 
     if ( values.size() != m_nFields )
-        throw InvalidInput( line, "N_Fields not match" );
+        THROW_RUNTIME_ERROR("N_Fields not match");
 
     // insert to tables
     uint32_t                  id = s_nIdIndex;
@@ -47,8 +49,7 @@ void WordAnnDB::saveWordTable( const char *filename )
     ofstream ofs( filename, ios::out );
 
     if (!ofs)
-        throw runtime_error( string("WordAnnDB::saveWordTable() cannot open ")
-               .append(filename).append(string(" for writting!")) );
+        THROW_RUNTIME_ERROR("WordAnnDB::saveWordTable() cannot open " << filename << " for writting!");
 
     // format: word    id
     for (uint32_t i = 0; i < ID_WORD_HASH_SIZE; ++i) {
@@ -65,8 +66,7 @@ void WordAnnDB::loadWordTable( const char *filename )
     ifstream ifs( filename, ios::in );
 
     if (!ifs)
-        throw runtime_error( string("WordAnnDB::saveWordTable() cannot open ")
-               .append(filename).append(string(" for reading!")) );
+        THROW_RUNTIME_ERROR("WordAnnDB::saveWordTable() cannot open " << filename << " for reading!");
 
     string line, word;
     uint32_t id, maxId = 0;
@@ -80,3 +80,5 @@ void WordAnnDB::loadWordTable( const char *filename )
 
     s_nIdIndex = maxId + 1;
 }
+
+} // namespace KNN

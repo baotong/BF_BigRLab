@@ -1,6 +1,7 @@
 #ifndef _WORD_ANN_DB_H_
 #define _WORD_ANN_DB_H_
 
+#include "KnnService.h"
 #include "annoylib.h"
 #include <vector>
 #include <map>
@@ -11,23 +12,37 @@
 #include <memory>
 #include <climits>
 #include <exception>
+#include <stdexcept>
+
+#define THROW_RUNTIME_ERROR(x) \
+    do { \
+        std::stringstream __err_stream; \
+        __err_stream << x; \
+        __err_stream.flush(); \
+        throw std::runtime_error( __err_stream.str() ); \
+    } while (0)
+
+#define THROW_INVALID_REQUEST(args) \
+    do { \
+        std::stringstream __err_stream; \
+        __err_stream << args; \
+        __err_stream.flush(); \
+        InvalidRequest __input_request_err; \
+        __input_request_err.reason = std::move(__err_stream.str()); \
+        throw __input_request_err; \
+    } while (0)
 
 typedef std::shared_ptr<std::string> StringPtr;
 
-struct InvalidInput : std::exception {
-    explicit InvalidInput( const std::string &what )
-            : whatString(what) {}
+// struct InvalidInput : std::exception {
+    // explicit InvalidInput( const std::string &what )
+            // : whatString(what) {}
 
-    explicit InvalidInput( const std::string &inputStr,
-                                    const std::string &desc )
-            : whatString("Input string \"")
-    { whatString.append( inputStr ).append( "\" is not valid! " ).append(desc); }
+    // virtual const char* what() const throw()
+    // { return whatString.c_str(); }
 
-    virtual const char* what() const throw()
-    { return whatString.c_str(); }
-
-    std::string     whatString;
-};
+    // std::string     whatString;
+// };
 
 
 template < typename T >
@@ -39,6 +54,9 @@ std::istream& read_into_container( std::istream &is, T &c )
     c.swap(ret);
     return is;
 }
+
+
+namespace KNN {
 
 /*
  * 主要功能：
@@ -118,12 +136,12 @@ public:
     {
         uint32_t i = getWordId( s1 );
         if (i == INVALID_ID)
-            throw InvalidInput(std::string("WordAnnDB::getDistance() cannot find ") 
-                        .append(s1).append(" in database!"));
+            THROW_INVALID_REQUEST("WordAnnDB::getDistance() cannot find "
+                    << s1 << " in database!");
         uint32_t j = getWordId( s2 );
         if (j == INVALID_ID)
-            throw InvalidInput(std::string("WordAnnDB::getDistance() cannot find ") 
-                        .append(s2).append(" in database!"));
+            THROW_INVALID_REQUEST("WordAnnDB::getDistance() cannot find "
+                    << s2 << " in database!");
         return getDistance( i, j );
     }
 
@@ -134,8 +152,8 @@ public:
     {
         uint32_t i = getWordId( word );
         if (i == INVALID_ID)
-            throw InvalidInput(std::string("WordAnnDB::getDistance() cannot find ") 
-                        .append(word).append(" in database!"));
+            THROW_INVALID_REQUEST("WordAnnDB::getVector() cannot find "
+                    << word << " in database!");
         getVector( i, ret );
     }
 
@@ -177,8 +195,8 @@ public:
     {
         uint32_t id = getWordId( word );
         if (id == INVALID_ID)
-            throw InvalidInput(std::string("WordAnnDB::kNN_By_Word() cannot find ")
-                        .append(word).append(" in database!"));
+            THROW_INVALID_REQUEST("WordAnnDB::kNN_By_Word() cannot find "
+                    << word << " in database!");
         
         std::vector<uint32_t> resultIds;
         kNN_By_Id( id, n, resultIds, distances, search_k );
@@ -205,7 +223,7 @@ public:
                     size_t search_k = (size_t)-1 )
     {
         if (v.size() != m_nFields)
-            throw InvalidInput("WordAnnDB::kNN_By_Vector() input vector size invalid!");
+            THROW_INVALID_REQUEST("WordAnnDB::kNN_By_Vector() input vector size invalid!");
         result.clear(); distances.clear();
         m_AnnIndex.get_nns_by_vector( &v[0], n, search_k, &result, &distances );
     }
@@ -281,6 +299,8 @@ private:
     static uint32_t     s_nIdIndex;
 };
 
+
+} // namespace KNN
 
 #endif
 

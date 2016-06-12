@@ -6,7 +6,6 @@
  */
 #include "rpc_module.h"
 #include "AlgMgrService.h"
-#include "KnnService.h"
 #include "WordAnnDB.h"
 #include <iostream>
 #include <fstream>
@@ -25,7 +24,7 @@
 
 using std::cout; using std::cerr; using std::endl;
 
-static boost::shared_ptr<WordAnnDB> g_pWordAnnDB;
+static boost::shared_ptr<KNN::WordAnnDB> g_pWordAnnDB;
 
 static std::string                  g_strAlgMgrAddr;
 static uint16_t                     g_nAlgMgrPort = 0;
@@ -221,16 +220,6 @@ public:
     virtual void handleRequest(std::string& _return, const std::string& request);
 };
 
-#define THROW_INVALID_REQUEST(args) \
-    do { \
-        std::stringstream __err_stream; \
-        __err_stream << args; \
-        __err_stream.flush(); \
-        InvalidRequest __input_request_err; \
-        __input_request_err.reason = std::move(__err_stream.str()); \
-        throw __input_request_err; \
-    } while (0)
-
 void KnnServiceHandler::queryByItem(std::vector<Result> & _return, 
             const std::string& item, const int32_t n)
 {
@@ -375,8 +364,6 @@ void KnnServiceHandler::handleRequest(std::string& _return, const std::string& r
     _return = writer.write(outRoot);
 }
 
-#undef THROW_INVALID_REQUEST
-
 } // namespace KNN
 
 namespace Test {
@@ -517,14 +504,14 @@ void load_data_file( const char *filename )
 
     ifstream ifs( filename, ios::in );
     if (!ifs)
-        throw runtime_error( string("Cannot open file ").append(filename) );
+        THROW_RUNTIME_ERROR("Cannot open file " << filename);
 
     string line;
     while (getline(ifs, line)) {
         try {
             g_pWordAnnDB->addRecord( line );
 
-        } catch (const InvalidInput &errInput) {
+        } catch (const std::exception &errInput) {
             // cerr << errInput.what() << endl;
             LOG(ERROR) << errInput.what();
             continue;
@@ -588,7 +575,7 @@ int main( int argc, char **argv )
 
         auto io_service_thr = std::thread( [&]{ g_io_service.run(); } );
 
-        g_pWordAnnDB.reset( new WordAnnDB(FLAGS_nfields) );
+        g_pWordAnnDB.reset( new KNN::WordAnnDB(FLAGS_nfields) );
 
         if (FLAGS_build)
             do_build_routine();
