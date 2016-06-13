@@ -32,6 +32,21 @@
         throw __input_request_err; \
     } while (0)
 
+#define THROW_ERROR(type, x) \
+    do { \
+        std::stringstream __err_stream; \
+        __err_stream << x; \
+        __err_stream.flush(); \
+        throw type( __err_stream.str() ); \
+    } while (0)
+
+struct InvalidInput : std::runtime_error {
+    typedef std::runtime_error BaseType;
+    InvalidInput(const std::string &msg)
+            : BaseType(msg) {}
+};
+
+
 typedef std::shared_ptr<std::string> StringPtr;
 
 // struct InvalidInput : std::exception {

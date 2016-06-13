@@ -10,7 +10,9 @@
 #include <iostream>
 #include <fstream>
 #include <cctype>
+#include <csignal>
 #include <thread>
+#include <chrono>
 #include <boost/foreach.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/range/combine.hpp>
@@ -19,6 +21,9 @@
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 #include <jsoncpp/json/json.h>
+
+#define SLEEP_MILLISECONDS(x) std::this_thread::sleep_for(std::chrono::milliseconds(x))
+#define SLEEP_SECONDS(x)      std::this_thread::sleep_for(std::chrono::seconds(x))
 
 #define SERVICE_LIB_NAME        "knn"
 
@@ -385,6 +390,25 @@ static KnnAlgServer::Pointer                  g_pThisServer;
 static boost::shared_ptr<BigRLab::AlgSvrInfo> g_pSvrInfo;
 static boost::asio::io_service                g_io_service;
 
+// 信号处理函数中只做 stop server, 其他工作在main函数中完成，不宜在此做。
+// 否则如果apiserver已经退出，SIGINT 退出本程序会core dump
+static
+void stop_server()
+{
+    if (g_pThisServer)
+        g_pThisServer->stop();
+    // LOG(INFO) << "stop server done!";
+}
+
+static
+void stop_client()
+{
+    if (g_pAlgMgrClient) {
+        (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
+        g_pAlgMgrClient->stop();
+    } // if
+}
+
 static
 bool get_local_ip( std::string &result )
 {
@@ -451,6 +475,7 @@ void start_rpc_service()
     g_pAlgMgrClient = boost::make_shared< AlgMgrClient >(g_strAlgMgrAddr, g_nAlgMgrPort);
     auto register_svr = [&] {
         try {
+            SLEEP_MILLISECONDS(500);   // let thrift server start first
             if (!g_pAlgMgrClient->start(50, 300)) {
                 cerr << "AlgMgr server unreachable!" << endl;
                 exit(-1);
@@ -474,11 +499,11 @@ void start_rpc_service()
                         break;
                 } // switch
                 cerr << endl;
-                exit(-1);
+                std::raise(SIGTERM);
             } // if
         } catch (const std::exception &ex) {
             cerr << "Unable to connect to algmgr server, " << ex.what() << endl;
-            exit(-1);
+            std::raise(SIGTERM);
         } // try
     };
     boost::thread register_thr(register_svr);
@@ -510,9 +535,7 @@ void load_data_file( const char *filename )
     while (getline(ifs, line)) {
         try {
             g_pWordAnnDB->addRecord( line );
-
-        } catch (const std::exception &errInput) {
-            // cerr << errInput.what() << endl;
+        } catch (const InvalidInput &errInput) {
             LOG(ERROR) << errInput.what();
             continue;
         } // try
@@ -549,16 +572,6 @@ void do_load_routine()
     start_rpc_service();
 }
 
-// 信号处理函数中只做 stop server, 其他工作在main函数中完成，不宜在此做。
-// 否则如果apiserver已经退出，SIGINT 退出本程序会core dump
-static
-void stop_server()
-{
-    if (g_pThisServer)
-        g_pThisServer->stop();
-    // LOG(INFO) << "stop server done!";
-}
-
 int main( int argc, char **argv )
 {
     using namespace std;
@@ -587,10 +600,7 @@ int main( int argc, char **argv )
         if (io_service_thr.joinable())
             io_service_thr.join();
 
-        if (g_pAlgMgrClient) {
-            (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
-            g_pAlgMgrClient->stop();
-        } // if
+        stop_client();
 
         cout << argv[0] << " done!" << endl;
 

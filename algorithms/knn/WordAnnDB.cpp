@@ -16,16 +16,16 @@ std::pair<uint32_t, bool> WordAnnDB::addRecord( const std::string &line )
 
     str >> *pWord;
     if (!str)
-        THROW_RUNTIME_ERROR("Incorrect format for line: " << line );
+        THROW_ERROR(InvalidInput, "Incorrect format for line: " << line );
 
     vector<float> values;
     read_into_container( str, values );
 
     if ( !(str.eof() || str.good()) )
-        THROW_RUNTIME_ERROR("Read stream error!");
+        THROW_ERROR(InvalidInput, "Read stream error!");
 
     if ( values.size() != m_nFields )
-        THROW_RUNTIME_ERROR("N_Fields not match");
+        THROW_ERROR(InvalidInput, "N_Fields not match");
 
     // insert to tables
     uint32_t                  id = s_nIdIndex;
