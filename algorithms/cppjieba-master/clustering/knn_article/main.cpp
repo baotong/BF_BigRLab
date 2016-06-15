@@ -132,6 +132,7 @@ void do_serve_routine()
     
     cout << "Loading AnnDB from file..." << endl;
     g_pAnnDB->loadIndex( FLAGS_idx.c_str() );
+    cout << "Totally " << g_pAnnDB->size() << " items loaded." << endl;
 
     typedef boost::tuple<IdType&, ValueType&> IterType;
     IdType id;

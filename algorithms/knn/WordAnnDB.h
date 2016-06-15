@@ -112,8 +112,11 @@ public:
      */
     std::pair<uint32_t, bool> addRecord( const std::string &line );
 
-    uint32_t size()
-    { return s_nIdIndex; }
+    // uint32_t size()
+    // { return s_nIdIndex; }
+
+    std::size_t size()
+    { return m_AnnIndex.get_n_items(); }
 
     /**
      * @brief  建立Annoy索引，参阅 AnnoyIndex::build 

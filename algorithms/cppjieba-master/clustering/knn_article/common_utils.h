@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 #include <exception>
+#include <stdexcept>
 
 #define THROW_RUNTIME_ERROR(x) \
     do { \

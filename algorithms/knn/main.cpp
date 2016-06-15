@@ -20,7 +20,7 @@
 #include <boost/lexical_cast.hpp>
 #include <glog/logging.h>
 #include <gflags/gflags.h>
-#include <jsoncpp/json/json.h>
+#include <json/json.h>
 
 #define SLEEP_MILLISECONDS(x) std::this_thread::sleep_for(std::chrono::milliseconds(x))
 #define SLEEP_SECONDS(x)      std::this_thread::sleep_for(std::chrono::seconds(x))
@@ -419,6 +419,7 @@ bool get_local_ip( std::string &result )
         boost::asio::io_service::work work(netService);
         
         std::thread ioThr( [&]{ netService.run(); } );
+        ioThr.detach(); // 必须 detach, 否则当无网络连接时 core dump
 
         udp::resolver   resolver(netService);
         udp::resolver::query query(udp::v4(), "www.baidu.com", "");
@@ -430,7 +431,6 @@ bool get_local_ip( std::string &result )
         result = std::move( addr.to_string() );
 
         netService.stop();
-        ioThr.join();
 
         return true;
     } catch (const std::exception& e) {
