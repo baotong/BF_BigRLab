@@ -228,7 +228,7 @@ void do_with_wordvec( WordVecTable &wordVecTable )
         while (stream >> word) {
             auto it = wordVecTable.find(word);
             if (it == wordVecTable.end()) {
-                DLOG(INFO) << "no word " << word << " found in wordvec table.";
+                // DLOG(INFO) << "no word " << word << " found in wordvec table.";
                 continue;
             } // if
             ++count;
@@ -295,7 +295,7 @@ void do_with_cluster(WordClusterTable &clusterTable)
 
             auto it = clusterTable.find(word);
             if (it == clusterTable.end()) {
-                DLOG(INFO) << "no word " << word << " found in cluster table.";
+                // DLOG(INFO) << "no word " << word << " found in cluster table.";
                 continue;
             } // if
             uint32_t id = it->second;

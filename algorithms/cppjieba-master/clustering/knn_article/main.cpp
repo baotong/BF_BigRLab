@@ -17,6 +17,11 @@ DEFINE_int32(nfields, 0, "num of fields in input data file.");
 DEFINE_int32(ntrees, 0, "num of trees to build.");
 DEFINE_string(idx, "", "filename to save the tree.");
 
+DEFINE_bool(vec, false, "read vector from stdin");
+DEFINE_int32(k, 10, "k");
+DEFINE_int32(search_k, -1, "search_k");
+DEFINE_int32(getvec, -1, "get vector");
+
 namespace {
 
 using namespace std;
@@ -112,9 +117,11 @@ void do_build_routine()
         try {
             g_pAnnDB->addItem( vec );
         } catch (const exception &ex) {
-            LOG(ERROR) << "addItem error on line:" << lineno << " " << ex.what();
+            LOG(ERROR) << "addItem error on line:" << lineno << " " << line << " " << ex.what();
         } // try
     } // while
+
+    // DLOG(INFO) << "lineno = " << lineno;
 
     cout << "Totally " << g_pAnnDB->size() << " items in the tree." << endl;
     cout << "Building Ann index..." << endl;
@@ -140,16 +147,49 @@ void do_serve_routine()
     vector<IdType>    likeIds;
     vector<ValueType> likeDistances;
 
-    while (true) {
-        cout << "\nInput id and k: " << flush;
-        cin >> id >> k;
-        if (!cin)
-            break;
-        likeIds.clear(); likeDistances.clear();
-        g_pAnnDB->kNN_By_Id(id, k, likeIds, likeDistances);
+    auto interact = [&] {
+        while (true) {
+            cout << "\nInput id and k: " << flush;
+            cin >> id >> k;
+            if (!cin)
+                break;
+            likeIds.clear(); likeDistances.clear();
+            g_pAnnDB->kNN_By_Id(id, k, likeIds, likeDistances, (size_t)FLAGS_search_k);
+            BOOST_FOREACH( IterType v, boost::combine(likeIds, likeDistances) )
+                cout << v.get<0>() << "\t\t" << v.get<1>() << endl;
+        } // while
+    };
+
+    auto handle_vector = [&] {
+        DLOG(INFO) << "Read vector from stdin";
+        string line;
+        vector<float> vec;
+        getline(cin, line);
+        // DLOG(INFO) << "Read line: " << line;
+        stringstream stream(line);
+        copy( istream_iterator<float>(stream), istream_iterator<float>(), back_inserter(vec) );
+        DLOG(INFO) << "Read vector: ";
+        copy( vec.begin(), vec.end(), ostream_iterator<float>(cout, " ") );
+        cout << endl;
+        g_pAnnDB->kNN_By_Vector( vec, FLAGS_k, likeIds, likeDistances, (size_t)FLAGS_search_k );
         BOOST_FOREACH( IterType v, boost::combine(likeIds, likeDistances) )
             cout << v.get<0>() << "\t\t" << v.get<1>() << endl;
-    } // while
+    };
+
+    auto get_vector = [&] {
+        vector<float> result;
+        g_pAnnDB->getVector( FLAGS_getvec, result );
+        cout << "Vector of id " << FLAGS_getvec << ":" << endl;
+        copy( result.begin(), result.end(), ostream_iterator<float>(cout, " ") );
+        cout << endl;
+    };
+
+    if (FLAGS_vec)
+        handle_vector();
+    else if (FLAGS_getvec >= 0)
+        get_vector();
+    else
+        interact();
 
     cout << "serve routine done!" << endl;
 }
