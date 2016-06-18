@@ -88,15 +88,16 @@ try {
         return;
     } // if
 
-    size_t nRead;
+    size_t nRead = 0;
     for (const auto &v : req.headers) {
-        if (boost::iequals(v.name, "Content-Type")) {
-            if (!boost::iequals(v.value, "application/json")) {
-                LOG(ERROR) << "Wrong request from " << req.source << ", only accept json content.";
-                send_response(conn, ServerType::connection::bad_request, "Content-Type is not json\n");
-                return;
-            } // if
-        } else if (boost::iequals(v.name, "Content-Length")) {
+        // if (boost::iequals(v.name, "Content-Type")) {
+            // if (!boost::iequals(v.value, "application/json")) {
+                // LOG(ERROR) << "Wrong request from " << req.source << ", only accept json content.";
+                // send_response(conn, ServerType::connection::bad_request, "Content-Type is not json\n");
+                // return;
+            // } // if
+        // } 
+        if (boost::iequals(v.name, "Content-Length")) {
             // nRead = boost::lexical_cast<size_t>(v.value);
             if (!boost::conversion::try_lexical_convert(v.value, nRead)) {
                 send_response(conn, ServerType::connection::bad_request, "Content-Length not valid\n");
