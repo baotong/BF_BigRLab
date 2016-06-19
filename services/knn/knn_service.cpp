@@ -344,8 +344,8 @@ void KnnService::handleRequest(const BigRLab::WorkItemPtr &pWork)
         } catch (const std::exception &ex) {
             LOG(ERROR) << "Service " << name() << " caught exception: "
                     << ex.what();
-            RESPONSE_ERROR(pWork->conn, BigRLab::ServerType::connection::ok, UNKNOWN_EXCEPTION, 
-                    name() << " unknown exception: " << ex.what());
+            // RESPONSE_ERROR(pWork->conn, BigRLab::ServerType::connection::ok, UNKNOWN_EXCEPTION, 
+                    // name() << " unknown exception: " << ex.what());
         } // try
     } while (!done);
 }
