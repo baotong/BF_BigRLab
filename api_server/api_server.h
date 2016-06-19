@@ -8,6 +8,7 @@
 #include <boost/network/include/http/server.hpp>
 #include <boost/network/uri.hpp>
 #include <boost/asio.hpp>
+#include <json/json.h>
 
 namespace BigRLab {
 
@@ -32,12 +33,12 @@ struct APIServerHandler {
  * 3. threadgroup->join_all()
  */
 class APIServer {
-// public:
-    // static const uint32_t       DEFAULT_N_IO_THREADS = 5;
-    // static const uint32_t       DEFAULT_N_WORK_THREADS = 100;
-    // static const uint16_t       DEFAULT_PORT = 9000;
 public:
-    // typedef ThriftClient< AlgMgrServiceClient > AlgMgrClient;
+    enum StatusCode {
+        OK = 0,
+        BAD_REQUEST = -1,
+        SERVICE_UNAVAILABLE = -2
+    };
 
 public:
     explicit APIServer( uint16_t _SvrPort,
@@ -148,13 +149,35 @@ void send_response(const ServerType::connection_ptr &conn,
         conn->write(content);
 }
 
-#define RESPONSE(conn, status, args) \
+// #define RESPONSE(conn, status, args) \
+    // do { \
+        // std::stringstream __response_stream; \
+        // __response_stream << args << std::endl << std::flush; \
+        // send_response(conn, status, __response_stream.str()); \
+    // } while (0)
+
+inline
+void response_json_string(const ServerType::connection_ptr &conn,
+                    ServerType::connection::status_t connStatus,
+                    int statCode,
+                    const std::string &key,
+                    const std::string &value)
+{
+    Json::Value root;
+    root["status"] = statCode;
+    root[key] = value;
+
+    Json::FastWriter writer;  
+    std::string strResp = writer.write(root);
+    send_response(conn, connStatus, strResp);
+}
+
+#define RESPONSE_ERROR(conn, connStatus, errCode, args) \
     do { \
         std::stringstream __response_stream; \
         __response_stream << args << std::endl << std::flush; \
-        send_response(conn, status, __response_stream.str()); \
+        response_json_string(conn, connStatus, errCode, "errmsg", __response_stream.str()); \
     } while (0)
-
 
 extern uint16_t g_nApiSvrPort;
 

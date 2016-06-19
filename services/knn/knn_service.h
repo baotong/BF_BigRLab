@@ -17,6 +17,15 @@ extern "C" {
 
 class KnnService : public BigRLab::Service {
 public:
+    enum StatusCode {
+        OK = 0,
+        NO_SERVER,
+        INVALID_REQUEST,
+        UNKNOWN_EXCEPTION,
+        ITEM_NOT_FOUND
+    };
+
+public:
     static const uint32_t       TIMEOUT = 5000;     // 5s
 public:
     typedef BigRLab::ThriftClient< KNN::KnnServiceClient > KnnClient;
@@ -54,6 +63,20 @@ public:
     virtual std::string toString() const;
     // use Service::rmServer()
     // virtual void rmServer( const BigRLab::AlgSvrInfo& svrInfo );
+
+private: 
+    void sendResult(const BigRLab::ServerType::connection_ptr &conn,
+                    std::string &&strResult)
+    {
+        Json::Value root;
+        root["status"] = OK;
+        root["result"] = std::move(strResult);
+
+        Json::FastWriter writer;  
+        std::string strResp = writer.write(root);
+        send_response(conn, BigRLab::ServerType::connection::ok, strResp);
+    }
+
 private:
     IdleClientQueue  m_queIdleClients;
 };

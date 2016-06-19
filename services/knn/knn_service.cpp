@@ -16,7 +16,6 @@ Service* create_instance(const char *name)
 const char* lib_name()
 { return "knn"; }
 
-
 typedef std::map< std::string, std::vector<KNN::Result> >  QuerySet;
 
 struct QueryWork : BigRLab::WorkItemBase {
@@ -323,9 +322,8 @@ void KnnService::handleRequest(const BigRLab::WorkItemPtr &pWork)
         if (!pClient) {
             LOG(ERROR) << "Service " << name() << " handleRequest fail, "
                     << " no client object available.";
-            RESPONSE(pWork->conn, ServerType::connection::service_unavailable, 
-                "Service " << name() << " handleRequest fail, "
-                            << " no client object available.");
+            RESPONSE_ERROR(pWork->conn, BigRLab::ServerType::connection::ok, NO_SERVER, 
+                    name() << ": no algorithm server available.");
             return;
         } // if
 
@@ -334,20 +332,20 @@ void KnnService::handleRequest(const BigRLab::WorkItemPtr &pWork)
             pClient->client()->handleRequest( result, pWork->body );
             done = true;
             m_queIdleClients.putBack( pClient );
-            RESPONSE(pWork->conn, ServerType::connection::ok, result);
+            sendResult(pWork->conn, std::move(result));
 
         } catch (const KNN::InvalidRequest &err) {
             done = true;
             m_queIdleClients.putBack( pClient );
             LOG(ERROR) << "Service " << name() << " caught InvalidRequest: "
                     << err.reason;
-            RESPONSE(pWork->conn, ServerType::connection::bad_request, 
-                    "InvalidRequest: " << err.reason);
+            RESPONSE_ERROR(pWork->conn, BigRLab::ServerType::connection::ok, INVALID_REQUEST, 
+                    name() << " InvalidRequest: " << err.reason);
         } catch (const std::exception &ex) {
             LOG(ERROR) << "Service " << name() << " caught exception: "
                     << ex.what();
-            RESPONSE(pWork->conn, ServerType::connection::internal_server_error, 
-                    "Exception: " << ex.what());
+            RESPONSE_ERROR(pWork->conn, BigRLab::ServerType::connection::ok, UNKNOWN_EXCEPTION, 
+                    name() << " unknown exception: " << ex.what());
         } // try
     } while (!done);
 }
