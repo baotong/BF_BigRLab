@@ -355,16 +355,20 @@ void KnnServiceHandler::handleRequest(std::string& _return, const std::string& r
     for (auto &v : query)
         queryByItemNoWeight(v.second, v.first, n);
 
-    Json::Value     outRoot; // array of record
+    Json::Value     result; // array of record
     for (auto &v : query) {
         Json::Value record, mostLike;
         record["item"] = v.first;
         for (auto &str : v.second)
             mostLike.append(str);
         record["most_like"].swap(mostLike);
-        outRoot.append(Json::Value());
-        outRoot[ outRoot.size()-1 ].swap(record);
+        result.append(Json::Value());
+        result[ result.size()-1 ].swap(record);
     } // for
+
+    Json::Value outRoot;
+    outRoot["status"] = 0;
+    outRoot["result"].swap(result);
     Json::FastWriter writer;  
     _return = writer.write(outRoot);
 }

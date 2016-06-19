@@ -332,7 +332,7 @@ void KnnService::handleRequest(const BigRLab::WorkItemPtr &pWork)
             pClient->client()->handleRequest( result, pWork->body );
             done = true;
             m_queIdleClients.putBack( pClient );
-            sendResult(pWork->conn, std::move(result));
+            send_response(pWork->conn, BigRLab::ServerType::connection::ok, result);
 
         } catch (const KNN::InvalidRequest &err) {
             done = true;

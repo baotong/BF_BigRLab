@@ -32,8 +32,8 @@ int main( int argc, char **argv )
 
     try {
         Test::test1("李宇春");
-        Test::test1("姚明");
-        Test::test1("章子怡");
+        // Test::test1("姚明");
+        // Test::test1("章子怡");
         return 0;
 
     } catch (const std::exception &ex) {
