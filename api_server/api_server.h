@@ -175,7 +175,7 @@ void response_json_string(const ServerType::connection_ptr &conn,
 #define RESPONSE_ERROR(conn, connStatus, errCode, args) \
     do { \
         std::stringstream __response_stream; \
-        __response_stream << args << std::endl << std::flush; \
+        __response_stream << args << std::flush; \
         response_json_string(conn, connStatus, errCode, "errmsg", __response_stream.str()); \
     } while (0)
 
