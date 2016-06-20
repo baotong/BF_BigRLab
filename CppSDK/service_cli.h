@@ -32,6 +32,9 @@ public:
             // DLOG(INFO) << "doing global cleanup...";
             curl_global_cleanup();
         } );
+        
+        curl_global_init(CURL_GLOBAL_ALL);
+
         return ret;
     }
 
