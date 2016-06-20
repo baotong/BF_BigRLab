@@ -18,6 +18,7 @@
         throw std::runtime_error( __err_stream.str() ); \
     } while (0)
 
+namespace BigRLab {
 
 class ServiceCli {
 public:
@@ -95,6 +96,7 @@ protected:
     std::string    m_strErrMsg;
 };
 
+} // namespace BigRLab
 
 
 #endif

@@ -20,8 +20,7 @@ public:
     enum StatusCode {
         OK = 0,
         NO_SERVER,
-        INVALID_REQUEST,
-        UNKNOWN_EXCEPTION,
+        INVALID_REQUEST
     };
 
 public:

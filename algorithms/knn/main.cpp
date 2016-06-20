@@ -303,15 +303,14 @@ void KnnServiceHandler::queryByVectorNoWeight(std::vector<std::string> & _return
 
 void KnnServiceHandler::handleRequest(std::string& _return, const std::string& request)
 {
+    using namespace std;
+
     Json::Reader    reader;
     Json::Value     root;
     int             n = 0;
+    vector<string>  result;
 
     // DLOG(INFO) << "KnnService received request: " << request;
-
-    typedef std::vector<std::string> StringArray;
-    typedef std::map< std::string, StringArray> Query;
-    Query           query;
 
     if (!reader.parse(request, root))
         THROW_INVALID_REQUEST("Json parse fail!");
@@ -321,56 +320,34 @@ void KnnServiceHandler::handleRequest(std::string& _return, const std::string& r
         n = root["n"].asInt();
         if (n <= 0)
             THROW_INVALID_REQUEST("Invalid n value");
+
+        if (root.isMember("item")) {
+            string item = root["item"].asString();
+            queryByItemNoWeight(result, item, n);
+        } else if (root.isMember("values")) {
+            vector<double> vec;
+            vec.reserve(FLAGS_nfields);
+            auto& values = root["values"];
+            if (values.size() != FLAGS_nfields)
+                THROW_INVALID_REQUEST("Request vector size " << values.size()
+                        << " not equal to specified size " << FLAGS_nfields);
+            for (auto it = values.begin(); it != values.end(); ++it)
+                vec.push_back(it->asDouble());
+            queryByVectorNoWeight(result, vec, n);
+        } else {
+            THROW_INVALID_REQUEST("Json parse fail! cannot find key item or values");
+        } // if
     } catch (const std::exception &ex) {
         THROW_INVALID_REQUEST("Json parse fail! " << ex.what());
     } // try
 
-    // get query items
-    auto items = root["items"];
-    if (items.isNull())
-        THROW_INVALID_REQUEST("Bad request format!");
+    Json::Value resp;
+    resp["status"] = 0;
+    for (auto &v : result)
+        resp["result"].append(v);
 
-    if (items.isArray()) {
-        for (auto it = items.begin(); it != items.end(); ++it) {
-            try {
-                string item = (*it).asString();
-                if (!item.empty())
-                    query.insert( std::make_pair(item, StringArray()) );
-            } catch (const std::exception &ex) {;}
-        } // for
-    } else {
-        try {
-            string item = items.asString();
-            if (item.empty())
-                THROW_INVALID_REQUEST("Bad request format!");
-            query.insert( std::make_pair(item, StringArray()) );
-        } catch (const std::exception &ex) {
-            THROW_INVALID_REQUEST("Json parse fail! " << ex.what());
-        } // try
-    } // if
-
-    if (query.empty())
-        THROW_INVALID_REQUEST("Bad request format! no valid query item");
-
-    for (auto &v : query)
-        queryByItemNoWeight(v.second, v.first, n);
-
-    Json::Value     result; // array of record
-    for (auto &v : query) {
-        Json::Value record, mostLike;
-        record["item"] = v.first;
-        for (auto &str : v.second)
-            mostLike.append(str);
-        record["most_like"].swap(mostLike);
-        result.append(Json::Value());
-        result[ result.size()-1 ].swap(record);
-    } // for
-
-    Json::Value outRoot;
-    outRoot["status"] = 0;
-    outRoot["result"].swap(result);
     Json::FastWriter writer;  
-    _return = writer.write(outRoot);
+    _return = writer.write(resp);
 }
 
 } // namespace KNN
@@ -617,3 +594,83 @@ int main( int argc, char **argv )
 }
 
 
+/*
+ * void KnnServiceHandler::handleRequest(std::string& _return, const std::string& request)
+ * {
+ *     Json::Reader    reader;
+ *     Json::Value     root;
+ *     int             n = 0;
+ * 
+ *     // DLOG(INFO) << "KnnService received request: " << request;
+ * 
+ *     typedef std::vector<std::string> StringArray;
+ *     typedef std::map< std::string, StringArray> Query;
+ *     Query           query;
+ * 
+ *     if (!reader.parse(request, root))
+ *         THROW_INVALID_REQUEST("Json parse fail!");
+ * 
+ *     // get n
+ *     try {
+ *         n = root["n"].asInt();
+ *         if (n <= 0)
+ *             THROW_INVALID_REQUEST("Invalid n value");
+ *     } catch (const std::exception &ex) {
+ *         THROW_INVALID_REQUEST("Json parse fail! " << ex.what());
+ *     } // try
+ * 
+ *     // get query items
+ *     if (root.isMember("items")) {
+ *         auto items = root["items"];
+ *         if (items.isNull())
+ *             THROW_INVALID_REQUEST("Bad request format!");
+ * 
+ *         if (items.isArray()) {
+ *             for (auto it = items.begin(); it != items.end(); ++it) {
+ *                 try {
+ *                     string item = (*it).asString();
+ *                     if (!item.empty())
+ *                         query.insert( std::make_pair(item, StringArray()) );
+ *                 } catch (const std::exception &ex) {;}
+ *             } // for
+ *         } else {
+ *             try {
+ *                 string item = items.asString();
+ *                 if (item.empty())
+ *                     THROW_INVALID_REQUEST("Bad request format!");
+ *                 query.insert( std::make_pair(item, StringArray()) );
+ *             } catch (const std::exception &ex) {
+ *                 THROW_INVALID_REQUEST("Json parse fail! " << ex.what());
+ *             } // try
+ *         } // if
+ * 
+ *         if (query.empty())
+ *             THROW_INVALID_REQUEST("Bad request format! no valid query item");
+ * 
+ *         for (auto &v : query)
+ *             queryByItemNoWeight(v.second, v.first, n);
+ * 
+ *     } else if (root.isMember("values")) {
+ * 
+ *     } else {
+ *         THROW_INVALID_REQUEST("Invalid request json format");
+ *     } // if isMember
+ * 
+ *     Json::Value     result; // array of record
+ *     for (auto &v : query) {
+ *         Json::Value record, mostLike;
+ *         record["item"] = v.first;
+ *         for (auto &str : v.second)
+ *             mostLike.append(str);
+ *         record["most_like"].swap(mostLike);
+ *         result.append(Json::Value());
+ *         result[ result.size()-1 ].swap(record);
+ *     } // for
+ * 
+ *     Json::Value outRoot;
+ *     outRoot["status"] = 0;
+ *     outRoot["result"].swap(result);
+ *     Json::FastWriter writer;  
+ *     _return = writer.write(outRoot);
+ * }
+ */
