@@ -11,6 +11,9 @@
  * service knn_star items 10 李宇春 姚明 章子怡
  * service knn_star file 10 test.txt out.txt
  * curl -i -X POST -H "Content-Type: application/json" -d '{"item":"李宇春","n":10}' http://localhost:9000/knn_star
+ *
+ * To run as a service in background
+ * nohup ./apiserver.bin -b > nohup.log 2>&1 &
  */
 #include "api_server.h"
 #include "service_manager.h"
