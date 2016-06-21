@@ -428,19 +428,21 @@ void start_rpc_service()
     using namespace std;
 
     // fill svrinfo
-    string addr, line;
-    if (get_local_ip(addr)) {
-        if (addr != g_strThisAddr) {
-            cout << "The local addr you provided is " << g_strThisAddr 
-                << " which differs with that system detected " << addr
-                << " Do you want to use the system detected addr? (y/n)y?" << endl;
-            getline(cin, line);
-            if (!line.empty() && tolower(line[0]) == 'n' )
-                addr = g_strThisAddr;
-        } // if
-    } else {
-        addr = g_strThisAddr;
-    } // if
+    // string addr, line;
+    // if (get_local_ip(addr)) {
+        // if (addr != g_strThisAddr) {
+            // cout << "The local addr you provided is " << g_strThisAddr 
+                // << " which differs with that system detected " << addr
+                // << " Do you want to use the system detected addr? (y/n)y?" << endl;
+            // getline(cin, line);
+            // if (!line.empty() && tolower(line[0]) == 'n' )
+                // addr = g_strThisAddr;
+        // } // if
+    // } else {
+        // addr = g_strThisAddr;
+    // } // if
+
+    addr = g_strThisAddr;
 
     g_pSvrInfo = boost::make_shared<BigRLab::AlgSvrInfo>();
     g_pSvrInfo->addr = addr;

@@ -15,8 +15,11 @@
 #include "api_server.h"
 #include "service_manager.h"
 #include "alg_mgr.h"
+#include "stream_buf.h"
 #include <fstream>
 #include <iomanip>
+#include <boost/interprocess/managed_shared_memory.hpp>
+#include <boost/interprocess/streams/bufferstream.hpp>
 #include <gflags/gflags.h>
 
 using namespace BigRLab;
@@ -32,6 +35,8 @@ DEFINE_int32(n_work_threads, 100, "Number of work threads on API server");
 DEFINE_int32(n_io_threads, 5, "Number of io threads on API server");
 DEFINE_int32(port, 9000, "API server port");
 DEFINE_int32(alg_mgr_port, 9001, "Algorithm manager server port");
+DEFINE_bool(b, false, "Run apiserver in background");
+// DEFINE_string(log_dir, "", "Sepcify dir to keep the log.");
 
 namespace {
 
@@ -177,6 +182,75 @@ static
 void start_shell()
 {
     using namespace std;
+    using namespace boost::interprocess;
+
+    struct shm_remover {
+        shm_remover() { shared_memory_object::remove(SHM_NAME); /* DLOG(INFO) << "shm_remover constructor"; */ }
+        ~shm_remover() { shared_memory_object::remove(SHM_NAME); /* DLOG(INFO) << "shm_remover destructor"; */ }
+    };
+
+    boost::shared_ptr<shm_remover>             pShmRemover;
+    boost::shared_ptr<managed_shared_memory>   pShmSegment;
+    boost::shared_ptr<StreamBuf>               pStreamBuf;
+    boost::shared_ptr<bufferstream>            pStream;
+
+    if (FLAGS_b) {
+        pShmRemover.reset( new shm_remover );
+        pShmSegment = boost::make_shared<managed_shared_memory>(create_only, SHM_NAME, SHARED_BUF_SIZE);
+        pStreamBuf.reset(pShmSegment->construct<StreamBuf>("StreamBuf")(),
+                    [&](StreamBuf *p){ if (p) pShmSegment->destroy_ptr(p); });
+        pStream = boost::make_shared<bufferstream>(pStreamBuf->buf, SHARED_STREAM_BUF_SIZE);
+    } // if
+
+    // auto cleanup = [&] {
+        // pStream.reset();
+        // pStreamBuf.reset();
+        // pShmSegment.reset();
+        // pShmRemover.reset();
+    // };
+
+    auto resetStream = [&] {
+        pStream->clear();
+        pStream->seekg(0, std::ios::beg);
+        pStream->seekp(0, std::ios::beg);
+    };
+
+    auto readLine = [&](string &line)->bool {
+        bool ret = false;
+        if (FLAGS_b) {
+            resetStream();
+            scoped_lock<interprocess_mutex> lk(pStreamBuf->mtx);
+            // read msg from client
+            pStreamBuf->condReq.wait( lk, [&]{return pStreamBuf->reqReady;} );
+            ret = getline(*pStream, line);
+            pStreamBuf->reqReady = false;
+        } else {
+            ret = getline(cin, line);
+        } // if
+        return ret;
+    };
+
+    auto writeLine = [&](const string &msg) {
+        if (FLAGS_b) {
+            pStreamBuf->clear();
+            resetStream();
+            scoped_lock<interprocess_mutex> lk(pStreamBuf->mtx);
+            *pStream << msg << endl << flush;
+            pStreamBuf->respReady = true;
+            lk.unlock();
+            pStreamBuf->condResp.notify_all();
+        } else {
+            cout << msg << endl;
+        } // if
+    };
+
+#define WRITE_LINE(args) \
+    do { \
+        stringstream __write_line_stream; \
+        __write_line_stream << args << flush; \
+        writeLine( __write_line_stream.str() ); \
+    } while (0)
+
 
     auto autorun = [] {
         ifstream ifs("autoload.conf", ios::in);
@@ -198,18 +272,18 @@ void start_shell()
     typedef std::function<bool(std::stringstream&)> CmdProcessor;
     typedef std::map< std::string, CmdProcessor > CmdProcessTable;
 
-    auto loadLib = [](stringstream &stream)->bool {
+    auto loadLib = [&](stringstream &stream)->bool {
         string path;
         stream >> path;
         if (bad_stream(stream)) {
-            cerr << "Usage: loadlib path" << endl;
+            writeLine("Usage: loadlib path");
             return false;
         } // if
 
         try {
             ServiceManager::getInstance()->loadServiceLib(path);
         } catch (const std::exception &ex) {
-            cerr << ex.what() << endl;
+            writeLine(ex.what());
         } // try
 
         return true;
@@ -225,20 +299,30 @@ void start_shell()
         // ServiceManager::getInstance()->rmServiceLib(name);
         // return true;
     // };
+    
+    auto greet = [&](stringstream &stream)->bool {
+        writeLine("BigRLab APIServer is running...");
+        return true;
+    };
 
-    auto lsLib = [](stringstream &stream)->bool {
+    auto lsLib = [&](stringstream &stream)->bool {
+        stringstream outStream;
         auto &libTable = ServiceManager::getInstance()->serviceLibs();
         boost::shared_lock< ServiceManager::ServiceLibTable > lock(libTable);
 
         for (const auto &v : libTable)
-            cout << v.first << "\t\t" << v.second->path;
+            outStream << v.first << "\t\t" << v.second->path << endl; 
 
+        lock.unlock();
+        outStream.flush();
+        writeLine(outStream.str());
         return true;
     };
 
-    auto lsService = [](stringstream &stream)->bool {
+    auto lsService = [&](stringstream &stream)->bool {
         vector<string> strArgs;
         string arg;
+        stringstream outStream;
 
         while (stream >> arg)
             strArgs.push_back(arg);
@@ -247,26 +331,34 @@ void start_shell()
         if (strArgs.size() == 0) {
             // list all
             boost::shared_lock<ServiceManager::ServiceTable> lock(table);
-            for (const auto &v : table)
-                cout << v.second->toString() << endl;
+            if (!table.size()) {
+                outStream << "No running service." << endl;
+            } else {
+                for (const auto &v : table)
+                    outStream << v.second->toString() << endl;
+            } // if
         } else {
             // only list specified in args
             for (const auto &name : strArgs) {
                 Service::pointer pSrv;
                 if (ServiceManager::getInstance()->getService(name, pSrv))
-                    cout << pSrv->toString() << endl;
+                    outStream << pSrv->toString() << endl;
                 else
-                    cout << "No service named " << name << " found!" << endl;
+                    outStream << "No service named " << name << " found!" << endl;
             } // for
         } // if
 
+        outStream.flush();
+        writeLine(outStream.str());
         return true;
     };
 
-    auto save = [](stringstream &stream)->bool {
+    auto save = [&](stringstream &stream)->bool {
         ofstream ofs("autoload.conf", ios::out);
-        if (!ofs)
-            ERR_RET_VAL(false, "Cannot open autorun.conf for writting!");
+        if (!ofs) {
+            writeLine("Cannot open autorun.conf for writting!");
+            return false;
+        } // if
 
         ServiceManager::ServiceLibTable &table = ServiceManager::getInstance()->serviceLibs();
         boost::shared_lock<ServiceManager::ServiceLibTable> lock(table);
@@ -280,13 +372,14 @@ void start_shell()
     cmdTable["lslib"] = lsLib;
     cmdTable["lsservice"] = lsService;
     cmdTable["save"] = save;
+    cmdTable["hello"] = greet;
 
     autorun();
 
     cout << "BigRLab shell launched." << endl;
 
 #define INVALID_CMD { \
-        cout << "Invalid command!" << endl; \
+        writeLine("Invalid command!"); \
         continue; }
 
 #define CHECKED_INPUT(stream, val) { \
@@ -313,8 +406,10 @@ void start_shell()
             break;
         } // if
 
-        cout << "\nBigRLab: " << flush;
-        if (!getline(cin, line))
+        if (!FLAGS_b)
+            cout << "\nBigRLab: " << flush;
+
+        if (!readLine(line))
             break;
 
         if (line.empty())
@@ -327,12 +422,12 @@ void start_shell()
             CHECKED_INPUT(stream, cmd2)
             ServicePtr pSrv;
             if (!ServiceManager::getInstance()->getService(cmd2, pSrv)) {
-                cout << "No service " << cmd2 << " found!" << endl;
+                WRITE_LINE("No service " << cmd2 << " found!");
                 continue;
             } // if
             pSrv->handleCommand(stream);
         } else if ("quit" == cmd1) {
-            cout << "BigRLab shell terminated." << endl;
+            writeLine("BigRLab terminated.");
             return;
         } else {
             auto it = cmdTable.find(cmd1);
@@ -345,16 +440,28 @@ void start_shell()
 
 #undef INVALID_CMD
 #undef CHECKED_INPUT
+#undef WRITE_LINE
 
-    cout << "BigRLab shell terminated." << endl;
+    cout << "BigRLab terminated." << endl;
 }
 
 
 int main( int argc, char **argv )
 {
+    int retval = 0;
+
     try {
         google::InitGoogleLogging(argv[0]);
         gflags::ParseCommandLineFlags(&argc, &argv, true);
+
+        // log_dir 是glog定义变量
+        if (FLAGS_log_dir.empty() && FLAGS_b)
+            FLAGS_log_dir = ".";
+        // if (!FLAGS_log_dir.empty()) {
+            // google::SetLogDestination(google::GLOG_INFO, FLAGS_log_dir.c_str());
+            // google::SetLogDestination(google::GLOG_WARNING, FLAGS_log_dir.c_str());
+            // google::SetLogDestination(google::GLOG_ERROR, FLAGS_log_dir.c_str());
+        // } // if
 
         // Test::test1(argc, argv);
         // Test::test();
@@ -379,9 +486,9 @@ int main( int argc, char **argv )
 
     } catch ( const std::exception &ex ) {
         cerr << "Exception caught by main: " << ex.what() << endl;
-        exit(-1);
+        retval = -1;
     } // try
 
-    return 0;
+    return retval;
 }
 
