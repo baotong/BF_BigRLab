@@ -395,35 +395,3 @@ std::string KnnService::toString() const
     return stream.str();
 }
 
-
-/*
- * bool KnnService::init( int argc, char **argv )
- * {
- *     using namespace std;
- * 
- *     if (argc < 2)
- *         ERR_RET_VAL(false, "KnnService::init() invalid arguments!");
- * 
- *     typedef std::map<std::string, std::string>  ArgTable;
- *     ArgTable args;
- * 
- *     for (int i = 1; i < argc; ++i) {
- *         char *pValue = strchr(argv[i], '=');
- *         if (!pValue)
- *             ERR_RET_VAL(false, "KnnService::init() invalid argument: " << argv[i]);
- *         *pValue++ = 0;
- *         if (!(*pValue))
- *             ERR_RET_VAL(false, "KnnService::init() invalid argument: " << argv[i]);
- *         args.insert( ArgTable::value_type(argv[i], pValue) );
- *     } // for
- * 
- *     auto it = args.find("name");
- *     if (it == args.end())
- *         ERR_RET_VAL(false, "KnnService::init() fail! service name not specified");
- * 
- *     setName( it->second );
- * 
- *     return true;
- * }
- */
-

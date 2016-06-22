@@ -2,7 +2,7 @@
  * BUILD:
  * GLOG_logtostderr=1 ./wordknn.bin -build -idata vec3.txt -nfields 200 -ntrees 10 -idx index.ann -wt words_table.txt
  * LOAD & Start Server
- * GLOG_logtostderr=1 ./wordknn.bin -nfields 200 -idx index.ann -wt words_table.txt -algname knn_star -algmgr localhost:9001 -svraddr 192.168.210.129:10080
+ * GLOG_logtostderr=1 ./wordknn.bin -nfields 200 -idx index.ann -wt words_table.txt -algname knn_star -algmgr localhost:9001 -port 10080
  */
 #include "rpc_module.h"
 #include "AlgMgrService.h"
@@ -18,6 +18,7 @@
 #include <boost/range/combine.hpp>
 #include <boost/asio.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 #include <json/json.h>
@@ -46,7 +47,8 @@ DEFINE_string(wt, "", "filename to save words table.");
 // args for server
 DEFINE_string(algname, "", "Name of this algorithm");
 DEFINE_string(algmgr, "", "Address algorithm server manager, in form of addr:port");
-DEFINE_string(svraddr, "", "Address of this RPC algorithm server, in form of addr:port");
+DEFINE_string(addr, "", "Address of this algorithm server, use system detected if not specified.");
+DEFINE_int32(port, 0, "listen port of ths algorithm server.");
 DEFINE_int32(n_work_threads, 10, "Number of work threads on RPC server");
 DEFINE_int32(n_io_threads, 4, "Number of io threads on RPC server");
 
@@ -151,48 +153,60 @@ bool validate_algmgr(const char* flagname, const std::string &value)
 }
 static const bool algmgr_dummy = gflags::RegisterFlagValidator(&FLAGS_algmgr, &validate_algmgr);
 
-static 
-bool validate_svraddr(const char* flagname, const std::string &value) 
+static
+bool validate_port(const char *flagname, gflags::int32 value)
 {
-    using namespace std;
-
-    if (FLAGS_build)
-        return true;
-
-    if (!check_not_empty(flagname, value))
-        return false;
-
-    string::size_type pos = value.find_last_of(':');
-    if (string::npos == pos) {
-        cerr << "Invalid addr format specified by arg " << flagname << endl;
+    if (value < 1024 || value > 65535) {
+        cerr << "Invalid port number! port number must be in [1025, 65535]" << endl;
         return false;
     } // if
-
-    g_strThisAddr = value.substr(0, pos);
-    if (g_strThisAddr.empty()) {
-        cerr << "Invalid addr format specified by arg " << flagname << endl;
-        return false;
-    } // if
-
-    string strPort = value.substr(pos + 1, string::npos);
-    if (strPort.empty()) {
-        cerr << "Invalid addr format specified by arg " << flagname << endl;
-        return false;
-    } // if
-
-    if (!boost::conversion::try_lexical_convert(strPort, g_nThisPort)) {
-        cerr << "Invalid addr format specified by arg " << flagname << endl;
-        return false;
-    } // if
-
-    if (!g_nThisPort) {
-        cerr << "Invalid port number specified by arg " << flagname << endl;
-        return false;
-    } // if
-
+    g_nThisPort = (uint16_t)FLAGS_port;
     return true;
 }
-static const bool svraddr_dummy = gflags::RegisterFlagValidator(&FLAGS_svraddr, &validate_svraddr);
+static const bool port_dummy = gflags::RegisterFlagValidator(&FLAGS_port, &validate_port);
+
+// static 
+// bool validate_svraddr(const char* flagname, const std::string &value) 
+// {
+    // using namespace std;
+
+    // if (FLAGS_build)
+        // return true;
+
+    // if (!check_not_empty(flagname, value))
+        // return false;
+
+    // string::size_type pos = value.find_last_of(':');
+    // if (string::npos == pos) {
+        // cerr << "Invalid addr format specified by arg " << flagname << endl;
+        // return false;
+    // } // if
+
+    // g_strThisAddr = value.substr(0, pos);
+    // if (g_strThisAddr.empty()) {
+        // cerr << "Invalid addr format specified by arg " << flagname << endl;
+        // return false;
+    // } // if
+
+    // string strPort = value.substr(pos + 1, string::npos);
+    // if (strPort.empty()) {
+        // cerr << "Invalid addr format specified by arg " << flagname << endl;
+        // return false;
+    // } // if
+
+    // if (!boost::conversion::try_lexical_convert(strPort, g_nThisPort)) {
+        // cerr << "Invalid addr format specified by arg " << flagname << endl;
+        // return false;
+    // } // if
+
+    // if (!g_nThisPort) {
+        // cerr << "Invalid port number specified by arg " << flagname << endl;
+        // return false;
+    // } // if
+
+    // return true;
+// }
+// static const bool svraddr_dummy = gflags::RegisterFlagValidator(&FLAGS_svraddr, &validate_svraddr);
 
 static 
 bool validate_n_work_threads(const char* flagname, gflags::int32 value) 
@@ -391,61 +405,72 @@ void stop_client()
 }
 
 static
-bool get_local_ip( std::string &result )
+void get_local_ip()
 {
-    using namespace boost::asio::ip;
+    using boost::asio::ip::tcp;
+    using boost::asio::ip::address;
+    using namespace std;
 
-    try {
-        boost::asio::io_service netService;
-        boost::asio::io_service::work work(netService);
-        
-        std::thread ioThr( [&]{ netService.run(); } );
-        ioThr.detach(); // 必须 detach, 否则当无网络连接时 core dump
+class IpQuery {
+    typedef tcp::socket::endpoint_type  endpoint_type;
+public:
+    IpQuery( boost::asio::io_service& io_service,
+             const std::string &svrAddr )
+            : socket_(io_service)
+    {
+        std::string server = boost::replace_first_copy(svrAddr, "localhost", "127.0.0.1");
 
-        udp::resolver   resolver(netService);
-        udp::resolver::query query(udp::v4(), "www.baidu.com", "");
-        udp::resolver::iterator endpoints = resolver.resolve(query);
-        udp::endpoint ep = *endpoints;
-        udp::socket socket(netService);
-        socket.connect(ep);
-        boost::asio::ip::address addr = socket.local_endpoint().address();
-        result = std::move( addr.to_string() );
+        string::size_type pos = server.find(':');
+        if (string::npos == pos)
+            THROW_RUNTIME_ERROR( server << " is not a valid address, must in format ip:addr" );
 
-        netService.stop();
+        uint16_t port = 0;
+        if (!boost::conversion::try_lexical_convert(server.substr(pos+1), port) || !port)
+            THROW_RUNTIME_ERROR("Invalid port number!");
 
-        return true;
-    } catch (const std::exception& e) {
-        std::cerr << "get_local_ip() error, Exception: " << e.what() << std::endl;
-    } // try
+        endpoint_type ep( address::from_string(server.substr(0, pos)), port );
+        socket_.async_connect(ep, std::bind(&IpQuery::handle_connect,
+                    this, std::placeholders::_1));
+    }
 
-    return false;
+private:
+    //!! NOTE!!! 实际应用中，回调函数往往不在main线程中执行，所以都要放在 try...catch... 中
+    void handle_connect(const boost::system::error_code& error)
+    {
+        if( error )
+            THROW_RUNTIME_ERROR("fail to connect to " << socket_.remote_endpoint() << " error: " << error);
+        g_strThisAddr = socket_.local_endpoint().address().to_string();
+    }
+
+private:
+    tcp::socket     socket_;
+};
+
+    // start routine
+    cout << "Trying to get local ip addr..." << endl;
+    boost::asio::io_service io_service;
+    IpQuery query(io_service, FLAGS_algmgr);
+    io_service.run();
 }
-
 
 static
 void start_rpc_service()
 {
     using namespace std;
 
-    // fill svrinfo
-    // string addr, line;
-    // if (get_local_ip(addr)) {
-        // if (addr != g_strThisAddr) {
-            // cout << "The local addr you provided is " << g_strThisAddr 
-                // << " which differs with that system detected " << addr
-                // << " Do you want to use the system detected addr? (y/n)y?" << endl;
-            // getline(cin, line);
-            // if (!line.empty() && tolower(line[0]) == 'n' )
-                // addr = g_strThisAddr;
-        // } // if
-    // } else {
-        // addr = g_strThisAddr;
-    // } // if
+    cout << "Trying to start rpc service..." << endl;
 
-    addr = g_strThisAddr;
+    try {
+        get_local_ip();
+    } catch (const std::exception &ex) {
+        LOG(ERROR) << "get_local_ip() fail! " << ex.what();
+        exit(-1);
+    } // try
+
+    cout << "Detected local ip is " << g_strThisAddr << endl;
 
     g_pSvrInfo = boost::make_shared<BigRLab::AlgSvrInfo>();
-    g_pSvrInfo->addr = addr;
+    g_pSvrInfo->addr = g_strThisAddr;
     g_pSvrInfo->port = (int16_t)g_nThisPort;
     g_pSvrInfo->maxConcurrency = FLAGS_n_work_threads;
     g_pSvrInfo->serviceName = SERVICE_LIB_NAME;
