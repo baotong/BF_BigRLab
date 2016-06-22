@@ -93,6 +93,16 @@ protected:
 typedef boost::shared_ptr<Service>    ServicePtr;
 
 
+// function declaration
+extern void writeLine(const std::string &msg);
+
+#define WRITE_LINE(args) \
+    do { \
+        stringstream __write_line_stream; \
+        __write_line_stream << args << flush; \
+        writeLine( __write_line_stream.str() ); \
+    } while (0)
+
 } // namespace BigRLab
 
 

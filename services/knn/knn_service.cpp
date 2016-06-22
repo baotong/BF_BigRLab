@@ -210,21 +210,27 @@ void KnnService::handleCommand( std::stringstream &stream )
 {
     using namespace std;
 
+    stringstream ostream;
     string cmd;
     stream >> cmd;
 
-    if (cmd.empty())
-        ERR_RET("Service " << name() << ": command cannot be empty!");
+    if (cmd.empty()) {
+        WRITE_LINE("Service " << name() << ": command cannot be empty!");
+        return;
+    } // if
 
     auto do_with_items = [&] {
         int k;
         stream >> k;
-        if (bad_stream(stream))
-            ERR_RET("Service " << name() << ": read k value fail!");
+        if (bad_stream(stream)) {
+            WRITE_LINE("Service " << name() << ": read k value fail!");
+            return;
+        } // if
 
-        COND_RET( k <= 0, "Service " << name() << " handleCommand(): Invalid k value" );
-
-        // LOG(INFO) << "k = " << k;
+        if (k <= 0) {
+            WRITE_LINE("Service " << name() << " handleCommand(): Invalid k value");
+            return;
+        } // if
 
         QuerySet                     querySet;
         string                       item;
@@ -241,43 +247,55 @@ void KnnService::handleCommand( std::stringstream &stream )
             getWorkMgr()->addWork( pQueryWork );
         } // while
 
-        if (querySet.empty())
-            ERR_RET("Service " << name() << ": item list cannot be empty!");
+        if (querySet.empty()) {
+            WRITE_LINE("Service " << name() << ": item list cannot be empty!");
+            return;
+        } // if
 
         boost::unique_lock<boost::mutex> lock(mtx);
         if (!cond.wait_for( lock, boost::chrono::milliseconds(2 * TIMEOUT), 
                     [&]()->bool {return counter >= querySet.size();} )) {
-            cout << "Wait timeout, " << " result may be incomplete." << endl;
+            ostream << "Wait timeout, " << " result may be incomplete." << endl;
         } // if
 
         // print the result
         for (const auto &v : querySet) {
-            cout << "Query results for item \"" << v.first << "\":" << endl;
+            ostream << "Query results for item \"" << v.first << "\":" << endl;
             for (const auto &sub : v.second)
-                cout << sub.item << "\t\t" << sub.weight << endl;
+                ostream << sub.item << "\t\t" << sub.weight << endl;
         } // for
-        cout << endl;
     };
 
     auto do_with_file = [&] {
         int k;
         stream >> k;
-        if (bad_stream(stream))
-            ERR_RET("Service " << name() << ": read k value fail!");
+        if (bad_stream(stream)) {
+            WRITE_LINE("Service " << name() << ": read k value fail!");
+            return;
+        } // if
 
-        COND_RET( k <= 0, "Service " << name() << " handleCommand(): Invalid k value" );
+        if (k <= 0) {
+            WRITE_LINE("Service " << name() << " handleCommand(): Invalid k value");
+            return;
+        } // if
 
         string inFilename, outFilename;
         stream >> inFilename >> outFilename;
-        if (bad_stream(stream))
-            ERR_RET("Service " << name() << ": cannot read file names for input and output!");
+        if (bad_stream(stream)) {
+            WRITE_LINE("Service " << name() << ": cannot read file names for input and output!");
+            return;
+        } // if
 
         ifstream ifs(inFilename, ios::in);
-        if (!ifs)
-            ERR_RET("Service " << name() << ": cannot open file " << inFilename << " for reading!");
+        if (!ifs) {
+            WRITE_LINE("Service " << name() << ": cannot open file " << inFilename << " for reading!");
+            return;
+        } // if
         ofstream ofs(outFilename, ios::out);
-        if (!ofs)
-            ERR_RET("Service " << name() << ": cannot open file " << outFilename << " for writting!");
+        if (!ofs) {
+            WRITE_LINE("Service " << name() << ": cannot open file " << outFilename << " for writting!");
+            return;
+        } // if
 
         string                       item;
         atomic_size_t                counter;
@@ -297,7 +315,7 @@ void KnnService::handleCommand( std::stringstream &stream )
         boost::unique_lock<boost::mutex> lock(condMtx);
         if (!cond.wait_for( lock, boost::chrono::seconds(300), 
                     [&]()->bool {return counter >= itemCount;} )) {
-            cout << "Wait timeout, " << " result may be incomplete." << endl;
+            ostream << "Wait timeout, " << " result may be incomplete." << endl;
         } // if
     };
 
@@ -306,8 +324,10 @@ void KnnService::handleCommand( std::stringstream &stream )
     } else if ("file" == cmd) {
         do_with_file();
     } else {
-        cerr << "Invalid command!" << endl;
+        writeLine("Invalid command!");
     }// if
+
+    writeLine(ostream.str());
 }
 
 // 在apiserver的工作线程中执行

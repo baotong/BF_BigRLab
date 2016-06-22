@@ -123,6 +123,71 @@ namespace Test {
 
 } // namespace Test
 
+// for interprocess interact
+namespace BigRLab {
+
+using namespace boost::interprocess;
+using namespace std;
+
+struct shm_remover {
+    shm_remover() { shared_memory_object::remove(SHM_NAME); /* DLOG(INFO) << "shm_remover constructor"; */ }
+    ~shm_remover() { shared_memory_object::remove(SHM_NAME); /* DLOG(INFO) << "shm_remover destructor"; */ }
+};
+
+boost::shared_ptr<shm_remover>             pShmRemover;
+boost::shared_ptr<managed_shared_memory>   pShmSegment;
+boost::shared_ptr<StreamBuf>               pStreamBuf;
+boost::shared_ptr<bufferstream>            pStream;
+
+void init_shm()
+{
+    pShmRemover.reset( new shm_remover );
+    pShmSegment = boost::make_shared<managed_shared_memory>(create_only, SHM_NAME, SHARED_BUF_SIZE);
+    pStreamBuf.reset(pShmSegment->construct<StreamBuf>("StreamBuf")(),
+            [&](StreamBuf *p){ if (p) pShmSegment->destroy_ptr(p); });
+    pStream = boost::make_shared<bufferstream>(pStreamBuf->buf, SHARED_STREAM_BUF_SIZE);
+}
+
+void resetStream()
+{
+    pStream->clear();
+    pStream->seekg(0, std::ios::beg);
+    pStream->seekp(0, std::ios::beg);
+}
+
+bool readLine(string &line)
+{
+    bool ret = false;
+    if (FLAGS_b) {
+        resetStream();
+        scoped_lock<interprocess_mutex> lk(pStreamBuf->mtx);
+        // read msg from client
+        pStreamBuf->condReq.wait( lk, [&]{return pStreamBuf->reqReady;} );
+        ret = getline(*pStream, line);
+        pStreamBuf->reqReady = false;
+    } else {
+        ret = getline(cin, line);
+    } // if
+    return ret;
+}
+
+void writeLine(const string &msg)
+{
+    if (FLAGS_b) {
+        pStreamBuf->clear();
+        resetStream();
+        scoped_lock<interprocess_mutex> lk(pStreamBuf->mtx);
+        *pStream << msg << endl << flush;
+        pStreamBuf->respReady = true;
+        lk.unlock();
+        pStreamBuf->condResp.notify_all();
+    } else {
+        cout << msg << endl;
+    } // if
+}
+
+} // namespace BigRLab
+
 static
 void init()
 {
@@ -144,6 +209,9 @@ void init()
             nWorkQueLen = 30000;
     } // if
     g_pWorkMgr.reset(new WorkManager(g_pApiServer->nWorkThreads(), nWorkQueLen) );
+
+    if (FLAGS_b)
+        BigRLab::init_shm();
 
     cout << g_pApiServer->toString() << endl;
 }
@@ -185,75 +253,7 @@ static
 void start_shell()
 {
     using namespace std;
-    using namespace boost::interprocess;
-
-    struct shm_remover {
-        shm_remover() { shared_memory_object::remove(SHM_NAME); /* DLOG(INFO) << "shm_remover constructor"; */ }
-        ~shm_remover() { shared_memory_object::remove(SHM_NAME); /* DLOG(INFO) << "shm_remover destructor"; */ }
-    };
-
-    boost::shared_ptr<shm_remover>             pShmRemover;
-    boost::shared_ptr<managed_shared_memory>   pShmSegment;
-    boost::shared_ptr<StreamBuf>               pStreamBuf;
-    boost::shared_ptr<bufferstream>            pStream;
-
-    if (FLAGS_b) {
-        pShmRemover.reset( new shm_remover );
-        pShmSegment = boost::make_shared<managed_shared_memory>(create_only, SHM_NAME, SHARED_BUF_SIZE);
-        pStreamBuf.reset(pShmSegment->construct<StreamBuf>("StreamBuf")(),
-                    [&](StreamBuf *p){ if (p) pShmSegment->destroy_ptr(p); });
-        pStream = boost::make_shared<bufferstream>(pStreamBuf->buf, SHARED_STREAM_BUF_SIZE);
-    } // if
-
-    // auto cleanup = [&] {
-        // pStream.reset();
-        // pStreamBuf.reset();
-        // pShmSegment.reset();
-        // pShmRemover.reset();
-    // };
-
-    auto resetStream = [&] {
-        pStream->clear();
-        pStream->seekg(0, std::ios::beg);
-        pStream->seekp(0, std::ios::beg);
-    };
-
-    auto readLine = [&](string &line)->bool {
-        bool ret = false;
-        if (FLAGS_b) {
-            resetStream();
-            scoped_lock<interprocess_mutex> lk(pStreamBuf->mtx);
-            // read msg from client
-            pStreamBuf->condReq.wait( lk, [&]{return pStreamBuf->reqReady;} );
-            ret = getline(*pStream, line);
-            pStreamBuf->reqReady = false;
-        } else {
-            ret = getline(cin, line);
-        } // if
-        return ret;
-    };
-
-    auto writeLine = [&](const string &msg) {
-        if (FLAGS_b) {
-            pStreamBuf->clear();
-            resetStream();
-            scoped_lock<interprocess_mutex> lk(pStreamBuf->mtx);
-            *pStream << msg << endl << flush;
-            pStreamBuf->respReady = true;
-            lk.unlock();
-            pStreamBuf->condResp.notify_all();
-        } else {
-            cout << msg << endl;
-        } // if
-    };
-
-#define WRITE_LINE(args) \
-    do { \
-        stringstream __write_line_stream; \
-        __write_line_stream << args << flush; \
-        writeLine( __write_line_stream.str() ); \
-    } while (0)
-
+    using namespace BigRLab;
 
     auto autorun = [] {
         ifstream ifs("autoload.conf", ios::in);
@@ -443,7 +443,6 @@ void start_shell()
 
 #undef INVALID_CMD
 #undef CHECKED_INPUT
-#undef WRITE_LINE
 
     cout << "BigRLab terminated." << endl;
 }
