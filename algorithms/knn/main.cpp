@@ -165,49 +165,6 @@ bool validate_port(const char *flagname, gflags::int32 value)
 }
 static const bool port_dummy = gflags::RegisterFlagValidator(&FLAGS_port, &validate_port);
 
-// static 
-// bool validate_svraddr(const char* flagname, const std::string &value) 
-// {
-    // using namespace std;
-
-    // if (FLAGS_build)
-        // return true;
-
-    // if (!check_not_empty(flagname, value))
-        // return false;
-
-    // string::size_type pos = value.find_last_of(':');
-    // if (string::npos == pos) {
-        // cerr << "Invalid addr format specified by arg " << flagname << endl;
-        // return false;
-    // } // if
-
-    // g_strThisAddr = value.substr(0, pos);
-    // if (g_strThisAddr.empty()) {
-        // cerr << "Invalid addr format specified by arg " << flagname << endl;
-        // return false;
-    // } // if
-
-    // string strPort = value.substr(pos + 1, string::npos);
-    // if (strPort.empty()) {
-        // cerr << "Invalid addr format specified by arg " << flagname << endl;
-        // return false;
-    // } // if
-
-    // if (!boost::conversion::try_lexical_convert(strPort, g_nThisPort)) {
-        // cerr << "Invalid addr format specified by arg " << flagname << endl;
-        // return false;
-    // } // if
-
-    // if (!g_nThisPort) {
-        // cerr << "Invalid port number specified by arg " << flagname << endl;
-        // return false;
-    // } // if
-
-    // return true;
-// }
-// static const bool svraddr_dummy = gflags::RegisterFlagValidator(&FLAGS_svraddr, &validate_svraddr);
-
 static 
 bool validate_n_work_threads(const char* flagname, gflags::int32 value) 
 {
@@ -434,7 +391,6 @@ public:
     }
 
 private:
-    //!! NOTE!!! 实际应用中，回调函数往往不在main线程中执行，所以都要放在 try...catch... 中
     void handle_connect(const boost::system::error_code& error)
     {
         if( error )

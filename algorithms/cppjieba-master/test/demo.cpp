@@ -17,12 +17,16 @@
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 
-#define SERVICE_LIB_NAME        "wordseg"
+#define SLEEP_MILLISECONDS(x) std::this_thread::sleep_for(std::chrono::milliseconds(x))
+#define SLEEP_SECONDS(x)      std::this_thread::sleep_for(std::chrono::seconds(x))
 
-DEFINE_bool(service, true, "Whether this program run in service mode");
+#define SERVICE_LIB_NAME        "TODO"
+
+DEFINE_bool(service, false, "Whether this program run in service mode");
 DEFINE_string(algname, "", "Name of this algorithm");
 DEFINE_string(algmgr, "", "Address algorithm server manager, in form of addr:port");
-DEFINE_string(svraddr, "", "Address of this RPC algorithm server, in form of addr:port");
+DEFINE_string(addr, "", "Address of this algorithm server, use system detected if not specified.");
+DEFINE_int32(port, 0, "listen port of ths algorithm server.");
 DEFINE_int32(n_work_threads, 10, "Number of work threads on RPC server");
 DEFINE_int32(n_io_threads, 4, "Number of io threads on RPC server");
 
@@ -108,48 +112,19 @@ bool validate_algmgr(const char* flagname, const std::string &value)
 }
 static const bool algmgr_dummy = gflags::RegisterFlagValidator(&FLAGS_algmgr, &validate_algmgr);
 
-static 
-bool validate_svraddr(const char* flagname, const std::string &value) 
+static
+bool validate_port(const char *flagname, gflags::int32 value)
 {
-    using namespace std;
-
     if (!FLAGS_service)
         return true;
-
-    if (!check_not_empty(flagname, value))
-        return false;
-
-    string::size_type pos = value.find_last_of(':');
-    if (string::npos == pos) {
-        cerr << "Invalid addr format specified by arg " << flagname << endl;
+    if (value < 1024 || value > 65535) {
+        cerr << "Invalid port number! port number must be in [1025, 65535]" << endl;
         return false;
     } // if
-
-    g_strThisAddr = value.substr(0, pos);
-    if (g_strThisAddr.empty()) {
-        cerr << "Invalid addr format specified by arg " << flagname << endl;
-        return false;
-    } // if
-
-    string strPort = value.substr(pos + 1, string::npos);
-    if (strPort.empty()) {
-        cerr << "Invalid addr format specified by arg " << flagname << endl;
-        return false;
-    } // if
-
-    if (!boost::conversion::try_lexical_convert(strPort, g_nThisPort)) {
-        cerr << "Invalid addr format specified by arg " << flagname << endl;
-        return false;
-    } // if
-
-    if (!g_nThisPort) {
-        cerr << "Invalid port number specified by arg " << flagname << endl;
-        return false;
-    } // if
-
+    g_nThisPort = (uint16_t)FLAGS_port;
     return true;
 }
-static const bool svraddr_dummy = gflags::RegisterFlagValidator(&FLAGS_svraddr, &validate_svraddr);
+static const bool port_dummy = gflags::RegisterFlagValidator(&FLAGS_port, &validate_port);
 
 static 
 bool validate_n_work_threads(const char* flagname, gflags::int32 value) 
@@ -169,45 +144,55 @@ bool validate_n_io_threads(const char* flagname, gflags::int32 value)
 }
 static const bool n_io_threads_dummy = gflags::RegisterFlagValidator(&FLAGS_n_io_threads, &validate_n_io_threads);
 
-} // namespace
-
-
-namespace {
-
 static
-bool get_local_ip( std::string &result )
+void get_local_ip()
 {
-    using namespace boost::asio::ip;
+    using boost::asio::ip::tcp;
+    using boost::asio::ip::address;
+    using namespace std;
 
-    try {
-        boost::asio::io_service netService;
-        boost::asio::io_service::work work(netService);
-        
-        boost::thread ioThr( [&]{ netService.run(); } );
+class IpQuery {
+    typedef tcp::socket::endpoint_type  endpoint_type;
+public:
+    IpQuery( boost::asio::io_service& io_service,
+             const std::string &svrAddr )
+            : socket_(io_service)
+    {
+        std::string server = boost::replace_first_copy(svrAddr, "localhost", "127.0.0.1");
 
-        udp::resolver   resolver(netService);
-        udp::resolver::query query(udp::v4(), "www.baidu.com", "");
-        udp::resolver::iterator endpoints = resolver.resolve(query);
-        udp::endpoint ep = *endpoints;
-        udp::socket socket(netService);
-        socket.connect(ep);
-        boost::asio::ip::address addr = socket.local_endpoint().address();
-        result = std::move( addr.to_string() );
+        string::size_type pos = server.find(':');
+        if (string::npos == pos)
+            THROW_RUNTIME_ERROR( server << " is not a valid address, must in format ip:addr" );
 
-        netService.stop();
-        ioThr.join();
+        uint16_t port = 0;
+        if (!boost::conversion::try_lexical_convert(server.substr(pos+1), port) || !port)
+            THROW_RUNTIME_ERROR("Invalid port number!");
 
-        return true;
-    } catch (const std::exception& e) {
-        std::cerr << "get_local_ip() error, Exception: " << e.what() << std::endl;
-    } // try
+        endpoint_type ep( address::from_string(server.substr(0, pos)), port );
+        socket_.async_connect(ep, std::bind(&IpQuery::handle_connect,
+                    this, std::placeholders::_1));
+    }
 
-    return false;
+private:
+    void handle_connect(const boost::system::error_code& error)
+    {
+        if( error )
+            THROW_RUNTIME_ERROR("fail to connect to " << socket_.remote_endpoint() << " error: " << error);
+        g_strThisAddr = socket_.local_endpoint().address().to_string();
+    }
+
+private:
+    tcp::socket     socket_;
+};
+
+    // start routine
+    cout << "Trying to get local ip addr..." << endl;
+    boost::asio::io_service io_service;
+    IpQuery query(io_service, FLAGS_algmgr);
+    io_service.run();
 }
 
 } // namespace
-
-
 
 
 
