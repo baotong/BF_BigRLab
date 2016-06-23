@@ -9,8 +9,9 @@ ALG_KNN_DIR = ../../algorithms/knn
 SRC = $(shell find . -type f -name '*.cpp')
 SRC += $(shell find $(API_SERVER_DIR)/gen-cpp -type f -name '*.cpp')
 SRC += $(shell find $(ALG_KNN_DIR)/gen-cpp -type f -name '*.cpp')
+# SRC += $(API_SERVER_DIR)/stream_buf.cpp
 INCLUDE = -I$(COMM_DIR) -I$(API_SERVER_DIR) -I$(API_SERVER_DIR)/gen-cpp -I$(ALG_KNN_DIR)/gen-cpp
-FLAGS = -std=c++11 -fPIC -shared -O3 
+FLAGS = -std=c++11 -pthread -fPIC -shared -O3 
 
 knn_service.so:
 	$(CC) -o $@ $(SRC) $(INCLUDE) $(LIBS) $(FLAGS)

@@ -18,12 +18,24 @@
 #include "api_server.h"
 #include "service_manager.h"
 #include "alg_mgr.h"
-#include "stream_buf.h"
+#include "shm_writer.h"
 #include <fstream>
 #include <iomanip>
-#include <boost/interprocess/managed_shared_memory.hpp>
-#include <boost/interprocess/streams/bufferstream.hpp>
 #include <gflags/gflags.h>
+#include <boost/algorithm/string.hpp>
+
+namespace BigRLab {
+
+class ConsoleWriter : public Writer {
+public:  
+    virtual bool readLine( std::string &line )
+    { return std::getline(std::cin, line); }
+
+    virtual void writeLine( const std::string &msg )
+    { std::cout << boost::trim_copy(msg) << std::endl; }
+};
+
+} // namespace BigRLab
 
 using namespace BigRLab;
 using namespace std;
@@ -39,7 +51,6 @@ DEFINE_int32(n_io_threads, 5, "Number of io threads on API server");
 DEFINE_int32(port, 9000, "API server port");
 DEFINE_int32(alg_mgr_port, 9001, "Algorithm manager server port");
 DEFINE_bool(b, false, "Run apiserver in background");
-// DEFINE_string(log_dir, "", "Sepcify dir to keep the log.");
 
 namespace {
 
@@ -123,71 +134,6 @@ namespace Test {
 
 } // namespace Test
 
-// for interprocess interact
-namespace BigRLab {
-
-using namespace boost::interprocess;
-using namespace std;
-
-struct shm_remover {
-    shm_remover() { shared_memory_object::remove(SHM_NAME); /* DLOG(INFO) << "shm_remover constructor"; */ }
-    ~shm_remover() { shared_memory_object::remove(SHM_NAME); /* DLOG(INFO) << "shm_remover destructor"; */ }
-};
-
-boost::shared_ptr<shm_remover>             pShmRemover;
-boost::shared_ptr<managed_shared_memory>   pShmSegment;
-boost::shared_ptr<StreamBuf>               pStreamBuf;
-boost::shared_ptr<bufferstream>            pStream;
-
-void init_shm()
-{
-    pShmRemover.reset( new shm_remover );
-    pShmSegment = boost::make_shared<managed_shared_memory>(create_only, SHM_NAME, SHARED_BUF_SIZE);
-    pStreamBuf.reset(pShmSegment->construct<StreamBuf>("StreamBuf")(),
-            [&](StreamBuf *p){ if (p) pShmSegment->destroy_ptr(p); });
-    pStream = boost::make_shared<bufferstream>(pStreamBuf->buf, SHARED_STREAM_BUF_SIZE);
-}
-
-void resetStream()
-{
-    pStream->clear();
-    pStream->seekg(0, std::ios::beg);
-    pStream->seekp(0, std::ios::beg);
-}
-
-bool readLine(string &line)
-{
-    bool ret = false;
-    if (FLAGS_b) {
-        resetStream();
-        scoped_lock<interprocess_mutex> lk(pStreamBuf->mtx);
-        // read msg from client
-        pStreamBuf->condReq.wait( lk, [&]{return pStreamBuf->reqReady;} );
-        ret = getline(*pStream, line);
-        pStreamBuf->reqReady = false;
-    } else {
-        ret = getline(cin, line);
-    } // if
-    return ret;
-}
-
-void writeLine(const string &msg)
-{
-    if (FLAGS_b) {
-        pStreamBuf->clear();
-        resetStream();
-        scoped_lock<interprocess_mutex> lk(pStreamBuf->mtx);
-        *pStream << msg << endl << flush;
-        pStreamBuf->respReady = true;
-        lk.unlock();
-        pStreamBuf->condResp.notify_all();
-    } else {
-        cout << msg << endl;
-    } // if
-}
-
-} // namespace BigRLab
-
 static
 void init()
 {
@@ -211,7 +157,9 @@ void init()
     g_pWorkMgr.reset(new WorkManager(g_pApiServer->nWorkThreads(), nWorkQueLen) );
 
     if (FLAGS_b)
-        BigRLab::init_shm();
+        g_pWriter.reset( new ShmWriter );
+    else
+        g_pWriter.reset( new ConsoleWriter );
 
     cout << g_pApiServer->toString() << endl;
 }
@@ -253,7 +201,8 @@ static
 void start_shell()
 {
     using namespace std;
-    using namespace BigRLab;
+
+#define readLine(arg)  g_pWriter->readLine(arg)
 
     auto autorun = [] {
         ifstream ifs("autoload.conf", ios::in);
@@ -279,14 +228,14 @@ void start_shell()
         string path;
         stream >> path;
         if (bad_stream(stream)) {
-            writeLine("Usage: loadlib path");
+            WRITE_LINE("Usage: loadlib path");
             return false;
         } // if
 
         try {
             ServiceManager::getInstance()->loadServiceLib(path);
         } catch (const std::exception &ex) {
-            writeLine(ex.what());
+            WRITE_LINE(ex.what());
         } // try
 
         return true;
@@ -304,7 +253,7 @@ void start_shell()
     // };
     
     auto greet = [&](stringstream &stream)->bool {
-        writeLine("BigRLab APIServer is running...");
+        WRITE_LINE("BigRLab APIServer is running...");
         return true;
     };
 
@@ -318,7 +267,7 @@ void start_shell()
 
         lock.unlock();
         outStream.flush();
-        writeLine(outStream.str());
+        WRITE_LINE(outStream.str());
         return true;
     };
 
@@ -352,14 +301,14 @@ void start_shell()
         } // if
 
         outStream.flush();
-        writeLine(outStream.str());
+        WRITE_LINE(outStream.str());
         return true;
     };
 
     auto save = [&](stringstream &stream)->bool {
         ofstream ofs("autoload.conf", ios::out);
         if (!ofs) {
-            writeLine("Cannot open autorun.conf for writting!");
+            WRITE_LINE("Cannot open autorun.conf for writting!");
             return false;
         } // if
 
@@ -382,7 +331,7 @@ void start_shell()
     cout << "BigRLab shell launched." << endl;
 
 #define INVALID_CMD { \
-        writeLine("Invalid command!"); \
+        WRITE_LINE("Invalid command!"); \
         continue; }
 
 #define CHECKED_INPUT(stream, val) { \
@@ -430,7 +379,7 @@ void start_shell()
             } // if
             pSrv->handleCommand(stream);
         } else if ("quit" == cmd1) {
-            writeLine("BigRLab terminated.");
+            WRITE_LINE("BigRLab terminated.");
             return;
         } else {
             auto it = cmdTable.find(cmd1);
@@ -443,6 +392,7 @@ void start_shell()
 
 #undef INVALID_CMD
 #undef CHECKED_INPUT
+#undef readLine
 
     cout << "BigRLab terminated." << endl;
 }

@@ -65,7 +65,7 @@ void ServiceManager::ServiceLib::loadLib()
 ServiceManager::ServiceLib::~ServiceLib()
 {
     if (pHandle) {
-        DLOG(INFO) << "Closing handle for lib " << path;
+        // DLOG(INFO) << "Closing handle for lib " << path;
         dlclose(pHandle);
         pHandle = NULL;
     } // if

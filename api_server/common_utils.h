@@ -56,6 +56,13 @@
         if (cond) ERR_RET_VAL(val, args); \
     } while (0)
 
+#define WRITE_LINE(args) \
+    do { \
+        stringstream __write_line_stream; \
+        __write_line_stream << args << flush; \
+        g_pWriter->writeLine( __write_line_stream.str() ); \
+    } while (0)
+
 namespace BigRLab {
 
 template < typename T >
@@ -193,6 +200,15 @@ template< typename StreamType >
 bool bad_stream( const StreamType &stream )
 { return (stream.fail() || stream.bad()); }
 
+class Writer {
+public:
+    typedef boost::shared_ptr<Writer> pointer;
+public:    
+    virtual bool readLine(std::string &line) = 0;
+    virtual void writeLine(const std::string &msg) = 0;
+};
+
+extern Writer::pointer      g_pWriter;
 
 } // namespace BigRLab
 

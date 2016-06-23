@@ -24,6 +24,8 @@ namespace Test {
 
 namespace BigRLab {
 
+Writer::pointer              g_pWriter;
+
 boost::shared_ptr<APIServer> g_pApiServer;
 uint16_t                     g_nApiSvrPort = 0;
 

@@ -47,10 +47,16 @@ public:
     ServerTable& servers()
     { return m_mapServers; }
 
+    // .so 动态加载，虽然有g_pWriter等符号，但这些对.so来说都是未初始化的。
+    // 虽然在加载之前主程序里已经初始化，所以要用这种方式把初始化后的传给.so
     void setWorkMgr( const WorkManager::Pointer &_Ptr )
     { m_pWorkMgr = _Ptr; }
     WorkManager::Pointer getWorkMgr() const
     { return m_pWorkMgr; }
+    void setWriter( const Writer::pointer &_Ptr )
+    { m_pWriter = _Ptr; }
+    Writer::pointer getWriter() const
+    { return m_pWriter; }
 
     virtual std::size_t addServer( const AlgSvrInfo& svrInfo,
                             const ServerAttr::Pointer &p = ServerAttr::Pointer() )
@@ -87,21 +93,12 @@ public:
 protected:
     std::string                 m_strName;
     WorkManager::Pointer        m_pWorkMgr;
+    Writer::pointer             m_pWriter;
     ServerTable                 m_mapServers;
 };
 
 typedef boost::shared_ptr<Service>    ServicePtr;
 
-
-// function declaration
-extern void writeLine(const std::string &msg);
-
-#define WRITE_LINE(args) \
-    do { \
-        stringstream __write_line_stream; \
-        __write_line_stream << args << flush; \
-        writeLine( __write_line_stream.str() ); \
-    } while (0)
 
 } // namespace BigRLab
 

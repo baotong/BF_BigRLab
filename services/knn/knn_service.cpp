@@ -210,12 +210,19 @@ void KnnService::handleCommand( std::stringstream &stream )
 {
     using namespace std;
 
+#define MY_WRITE_LINE(args) \
+    do { \
+        stringstream __write_line_stream; \
+        __write_line_stream << args << flush; \
+        getWriter()->writeLine(__write_line_stream.str()); \
+    } while (0)
+
     stringstream ostream;
     string cmd;
     stream >> cmd;
 
     if (cmd.empty()) {
-        WRITE_LINE("Service " << name() << ": command cannot be empty!");
+        MY_WRITE_LINE("Service " << name() << ": command cannot be empty!");
         return;
     } // if
 
@@ -223,12 +230,12 @@ void KnnService::handleCommand( std::stringstream &stream )
         int k;
         stream >> k;
         if (bad_stream(stream)) {
-            WRITE_LINE("Service " << name() << ": read k value fail!");
+            MY_WRITE_LINE("Service " << name() << ": read k value fail!");
             return;
         } // if
 
         if (k <= 0) {
-            WRITE_LINE("Service " << name() << " handleCommand(): Invalid k value");
+            MY_WRITE_LINE("Service " << name() << " handleCommand(): Invalid k value");
             return;
         } // if
 
@@ -248,7 +255,7 @@ void KnnService::handleCommand( std::stringstream &stream )
         } // while
 
         if (querySet.empty()) {
-            WRITE_LINE("Service " << name() << ": item list cannot be empty!");
+            MY_WRITE_LINE("Service " << name() << ": item list cannot be empty!");
             return;
         } // if
 
@@ -270,30 +277,30 @@ void KnnService::handleCommand( std::stringstream &stream )
         int k;
         stream >> k;
         if (bad_stream(stream)) {
-            WRITE_LINE("Service " << name() << ": read k value fail!");
+            MY_WRITE_LINE("Service " << name() << ": read k value fail!");
             return;
         } // if
 
         if (k <= 0) {
-            WRITE_LINE("Service " << name() << " handleCommand(): Invalid k value");
+            MY_WRITE_LINE("Service " << name() << " handleCommand(): Invalid k value");
             return;
         } // if
 
         string inFilename, outFilename;
         stream >> inFilename >> outFilename;
         if (bad_stream(stream)) {
-            WRITE_LINE("Service " << name() << ": cannot read file names for input and output!");
+            MY_WRITE_LINE("Service " << name() << ": cannot read file names for input and output!");
             return;
         } // if
 
         ifstream ifs(inFilename, ios::in);
         if (!ifs) {
-            WRITE_LINE("Service " << name() << ": cannot open file " << inFilename << " for reading!");
+            MY_WRITE_LINE("Service " << name() << ": cannot open file " << inFilename << " for reading!");
             return;
         } // if
         ofstream ofs(outFilename, ios::out);
         if (!ofs) {
-            WRITE_LINE("Service " << name() << ": cannot open file " << outFilename << " for writting!");
+            MY_WRITE_LINE("Service " << name() << ": cannot open file " << outFilename << " for writting!");
             return;
         } // if
 
@@ -324,10 +331,12 @@ void KnnService::handleCommand( std::stringstream &stream )
     } else if ("file" == cmd) {
         do_with_file();
     } else {
-        writeLine("Invalid command!");
+        getWriter()->writeLine("Invalid command!");
     }// if
 
-    writeLine(ostream.str());
+    getWriter()->writeLine(ostream.str());
+
+#undef MY_WRITE_LINE
 }
 
 // 在apiserver的工作线程中执行
@@ -415,3 +424,10 @@ std::string KnnService::toString() const
     return stream.str();
 }
 
+
+
+int main()
+{
+    Service *p = create_instance("test");
+    return 0;
+}

@@ -28,6 +28,7 @@ public:
             if (pNewInstFn) {
                 ret.reset(pNewInstFn(name.c_str())); 
                 ret->setWorkMgr(g_pWorkMgr);
+                ret->setWriter(g_pWriter);
             } // if
             return ret;
         }

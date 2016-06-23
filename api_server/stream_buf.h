@@ -6,9 +6,10 @@
 #include <boost/interprocess/sync/interprocess_condition.hpp> 
 #include <boost/interprocess/sync/scoped_lock.hpp> 
 
+#define SHARED_BUF_SIZE          (1024*1024)
+#define SHARED_STREAM_BUF_SIZE   (SHARED_BUF_SIZE - 1024)
 #define SHM_NAME    "BigRLabShellBuffer"
-#define SHARED_BUF_SIZE          (512*1024)
-#define SHARED_STREAM_BUF_SIZE   (500*1024)
+
 
 // 不是stdin那样阻塞，应该看做是文件stream
 // 同步是必须的
@@ -25,7 +26,4 @@ struct StreamBuf {
     boost::interprocess::interprocess_condition  condReq, condResp;
 };
 
-
-
 #endif
-
