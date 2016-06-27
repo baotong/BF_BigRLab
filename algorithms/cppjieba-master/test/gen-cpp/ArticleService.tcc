@@ -4,16 +4,16 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
-#include "WordSegService.h"
-#ifndef WordSegService_TCC
-#define WordSegService_TCC
+#include "ArticleService.h"
+#ifndef ArticleService_TCC
+#define ArticleService_TCC
 
 
-namespace WordSeg {
+namespace Article {
 
 
 template <class Protocol_>
-uint32_t WordSegService_setFilter_args::read(Protocol_* iprot) {
+uint32_t ArticleService_setFilter_args::read(Protocol_* iprot) {
 
   apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -55,10 +55,10 @@ uint32_t WordSegService_setFilter_args::read(Protocol_* iprot) {
 }
 
 template <class Protocol_>
-uint32_t WordSegService_setFilter_args::write(Protocol_* oprot) const {
+uint32_t ArticleService_setFilter_args::write(Protocol_* oprot) const {
   uint32_t xfer = 0;
   apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
-  xfer += oprot->writeStructBegin("WordSegService_setFilter_args");
+  xfer += oprot->writeStructBegin("ArticleService_setFilter_args");
 
   xfer += oprot->writeFieldBegin("filter", ::apache::thrift::protocol::T_STRING, 1);
   xfer += oprot->writeString(this->filter);
@@ -71,10 +71,10 @@ uint32_t WordSegService_setFilter_args::write(Protocol_* oprot) const {
 
 
 template <class Protocol_>
-uint32_t WordSegService_setFilter_pargs::write(Protocol_* oprot) const {
+uint32_t ArticleService_setFilter_pargs::write(Protocol_* oprot) const {
   uint32_t xfer = 0;
   apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
-  xfer += oprot->writeStructBegin("WordSegService_setFilter_pargs");
+  xfer += oprot->writeStructBegin("ArticleService_setFilter_pargs");
 
   xfer += oprot->writeFieldBegin("filter", ::apache::thrift::protocol::T_STRING, 1);
   xfer += oprot->writeString((*(this->filter)));
@@ -87,7 +87,7 @@ uint32_t WordSegService_setFilter_pargs::write(Protocol_* oprot) const {
 
 
 template <class Protocol_>
-uint32_t WordSegService_setFilter_result::read(Protocol_* iprot) {
+uint32_t ArticleService_setFilter_result::read(Protocol_* iprot) {
 
   apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -116,11 +116,11 @@ uint32_t WordSegService_setFilter_result::read(Protocol_* iprot) {
 }
 
 template <class Protocol_>
-uint32_t WordSegService_setFilter_result::write(Protocol_* oprot) const {
+uint32_t ArticleService_setFilter_result::write(Protocol_* oprot) const {
 
   uint32_t xfer = 0;
 
-  xfer += oprot->writeStructBegin("WordSegService_setFilter_result");
+  xfer += oprot->writeStructBegin("ArticleService_setFilter_result");
 
   xfer += oprot->writeFieldStop();
   xfer += oprot->writeStructEnd();
@@ -129,7 +129,7 @@ uint32_t WordSegService_setFilter_result::write(Protocol_* oprot) const {
 
 
 template <class Protocol_>
-uint32_t WordSegService_setFilter_presult::read(Protocol_* iprot) {
+uint32_t ArticleService_setFilter_presult::read(Protocol_* iprot) {
 
   apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -159,7 +159,7 @@ uint32_t WordSegService_setFilter_presult::read(Protocol_* iprot) {
 
 
 template <class Protocol_>
-uint32_t WordSegService_tag_args::read(Protocol_* iprot) {
+uint32_t ArticleService_wordSegment_args::read(Protocol_* iprot) {
 
   apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -201,10 +201,10 @@ uint32_t WordSegService_tag_args::read(Protocol_* iprot) {
 }
 
 template <class Protocol_>
-uint32_t WordSegService_tag_args::write(Protocol_* oprot) const {
+uint32_t ArticleService_wordSegment_args::write(Protocol_* oprot) const {
   uint32_t xfer = 0;
   apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
-  xfer += oprot->writeStructBegin("WordSegService_tag_args");
+  xfer += oprot->writeStructBegin("ArticleService_wordSegment_args");
 
   xfer += oprot->writeFieldBegin("sentence", ::apache::thrift::protocol::T_STRING, 1);
   xfer += oprot->writeString(this->sentence);
@@ -217,10 +217,10 @@ uint32_t WordSegService_tag_args::write(Protocol_* oprot) const {
 
 
 template <class Protocol_>
-uint32_t WordSegService_tag_pargs::write(Protocol_* oprot) const {
+uint32_t ArticleService_wordSegment_pargs::write(Protocol_* oprot) const {
   uint32_t xfer = 0;
   apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
-  xfer += oprot->writeStructBegin("WordSegService_tag_pargs");
+  xfer += oprot->writeStructBegin("ArticleService_wordSegment_pargs");
 
   xfer += oprot->writeFieldBegin("sentence", ::apache::thrift::protocol::T_STRING, 1);
   xfer += oprot->writeString((*(this->sentence)));
@@ -233,7 +233,7 @@ uint32_t WordSegService_tag_pargs::write(Protocol_* oprot) const {
 
 
 template <class Protocol_>
-uint32_t WordSegService_tag_result::read(Protocol_* iprot) {
+uint32_t ArticleService_wordSegment_result::read(Protocol_* iprot) {
 
   apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -258,14 +258,14 @@ uint32_t WordSegService_tag_result::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size8;
-            ::apache::thrift::protocol::TType _etype11;
-            xfer += iprot->readListBegin(_etype11, _size8);
-            this->success.resize(_size8);
-            uint32_t _i12;
-            for (_i12 = 0; _i12 < _size8; ++_i12)
+            uint32_t _size4;
+            ::apache::thrift::protocol::TType _etype7;
+            xfer += iprot->readListBegin(_etype7, _size4);
+            this->success.resize(_size4);
+            uint32_t _i8;
+            for (_i8 = 0; _i8 < _size4; ++_i8)
             {
-              xfer += this->success[_i12].read(iprot);
+              xfer += iprot->readString(this->success[_i8]);
             }
             xfer += iprot->readListEnd();
           }
@@ -287,229 +287,20 @@ uint32_t WordSegService_tag_result::read(Protocol_* iprot) {
 }
 
 template <class Protocol_>
-uint32_t WordSegService_tag_result::write(Protocol_* oprot) const {
+uint32_t ArticleService_wordSegment_result::write(Protocol_* oprot) const {
 
   uint32_t xfer = 0;
 
-  xfer += oprot->writeStructBegin("WordSegService_tag_result");
-
-  if (this->__isset.success) {
-    xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
-    {
-      xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->success.size()));
-      std::vector<ResultItem> ::const_iterator _iter13;
-      for (_iter13 = this->success.begin(); _iter13 != this->success.end(); ++_iter13)
-      {
-        xfer += (*_iter13).write(oprot);
-      }
-      xfer += oprot->writeListEnd();
-    }
-    xfer += oprot->writeFieldEnd();
-  }
-  xfer += oprot->writeFieldStop();
-  xfer += oprot->writeStructEnd();
-  return xfer;
-}
-
-
-template <class Protocol_>
-uint32_t WordSegService_tag_presult::read(Protocol_* iprot) {
-
-  apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
-  uint32_t xfer = 0;
-  std::string fname;
-  ::apache::thrift::protocol::TType ftype;
-  int16_t fid;
-
-  xfer += iprot->readStructBegin(fname);
-
-  using ::apache::thrift::protocol::TProtocolException;
-
-
-  while (true)
-  {
-    xfer += iprot->readFieldBegin(fname, ftype, fid);
-    if (ftype == ::apache::thrift::protocol::T_STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 0:
-        if (ftype == ::apache::thrift::protocol::T_LIST) {
-          {
-            (*(this->success)).clear();
-            uint32_t _size14;
-            ::apache::thrift::protocol::TType _etype17;
-            xfer += iprot->readListBegin(_etype17, _size14);
-            (*(this->success)).resize(_size14);
-            uint32_t _i18;
-            for (_i18 = 0; _i18 < _size14; ++_i18)
-            {
-              xfer += (*(this->success))[_i18].read(iprot);
-            }
-            xfer += iprot->readListEnd();
-          }
-          this->__isset.success = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
-      default:
-        xfer += iprot->skip(ftype);
-        break;
-    }
-    xfer += iprot->readFieldEnd();
-  }
-
-  xfer += iprot->readStructEnd();
-
-  return xfer;
-}
-
-
-template <class Protocol_>
-uint32_t WordSegService_tagOnlyItem_args::read(Protocol_* iprot) {
-
-  apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
-  uint32_t xfer = 0;
-  std::string fname;
-  ::apache::thrift::protocol::TType ftype;
-  int16_t fid;
-
-  xfer += iprot->readStructBegin(fname);
-
-  using ::apache::thrift::protocol::TProtocolException;
-
-
-  while (true)
-  {
-    xfer += iprot->readFieldBegin(fname, ftype, fid);
-    if (ftype == ::apache::thrift::protocol::T_STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-        if (ftype == ::apache::thrift::protocol::T_STRING) {
-          xfer += iprot->readString(this->sentence);
-          this->__isset.sentence = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
-      default:
-        xfer += iprot->skip(ftype);
-        break;
-    }
-    xfer += iprot->readFieldEnd();
-  }
-
-  xfer += iprot->readStructEnd();
-
-  return xfer;
-}
-
-template <class Protocol_>
-uint32_t WordSegService_tagOnlyItem_args::write(Protocol_* oprot) const {
-  uint32_t xfer = 0;
-  apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
-  xfer += oprot->writeStructBegin("WordSegService_tagOnlyItem_args");
-
-  xfer += oprot->writeFieldBegin("sentence", ::apache::thrift::protocol::T_STRING, 1);
-  xfer += oprot->writeString(this->sentence);
-  xfer += oprot->writeFieldEnd();
-
-  xfer += oprot->writeFieldStop();
-  xfer += oprot->writeStructEnd();
-  return xfer;
-}
-
-
-template <class Protocol_>
-uint32_t WordSegService_tagOnlyItem_pargs::write(Protocol_* oprot) const {
-  uint32_t xfer = 0;
-  apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
-  xfer += oprot->writeStructBegin("WordSegService_tagOnlyItem_pargs");
-
-  xfer += oprot->writeFieldBegin("sentence", ::apache::thrift::protocol::T_STRING, 1);
-  xfer += oprot->writeString((*(this->sentence)));
-  xfer += oprot->writeFieldEnd();
-
-  xfer += oprot->writeFieldStop();
-  xfer += oprot->writeStructEnd();
-  return xfer;
-}
-
-
-template <class Protocol_>
-uint32_t WordSegService_tagOnlyItem_result::read(Protocol_* iprot) {
-
-  apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
-  uint32_t xfer = 0;
-  std::string fname;
-  ::apache::thrift::protocol::TType ftype;
-  int16_t fid;
-
-  xfer += iprot->readStructBegin(fname);
-
-  using ::apache::thrift::protocol::TProtocolException;
-
-
-  while (true)
-  {
-    xfer += iprot->readFieldBegin(fname, ftype, fid);
-    if (ftype == ::apache::thrift::protocol::T_STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 0:
-        if (ftype == ::apache::thrift::protocol::T_LIST) {
-          {
-            this->success.clear();
-            uint32_t _size19;
-            ::apache::thrift::protocol::TType _etype22;
-            xfer += iprot->readListBegin(_etype22, _size19);
-            this->success.resize(_size19);
-            uint32_t _i23;
-            for (_i23 = 0; _i23 < _size19; ++_i23)
-            {
-              xfer += iprot->readString(this->success[_i23]);
-            }
-            xfer += iprot->readListEnd();
-          }
-          this->__isset.success = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
-      default:
-        xfer += iprot->skip(ftype);
-        break;
-    }
-    xfer += iprot->readFieldEnd();
-  }
-
-  xfer += iprot->readStructEnd();
-
-  return xfer;
-}
-
-template <class Protocol_>
-uint32_t WordSegService_tagOnlyItem_result::write(Protocol_* oprot) const {
-
-  uint32_t xfer = 0;
-
-  xfer += oprot->writeStructBegin("WordSegService_tagOnlyItem_result");
+  xfer += oprot->writeStructBegin("ArticleService_wordSegment_result");
 
   if (this->__isset.success) {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, static_cast<uint32_t>(this->success.size()));
-      std::vector<std::string> ::const_iterator _iter24;
-      for (_iter24 = this->success.begin(); _iter24 != this->success.end(); ++_iter24)
+      std::vector<std::string> ::const_iterator _iter9;
+      for (_iter9 = this->success.begin(); _iter9 != this->success.end(); ++_iter9)
       {
-        xfer += oprot->writeString((*_iter24));
+        xfer += oprot->writeString((*_iter9));
       }
       xfer += oprot->writeListEnd();
     }
@@ -522,7 +313,7 @@ uint32_t WordSegService_tagOnlyItem_result::write(Protocol_* oprot) const {
 
 
 template <class Protocol_>
-uint32_t WordSegService_tagOnlyItem_presult::read(Protocol_* iprot) {
+uint32_t ArticleService_wordSegment_presult::read(Protocol_* iprot) {
 
   apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -547,14 +338,14 @@ uint32_t WordSegService_tagOnlyItem_presult::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size25;
-            ::apache::thrift::protocol::TType _etype28;
-            xfer += iprot->readListBegin(_etype28, _size25);
-            (*(this->success)).resize(_size25);
-            uint32_t _i29;
-            for (_i29 = 0; _i29 < _size25; ++_i29)
+            uint32_t _size10;
+            ::apache::thrift::protocol::TType _etype13;
+            xfer += iprot->readListBegin(_etype13, _size10);
+            (*(this->success)).resize(_size10);
+            uint32_t _i14;
+            for (_i14 = 0; _i14 < _size10; ++_i14)
             {
-              xfer += iprot->readString((*(this->success))[_i29]);
+              xfer += iprot->readString((*(this->success))[_i14]);
             }
             xfer += iprot->readListEnd();
           }
@@ -577,7 +368,7 @@ uint32_t WordSegService_tagOnlyItem_presult::read(Protocol_* iprot) {
 
 
 template <class Protocol_>
-uint32_t WordSegService_handleRequest_args::read(Protocol_* iprot) {
+uint32_t ArticleService_handleRequest_args::read(Protocol_* iprot) {
 
   apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -619,10 +410,10 @@ uint32_t WordSegService_handleRequest_args::read(Protocol_* iprot) {
 }
 
 template <class Protocol_>
-uint32_t WordSegService_handleRequest_args::write(Protocol_* oprot) const {
+uint32_t ArticleService_handleRequest_args::write(Protocol_* oprot) const {
   uint32_t xfer = 0;
   apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
-  xfer += oprot->writeStructBegin("WordSegService_handleRequest_args");
+  xfer += oprot->writeStructBegin("ArticleService_handleRequest_args");
 
   xfer += oprot->writeFieldBegin("request", ::apache::thrift::protocol::T_STRING, 1);
   xfer += oprot->writeString(this->request);
@@ -635,10 +426,10 @@ uint32_t WordSegService_handleRequest_args::write(Protocol_* oprot) const {
 
 
 template <class Protocol_>
-uint32_t WordSegService_handleRequest_pargs::write(Protocol_* oprot) const {
+uint32_t ArticleService_handleRequest_pargs::write(Protocol_* oprot) const {
   uint32_t xfer = 0;
   apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
-  xfer += oprot->writeStructBegin("WordSegService_handleRequest_pargs");
+  xfer += oprot->writeStructBegin("ArticleService_handleRequest_pargs");
 
   xfer += oprot->writeFieldBegin("request", ::apache::thrift::protocol::T_STRING, 1);
   xfer += oprot->writeString((*(this->request)));
@@ -651,7 +442,7 @@ uint32_t WordSegService_handleRequest_pargs::write(Protocol_* oprot) const {
 
 
 template <class Protocol_>
-uint32_t WordSegService_handleRequest_result::read(Protocol_* iprot) {
+uint32_t ArticleService_handleRequest_result::read(Protocol_* iprot) {
 
   apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -701,11 +492,11 @@ uint32_t WordSegService_handleRequest_result::read(Protocol_* iprot) {
 }
 
 template <class Protocol_>
-uint32_t WordSegService_handleRequest_result::write(Protocol_* oprot) const {
+uint32_t ArticleService_handleRequest_result::write(Protocol_* oprot) const {
 
   uint32_t xfer = 0;
 
-  xfer += oprot->writeStructBegin("WordSegService_handleRequest_result");
+  xfer += oprot->writeStructBegin("ArticleService_handleRequest_result");
 
   if (this->__isset.success) {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_STRING, 0);
@@ -723,7 +514,7 @@ uint32_t WordSegService_handleRequest_result::write(Protocol_* oprot) const {
 
 
 template <class Protocol_>
-uint32_t WordSegService_handleRequest_presult::read(Protocol_* iprot) {
+uint32_t ArticleService_handleRequest_presult::read(Protocol_* iprot) {
 
   apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -773,19 +564,19 @@ uint32_t WordSegService_handleRequest_presult::read(Protocol_* iprot) {
 }
 
 template <class Protocol_>
-void WordSegServiceClientT<Protocol_>::setFilter(const std::string& filter)
+void ArticleServiceClientT<Protocol_>::setFilter(const std::string& filter)
 {
   send_setFilter(filter);
   recv_setFilter();
 }
 
 template <class Protocol_>
-void WordSegServiceClientT<Protocol_>::send_setFilter(const std::string& filter)
+void ArticleServiceClientT<Protocol_>::send_setFilter(const std::string& filter)
 {
   int32_t cseqid = 0;
   this->oprot_->writeMessageBegin("setFilter", ::apache::thrift::protocol::T_CALL, cseqid);
 
-  WordSegService_setFilter_pargs args;
+  ArticleService_setFilter_pargs args;
   args.filter = &filter;
   args.write(this->oprot_);
 
@@ -795,7 +586,7 @@ void WordSegServiceClientT<Protocol_>::send_setFilter(const std::string& filter)
 }
 
 template <class Protocol_>
-void WordSegServiceClientT<Protocol_>::recv_setFilter()
+void ArticleServiceClientT<Protocol_>::recv_setFilter()
 {
 
   int32_t rseqid = 0;
@@ -820,7 +611,7 @@ void WordSegServiceClientT<Protocol_>::recv_setFilter()
     this->iprot_->readMessageEnd();
     this->iprot_->getTransport()->readEnd();
   }
-  WordSegService_setFilter_presult result;
+  ArticleService_setFilter_presult result;
   result.read(this->iprot_);
   this->iprot_->readMessageEnd();
   this->iprot_->getTransport()->readEnd();
@@ -829,19 +620,19 @@ void WordSegServiceClientT<Protocol_>::recv_setFilter()
 }
 
 template <class Protocol_>
-void WordSegServiceClientT<Protocol_>::tag(std::vector<ResultItem> & _return, const std::string& sentence)
+void ArticleServiceClientT<Protocol_>::wordSegment(std::vector<std::string> & _return, const std::string& sentence)
 {
-  send_tag(sentence);
-  recv_tag(_return);
+  send_wordSegment(sentence);
+  recv_wordSegment(_return);
 }
 
 template <class Protocol_>
-void WordSegServiceClientT<Protocol_>::send_tag(const std::string& sentence)
+void ArticleServiceClientT<Protocol_>::send_wordSegment(const std::string& sentence)
 {
   int32_t cseqid = 0;
-  this->oprot_->writeMessageBegin("tag", ::apache::thrift::protocol::T_CALL, cseqid);
+  this->oprot_->writeMessageBegin("wordSegment", ::apache::thrift::protocol::T_CALL, cseqid);
 
-  WordSegService_tag_pargs args;
+  ArticleService_wordSegment_pargs args;
   args.sentence = &sentence;
   args.write(this->oprot_);
 
@@ -851,7 +642,7 @@ void WordSegServiceClientT<Protocol_>::send_tag(const std::string& sentence)
 }
 
 template <class Protocol_>
-void WordSegServiceClientT<Protocol_>::recv_tag(std::vector<ResultItem> & _return)
+void ArticleServiceClientT<Protocol_>::recv_wordSegment(std::vector<std::string> & _return)
 {
 
   int32_t rseqid = 0;
@@ -871,12 +662,12 @@ void WordSegServiceClientT<Protocol_>::recv_tag(std::vector<ResultItem> & _retur
     this->iprot_->readMessageEnd();
     this->iprot_->getTransport()->readEnd();
   }
-  if (fname.compare("tag") != 0) {
+  if (fname.compare("wordSegment") != 0) {
     this->iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     this->iprot_->readMessageEnd();
     this->iprot_->getTransport()->readEnd();
   }
-  WordSegService_tag_presult result;
+  ArticleService_wordSegment_presult result;
   result.success = &_return;
   result.read(this->iprot_);
   this->iprot_->readMessageEnd();
@@ -886,84 +677,23 @@ void WordSegServiceClientT<Protocol_>::recv_tag(std::vector<ResultItem> & _retur
     // _return pointer has now been filled
     return;
   }
-  throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "tag failed: unknown result");
+  throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "wordSegment failed: unknown result");
 }
 
 template <class Protocol_>
-void WordSegServiceClientT<Protocol_>::tagOnlyItem(std::vector<std::string> & _return, const std::string& sentence)
-{
-  send_tagOnlyItem(sentence);
-  recv_tagOnlyItem(_return);
-}
-
-template <class Protocol_>
-void WordSegServiceClientT<Protocol_>::send_tagOnlyItem(const std::string& sentence)
-{
-  int32_t cseqid = 0;
-  this->oprot_->writeMessageBegin("tagOnlyItem", ::apache::thrift::protocol::T_CALL, cseqid);
-
-  WordSegService_tagOnlyItem_pargs args;
-  args.sentence = &sentence;
-  args.write(this->oprot_);
-
-  this->oprot_->writeMessageEnd();
-  this->oprot_->getTransport()->writeEnd();
-  this->oprot_->getTransport()->flush();
-}
-
-template <class Protocol_>
-void WordSegServiceClientT<Protocol_>::recv_tagOnlyItem(std::vector<std::string> & _return)
-{
-
-  int32_t rseqid = 0;
-  std::string fname;
-  ::apache::thrift::protocol::TMessageType mtype;
-
-  this->iprot_->readMessageBegin(fname, mtype, rseqid);
-  if (mtype == ::apache::thrift::protocol::T_EXCEPTION) {
-    ::apache::thrift::TApplicationException x;
-    x.read(this->iprot_);
-    this->iprot_->readMessageEnd();
-    this->iprot_->getTransport()->readEnd();
-    throw x;
-  }
-  if (mtype != ::apache::thrift::protocol::T_REPLY) {
-    this->iprot_->skip(::apache::thrift::protocol::T_STRUCT);
-    this->iprot_->readMessageEnd();
-    this->iprot_->getTransport()->readEnd();
-  }
-  if (fname.compare("tagOnlyItem") != 0) {
-    this->iprot_->skip(::apache::thrift::protocol::T_STRUCT);
-    this->iprot_->readMessageEnd();
-    this->iprot_->getTransport()->readEnd();
-  }
-  WordSegService_tagOnlyItem_presult result;
-  result.success = &_return;
-  result.read(this->iprot_);
-  this->iprot_->readMessageEnd();
-  this->iprot_->getTransport()->readEnd();
-
-  if (result.__isset.success) {
-    // _return pointer has now been filled
-    return;
-  }
-  throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "tagOnlyItem failed: unknown result");
-}
-
-template <class Protocol_>
-void WordSegServiceClientT<Protocol_>::handleRequest(std::string& _return, const std::string& request)
+void ArticleServiceClientT<Protocol_>::handleRequest(std::string& _return, const std::string& request)
 {
   send_handleRequest(request);
   recv_handleRequest(_return);
 }
 
 template <class Protocol_>
-void WordSegServiceClientT<Protocol_>::send_handleRequest(const std::string& request)
+void ArticleServiceClientT<Protocol_>::send_handleRequest(const std::string& request)
 {
   int32_t cseqid = 0;
   this->oprot_->writeMessageBegin("handleRequest", ::apache::thrift::protocol::T_CALL, cseqid);
 
-  WordSegService_handleRequest_pargs args;
+  ArticleService_handleRequest_pargs args;
   args.request = &request;
   args.write(this->oprot_);
 
@@ -973,7 +703,7 @@ void WordSegServiceClientT<Protocol_>::send_handleRequest(const std::string& req
 }
 
 template <class Protocol_>
-void WordSegServiceClientT<Protocol_>::recv_handleRequest(std::string& _return)
+void ArticleServiceClientT<Protocol_>::recv_handleRequest(std::string& _return)
 {
 
   int32_t rseqid = 0;
@@ -998,7 +728,7 @@ void WordSegServiceClientT<Protocol_>::recv_handleRequest(std::string& _return)
     this->iprot_->readMessageEnd();
     this->iprot_->getTransport()->readEnd();
   }
-  WordSegService_handleRequest_presult result;
+  ArticleService_handleRequest_presult result;
   result.success = &_return;
   result.read(this->iprot_);
   this->iprot_->readMessageEnd();
@@ -1015,7 +745,7 @@ void WordSegServiceClientT<Protocol_>::recv_handleRequest(std::string& _return)
 }
 
 template <class Protocol_>
-bool WordSegServiceProcessorT<Protocol_>::dispatchCall(::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, const std::string& fname, int32_t seqid, void* callContext) {
+bool ArticleServiceProcessorT<Protocol_>::dispatchCall(::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, const std::string& fname, int32_t seqid, void* callContext) {
   typename ProcessMap::iterator pfn;
   pfn = processMap_.find(fname);
   if (pfn == processMap_.end()) {
@@ -1035,7 +765,7 @@ bool WordSegServiceProcessorT<Protocol_>::dispatchCall(::apache::thrift::protoco
 }
 
 template <class Protocol_>
-bool WordSegServiceProcessorT<Protocol_>::dispatchCallTemplated(Protocol_* iprot, Protocol_* oprot, const std::string& fname, int32_t seqid, void* callContext) {
+bool ArticleServiceProcessorT<Protocol_>::dispatchCallTemplated(Protocol_* iprot, Protocol_* oprot, const std::string& fname, int32_t seqid, void* callContext) {
   typename ProcessMap::iterator pfn;
   pfn = processMap_.find(fname);
   if (pfn == processMap_.end()) {
@@ -1055,33 +785,33 @@ bool WordSegServiceProcessorT<Protocol_>::dispatchCallTemplated(Protocol_* iprot
 }
 
 template <class Protocol_>
-void WordSegServiceProcessorT<Protocol_>::process_setFilter(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
+void ArticleServiceProcessorT<Protocol_>::process_setFilter(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
   void* ctx = NULL;
   if (this->eventHandler_.get() != NULL) {
-    ctx = this->eventHandler_->getContext("WordSegService.setFilter", callContext);
+    ctx = this->eventHandler_->getContext("ArticleService.setFilter", callContext);
   }
-  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "WordSegService.setFilter");
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "ArticleService.setFilter");
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preRead(ctx, "WordSegService.setFilter");
+    this->eventHandler_->preRead(ctx, "ArticleService.setFilter");
   }
 
-  WordSegService_setFilter_args args;
+  ArticleService_setFilter_args args;
   args.read(iprot);
   iprot->readMessageEnd();
   uint32_t bytes = iprot->getTransport()->readEnd();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postRead(ctx, "WordSegService.setFilter", bytes);
+    this->eventHandler_->postRead(ctx, "ArticleService.setFilter", bytes);
   }
 
-  WordSegService_setFilter_result result;
+  ArticleService_setFilter_result result;
   try {
     iface_->setFilter(args.filter);
   } catch (const std::exception& e) {
     if (this->eventHandler_.get() != NULL) {
-      this->eventHandler_->handlerError(ctx, "WordSegService.setFilter");
+      this->eventHandler_->handlerError(ctx, "ArticleService.setFilter");
     }
 
     ::apache::thrift::TApplicationException x(e.what());
@@ -1094,7 +824,7 @@ void WordSegServiceProcessorT<Protocol_>::process_setFilter(int32_t seqid, ::apa
   }
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preWrite(ctx, "WordSegService.setFilter");
+    this->eventHandler_->preWrite(ctx, "ArticleService.setFilter");
   }
 
   oprot->writeMessageBegin("setFilter", ::apache::thrift::protocol::T_REPLY, seqid);
@@ -1104,38 +834,38 @@ void WordSegServiceProcessorT<Protocol_>::process_setFilter(int32_t seqid, ::apa
   oprot->getTransport()->flush();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postWrite(ctx, "WordSegService.setFilter", bytes);
+    this->eventHandler_->postWrite(ctx, "ArticleService.setFilter", bytes);
   }
 }
 
 template <class Protocol_>
-void WordSegServiceProcessorT<Protocol_>::process_setFilter(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext)
+void ArticleServiceProcessorT<Protocol_>::process_setFilter(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext)
 {
   void* ctx = NULL;
   if (this->eventHandler_.get() != NULL) {
-    ctx = this->eventHandler_->getContext("WordSegService.setFilter", callContext);
+    ctx = this->eventHandler_->getContext("ArticleService.setFilter", callContext);
   }
-  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "WordSegService.setFilter");
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "ArticleService.setFilter");
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preRead(ctx, "WordSegService.setFilter");
+    this->eventHandler_->preRead(ctx, "ArticleService.setFilter");
   }
 
-  WordSegService_setFilter_args args;
+  ArticleService_setFilter_args args;
   args.read(iprot);
   iprot->readMessageEnd();
   uint32_t bytes = iprot->getTransport()->readEnd();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postRead(ctx, "WordSegService.setFilter", bytes);
+    this->eventHandler_->postRead(ctx, "ArticleService.setFilter", bytes);
   }
 
-  WordSegService_setFilter_result result;
+  ArticleService_setFilter_result result;
   try {
     iface_->setFilter(args.filter);
   } catch (const std::exception& e) {
     if (this->eventHandler_.get() != NULL) {
-      this->eventHandler_->handlerError(ctx, "WordSegService.setFilter");
+      this->eventHandler_->handlerError(ctx, "ArticleService.setFilter");
     }
 
     ::apache::thrift::TApplicationException x(e.what());
@@ -1148,7 +878,7 @@ void WordSegServiceProcessorT<Protocol_>::process_setFilter(int32_t seqid, Proto
   }
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preWrite(ctx, "WordSegService.setFilter");
+    this->eventHandler_->preWrite(ctx, "ArticleService.setFilter");
   }
 
   oprot->writeMessageBegin("setFilter", ::apache::thrift::protocol::T_REPLY, seqid);
@@ -1158,43 +888,43 @@ void WordSegServiceProcessorT<Protocol_>::process_setFilter(int32_t seqid, Proto
   oprot->getTransport()->flush();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postWrite(ctx, "WordSegService.setFilter", bytes);
+    this->eventHandler_->postWrite(ctx, "ArticleService.setFilter", bytes);
   }
 }
 
 template <class Protocol_>
-void WordSegServiceProcessorT<Protocol_>::process_tag(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
+void ArticleServiceProcessorT<Protocol_>::process_wordSegment(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
   void* ctx = NULL;
   if (this->eventHandler_.get() != NULL) {
-    ctx = this->eventHandler_->getContext("WordSegService.tag", callContext);
+    ctx = this->eventHandler_->getContext("ArticleService.wordSegment", callContext);
   }
-  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "WordSegService.tag");
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "ArticleService.wordSegment");
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preRead(ctx, "WordSegService.tag");
+    this->eventHandler_->preRead(ctx, "ArticleService.wordSegment");
   }
 
-  WordSegService_tag_args args;
+  ArticleService_wordSegment_args args;
   args.read(iprot);
   iprot->readMessageEnd();
   uint32_t bytes = iprot->getTransport()->readEnd();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postRead(ctx, "WordSegService.tag", bytes);
+    this->eventHandler_->postRead(ctx, "ArticleService.wordSegment", bytes);
   }
 
-  WordSegService_tag_result result;
+  ArticleService_wordSegment_result result;
   try {
-    iface_->tag(result.success, args.sentence);
+    iface_->wordSegment(result.success, args.sentence);
     result.__isset.success = true;
   } catch (const std::exception& e) {
     if (this->eventHandler_.get() != NULL) {
-      this->eventHandler_->handlerError(ctx, "WordSegService.tag");
+      this->eventHandler_->handlerError(ctx, "ArticleService.wordSegment");
     }
 
     ::apache::thrift::TApplicationException x(e.what());
-    oprot->writeMessageBegin("tag", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    oprot->writeMessageBegin("wordSegment", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
     oprot->getTransport()->writeEnd();
@@ -1203,53 +933,53 @@ void WordSegServiceProcessorT<Protocol_>::process_tag(int32_t seqid, ::apache::t
   }
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preWrite(ctx, "WordSegService.tag");
+    this->eventHandler_->preWrite(ctx, "ArticleService.wordSegment");
   }
 
-  oprot->writeMessageBegin("tag", ::apache::thrift::protocol::T_REPLY, seqid);
+  oprot->writeMessageBegin("wordSegment", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
   bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postWrite(ctx, "WordSegService.tag", bytes);
+    this->eventHandler_->postWrite(ctx, "ArticleService.wordSegment", bytes);
   }
 }
 
 template <class Protocol_>
-void WordSegServiceProcessorT<Protocol_>::process_tag(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext)
+void ArticleServiceProcessorT<Protocol_>::process_wordSegment(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext)
 {
   void* ctx = NULL;
   if (this->eventHandler_.get() != NULL) {
-    ctx = this->eventHandler_->getContext("WordSegService.tag", callContext);
+    ctx = this->eventHandler_->getContext("ArticleService.wordSegment", callContext);
   }
-  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "WordSegService.tag");
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "ArticleService.wordSegment");
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preRead(ctx, "WordSegService.tag");
+    this->eventHandler_->preRead(ctx, "ArticleService.wordSegment");
   }
 
-  WordSegService_tag_args args;
+  ArticleService_wordSegment_args args;
   args.read(iprot);
   iprot->readMessageEnd();
   uint32_t bytes = iprot->getTransport()->readEnd();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postRead(ctx, "WordSegService.tag", bytes);
+    this->eventHandler_->postRead(ctx, "ArticleService.wordSegment", bytes);
   }
 
-  WordSegService_tag_result result;
+  ArticleService_wordSegment_result result;
   try {
-    iface_->tag(result.success, args.sentence);
+    iface_->wordSegment(result.success, args.sentence);
     result.__isset.success = true;
   } catch (const std::exception& e) {
     if (this->eventHandler_.get() != NULL) {
-      this->eventHandler_->handlerError(ctx, "WordSegService.tag");
+      this->eventHandler_->handlerError(ctx, "ArticleService.wordSegment");
     }
 
     ::apache::thrift::TApplicationException x(e.what());
-    oprot->writeMessageBegin("tag", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    oprot->writeMessageBegin("wordSegment", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
     oprot->getTransport()->writeEnd();
@@ -1258,153 +988,43 @@ void WordSegServiceProcessorT<Protocol_>::process_tag(int32_t seqid, Protocol_* 
   }
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preWrite(ctx, "WordSegService.tag");
+    this->eventHandler_->preWrite(ctx, "ArticleService.wordSegment");
   }
 
-  oprot->writeMessageBegin("tag", ::apache::thrift::protocol::T_REPLY, seqid);
+  oprot->writeMessageBegin("wordSegment", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
   bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postWrite(ctx, "WordSegService.tag", bytes);
+    this->eventHandler_->postWrite(ctx, "ArticleService.wordSegment", bytes);
   }
 }
 
 template <class Protocol_>
-void WordSegServiceProcessorT<Protocol_>::process_tagOnlyItem(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
+void ArticleServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
   void* ctx = NULL;
   if (this->eventHandler_.get() != NULL) {
-    ctx = this->eventHandler_->getContext("WordSegService.tagOnlyItem", callContext);
+    ctx = this->eventHandler_->getContext("ArticleService.handleRequest", callContext);
   }
-  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "WordSegService.tagOnlyItem");
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "ArticleService.handleRequest");
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preRead(ctx, "WordSegService.tagOnlyItem");
+    this->eventHandler_->preRead(ctx, "ArticleService.handleRequest");
   }
 
-  WordSegService_tagOnlyItem_args args;
+  ArticleService_handleRequest_args args;
   args.read(iprot);
   iprot->readMessageEnd();
   uint32_t bytes = iprot->getTransport()->readEnd();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postRead(ctx, "WordSegService.tagOnlyItem", bytes);
+    this->eventHandler_->postRead(ctx, "ArticleService.handleRequest", bytes);
   }
 
-  WordSegService_tagOnlyItem_result result;
-  try {
-    iface_->tagOnlyItem(result.success, args.sentence);
-    result.__isset.success = true;
-  } catch (const std::exception& e) {
-    if (this->eventHandler_.get() != NULL) {
-      this->eventHandler_->handlerError(ctx, "WordSegService.tagOnlyItem");
-    }
-
-    ::apache::thrift::TApplicationException x(e.what());
-    oprot->writeMessageBegin("tagOnlyItem", ::apache::thrift::protocol::T_EXCEPTION, seqid);
-    x.write(oprot);
-    oprot->writeMessageEnd();
-    oprot->getTransport()->writeEnd();
-    oprot->getTransport()->flush();
-    return;
-  }
-
-  if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preWrite(ctx, "WordSegService.tagOnlyItem");
-  }
-
-  oprot->writeMessageBegin("tagOnlyItem", ::apache::thrift::protocol::T_REPLY, seqid);
-  result.write(oprot);
-  oprot->writeMessageEnd();
-  bytes = oprot->getTransport()->writeEnd();
-  oprot->getTransport()->flush();
-
-  if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postWrite(ctx, "WordSegService.tagOnlyItem", bytes);
-  }
-}
-
-template <class Protocol_>
-void WordSegServiceProcessorT<Protocol_>::process_tagOnlyItem(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext)
-{
-  void* ctx = NULL;
-  if (this->eventHandler_.get() != NULL) {
-    ctx = this->eventHandler_->getContext("WordSegService.tagOnlyItem", callContext);
-  }
-  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "WordSegService.tagOnlyItem");
-
-  if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preRead(ctx, "WordSegService.tagOnlyItem");
-  }
-
-  WordSegService_tagOnlyItem_args args;
-  args.read(iprot);
-  iprot->readMessageEnd();
-  uint32_t bytes = iprot->getTransport()->readEnd();
-
-  if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postRead(ctx, "WordSegService.tagOnlyItem", bytes);
-  }
-
-  WordSegService_tagOnlyItem_result result;
-  try {
-    iface_->tagOnlyItem(result.success, args.sentence);
-    result.__isset.success = true;
-  } catch (const std::exception& e) {
-    if (this->eventHandler_.get() != NULL) {
-      this->eventHandler_->handlerError(ctx, "WordSegService.tagOnlyItem");
-    }
-
-    ::apache::thrift::TApplicationException x(e.what());
-    oprot->writeMessageBegin("tagOnlyItem", ::apache::thrift::protocol::T_EXCEPTION, seqid);
-    x.write(oprot);
-    oprot->writeMessageEnd();
-    oprot->getTransport()->writeEnd();
-    oprot->getTransport()->flush();
-    return;
-  }
-
-  if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preWrite(ctx, "WordSegService.tagOnlyItem");
-  }
-
-  oprot->writeMessageBegin("tagOnlyItem", ::apache::thrift::protocol::T_REPLY, seqid);
-  result.write(oprot);
-  oprot->writeMessageEnd();
-  bytes = oprot->getTransport()->writeEnd();
-  oprot->getTransport()->flush();
-
-  if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postWrite(ctx, "WordSegService.tagOnlyItem", bytes);
-  }
-}
-
-template <class Protocol_>
-void WordSegServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
-{
-  void* ctx = NULL;
-  if (this->eventHandler_.get() != NULL) {
-    ctx = this->eventHandler_->getContext("WordSegService.handleRequest", callContext);
-  }
-  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "WordSegService.handleRequest");
-
-  if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preRead(ctx, "WordSegService.handleRequest");
-  }
-
-  WordSegService_handleRequest_args args;
-  args.read(iprot);
-  iprot->readMessageEnd();
-  uint32_t bytes = iprot->getTransport()->readEnd();
-
-  if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postRead(ctx, "WordSegService.handleRequest", bytes);
-  }
-
-  WordSegService_handleRequest_result result;
+  ArticleService_handleRequest_result result;
   try {
     iface_->handleRequest(result.success, args.request);
     result.__isset.success = true;
@@ -1413,7 +1033,7 @@ void WordSegServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, :
     result.__isset.err = true;
   } catch (const std::exception& e) {
     if (this->eventHandler_.get() != NULL) {
-      this->eventHandler_->handlerError(ctx, "WordSegService.handleRequest");
+      this->eventHandler_->handlerError(ctx, "ArticleService.handleRequest");
     }
 
     ::apache::thrift::TApplicationException x(e.what());
@@ -1426,7 +1046,7 @@ void WordSegServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, :
   }
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preWrite(ctx, "WordSegService.handleRequest");
+    this->eventHandler_->preWrite(ctx, "ArticleService.handleRequest");
   }
 
   oprot->writeMessageBegin("handleRequest", ::apache::thrift::protocol::T_REPLY, seqid);
@@ -1436,33 +1056,33 @@ void WordSegServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, :
   oprot->getTransport()->flush();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postWrite(ctx, "WordSegService.handleRequest", bytes);
+    this->eventHandler_->postWrite(ctx, "ArticleService.handleRequest", bytes);
   }
 }
 
 template <class Protocol_>
-void WordSegServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext)
+void ArticleServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext)
 {
   void* ctx = NULL;
   if (this->eventHandler_.get() != NULL) {
-    ctx = this->eventHandler_->getContext("WordSegService.handleRequest", callContext);
+    ctx = this->eventHandler_->getContext("ArticleService.handleRequest", callContext);
   }
-  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "WordSegService.handleRequest");
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "ArticleService.handleRequest");
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preRead(ctx, "WordSegService.handleRequest");
+    this->eventHandler_->preRead(ctx, "ArticleService.handleRequest");
   }
 
-  WordSegService_handleRequest_args args;
+  ArticleService_handleRequest_args args;
   args.read(iprot);
   iprot->readMessageEnd();
   uint32_t bytes = iprot->getTransport()->readEnd();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postRead(ctx, "WordSegService.handleRequest", bytes);
+    this->eventHandler_->postRead(ctx, "ArticleService.handleRequest", bytes);
   }
 
-  WordSegService_handleRequest_result result;
+  ArticleService_handleRequest_result result;
   try {
     iface_->handleRequest(result.success, args.request);
     result.__isset.success = true;
@@ -1471,7 +1091,7 @@ void WordSegServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, P
     result.__isset.err = true;
   } catch (const std::exception& e) {
     if (this->eventHandler_.get() != NULL) {
-      this->eventHandler_->handlerError(ctx, "WordSegService.handleRequest");
+      this->eventHandler_->handlerError(ctx, "ArticleService.handleRequest");
     }
 
     ::apache::thrift::TApplicationException x(e.what());
@@ -1484,7 +1104,7 @@ void WordSegServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, P
   }
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preWrite(ctx, "WordSegService.handleRequest");
+    this->eventHandler_->preWrite(ctx, "ArticleService.handleRequest");
   }
 
   oprot->writeMessageBegin("handleRequest", ::apache::thrift::protocol::T_REPLY, seqid);
@@ -1494,33 +1114,33 @@ void WordSegServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, P
   oprot->getTransport()->flush();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postWrite(ctx, "WordSegService.handleRequest", bytes);
+    this->eventHandler_->postWrite(ctx, "ArticleService.handleRequest", bytes);
   }
 }
 
 template <class Protocol_>
-::boost::shared_ptr< ::apache::thrift::TProcessor > WordSegServiceProcessorFactoryT<Protocol_>::getProcessor(const ::apache::thrift::TConnectionInfo& connInfo) {
-  ::apache::thrift::ReleaseHandler< WordSegServiceIfFactory > cleanup(handlerFactory_);
-  ::boost::shared_ptr< WordSegServiceIf > handler(handlerFactory_->getHandler(connInfo), cleanup);
-  ::boost::shared_ptr< ::apache::thrift::TProcessor > processor(new WordSegServiceProcessorT<Protocol_>(handler));
+::boost::shared_ptr< ::apache::thrift::TProcessor > ArticleServiceProcessorFactoryT<Protocol_>::getProcessor(const ::apache::thrift::TConnectionInfo& connInfo) {
+  ::apache::thrift::ReleaseHandler< ArticleServiceIfFactory > cleanup(handlerFactory_);
+  ::boost::shared_ptr< ArticleServiceIf > handler(handlerFactory_->getHandler(connInfo), cleanup);
+  ::boost::shared_ptr< ::apache::thrift::TProcessor > processor(new ArticleServiceProcessorT<Protocol_>(handler));
   return processor;
 }
 
 template <class Protocol_>
-void WordSegServiceConcurrentClientT<Protocol_>::setFilter(const std::string& filter)
+void ArticleServiceConcurrentClientT<Protocol_>::setFilter(const std::string& filter)
 {
   int32_t seqid = send_setFilter(filter);
   recv_setFilter(seqid);
 }
 
 template <class Protocol_>
-int32_t WordSegServiceConcurrentClientT<Protocol_>::send_setFilter(const std::string& filter)
+int32_t ArticleServiceConcurrentClientT<Protocol_>::send_setFilter(const std::string& filter)
 {
   int32_t cseqid = this->sync_.generateSeqId();
   ::apache::thrift::async::TConcurrentSendSentry sentry(&this->sync_);
   this->oprot_->writeMessageBegin("setFilter", ::apache::thrift::protocol::T_CALL, cseqid);
 
-  WordSegService_setFilter_pargs args;
+  ArticleService_setFilter_pargs args;
   args.filter = &filter;
   args.write(this->oprot_);
 
@@ -1533,7 +1153,7 @@ int32_t WordSegServiceConcurrentClientT<Protocol_>::send_setFilter(const std::st
 }
 
 template <class Protocol_>
-void WordSegServiceConcurrentClientT<Protocol_>::recv_setFilter(const int32_t seqid)
+void ArticleServiceConcurrentClientT<Protocol_>::recv_setFilter(const int32_t seqid)
 {
 
   int32_t rseqid = 0;
@@ -1571,7 +1191,7 @@ void WordSegServiceConcurrentClientT<Protocol_>::recv_setFilter(const int32_t se
         using ::apache::thrift::protocol::TProtocolException;
         throw TProtocolException(TProtocolException::INVALID_DATA);
       }
-      WordSegService_setFilter_presult result;
+      ArticleService_setFilter_presult result;
       result.read(this->iprot_);
       this->iprot_->readMessageEnd();
       this->iprot_->getTransport()->readEnd();
@@ -1588,20 +1208,20 @@ void WordSegServiceConcurrentClientT<Protocol_>::recv_setFilter(const int32_t se
 }
 
 template <class Protocol_>
-void WordSegServiceConcurrentClientT<Protocol_>::tag(std::vector<ResultItem> & _return, const std::string& sentence)
+void ArticleServiceConcurrentClientT<Protocol_>::wordSegment(std::vector<std::string> & _return, const std::string& sentence)
 {
-  int32_t seqid = send_tag(sentence);
-  recv_tag(_return, seqid);
+  int32_t seqid = send_wordSegment(sentence);
+  recv_wordSegment(_return, seqid);
 }
 
 template <class Protocol_>
-int32_t WordSegServiceConcurrentClientT<Protocol_>::send_tag(const std::string& sentence)
+int32_t ArticleServiceConcurrentClientT<Protocol_>::send_wordSegment(const std::string& sentence)
 {
   int32_t cseqid = this->sync_.generateSeqId();
   ::apache::thrift::async::TConcurrentSendSentry sentry(&this->sync_);
-  this->oprot_->writeMessageBegin("tag", ::apache::thrift::protocol::T_CALL, cseqid);
+  this->oprot_->writeMessageBegin("wordSegment", ::apache::thrift::protocol::T_CALL, cseqid);
 
-  WordSegService_tag_pargs args;
+  ArticleService_wordSegment_pargs args;
   args.sentence = &sentence;
   args.write(this->oprot_);
 
@@ -1614,7 +1234,7 @@ int32_t WordSegServiceConcurrentClientT<Protocol_>::send_tag(const std::string& 
 }
 
 template <class Protocol_>
-void WordSegServiceConcurrentClientT<Protocol_>::recv_tag(std::vector<ResultItem> & _return, const int32_t seqid)
+void ArticleServiceConcurrentClientT<Protocol_>::recv_wordSegment(std::vector<std::string> & _return, const int32_t seqid)
 {
 
   int32_t rseqid = 0;
@@ -1643,7 +1263,7 @@ void WordSegServiceConcurrentClientT<Protocol_>::recv_tag(std::vector<ResultItem
         this->iprot_->readMessageEnd();
         this->iprot_->getTransport()->readEnd();
       }
-      if (fname.compare("tag") != 0) {
+      if (fname.compare("wordSegment") != 0) {
         this->iprot_->skip(::apache::thrift::protocol::T_STRUCT);
         this->iprot_->readMessageEnd();
         this->iprot_->getTransport()->readEnd();
@@ -1652,7 +1272,7 @@ void WordSegServiceConcurrentClientT<Protocol_>::recv_tag(std::vector<ResultItem
         using ::apache::thrift::protocol::TProtocolException;
         throw TProtocolException(TProtocolException::INVALID_DATA);
       }
-      WordSegService_tag_presult result;
+      ArticleService_wordSegment_presult result;
       result.success = &_return;
       result.read(this->iprot_);
       this->iprot_->readMessageEnd();
@@ -1664,7 +1284,7 @@ void WordSegServiceConcurrentClientT<Protocol_>::recv_tag(std::vector<ResultItem
         return;
       }
       // in a bad state, don't commit
-      throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "tag failed: unknown result");
+      throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "wordSegment failed: unknown result");
     }
     // seqid != rseqid
     this->sync_.updatePending(fname, mtype, rseqid);
@@ -1675,107 +1295,20 @@ void WordSegServiceConcurrentClientT<Protocol_>::recv_tag(std::vector<ResultItem
 }
 
 template <class Protocol_>
-void WordSegServiceConcurrentClientT<Protocol_>::tagOnlyItem(std::vector<std::string> & _return, const std::string& sentence)
-{
-  int32_t seqid = send_tagOnlyItem(sentence);
-  recv_tagOnlyItem(_return, seqid);
-}
-
-template <class Protocol_>
-int32_t WordSegServiceConcurrentClientT<Protocol_>::send_tagOnlyItem(const std::string& sentence)
-{
-  int32_t cseqid = this->sync_.generateSeqId();
-  ::apache::thrift::async::TConcurrentSendSentry sentry(&this->sync_);
-  this->oprot_->writeMessageBegin("tagOnlyItem", ::apache::thrift::protocol::T_CALL, cseqid);
-
-  WordSegService_tagOnlyItem_pargs args;
-  args.sentence = &sentence;
-  args.write(this->oprot_);
-
-  this->oprot_->writeMessageEnd();
-  this->oprot_->getTransport()->writeEnd();
-  this->oprot_->getTransport()->flush();
-
-  sentry.commit();
-  return cseqid;
-}
-
-template <class Protocol_>
-void WordSegServiceConcurrentClientT<Protocol_>::recv_tagOnlyItem(std::vector<std::string> & _return, const int32_t seqid)
-{
-
-  int32_t rseqid = 0;
-  std::string fname;
-  ::apache::thrift::protocol::TMessageType mtype;
-
-  // the read mutex gets dropped and reacquired as part of waitForWork()
-  // The destructor of this sentry wakes up other clients
-  ::apache::thrift::async::TConcurrentRecvSentry sentry(&this->sync_, seqid);
-
-  while(true) {
-    if(!this->sync_.getPending(fname, mtype, rseqid)) {
-      this->iprot_->readMessageBegin(fname, mtype, rseqid);
-    }
-    if(seqid == rseqid) {
-      if (mtype == ::apache::thrift::protocol::T_EXCEPTION) {
-        ::apache::thrift::TApplicationException x;
-        x.read(this->iprot_);
-        this->iprot_->readMessageEnd();
-        this->iprot_->getTransport()->readEnd();
-        sentry.commit();
-        throw x;
-      }
-      if (mtype != ::apache::thrift::protocol::T_REPLY) {
-        this->iprot_->skip(::apache::thrift::protocol::T_STRUCT);
-        this->iprot_->readMessageEnd();
-        this->iprot_->getTransport()->readEnd();
-      }
-      if (fname.compare("tagOnlyItem") != 0) {
-        this->iprot_->skip(::apache::thrift::protocol::T_STRUCT);
-        this->iprot_->readMessageEnd();
-        this->iprot_->getTransport()->readEnd();
-
-        // in a bad state, don't commit
-        using ::apache::thrift::protocol::TProtocolException;
-        throw TProtocolException(TProtocolException::INVALID_DATA);
-      }
-      WordSegService_tagOnlyItem_presult result;
-      result.success = &_return;
-      result.read(this->iprot_);
-      this->iprot_->readMessageEnd();
-      this->iprot_->getTransport()->readEnd();
-
-      if (result.__isset.success) {
-        // _return pointer has now been filled
-        sentry.commit();
-        return;
-      }
-      // in a bad state, don't commit
-      throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "tagOnlyItem failed: unknown result");
-    }
-    // seqid != rseqid
-    this->sync_.updatePending(fname, mtype, rseqid);
-
-    // this will temporarily unlock the readMutex, and let other clients get work done
-    this->sync_.waitForWork(seqid);
-  } // end while(true)
-}
-
-template <class Protocol_>
-void WordSegServiceConcurrentClientT<Protocol_>::handleRequest(std::string& _return, const std::string& request)
+void ArticleServiceConcurrentClientT<Protocol_>::handleRequest(std::string& _return, const std::string& request)
 {
   int32_t seqid = send_handleRequest(request);
   recv_handleRequest(_return, seqid);
 }
 
 template <class Protocol_>
-int32_t WordSegServiceConcurrentClientT<Protocol_>::send_handleRequest(const std::string& request)
+int32_t ArticleServiceConcurrentClientT<Protocol_>::send_handleRequest(const std::string& request)
 {
   int32_t cseqid = this->sync_.generateSeqId();
   ::apache::thrift::async::TConcurrentSendSentry sentry(&this->sync_);
   this->oprot_->writeMessageBegin("handleRequest", ::apache::thrift::protocol::T_CALL, cseqid);
 
-  WordSegService_handleRequest_pargs args;
+  ArticleService_handleRequest_pargs args;
   args.request = &request;
   args.write(this->oprot_);
 
@@ -1788,7 +1321,7 @@ int32_t WordSegServiceConcurrentClientT<Protocol_>::send_handleRequest(const std
 }
 
 template <class Protocol_>
-void WordSegServiceConcurrentClientT<Protocol_>::recv_handleRequest(std::string& _return, const int32_t seqid)
+void ArticleServiceConcurrentClientT<Protocol_>::recv_handleRequest(std::string& _return, const int32_t seqid)
 {
 
   int32_t rseqid = 0;
@@ -1826,7 +1359,7 @@ void WordSegServiceConcurrentClientT<Protocol_>::recv_handleRequest(std::string&
         using ::apache::thrift::protocol::TProtocolException;
         throw TProtocolException(TProtocolException::INVALID_DATA);
       }
-      WordSegService_handleRequest_presult result;
+      ArticleService_handleRequest_presult result;
       result.success = &_return;
       result.read(this->iprot_);
       this->iprot_->readMessageEnd();

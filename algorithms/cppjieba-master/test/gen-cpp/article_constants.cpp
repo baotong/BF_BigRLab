@@ -4,13 +4,13 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
-#include "wordseg_constants.h"
+#include "article_constants.h"
 
-namespace WordSeg {
+namespace Article {
 
-const wordsegConstants g_wordseg_constants;
+const articleConstants g_article_constants;
 
-wordsegConstants::wordsegConstants() {
+articleConstants::articleConstants() {
 }
 
 } // namespace

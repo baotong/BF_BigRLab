@@ -1,31 +1,24 @@
 /*
  * https://github.com/yanyiwu/cppjieba
+ * ./demo -service -algname jieba -algmgr localhost:9001 -port 10080
  */
-#include "cppjieba/Jieba.hpp"
-#include "cppjieba/KeywordExtractor.hpp"
+#include "jieba.hpp"
 #include "rpc_module.h"
-#include "shared_queue.h"
 #include "AlgMgrService.h"
-#include "WordSegService.h"
-#include <sstream>
-#include <set>
-#include <algorithm>
-#include <iterator>
-#include <boost/foreach.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/range/combine.hpp>
+#include "ArticleServiceHandler.h"
+// #include <boost/foreach.hpp>
+// #include <boost/tuple/tuple.hpp>
+// #include <boost/range/combine.hpp>
 #include <boost/asio.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 
-#define SPACES " \t\f\r\v\n"
+#define SLEEP_MILLISECONDS(x) boost::this_thread::sleep_for(boost::chrono::milliseconds(x))
+#define SLEEP_SECONDS(x)      boost::this_thread::sleep_for(boost::chrono::seconds(x))
 
-#define SLEEP_MILLISECONDS(x) std::this_thread::sleep_for(std::chrono::milliseconds(x))
-#define SLEEP_SECONDS(x)      std::this_thread::sleep_for(std::chrono::seconds(x))
-
-#define SERVICE_LIB_NAME        "TODO"
+#define SERVICE_LIB_NAME        "article"
 
 #define THROW_RUNTIME_ERROR(x) \
     do { \
@@ -57,7 +50,12 @@ static uint16_t                     g_nAlgMgrPort = 0;
 static std::string                  g_strThisAddr;
 static uint16_t                     g_nThisPort = 0;
 
+typedef BigRLab::ThriftClient< BigRLab::AlgMgrServiceClient >                AlgMgrClient;
+typedef BigRLab::ThriftServer< Article::ArticleServiceIf, Article::ArticleServiceProcessor > ArticleAlgServer;
+static AlgMgrClient::Pointer                  g_pAlgMgrClient;
+static ArticleAlgServer::Pointer              g_pThisServer;
 static boost::asio::io_service                g_io_service;
+static boost::shared_ptr<BigRLab::AlgSvrInfo> g_pSvrInfo;
 
 namespace {
 
@@ -216,89 +214,8 @@ private:
 
 } // namespace
 
-class Jieba {
-public:
-    typedef boost::shared_ptr<Jieba>    pointer;
-    typedef std::set<std::string>       FilterSet;
-    typedef std::vector<std::string>    WordVector;
-    typedef std::vector< std::pair<std::string, std::string> > TagResult;
-    typedef std::vector<cppjieba::KeywordExtractor::Word>      KeywordResult;
+SharedQueue<Jieba::pointer>      g_JiebaPool;
 
-public:
-    explicit Jieba(const std::string &dict_path, 
-                   const std::string &hmm_path,
-                   const std::string &user_dict_path,
-                   const std::string &idf_path,
-                   const std::string &stop_word_path)
-        : DICT_PATH(dict_path)
-        , HMM_PATH(hmm_path)
-        , USER_DICT_PATH(user_dict_path)
-        , IDF_PATH(idf_path)
-        , STOP_WORD_PATH(stop_word_path)
-    {
-        m_pJieba = boost::make_shared<cppjieba::Jieba>(DICT_PATH.c_str(), HMM_PATH.c_str(), USER_DICT_PATH.c_str());
-        m_pExtractor = boost::make_shared<cppjieba::KeywordExtractor>(*m_pJieba, IDF_PATH.c_str(), STOP_WORD_PATH.c_str());
-    }
-
-    void setFilter( const std::string &strFilter )
-    {
-        if (strFilter.empty())
-            return;
-
-        FilterSet filter; 
-        char *cstrFilter = const_cast<char*>(strFilter.c_str());
-        for (char *p = strtok(cstrFilter, ";" SPACES); p; p = strtok(NULL, ";" SPACES))
-            filter.insert(p);
-
-        setFilter( filter );
-    }
-
-    void setFilter( FilterSet &filter )
-    { m_setFilter.swap(filter); }
-
-    void tagging( const std::string &content, TagResult &result )
-    {
-        TagResult _Result;
-        m_pJieba->Tag(content, _Result);
-
-        result.clear();
-        result.reserve( _Result.size() );
-        for (auto &v : _Result) {
-            if (!m_setFilter.count(v.second)) {
-                result.push_back( TagResult::value_type() );
-                result.back().first.swap(v.first);
-                result.back().second.swap(v.second);
-            } // if
-        } // for
-
-        result.shrink_to_fit();
-    }
-
-    void wordSegment( const std::string &content, WordVector &result )
-    {
-        TagResult tagResult;
-        tagging(content, tagResult);
-
-        result.resize( tagResult.size() );
-        for (std::size_t i = 0; i < result.size(); ++i)
-            result[i].swap( tagResult[i].first );
-    }
-
-    void keywordExtract( const std::string &content, KeywordResult &result, const std::size_t topk )
-    { m_pExtractor->Extract(content, result, topk); }
-
-protected:
-    const std::string   DICT_PATH; 
-    const std::string   HMM_PATH; 
-    const std::string   USER_DICT_PATH; 
-    const std::string   IDF_PATH; 
-    const std::string   STOP_WORD_PATH; 
-    FilterSet                                     m_setFilter;
-    boost::shared_ptr<cppjieba::Jieba>            m_pJieba;
-    boost::shared_ptr<cppjieba::KeywordExtractor> m_pExtractor;
-};
-
-static SharedQueue<Jieba::pointer>      g_JiebaPool;
 
 namespace Test {
 
@@ -330,19 +247,96 @@ void test2()
 static
 void stop_server()
 {
-    // if (g_pThisServer)
-        // g_pThisServer->stop();
+    if (g_pThisServer)
+        g_pThisServer->stop();
 }
 
 static
 void stop_client()
 {
-    // if (g_pAlgMgrClient) {
-        // (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
-        // g_pAlgMgrClient->stop();
-    // } // if
+    if (g_pAlgMgrClient) {
+        (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
+        g_pAlgMgrClient->stop();
+    } // if
 }
 
+static
+void start_rpc_service()
+{
+    using namespace std;
+
+    cout << "Trying to start rpc service..." << endl;
+
+    try {
+        get_local_ip();
+    } catch (const std::exception &ex) {
+        LOG(ERROR) << "get_local_ip() fail! " << ex.what();
+        exit(-1);
+    } // try
+
+    cout << "Detected local ip is " << g_strThisAddr << endl;
+
+    g_pSvrInfo = boost::make_shared<BigRLab::AlgSvrInfo>();
+    g_pSvrInfo->addr = g_strThisAddr;
+    g_pSvrInfo->port = (int16_t)g_nThisPort;
+    g_pSvrInfo->maxConcurrency = FLAGS_n_work_threads;
+    g_pSvrInfo->serviceName = SERVICE_LIB_NAME;
+
+    // start client to alg_mgr
+    // 需要在单独线程中执行，防止和alg_mgr形成死锁
+    // 这里调用addSvr，alg_mgr那边调用 Service::addServer
+    // 尝试连接本server，而本server还没有启动
+    cout << "Registering server..." << endl;
+    g_pAlgMgrClient = boost::make_shared< AlgMgrClient >(g_strAlgMgrAddr, g_nAlgMgrPort);
+    auto register_svr = [&] {
+        try {
+            SLEEP_MILLISECONDS(500);   // let thrift server start first
+            if (!g_pAlgMgrClient->start(50, 300)) {
+                cerr << "AlgMgr server unreachable!" << endl;
+                exit(-1);
+            } // if
+            (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
+            int ret = (*g_pAlgMgrClient)()->addSvr(FLAGS_algname, *g_pSvrInfo);
+            if (ret != BigRLab::SUCCESS) {
+                cerr << "Register alg server fail!";
+                switch (ret) {
+                    case BigRLab::ALREADY_EXIST:
+                        cerr << " server with same addr:port already exists!";
+                        break;
+                    case BigRLab::SERVER_UNREACHABLE:
+                        cerr << " this server is unreachable by algmgr! check the server address setting.";
+                        break;
+                    case BigRLab::NO_SERVICE:
+                        cerr << " service lib has not benn loaded on apiserver!";
+                        break;
+                    case BigRLab::INTERNAL_FAIL:
+                        cerr << " fail due to internal error!";
+                        break;
+                } // switch
+                cerr << endl;
+                std::raise(SIGTERM);
+            } // if
+        } catch (const std::exception &ex) {
+            cerr << "Unable to connect to algmgr server, " << ex.what() << endl;
+            std::raise(SIGTERM);
+        } // try
+    };
+    boost::thread register_thr(register_svr);
+    register_thr.detach();
+
+    // start this alg server
+    cout << "Launching alogrithm server... " << endl;
+    boost::shared_ptr< Article::ArticleServiceIf > 
+            pHandler = boost::make_shared< Article::ArticleServiceHandler >();
+    // Test::test1(pHandler);
+    g_pThisServer = boost::make_shared< ArticleAlgServer >(pHandler, g_nThisPort);
+    try {
+        g_pThisServer->start(); //!! NOTE blocking until quit
+    } catch (const std::exception &ex) {
+        cerr << "Start this alg server fail, " << ex.what() << endl;
+        exit(-1);
+    } // try
+}
 
 static
 void service_init()
@@ -353,21 +347,30 @@ void service_init()
         FLAGS_n_jieba_inst = FLAGS_n_work_threads;
     } // if
 
-    boost::thread_group thrgrp;
-    for (int i = 0; i < FLAGS_n_jieba_inst; ++i)
-        thrgrp.create_thread( [&]{
-            auto pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, 
-                        FLAGS_user_dict, FLAGS_idf, FLAGS_stop_words);
-            pJieba->setFilter( FLAGS_filter );
-            g_JiebaPool.push(pJieba);
-        } );
-    thrgrp.join_all();
+    // LOG(INFO) << "FLAGS_n_jieba_inst = " << FLAGS_n_jieba_inst;
+
+    for (int i = 0; i < FLAGS_n_jieba_inst; ++i) {
+        auto pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, 
+                FLAGS_user_dict, FLAGS_idf, FLAGS_stop_words);
+        pJieba->setFilter( FLAGS_filter );
+        g_JiebaPool.push(pJieba);
+    } // for
 }
 
 static
 void do_service_routine()
 {
+    using namespace std;
+    cout << "Initializing service..." << endl;
     service_init();
+    cout << "Starting rpc service..." << endl;
+    start_rpc_service();
+}
+
+static
+void do_standalone_routine()
+{
+    // TODO
 }
 
 
@@ -392,6 +395,8 @@ int main(int argc, char **argv)
 
         if (FLAGS_service)
             do_service_routine();
+        else
+            do_standalone_routine();
 
         pIoServiceWork.reset();
         g_io_service.stop();

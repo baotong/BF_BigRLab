@@ -4,8 +4,8 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
-#ifndef wordseg_TYPES_H
-#define wordseg_TYPES_H
+#ifndef article_TYPES_H
+#define article_TYPES_H
 
 #include <iosfwd>
 
@@ -17,11 +17,9 @@
 #include <thrift/cxxfunctional.h>
 
 
-namespace WordSeg {
+namespace Article {
 
 class InvalidRequest;
-
-class ResultItem;
 
 typedef struct _InvalidRequest__isset {
   _InvalidRequest__isset() : reason(false) {}
@@ -63,50 +61,8 @@ inline std::ostream& operator<<(std::ostream& out, const InvalidRequest& obj)
   return out;
 }
 
-typedef struct _ResultItem__isset {
-  _ResultItem__isset() : item(false), tag(false) {}
-  bool item :1;
-  bool tag :1;
-} _ResultItem__isset;
-
-class ResultItem {
- public:
-
-  ResultItem(const ResultItem&);
-  ResultItem(ResultItem&&);
-  ResultItem& operator=(const ResultItem&);
-  ResultItem& operator=(ResultItem&&);
-  ResultItem() : item(), tag() {
-  }
-
-  virtual ~ResultItem() throw();
-  std::string item;
-  std::string tag;
-
-  _ResultItem__isset __isset;
-
-  void __set_item(const std::string& val);
-
-  void __set_tag(const std::string& val);
-
-  template <class Protocol_>
-  uint32_t read(Protocol_* iprot);
-  template <class Protocol_>
-  uint32_t write(Protocol_* oprot) const;
-
-  virtual void printTo(std::ostream& out) const;
-};
-
-void swap(ResultItem &a, ResultItem &b);
-
-inline std::ostream& operator<<(std::ostream& out, const ResultItem& obj)
-{
-  obj.printTo(out);
-  return out;
-}
-
 } // namespace
 
-#include "wordseg_types.tcc"
+#include "article_types.tcc"
 
 #endif
