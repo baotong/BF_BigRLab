@@ -13,7 +13,7 @@ INCLUDE_DIRECTORIES(${INCLUDE})
 # include_directories(${INCLUDE})
 file(GLOB SRC demo.cpp ${CMAKE_CURRENT_SOURCE_DIR}/gen-cpp/*.cpp ${API_SERVER_DIR}/gen-cpp/*.cpp)
 
-# SET(CMAKE_CXX_FLAGS "-std=c++11 -pthread -O3 -g -v")
+SET(CMAKE_CXX_FLAGS "-std=c++11 -pthread -O3 -g")
 
 ADD_EXECUTABLE(demo ${SRC})
 target_link_libraries(demo thriftnb thrift boost_thread boost_system event jsoncpp glog gflags)

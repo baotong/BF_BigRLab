@@ -10,9 +10,6 @@ if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 
 ADD_DEFINITIONS(-std=c++11 -pthread -O3 -g)
-IF(APPLE) # mac os
-    ADD_DEFINITIONS(-std=c++0x)
-endif()
 
 # cmake .. -DENC=GBK
 # IF (DEFINED ENC)
