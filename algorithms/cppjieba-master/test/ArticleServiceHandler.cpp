@@ -5,16 +5,6 @@
 
 #define TIMEOUT     5000
 
-#define THROW_INVALID_REQUEST(args) \
-    do { \
-        std::stringstream __err_stream; \
-        __err_stream << args; \
-        __err_stream.flush(); \
-        InvalidRequest __invalid_request_err; \
-        __invalid_request_err.reason = std::move(__err_stream.str()); \
-        throw __invalid_request_err; \
-    } while (0)
-
 namespace Article {
 
 using namespace std;

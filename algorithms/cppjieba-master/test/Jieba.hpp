@@ -2,6 +2,7 @@
 #define _JIEBA_HPP_
 
 #include "shared_queue.h"
+#include "common.h"
 #include "cppjieba/Jieba.hpp"
 #include "cppjieba/KeywordExtractor.hpp"
 #include <boost/make_shared.hpp>
@@ -11,8 +12,6 @@
 #include <set>
 #include <algorithm>
 #include <iterator>
-
-#define SPACES " \t\f\r\v\n"
 
 class Jieba {
 public:

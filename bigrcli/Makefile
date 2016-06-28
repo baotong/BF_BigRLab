@@ -2,7 +2,7 @@ all: bigrcli
 
 CC = c++
 INCLUDE = -I../api_server
-LIBS = -lrt
+LIBS = -lrt -lgflags
 FLAGS = -std=c++11 -pthread -O3 -g
 
 SRC = bigrcli.cpp

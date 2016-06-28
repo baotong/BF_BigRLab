@@ -3,6 +3,7 @@
  * ./demo -service -algname jieba -algmgr localhost:9001 -port 10080
  */
 #include "jieba.hpp"
+#include "Article2Vector.h"
 #include "rpc_module.h"
 #include "AlgMgrService.h"
 #include "ArticleServiceHandler.h"
@@ -15,17 +16,7 @@
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 
-#define SLEEP_MILLISECONDS(x) boost::this_thread::sleep_for(boost::chrono::milliseconds(x))
-
 #define SERVICE_LIB_NAME        "article"
-
-#define THROW_RUNTIME_ERROR(x) \
-    do { \
-        std::stringstream __err_stream; \
-        __err_stream << x; \
-        __err_stream.flush(); \
-        throw std::runtime_error( __err_stream.str() ); \
-    } while (0)
 
 using namespace BigRLab;
 
@@ -369,7 +360,18 @@ void do_service_routine()
 static
 void do_standalone_routine()
 {
-    // TODO
+    using namespace std;
+
+    cout << "Running in standalone mode..." << endl;
+    auto pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, 
+            FLAGS_user_dict, FLAGS_idf, FLAGS_stop_words);
+    pJieba->setFilter( FLAGS_filter );
+
+    string content = "我是拖拉机学院手扶拖拉机专业的。不用多久，我就会升职加薪，当上CEO，走上人生巅峰。";
+    Jieba::KeywordResult result;
+    pJieba->keywordExtract(content, result, 5);
+    for (auto& v : result)
+        cout << v << endl;
 }
 
 

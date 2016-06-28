@@ -6,6 +6,10 @@
 #include <iostream>
 #include <string>
 #include <memory>
+#include <climits>
+#include <gflags/gflags.h>
+
+#define MAX_TIMEOUT         2592000   // 1 month
 
 #define RETVAL(val, args) \
     do { \
@@ -16,13 +20,33 @@
         return val; \
     } while (0)
 
-#define TIMEOUT         5000
+DEFINE_int32(timeout, MAX_TIMEOUT, "Timeout in seconds for waiting response.");
 
 using namespace boost::interprocess;
 using namespace std;
 
+namespace {
+
+static bool validate_timeout(const char* flagname, gflags::int32 value) 
+{ 
+    if (FLAGS_timeout <= 0)
+        FLAGS_timeout = MAX_TIMEOUT;
+    return true;
+}
+static const bool timeout_dummy = gflags::RegisterFlagValidator(&FLAGS_timeout, &validate_timeout);
+
+} // namespace
+
+
 int main(int argc, char **argv)
 try {
+    int idx = gflags::ParseCommandLineFlags(&argc, &argv, true);
+    // cout << "FLAGS_timeout = " << FLAGS_timeout << endl;
+    // for (; idx < argc; ++idx)
+        // cout << argv[idx] << " ";
+    // cout << endl;
+    // return 0;
+
     StreamBuf *pBuf = NULL;
     std::shared_ptr<managed_shared_memory>   pShmSegment;
 
@@ -41,11 +65,11 @@ try {
 
     string cmd, resp;
 
-    if (argc < 2) {
+    if (idx >= argc) {
         cmd = "hello";
     } else {
-        for (int i = 1; i < argc; ++i)
-            cmd.append(argv[i]).append(" ");
+        for (; idx < argc; ++idx)
+            cmd.append(argv[idx]).append(" ");
         cmd.erase(cmd.size()-1);
     } // if
 
@@ -56,6 +80,9 @@ try {
         stream.seekg(0, std::ios::beg);
         stream.seekp(0, std::ios::beg);
     };
+
+    // clear state
+    pBuf->respReady = false;
 
     // send cmd
     {
@@ -72,7 +99,7 @@ try {
     {
         resetStream();
         //!! 不能用local_time
-        auto deadline = boost::posix_time::microsec_clock::universal_time() + boost::posix_time::milliseconds(TIMEOUT);
+        auto deadline = boost::posix_time::microsec_clock::universal_time() + boost::posix_time::seconds(FLAGS_timeout);
         scoped_lock<interprocess_mutex> lk(pBuf->mtx);
         if (!pBuf->condResp.timed_wait(lk, deadline, [&]{ return pBuf->respReady; }))
             RETVAL(-1, "Wait cmd response timeout. "

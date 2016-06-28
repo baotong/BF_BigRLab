@@ -11,7 +11,7 @@ SET(INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/gen-cpp" "${COMM_DIR}" "${API_SERVER_DI
 INCLUDE_DIRECTORIES(${INCLUDE})
 
 # include_directories(${INCLUDE})
-file(GLOB SRC demo.cpp ArticleServiceHandler.cpp ${CMAKE_CURRENT_SOURCE_DIR}/gen-cpp/*.cpp ${API_SERVER_DIR}/gen-cpp/*.cpp)
+file(GLOB SRC demo.cpp Article2Vector.cpp ArticleServiceHandler.cpp ${CMAKE_CURRENT_SOURCE_DIR}/gen-cpp/*.cpp ${API_SERVER_DIR}/gen-cpp/*.cpp)
 
 SET(CMAKE_CXX_FLAGS "-std=c++11 -pthread -O3 -g")
 
