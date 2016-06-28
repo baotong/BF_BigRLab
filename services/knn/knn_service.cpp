@@ -424,10 +424,3 @@ std::string KnnService::toString() const
     return stream.str();
 }
 
-
-
-int main()
-{
-    Service *p = create_instance("test");
-    return 0;
-}

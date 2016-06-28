@@ -16,7 +16,6 @@
 #include <gflags/gflags.h>
 
 #define SLEEP_MILLISECONDS(x) boost::this_thread::sleep_for(boost::chrono::milliseconds(x))
-#define SLEEP_SECONDS(x)      boost::this_thread::sleep_for(boost::chrono::seconds(x))
 
 #define SERVICE_LIB_NAME        "article"
 

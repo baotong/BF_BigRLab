@@ -377,7 +377,11 @@ void start_shell()
                 WRITE_LINE("No service " << cmd2 << " found!");
                 continue;
             } // if
-            pSrv->handleCommand(stream);
+            try {
+                pSrv->handleCommand(stream);
+            } catch (const std::exception &ex) {
+                WRITE_LINE(ex.what());
+            } // try
         } else if ("quit" == cmd1) {
             WRITE_LINE("BigRLab terminated.");
             return;

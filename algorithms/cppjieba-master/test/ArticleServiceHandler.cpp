@@ -48,6 +48,7 @@ void ArticleServiceHandler::handleRequest(std::string& _return, const std::strin
     Json::Value     root;
     string          id;
     vector<string>  result;
+    Json::Value     resp;
 
     // DLOG(INFO) << "KnnService received request: " << request;
 
@@ -55,18 +56,20 @@ void ArticleServiceHandler::handleRequest(std::string& _return, const std::strin
         THROW_INVALID_REQUEST("Json parse fail!");
     
     try {
-        id = root["id"].asString();
         string content = root["content"].asString();
-        wordSegment( result, content );
+        string reqtype = root["reqtype"].asString();
+        if ("wordseg" == reqtype) {
+            wordSegment( result, content );
+            for (auto &v : result)
+                resp["result"].append(v);
+        } else {
+            THROW_INVALID_REQUEST("Invalid reqtype " << reqtype);
+        } // if
     } catch (const std::exception &ex) {
         THROW_INVALID_REQUEST("handleRequest fail: " << ex.what());
     } // try
 
-    Json::Value resp;
     resp["status"] = 0;
-    resp["id"] = id;
-    for (auto &v : result)
-        resp["result"].append(v);
 
     Json::FastWriter writer;  
     _return = writer.write(resp);

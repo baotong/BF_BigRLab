@@ -1,13 +1,14 @@
-#ifndef _KNN_SERVICE_H_
-#define _KNN_SERVICE_H_
+#ifndef _ARTICLE_SERVICE_H_
+#define _ARTICLE_SERVICE_H_
 
 #include "service.h"
-#include "KnnService.h"
+#include "ArticleService.h"
 #include "AlgMgrService.h"
 #include <map>
 #include <vector>
 #include <deque>
 #include <string>
+#include <set>
 #include <atomic>
 #include <boost/thread/lockable_adapter.hpp>
 #include <boost/thread/condition_variable.hpp>
@@ -18,7 +19,7 @@ extern "C" {
 }
 
 
-class KnnService : public BigRLab::Service {
+class ArticleService : public BigRLab::Service {
 public:
     enum StatusCode {
         OK = 0,
@@ -29,19 +30,19 @@ public:
 public:
     static const uint32_t       TIMEOUT = 5000;     // 5s
 public:
-    typedef BigRLab::ThriftClient< KNN::KnnServiceClient > KnnClient;
-    typedef KnnClient::Pointer                             KnnClientPtr;
-    typedef boost::weak_ptr<KnnClient>                     KnnClientWptr;
+    typedef BigRLab::ThriftClient< Article::ArticleServiceClient > ArticleClient;
+    typedef ArticleClient::Pointer                             ArticleClientPtr;
+    typedef boost::weak_ptr<ArticleClient>                     ArticleClientWptr;
 
-    struct IdleClientQueue : BigRLab::SharedQueue< KnnClientWptr > {
-        KnnClientPtr getIdleClient();
+    struct IdleClientQueue : BigRLab::SharedQueue< ArticleClientWptr > {
+        ArticleClientPtr getIdleClient();
         
-        void putBack( const KnnClientPtr &pClient )
+        void putBack( const ArticleClientPtr &pClient )
         { this->push( pClient ); }
     };
 
-    struct KnnClientArr : ServerAttr {
-        KnnClientArr(const BigRLab::AlgSvrInfo &svr, 
+    struct ArticleClientArr : ServerAttr {
+        ArticleClientArr(const BigRLab::AlgSvrInfo &svr, 
                      IdleClientQueue *idleQue, int n);
 
         bool empty() const
@@ -50,11 +51,15 @@ public:
         std::size_t size() const
         { return clients.size(); }
 
-        std::vector<KnnClientPtr> clients;
+        std::vector<ArticleClientPtr> clients;
     };
 
 public:
-    KnnService( const std::string &name ) : BigRLab::Service(name) {}
+    ArticleService( const std::string &name ) : BigRLab::Service(name) 
+    {
+        std::set<std::string> tmp{"wordseg"};
+        m_setValidReqType.swap(tmp);
+    }
 
     // virtual bool init( int argc, char **argv );
     virtual void handleRequest(const BigRLab::WorkItemPtr &pWork);
@@ -64,9 +69,13 @@ public:
     virtual std::string toString() const;
     // use Service::rmServer()
     // virtual void rmServer( const BigRLab::AlgSvrInfo& svrInfo );
+    
+    bool isValidReq( const std::string &reqtype ) const
+    { return m_setValidReqType.count(reqtype) > 0; } 
 
 private:
     IdleClientQueue  m_queIdleClients;
+    std::set<std::string> m_setValidReqType;
 };
 
 
