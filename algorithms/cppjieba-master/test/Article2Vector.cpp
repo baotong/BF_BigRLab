@@ -5,6 +5,10 @@
 #include <fstream>
 #include <iterator>
 #include <algorithm>
+#include <set>
+#include <boost/foreach.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <boost/range/combine.hpp>
 #include <glog/logging.h>
 
 
@@ -74,4 +78,87 @@ void Article2VectorByCluster::loadDict(const char *filename)
             continue;
         } // if
     } // while
+}
+
+
+void Article2VectorByWordVec::convert2Vector( const std::string &article, ResultType &result )
+{
+    using namespace std;
+
+    typedef boost::tuple<double&, float&> IterType;
+
+    result.clear();
+    result.resize(m_nClasses, 0.0);
+
+    vector<double> sumVec( m_nClasses );
+    string word;
+
+    stringstream stream(article);
+    size_t count = 0;
+    while (stream >> word) {
+        auto it = m_mapDict.find(word);
+        if (it == m_mapDict.end()) {
+            // DLOG(INFO) << "no word " << word << " found in wordvec table.";
+            continue;
+        } // if
+        ++count;
+        vector<float> &wordVec = it->second;
+        // Test::print_container(wordVec);
+        BOOST_FOREACH( IterType v, boost::combine(sumVec, wordVec) )
+            v.get<0>() += v.get<1>();
+    } // while
+
+    if (!count)
+        return;
+
+    std::for_each(sumVec.begin(), sumVec.end(), 
+            [&](double &v){ v /= (double)count; });
+
+    BOOST_FOREACH( IterType v, boost::combine(sumVec, result) )
+        v.get<1>() = (float)(v.get<0>());
+}
+
+void Article2VectorByCluster::convert2Vector( const std::string &article, ResultType &result )
+{
+    using namespace std;
+
+    typedef boost::tuple<double&, float&> IterType;
+
+    result.clear();
+    result.resize(m_nClasses, 0.0);
+
+    vector<double> workVec( m_nClasses, 0.0 );
+    set<string>    wordSet;
+    string         word;
+    stringstream   stream(article);
+    double         maxCount = 0.0;
+
+    while (stream >> word) {
+        auto ret = wordSet.insert(word);
+        // 跳过重复单词
+        if (!ret.second)
+            continue;
+
+        auto it = m_mapDict.find(word);
+        if (it == m_mapDict.end()) {
+            // DLOG(INFO) << "no word " << word << " found in cluster table.";
+            continue;
+        } // if
+        uint32_t id = it->second;
+        workVec[id] += 1.0;
+        maxCount = workVec[id] > maxCount ? workVec[id] : maxCount;
+    } // while
+
+    if (maxCount < 1.0)
+        return;
+
+    // DLOG(INFO) << "Before normalization:";
+    // Test::print_non_zero_vector(cout, workVec);
+    std::for_each(workVec.begin(), workVec.end(), 
+            [&](double &v){ v /= maxCount; });
+    // DLOG(INFO) << "After normalization:";
+    // Test::print_non_zero_vector(cout, workVec);
+
+    BOOST_FOREACH( IterType v, boost::combine(workVec, result) )
+        v.get<1>() = (float)(v.get<0>());
 }

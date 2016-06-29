@@ -12,6 +12,9 @@
  * service knn_star file 10 test.txt out.txt
  * curl -i -X POST -H "Content-Type: application/json" -d '{"item":"李宇春","n":10}' http://localhost:9000/knn_star
  *
+ * Service jieba
+ * service jieba keyword jieba_test.txt out.txt 5
+ *
  * To run as a service in background
  * nohup ./apiserver.bin -b > nohup.log 2>&1 &
  */

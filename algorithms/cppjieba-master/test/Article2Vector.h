@@ -39,6 +39,8 @@ public:
             : Article2Vector(_N_Classes)
     { loadDict(dictFile); }
 
+    virtual void convert2Vector( const std::string &article, ResultType &result );
+
 private:
     void loadDict(const char *filename);
 
@@ -55,6 +57,8 @@ public:
     Article2VectorByCluster(uint32_t _N_Classes, const char *dictFile)
             : Article2Vector(_N_Classes)
     { loadDict(dictFile); }
+
+    virtual void convert2Vector( const std::string &article, ResultType &result );
 
 private:
     void loadDict(const char *filename);

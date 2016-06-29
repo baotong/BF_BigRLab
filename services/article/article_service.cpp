@@ -245,6 +245,8 @@ void ArticleService::handleCommand( std::stringstream &stream )
     auto do_keyword = [&] {
         int topk;
         stream >> topk;
+        if (bad_stream(stream))
+            THROW_RUNTIME_ERROR("Cannot read topk value");
         if (topk <= 0)
             THROW_RUNTIME_ERROR("Invalid topk value " << topk);
         while( getline(ifs, line) ) {

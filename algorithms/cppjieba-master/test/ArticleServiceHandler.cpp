@@ -87,7 +87,7 @@ void ArticleServiceHandler::handleRequest(std::string& _return, const std::strin
             vector<KeywordResult> result;
             int topk = root["topk"].asInt();
             string content = root["content"].asString();
-            keyword(content, result, topk);
+            keyword(result, content, topk);
             for (auto& v : result)
                 resp["result"].append(v.word);
 

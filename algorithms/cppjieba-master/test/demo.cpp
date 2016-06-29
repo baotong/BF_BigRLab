@@ -1,15 +1,14 @@
 /*
  * https://github.com/yanyiwu/cppjieba
- * ./demo -service -algname jieba -algmgr localhost:9001 -port 10080
+ * ./demo -algname jieba -algmgr localhost:9001 -port 10080
+ * ./demo -algname jieba -algmgr localhost:9001 -port 10080 -wordvec_dict data/weibo_500w.wordvec -cluster_dict data/weibo_500w.class
  */
 #include "jieba.hpp"
 #include "Article2Vector.h"
 #include "rpc_module.h"
 #include "AlgMgrService.h"
 #include "ArticleServiceHandler.h"
-// #include <boost/foreach.hpp>
-// #include <boost/tuple/tuple.hpp>
-// #include <boost/range/combine.hpp>
+#include <cstdio>
 #include <boost/asio.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -27,13 +26,16 @@ DEFINE_string(user_dict, "../dict/user.dict.utf8", "用户自定义词典");
 DEFINE_string(idf, "../dict/idf.utf8", "训练过的idf，关键词提取");
 DEFINE_string(stop_words, "../dict/stop_words.utf8", "停用词");
 DEFINE_int32(n_jieba_inst, 0, "Number of jieba instances");
-DEFINE_bool(service, false, "Whether this program run in service mode");
+DEFINE_bool(service, true, "Whether this program run in service mode");
 DEFINE_string(algname, "", "Name of this algorithm");
 DEFINE_string(algmgr, "", "Address algorithm server manager, in form of addr:port");
 DEFINE_string(addr, "", "Address of this algorithm server, use system detected if not specified.");
 DEFINE_int32(port, 0, "listen port of ths algorithm server.");
 DEFINE_int32(n_work_threads, 10, "Number of work threads on RPC server");
 DEFINE_int32(n_io_threads, 4, "Number of io threads on RPC server");
+
+DEFINE_string(wordvec_dict, "", "File of word-vector");
+DEFINE_string(cluster_dict, "", "File of cluster-id");
 
 static std::string                  g_strAlgMgrAddr;
 static uint16_t                     g_nAlgMgrPort = 0;
@@ -46,6 +48,9 @@ static AlgMgrClient::Pointer                  g_pAlgMgrClient;
 static ArticleAlgServer::Pointer              g_pThisServer;
 static boost::asio::io_service                g_io_service;
 static boost::shared_ptr<BigRLab::AlgSvrInfo> g_pSvrInfo;
+
+static Article2Vector::pointer                g_pWordVecConverter;
+static Article2Vector::pointer                g_pClusterIdConverter;
 
 namespace {
 
@@ -331,6 +336,8 @@ void start_rpc_service()
 static
 void service_init()
 {
+    using namespace std;
+
     if (FLAGS_n_jieba_inst <= 0 || FLAGS_n_jieba_inst > FLAGS_n_work_threads) {
         LOG(INFO) << "Adjust -n_jieba_inst from old value " << FLAGS_n_jieba_inst 
             << " to new value -n_work_threads " << FLAGS_n_work_threads;
@@ -339,12 +346,59 @@ void service_init()
 
     // LOG(INFO) << "FLAGS_n_jieba_inst = " << FLAGS_n_jieba_inst;
 
+    cout << "Creating jieba instances..." << endl;
     for (int i = 0; i < FLAGS_n_jieba_inst; ++i) {
         auto pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, 
                 FLAGS_user_dict, FLAGS_idf, FLAGS_stop_words);
         pJieba->setFilter( FLAGS_filter );
         g_JiebaPool.push(pJieba);
     } // for
+
+    cout << "Creating article to vector converter..." << endl;
+
+    if (!FLAGS_wordvec_dict.empty()) {
+        // get n_class
+        stringstream stream;
+        stream << "tail -1 " << FLAGS_wordvec_dict << " | awk \'{print NF}\'" << flush;
+
+        boost::shared_ptr<FILE> fp;
+        fp.reset(popen(stream.str().c_str(), "r"), [](FILE *ptr){
+            if (ptr) pclose(ptr);        
+        });
+
+        uint32_t nClasses = 0;
+        if( fscanf(fp.get(), "%u", &nClasses) != 1 || !nClasses )
+            THROW_RUNTIME_ERROR("Cannot get num of classes from file " << FLAGS_wordvec_dict);
+        fp.reset();
+
+        --nClasses;
+
+        LOG(INFO) << "Detected nClasses = " << nClasses << " from file " << FLAGS_wordvec_dict;
+
+        g_pWordVecConverter = boost::make_shared<Article2VectorByWordVec>( nClasses, FLAGS_wordvec_dict.c_str() );
+    } // if
+
+    if (!FLAGS_cluster_dict.empty()) {
+        // get n_class
+        stringstream stream;
+        stream << "cat " << FLAGS_cluster_dict << " | awk \'{print $2}\' | sort -nr | head -1" << flush;
+
+        boost::shared_ptr<FILE> fp;
+        fp.reset(popen(stream.str().c_str(), "r"), [](FILE *ptr){
+            if (ptr) pclose(ptr);        
+        });
+
+        uint32_t nClasses = 0;
+        if( fscanf(fp.get(), "%u", &nClasses) != 1 || !nClasses )
+            THROW_RUNTIME_ERROR("Cannot get num of classes from file " << FLAGS_cluster_dict);
+        fp.reset();
+
+        ++nClasses;
+
+        LOG(INFO) << "Detected nClasses = " << nClasses << " from file " << FLAGS_cluster_dict;
+
+        g_pClusterIdConverter = boost::make_shared<Article2VectorByCluster>( nClasses, FLAGS_cluster_dict.c_str() );
+    } // if
 }
 
 static
