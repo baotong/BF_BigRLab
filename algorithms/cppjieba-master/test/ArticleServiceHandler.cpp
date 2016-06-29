@@ -32,12 +32,41 @@ void ArticleServiceHandler::wordSegment(std::vector<std::string> & _return, cons
     g_JiebaPool.push( pJieba );
 }
 
+void ArticleServiceHandler::keyword(std::vector<KeywordResult> & _return, 
+            const std::string& sentence, const int32_t k)
+{
+    if (sentence.empty())
+        THROW_INVALID_REQUEST("Input sentence cannot be empty!");
+
+    Jieba::pointer pJieba;
+    if (!g_JiebaPool.timed_pop(pJieba, TIMEOUT))
+        THROW_INVALID_REQUEST("No available Jieba object!");
+
+    if (k <= 0)
+        THROW_INVALID_REQUEST("Invalid k value " << k);
+
+    Jieba::KeywordResult result;
+    try {
+        pJieba->keywordExtract(sentence, result, k);
+        _return.resize(result.size());
+        for (std::size_t i = 0; i < result.size(); ++i) {
+            _return[i].word.swap(result[i].word);
+            _return[i].weight = result[i].weight;
+        } // for
+
+    } catch (const std::exception &ex) {
+        LOG(ERROR) << "Jieba extract keyword error: " << ex.what();
+    } // try
+
+    g_JiebaPool.push( pJieba );
+
+}
+
 void ArticleServiceHandler::handleRequest(std::string& _return, const std::string& request)
 {
     Json::Reader    reader;
     Json::Value     root;
     string          id;
-    vector<string>  result;
     Json::Value     resp;
 
     // DLOG(INFO) << "KnnService received request: " << request;
@@ -46,12 +75,22 @@ void ArticleServiceHandler::handleRequest(std::string& _return, const std::strin
         THROW_INVALID_REQUEST("Json parse fail!");
     
     try {
+        vector<string>  result;
         string content = root["content"].asString();
         string reqtype = root["reqtype"].asString();
         if ("wordseg" == reqtype) {
             wordSegment( result, content );
             for (auto &v : result)
                 resp["result"].append(v);
+
+        } else if ("keyword" == reqtype) {
+            vector<KeywordResult> result;
+            int topk = root["topk"].asInt();
+            string content = root["content"].asString();
+            keyword(content, result, topk);
+            for (auto& v : result)
+                resp["result"].append(v.word);
+
         } else {
             THROW_INVALID_REQUEST("Invalid reqtype " << reqtype);
         } // if

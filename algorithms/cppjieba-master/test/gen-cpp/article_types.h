@@ -21,6 +21,8 @@ namespace Article {
 
 class InvalidRequest;
 
+class KeywordResult;
+
 typedef struct _InvalidRequest__isset {
   _InvalidRequest__isset() : reason(false) {}
   bool reason :1;
@@ -56,6 +58,48 @@ class InvalidRequest : public ::apache::thrift::TException {
 void swap(InvalidRequest &a, InvalidRequest &b);
 
 inline std::ostream& operator<<(std::ostream& out, const InvalidRequest& obj)
+{
+  obj.printTo(out);
+  return out;
+}
+
+typedef struct _KeywordResult__isset {
+  _KeywordResult__isset() : word(false), weight(false) {}
+  bool word :1;
+  bool weight :1;
+} _KeywordResult__isset;
+
+class KeywordResult {
+ public:
+
+  KeywordResult(const KeywordResult&);
+  KeywordResult(KeywordResult&&);
+  KeywordResult& operator=(const KeywordResult&);
+  KeywordResult& operator=(KeywordResult&&);
+  KeywordResult() : word(), weight(0) {
+  }
+
+  virtual ~KeywordResult() throw();
+  std::string word;
+  double weight;
+
+  _KeywordResult__isset __isset;
+
+  void __set_word(const std::string& val);
+
+  void __set_weight(const double val);
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+  virtual void printTo(std::ostream& out) const;
+};
+
+void swap(KeywordResult &a, KeywordResult &b);
+
+inline std::ostream& operator<<(std::ostream& out, const KeywordResult& obj)
 {
   obj.printTo(out);
   return out;

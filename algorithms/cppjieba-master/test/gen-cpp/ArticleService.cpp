@@ -42,6 +42,22 @@ ArticleService_wordSegment_presult::~ArticleService_wordSegment_presult() throw(
 }
 
 
+ArticleService_keyword_args::~ArticleService_keyword_args() throw() {
+}
+
+
+ArticleService_keyword_pargs::~ArticleService_keyword_pargs() throw() {
+}
+
+
+ArticleService_keyword_result::~ArticleService_keyword_result() throw() {
+}
+
+
+ArticleService_keyword_presult::~ArticleService_keyword_presult() throw() {
+}
+
+
 ArticleService_handleRequest_args::~ArticleService_handleRequest_args() throw() {
 }
 

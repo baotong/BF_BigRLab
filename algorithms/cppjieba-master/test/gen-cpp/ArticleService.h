@@ -23,6 +23,7 @@ class ArticleServiceIf {
   virtual ~ArticleServiceIf() {}
   virtual void setFilter(const std::string& filter) = 0;
   virtual void wordSegment(std::vector<std::string> & _return, const std::string& sentence) = 0;
+  virtual void keyword(std::vector<KeywordResult> & _return, const std::string& sentence, const int32_t k) = 0;
   virtual void handleRequest(std::string& _return, const std::string& request) = 0;
 };
 
@@ -57,6 +58,9 @@ class ArticleServiceNull : virtual public ArticleServiceIf {
     return;
   }
   void wordSegment(std::vector<std::string> & /* _return */, const std::string& /* sentence */) {
+    return;
+  }
+  void keyword(std::vector<KeywordResult> & /* _return */, const std::string& /* sentence */, const int32_t /* k */) {
     return;
   }
   void handleRequest(std::string& /* _return */, const std::string& /* request */) {
@@ -228,6 +232,101 @@ class ArticleService_wordSegment_presult {
 
 };
 
+typedef struct _ArticleService_keyword_args__isset {
+  _ArticleService_keyword_args__isset() : sentence(false), k(false) {}
+  bool sentence :1;
+  bool k :1;
+} _ArticleService_keyword_args__isset;
+
+class ArticleService_keyword_args {
+ public:
+
+  ArticleService_keyword_args(const ArticleService_keyword_args&);
+  ArticleService_keyword_args(ArticleService_keyword_args&&);
+  ArticleService_keyword_args& operator=(const ArticleService_keyword_args&);
+  ArticleService_keyword_args& operator=(ArticleService_keyword_args&&);
+  ArticleService_keyword_args() : sentence(), k(0) {
+  }
+
+  virtual ~ArticleService_keyword_args() throw();
+  std::string sentence;
+  int32_t k;
+
+  _ArticleService_keyword_args__isset __isset;
+
+  void __set_sentence(const std::string& val);
+
+  void __set_k(const int32_t val);
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+};
+
+
+class ArticleService_keyword_pargs {
+ public:
+
+
+  virtual ~ArticleService_keyword_pargs() throw();
+  const std::string* sentence;
+  const int32_t* k;
+
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+};
+
+typedef struct _ArticleService_keyword_result__isset {
+  _ArticleService_keyword_result__isset() : success(false) {}
+  bool success :1;
+} _ArticleService_keyword_result__isset;
+
+class ArticleService_keyword_result {
+ public:
+
+  ArticleService_keyword_result(const ArticleService_keyword_result&);
+  ArticleService_keyword_result(ArticleService_keyword_result&&);
+  ArticleService_keyword_result& operator=(const ArticleService_keyword_result&);
+  ArticleService_keyword_result& operator=(ArticleService_keyword_result&&);
+  ArticleService_keyword_result() {
+  }
+
+  virtual ~ArticleService_keyword_result() throw();
+  std::vector<KeywordResult>  success;
+
+  _ArticleService_keyword_result__isset __isset;
+
+  void __set_success(const std::vector<KeywordResult> & val);
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+};
+
+typedef struct _ArticleService_keyword_presult__isset {
+  _ArticleService_keyword_presult__isset() : success(false) {}
+  bool success :1;
+} _ArticleService_keyword_presult__isset;
+
+class ArticleService_keyword_presult {
+ public:
+
+
+  virtual ~ArticleService_keyword_presult() throw();
+  std::vector<KeywordResult> * success;
+
+  _ArticleService_keyword_presult__isset __isset;
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+
+};
+
 typedef struct _ArticleService_handleRequest_args__isset {
   _ArticleService_handleRequest_args__isset() : request(false) {}
   bool request :1;
@@ -356,6 +455,9 @@ class ArticleServiceClientT : virtual public ArticleServiceIf {
   void wordSegment(std::vector<std::string> & _return, const std::string& sentence);
   void send_wordSegment(const std::string& sentence);
   void recv_wordSegment(std::vector<std::string> & _return);
+  void keyword(std::vector<KeywordResult> & _return, const std::string& sentence, const int32_t k);
+  void send_keyword(const std::string& sentence, const int32_t k);
+  void recv_keyword(std::vector<KeywordResult> & _return);
   void handleRequest(std::string& _return, const std::string& request);
   void send_handleRequest(const std::string& request);
   void recv_handleRequest(std::string& _return);
@@ -391,6 +493,8 @@ class ArticleServiceProcessorT : public ::apache::thrift::TDispatchProcessorT<Pr
   void process_setFilter(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
   void process_wordSegment(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_wordSegment(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
+  void process_keyword(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_keyword(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
   void process_handleRequest(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_handleRequest(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
  public:
@@ -402,6 +506,9 @@ class ArticleServiceProcessorT : public ::apache::thrift::TDispatchProcessorT<Pr
     processMap_["wordSegment"] = ProcessFunctions(
       &ArticleServiceProcessorT::process_wordSegment,
       &ArticleServiceProcessorT::process_wordSegment);
+    processMap_["keyword"] = ProcessFunctions(
+      &ArticleServiceProcessorT::process_keyword,
+      &ArticleServiceProcessorT::process_keyword);
     processMap_["handleRequest"] = ProcessFunctions(
       &ArticleServiceProcessorT::process_handleRequest,
       &ArticleServiceProcessorT::process_handleRequest);
@@ -457,6 +564,16 @@ class ArticleServiceMultiface : virtual public ArticleServiceIf {
     return;
   }
 
+  void keyword(std::vector<KeywordResult> & _return, const std::string& sentence, const int32_t k) {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->keyword(_return, sentence, k);
+    }
+    ifaces_[i]->keyword(_return, sentence, k);
+    return;
+  }
+
   void handleRequest(std::string& _return, const std::string& request) {
     size_t sz = ifaces_.size();
     size_t i = 0;
@@ -504,6 +621,9 @@ class ArticleServiceConcurrentClientT : virtual public ArticleServiceIf {
   void wordSegment(std::vector<std::string> & _return, const std::string& sentence);
   int32_t send_wordSegment(const std::string& sentence);
   void recv_wordSegment(std::vector<std::string> & _return, const int32_t seqid);
+  void keyword(std::vector<KeywordResult> & _return, const std::string& sentence, const int32_t k);
+  int32_t send_keyword(const std::string& sentence, const int32_t k);
+  void recv_keyword(std::vector<KeywordResult> & _return, const int32_t seqid);
   void handleRequest(std::string& _return, const std::string& request);
   int32_t send_handleRequest(const std::string& request);
   void recv_handleRequest(std::string& _return, const int32_t seqid);

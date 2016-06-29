@@ -65,7 +65,6 @@ ArticleService::ArticleClientArr::ArticleClientArr(const BigRLab::AlgSvrInfo &sv
 
 struct ArticleTask : BigRLab::WorkItemBase {
     ArticleTask( std::size_t _Id,
-                 std::string *_ReqType,
                  std::string &_Article, 
                  ArticleService::IdleClientQueue *_IdleClients, 
                  std::atomic_size_t *_Counter,
@@ -74,7 +73,6 @@ struct ArticleTask : BigRLab::WorkItemBase {
                  std::ofstream *_Ofs, 
                  const char *_SrvName )
         : id(_Id)
-        , reqtype(_ReqType)
         , idleClients(_IdleClients)
         , counter(_Counter)
         , cond(_Cond)
@@ -96,30 +94,25 @@ struct ArticleTask : BigRLab::WorkItemBase {
 
         bool done = false;
 
-        auto do_wordseg = [&, this](ArticleService::ArticleClientPtr pClient) {
-            vector<string> result;
-            pClient->client()->wordSegment( result, article );
-            done = true;
-            idleClients->putBack( pClient );
-
-            // write to file
-            if (!result.empty()) {
-                boost::unique_lock<boost::mutex> flk( *mtx );
-                *ofs << id << "\t";
-                for (auto& v: result)
-                    *ofs << v << " ";
-                *ofs << endl << flush;
-            } // if
-        };
-
         do {
             auto pClient = idleClients->getIdleClient();
             if (!pClient)
                 THROW_RUNTIME_ERROR("Fail due to no available rpc client object!");
 
             try {
-                if ("wordseg" == *reqtype)
-                    do_wordseg( pClient );
+                vector<string> result;
+                pClient->client()->wordSegment( result, article );
+                done = true;
+                idleClients->putBack( pClient );
+
+                // write to file
+                if (!result.empty()) {
+                    boost::unique_lock<boost::mutex> flk( *mtx );
+                    *ofs << id << "\t";
+                    for (auto& v : result)
+                        *ofs << v << " ";
+                    *ofs << endl << flush;
+                } // if
 
             } catch (const Article::InvalidRequest &err) {
                 done = true;
@@ -133,7 +126,6 @@ struct ArticleTask : BigRLab::WorkItemBase {
     }
 
     std::size_t                     id;
-    std::string                     *reqtype;
     std::string                     article;
     ArticleService::IdleClientQueue *idleClients;
     std::atomic_size_t              *counter;
@@ -141,6 +133,66 @@ struct ArticleTask : BigRLab::WorkItemBase {
     boost::mutex                    *mtx;
     std::ofstream                   *ofs;
     const char                      *srvName;
+};
+
+struct ArticleTaskKeyword : public ArticleTask {
+    ArticleTaskKeyword( std::size_t _Id,
+                 std::string &_Article, 
+                 ArticleService::IdleClientQueue *_IdleClients, 
+                 std::atomic_size_t *_Counter,
+                 boost::condition_variable *_Cond,
+                 boost::mutex *_Mtx,
+                 std::ofstream *_Ofs, 
+                 const char *_SrvName,
+                 int _TopK )
+        : ArticleTask(_Id, _Article, _IdleClients, _Counter, _Cond, _Mtx, _Ofs, _SrvName)
+        , topk(_TopK) {}
+
+    virtual void run()
+    {
+        using namespace std;
+
+        auto on_finish = [this](void*) {
+            ++*counter;
+            cond->notify_all();
+        };
+
+        boost::shared_ptr<void> pOnFinish((void*)0, on_finish);
+
+        bool done = false;
+
+        do {
+            auto pClient = idleClients->getIdleClient();
+            if (!pClient)
+                THROW_RUNTIME_ERROR("Fail due to no available rpc client object!");
+
+            try {
+                vector<Article::KeywordResult> result;
+                pClient->client()->keyword( result, article, topk );
+                done = true;
+                idleClients->putBack( pClient );
+
+                // write to file
+                if (!result.empty()) {
+                    boost::unique_lock<boost::mutex> flk( *mtx );
+                    *ofs << id << "\t";
+                    for (auto& v : result)
+                        *ofs << v.word << ":" << v.weight << " ";
+                    *ofs << endl << flush;
+                } // if
+
+            } catch (const Article::InvalidRequest &err) {
+                done = true;
+                idleClients->putBack( pClient );
+                LOG(ERROR) << "Service " << srvName << " caught InvalidRequest: "
+                   << err.reason; 
+            } catch (const std::exception &ex) {
+                LOG(ERROR) << "Service " << srvName << " caught system exception: " << ex.what();
+            } // try
+        } while (!done);
+    }
+
+    int topk;
 };
 
 
@@ -161,10 +213,10 @@ void ArticleService::handleCommand( std::stringstream &stream )
     string reqtype, infile, outfile;
     stream >> reqtype >> infile >> outfile;
     if (bad_stream(stream))
-        THROW_RUNTIME_ERROR("Usage: service " << name() << " reqtype infile outfile");
+        THROW_RUNTIME_ERROR("Usage: service " << name() << " reqtype infile outfile ...");
 
-    if (!isValidReq(reqtype))
-        THROW_RUNTIME_ERROR("Invalid reqtype " << reqtype);
+    // if (!isValidReq(reqtype))
+        // THROW_RUNTIME_ERROR("Invalid reqtype " << reqtype);
 
     ifstream ifs(infile, ios::in);
     if (!ifs)
@@ -180,12 +232,39 @@ void ArticleService::handleCommand( std::stringstream &stream )
     boost::mutex                 mtx;
 
     counter = 0;
-    while( getline(ifs, line) ) {
-        WorkItemBasePtr pWork = boost::make_shared<ArticleTask>
-            (lineno, &reqtype, line, &m_queIdleClients, &counter, &cond, &mtx, &ofs, name().c_str());
-        getWorkMgr()->addWork( pWork );
-        ++lineno;
-    } // while
+
+    auto do_wordseg = [&] {
+        while( getline(ifs, line) ) {
+            WorkItemBasePtr pWork = boost::make_shared<ArticleTask>
+                (lineno, line, &m_queIdleClients, &counter, &cond, &mtx, &ofs, name().c_str());
+            getWorkMgr()->addWork( pWork );
+            ++lineno;
+        } // while
+    };
+
+    auto do_keyword = [&] {
+        int topk;
+        stream >> topk;
+        if (topk <= 0)
+            THROW_RUNTIME_ERROR("Invalid topk value " << topk);
+        while( getline(ifs, line) ) {
+            WorkItemBasePtr pWork = boost::make_shared<ArticleTaskKeyword>
+                (lineno, line, &m_queIdleClients, &counter, &cond, &mtx, &ofs, name().c_str(), topk);
+            getWorkMgr()->addWork( pWork );
+            ++lineno;
+        } // while
+    };
+
+    typedef std::function<void(void)> ReqFunction;
+    std::map<string, ReqFunction>     reqFuncTable;
+    reqFuncTable["wordseg"] = do_wordseg;
+    reqFuncTable["keyword"] = do_keyword;
+
+    auto it = reqFuncTable.find(reqtype);
+    if (it == reqFuncTable.end())
+        THROW_RUNTIME_ERROR("Invalid reqtype " << reqtype);
+
+    it->second();
 
     boost::unique_lock<boost::mutex> lock(mtx);
     cond.wait( lock, [&]()->bool {return counter >= lineno;} );

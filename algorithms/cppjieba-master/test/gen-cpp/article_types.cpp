@@ -64,4 +64,54 @@ const char* InvalidRequest::what() const throw() {
   }
 }
 
+
+KeywordResult::~KeywordResult() throw() {
+}
+
+
+void KeywordResult::__set_word(const std::string& val) {
+  this->word = val;
+}
+
+void KeywordResult::__set_weight(const double val) {
+  this->weight = val;
+}
+
+void swap(KeywordResult &a, KeywordResult &b) {
+  using ::std::swap;
+  swap(a.word, b.word);
+  swap(a.weight, b.weight);
+  swap(a.__isset, b.__isset);
+}
+
+KeywordResult::KeywordResult(const KeywordResult& other4) {
+  word = other4.word;
+  weight = other4.weight;
+  __isset = other4.__isset;
+}
+KeywordResult::KeywordResult( KeywordResult&& other5) {
+  word = std::move(other5.word);
+  weight = std::move(other5.weight);
+  __isset = std::move(other5.__isset);
+}
+KeywordResult& KeywordResult::operator=(const KeywordResult& other6) {
+  word = other6.word;
+  weight = other6.weight;
+  __isset = other6.__isset;
+  return *this;
+}
+KeywordResult& KeywordResult::operator=(KeywordResult&& other7) {
+  word = std::move(other7.word);
+  weight = std::move(other7.weight);
+  __isset = std::move(other7.__isset);
+  return *this;
+}
+void KeywordResult::printTo(std::ostream& out) const {
+  using ::apache::thrift::to_string;
+  out << "KeywordResult(";
+  out << "word=" << to_string(word);
+  out << ", " << "weight=" << to_string(weight);
+  out << ")";
+}
+
 } // namespace

@@ -57,8 +57,8 @@ public:
 public:
     ArticleService( const std::string &name ) : BigRLab::Service(name) 
     {
-        std::set<std::string> tmp{"wordseg"};
-        m_setValidReqType.swap(tmp);
+        // std::set<std::string> tmp{"wordseg", "keyword"};
+        // m_setValidReqType.swap(tmp);
     }
 
     // virtual bool init( int argc, char **argv );
@@ -70,12 +70,12 @@ public:
     // use Service::rmServer()
     // virtual void rmServer( const BigRLab::AlgSvrInfo& svrInfo );
     
-    bool isValidReq( const std::string &reqtype ) const
-    { return m_setValidReqType.count(reqtype) > 0; } 
+    // bool isValidReq( const std::string &reqtype ) const
+    // { return m_setValidReqType.count(reqtype) > 0; } 
 
 private:
     IdleClientQueue  m_queIdleClients;
-    std::set<std::string> m_setValidReqType;
+    // std::set<std::string> m_setValidReqType;
 };
 
 
