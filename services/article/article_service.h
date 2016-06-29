@@ -69,13 +69,9 @@ public:
     virtual std::string toString() const;
     // use Service::rmServer()
     // virtual void rmServer( const BigRLab::AlgSvrInfo& svrInfo );
-    
-    // bool isValidReq( const std::string &reqtype ) const
-    // { return m_setValidReqType.count(reqtype) > 0; } 
 
 private:
     IdleClientQueue  m_queIdleClients;
-    // std::set<std::string> m_setValidReqType;
 };
 
 

@@ -21,6 +21,20 @@
         throw __invalid_request_err; \
     } while (0)
 
+#define ERR_RET_VAL(val, args) \
+    do { \
+        std::stringstream __err_stream; \
+        __err_stream << args; \
+        __err_stream.flush(); \
+        std::cerr << __err_stream.str() << std::endl; \
+        return val; \
+    } while (0)
+
+#define COND_RET_VAL(cond, val, args) \
+    do { \
+        if (cond) ERR_RET_VAL(val, args); \
+    } while (0)
+
 #define SPACES " \t\f\r\v\n"
 
 template< typename StreamType >

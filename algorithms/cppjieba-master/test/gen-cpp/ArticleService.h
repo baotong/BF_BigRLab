@@ -24,6 +24,7 @@ class ArticleServiceIf {
   virtual void setFilter(const std::string& filter) = 0;
   virtual void wordSegment(std::vector<std::string> & _return, const std::string& sentence) = 0;
   virtual void keyword(std::vector<KeywordResult> & _return, const std::string& sentence, const int32_t k) = 0;
+  virtual void toVector(std::vector<double> & _return, const std::string& sentence, const VectorMethod method) = 0;
   virtual void handleRequest(std::string& _return, const std::string& request) = 0;
 };
 
@@ -61,6 +62,9 @@ class ArticleServiceNull : virtual public ArticleServiceIf {
     return;
   }
   void keyword(std::vector<KeywordResult> & /* _return */, const std::string& /* sentence */, const int32_t /* k */) {
+    return;
+  }
+  void toVector(std::vector<double> & /* _return */, const std::string& /* sentence */, const VectorMethod /* method */) {
     return;
   }
   void handleRequest(std::string& /* _return */, const std::string& /* request */) {
@@ -185,8 +189,9 @@ class ArticleService_wordSegment_pargs {
 };
 
 typedef struct _ArticleService_wordSegment_result__isset {
-  _ArticleService_wordSegment_result__isset() : success(false) {}
+  _ArticleService_wordSegment_result__isset() : success(false), err(false) {}
   bool success :1;
+  bool err :1;
 } _ArticleService_wordSegment_result__isset;
 
 class ArticleService_wordSegment_result {
@@ -201,10 +206,13 @@ class ArticleService_wordSegment_result {
 
   virtual ~ArticleService_wordSegment_result() throw();
   std::vector<std::string>  success;
+  InvalidRequest err;
 
   _ArticleService_wordSegment_result__isset __isset;
 
   void __set_success(const std::vector<std::string> & val);
+
+  void __set_err(const InvalidRequest& val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -214,8 +222,9 @@ class ArticleService_wordSegment_result {
 };
 
 typedef struct _ArticleService_wordSegment_presult__isset {
-  _ArticleService_wordSegment_presult__isset() : success(false) {}
+  _ArticleService_wordSegment_presult__isset() : success(false), err(false) {}
   bool success :1;
+  bool err :1;
 } _ArticleService_wordSegment_presult__isset;
 
 class ArticleService_wordSegment_presult {
@@ -224,6 +233,7 @@ class ArticleService_wordSegment_presult {
 
   virtual ~ArticleService_wordSegment_presult() throw();
   std::vector<std::string> * success;
+  InvalidRequest err;
 
   _ArticleService_wordSegment_presult__isset __isset;
 
@@ -280,8 +290,9 @@ class ArticleService_keyword_pargs {
 };
 
 typedef struct _ArticleService_keyword_result__isset {
-  _ArticleService_keyword_result__isset() : success(false) {}
+  _ArticleService_keyword_result__isset() : success(false), err(false) {}
   bool success :1;
+  bool err :1;
 } _ArticleService_keyword_result__isset;
 
 class ArticleService_keyword_result {
@@ -296,10 +307,13 @@ class ArticleService_keyword_result {
 
   virtual ~ArticleService_keyword_result() throw();
   std::vector<KeywordResult>  success;
+  InvalidRequest err;
 
   _ArticleService_keyword_result__isset __isset;
 
   void __set_success(const std::vector<KeywordResult> & val);
+
+  void __set_err(const InvalidRequest& val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -309,8 +323,9 @@ class ArticleService_keyword_result {
 };
 
 typedef struct _ArticleService_keyword_presult__isset {
-  _ArticleService_keyword_presult__isset() : success(false) {}
+  _ArticleService_keyword_presult__isset() : success(false), err(false) {}
   bool success :1;
+  bool err :1;
 } _ArticleService_keyword_presult__isset;
 
 class ArticleService_keyword_presult {
@@ -319,8 +334,110 @@ class ArticleService_keyword_presult {
 
   virtual ~ArticleService_keyword_presult() throw();
   std::vector<KeywordResult> * success;
+  InvalidRequest err;
 
   _ArticleService_keyword_presult__isset __isset;
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+
+};
+
+typedef struct _ArticleService_toVector_args__isset {
+  _ArticleService_toVector_args__isset() : sentence(false), method(false) {}
+  bool sentence :1;
+  bool method :1;
+} _ArticleService_toVector_args__isset;
+
+class ArticleService_toVector_args {
+ public:
+
+  ArticleService_toVector_args(const ArticleService_toVector_args&);
+  ArticleService_toVector_args(ArticleService_toVector_args&&);
+  ArticleService_toVector_args& operator=(const ArticleService_toVector_args&);
+  ArticleService_toVector_args& operator=(ArticleService_toVector_args&&);
+  ArticleService_toVector_args() : sentence(), method((VectorMethod)0) {
+  }
+
+  virtual ~ArticleService_toVector_args() throw();
+  std::string sentence;
+  VectorMethod method;
+
+  _ArticleService_toVector_args__isset __isset;
+
+  void __set_sentence(const std::string& val);
+
+  void __set_method(const VectorMethod val);
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+};
+
+
+class ArticleService_toVector_pargs {
+ public:
+
+
+  virtual ~ArticleService_toVector_pargs() throw();
+  const std::string* sentence;
+  const VectorMethod* method;
+
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+};
+
+typedef struct _ArticleService_toVector_result__isset {
+  _ArticleService_toVector_result__isset() : success(false), err(false) {}
+  bool success :1;
+  bool err :1;
+} _ArticleService_toVector_result__isset;
+
+class ArticleService_toVector_result {
+ public:
+
+  ArticleService_toVector_result(const ArticleService_toVector_result&);
+  ArticleService_toVector_result(ArticleService_toVector_result&&);
+  ArticleService_toVector_result& operator=(const ArticleService_toVector_result&);
+  ArticleService_toVector_result& operator=(ArticleService_toVector_result&&);
+  ArticleService_toVector_result() {
+  }
+
+  virtual ~ArticleService_toVector_result() throw();
+  std::vector<double>  success;
+  InvalidRequest err;
+
+  _ArticleService_toVector_result__isset __isset;
+
+  void __set_success(const std::vector<double> & val);
+
+  void __set_err(const InvalidRequest& val);
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+};
+
+typedef struct _ArticleService_toVector_presult__isset {
+  _ArticleService_toVector_presult__isset() : success(false), err(false) {}
+  bool success :1;
+  bool err :1;
+} _ArticleService_toVector_presult__isset;
+
+class ArticleService_toVector_presult {
+ public:
+
+
+  virtual ~ArticleService_toVector_presult() throw();
+  std::vector<double> * success;
+  InvalidRequest err;
+
+  _ArticleService_toVector_presult__isset __isset;
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -458,6 +575,9 @@ class ArticleServiceClientT : virtual public ArticleServiceIf {
   void keyword(std::vector<KeywordResult> & _return, const std::string& sentence, const int32_t k);
   void send_keyword(const std::string& sentence, const int32_t k);
   void recv_keyword(std::vector<KeywordResult> & _return);
+  void toVector(std::vector<double> & _return, const std::string& sentence, const VectorMethod method);
+  void send_toVector(const std::string& sentence, const VectorMethod method);
+  void recv_toVector(std::vector<double> & _return);
   void handleRequest(std::string& _return, const std::string& request);
   void send_handleRequest(const std::string& request);
   void recv_handleRequest(std::string& _return);
@@ -495,6 +615,8 @@ class ArticleServiceProcessorT : public ::apache::thrift::TDispatchProcessorT<Pr
   void process_wordSegment(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
   void process_keyword(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_keyword(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
+  void process_toVector(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_toVector(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
   void process_handleRequest(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_handleRequest(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
  public:
@@ -509,6 +631,9 @@ class ArticleServiceProcessorT : public ::apache::thrift::TDispatchProcessorT<Pr
     processMap_["keyword"] = ProcessFunctions(
       &ArticleServiceProcessorT::process_keyword,
       &ArticleServiceProcessorT::process_keyword);
+    processMap_["toVector"] = ProcessFunctions(
+      &ArticleServiceProcessorT::process_toVector,
+      &ArticleServiceProcessorT::process_toVector);
     processMap_["handleRequest"] = ProcessFunctions(
       &ArticleServiceProcessorT::process_handleRequest,
       &ArticleServiceProcessorT::process_handleRequest);
@@ -574,6 +699,16 @@ class ArticleServiceMultiface : virtual public ArticleServiceIf {
     return;
   }
 
+  void toVector(std::vector<double> & _return, const std::string& sentence, const VectorMethod method) {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->toVector(_return, sentence, method);
+    }
+    ifaces_[i]->toVector(_return, sentence, method);
+    return;
+  }
+
   void handleRequest(std::string& _return, const std::string& request) {
     size_t sz = ifaces_.size();
     size_t i = 0;
@@ -624,6 +759,9 @@ class ArticleServiceConcurrentClientT : virtual public ArticleServiceIf {
   void keyword(std::vector<KeywordResult> & _return, const std::string& sentence, const int32_t k);
   int32_t send_keyword(const std::string& sentence, const int32_t k);
   void recv_keyword(std::vector<KeywordResult> & _return, const int32_t seqid);
+  void toVector(std::vector<double> & _return, const std::string& sentence, const VectorMethod method);
+  int32_t send_toVector(const std::string& sentence, const VectorMethod method);
+  void recv_toVector(std::vector<double> & _return, const int32_t seqid);
   void handleRequest(std::string& _return, const std::string& request);
   int32_t send_handleRequest(const std::string& request);
   void recv_handleRequest(std::string& _return, const int32_t seqid);

@@ -19,6 +19,13 @@
 
 namespace Article {
 
+enum VectorMethod {
+  WORDVEC = 0,
+  CLUSTERID = 1
+};
+
+extern const std::map<int, const char*> _VectorMethod_VALUES_TO_NAMES;
+
 class InvalidRequest;
 
 class KeywordResult;

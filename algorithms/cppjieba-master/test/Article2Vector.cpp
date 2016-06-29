@@ -81,7 +81,8 @@ void Article2VectorByCluster::loadDict(const char *filename)
 }
 
 
-void Article2VectorByWordVec::convert2Vector( const std::string &article, ResultType &result )
+void Article2VectorByWordVec::convert2Vector( const std::vector<std::string> &article, 
+            ResultType &result )
 {
     using namespace std;
 
@@ -93,9 +94,8 @@ void Article2VectorByWordVec::convert2Vector( const std::string &article, Result
     vector<double> sumVec( m_nClasses );
     string word;
 
-    stringstream stream(article);
     size_t count = 0;
-    while (stream >> word) {
+    for (const auto& word : article) {
         auto it = m_mapDict.find(word);
         if (it == m_mapDict.end()) {
             // DLOG(INFO) << "no word " << word << " found in wordvec table.";
@@ -118,7 +118,8 @@ void Article2VectorByWordVec::convert2Vector( const std::string &article, Result
         v.get<1>() = (float)(v.get<0>());
 }
 
-void Article2VectorByCluster::convert2Vector( const std::string &article, ResultType &result )
+void Article2VectorByCluster::convert2Vector( const std::vector<std::string> &article, 
+            ResultType &result )
 {
     using namespace std;
 
@@ -130,10 +131,9 @@ void Article2VectorByCluster::convert2Vector( const std::string &article, Result
     vector<double> workVec( m_nClasses, 0.0 );
     set<string>    wordSet;
     string         word;
-    stringstream   stream(article);
     double         maxCount = 0.0;
 
-    while (stream >> word) {
+    for (const auto& word : article) {
         auto ret = wordSet.insert(word);
         // 跳过重复单词
         if (!ret.second)

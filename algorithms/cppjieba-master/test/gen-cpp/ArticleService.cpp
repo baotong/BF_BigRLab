@@ -58,6 +58,22 @@ ArticleService_keyword_presult::~ArticleService_keyword_presult() throw() {
 }
 
 
+ArticleService_toVector_args::~ArticleService_toVector_args() throw() {
+}
+
+
+ArticleService_toVector_pargs::~ArticleService_toVector_pargs() throw() {
+}
+
+
+ArticleService_toVector_result::~ArticleService_toVector_result() throw() {
+}
+
+
+ArticleService_toVector_presult::~ArticleService_toVector_presult() throw() {
+}
+
+
 ArticleService_handleRequest_args::~ArticleService_handleRequest_args() throw() {
 }
 

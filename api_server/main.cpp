@@ -6,14 +6,16 @@
  */
 /*
  * Tests
- * Service knn
+ * Test Service knn
  * loadlib ../services/knn/knn_service.so
  * service knn_star items 10 李宇春 姚明 章子怡
  * service knn_star file 10 test.txt out.txt
  * curl -i -X POST -H "Content-Type: application/json" -d '{"item":"李宇春","n":10}' http://localhost:9000/knn_star
  *
- * Service jieba
+ * Test Service jieba
  * service jieba keyword jieba_test.txt out.txt 5
+ * service jieba article2vector jieba_test.txt out.txt wordvec
+ * service jieba article2vector jieba_test.txt out.txt clusterid
  *
  * To run as a service in background
  * nohup ./apiserver.bin -b > nohup.log 2>&1 &

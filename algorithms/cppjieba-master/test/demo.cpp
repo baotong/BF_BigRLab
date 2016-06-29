@@ -49,8 +49,8 @@ static ArticleAlgServer::Pointer              g_pThisServer;
 static boost::asio::io_service                g_io_service;
 static boost::shared_ptr<BigRLab::AlgSvrInfo> g_pSvrInfo;
 
-static Article2Vector::pointer                g_pWordVecConverter;
-static Article2Vector::pointer                g_pClusterIdConverter;
+Article2Vector::pointer                g_pWordVecConverter;
+Article2Vector::pointer                g_pClusterIdConverter;
 
 namespace {
 

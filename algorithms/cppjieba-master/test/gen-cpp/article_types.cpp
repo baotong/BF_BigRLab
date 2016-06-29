@@ -13,6 +13,16 @@
 
 namespace Article {
 
+int _kVectorMethodValues[] = {
+  WORDVEC,
+  CLUSTERID
+};
+const char* _kVectorMethodNames[] = {
+  "WORDVEC",
+  "CLUSTERID"
+};
+const std::map<int, const char*> _VectorMethod_VALUES_TO_NAMES(::apache::thrift::TEnumIterator(2, _kVectorMethodValues, _kVectorMethodNames), ::apache::thrift::TEnumIterator(-1, NULL, NULL));
+
 
 InvalidRequest::~InvalidRequest() throw() {
 }

@@ -195,6 +195,66 @@ struct ArticleTaskKeyword : public ArticleTask {
     int topk;
 };
 
+struct ArticleTaskVector : public ArticleTask {
+    ArticleTaskVector( std::size_t _Id,
+                 std::string &_Article, 
+                 ArticleService::IdleClientQueue *_IdleClients, 
+                 std::atomic_size_t *_Counter,
+                 boost::condition_variable *_Cond,
+                 boost::mutex *_Mtx,
+                 std::ofstream *_Ofs, 
+                 const char *_SrvName,
+                 Article::VectorMethod _Method )
+        : ArticleTask(_Id, _Article, _IdleClients, _Counter, _Cond, _Mtx, _Ofs, _SrvName) 
+        , method(_Method) {}
+
+    virtual void run()
+    {
+        using namespace std;
+
+        auto on_finish = [this](void*) {
+            ++*counter;
+            cond->notify_all();
+        };
+
+        boost::shared_ptr<void> pOnFinish((void*)0, on_finish);
+
+        bool done = false;
+
+        do {
+            auto pClient = idleClients->getIdleClient();
+            if (!pClient)
+                THROW_RUNTIME_ERROR("Fail due to no available rpc client object!");
+
+            try {
+                vector<double> result;
+                pClient->client()->toVector( result, article, method );
+                done = true;
+                idleClients->putBack( pClient );
+
+                // write to file
+                if (!result.empty()) {
+                    boost::unique_lock<boost::mutex> flk( *mtx );
+                    *ofs << id << "\t";
+                    for (auto& v : result)
+                        *ofs << v << " ";
+                    *ofs << endl << flush;
+                } // if
+
+            } catch (const Article::InvalidRequest &err) {
+                done = true;
+                idleClients->putBack( pClient );
+                LOG(ERROR) << "Service " << srvName << " caught InvalidRequest: "
+                   << err.reason; 
+            } catch (const std::exception &ex) {
+                LOG(ERROR) << "Service " << srvName << " caught system exception: " << ex.what();
+            } // try
+        } while (!done);
+    }
+
+    Article::VectorMethod method;
+};
+
 
 
 // 在ApiServer主线程中执行
@@ -234,7 +294,7 @@ void ArticleService::handleCommand( std::stringstream &stream )
     counter = 0;
 
     auto do_wordseg = [&] {
-        while( getline(ifs, line) ) {
+        while ( getline(ifs, line) ) {
             WorkItemBasePtr pWork = boost::make_shared<ArticleTask>
                 (lineno, line, &m_queIdleClients, &counter, &cond, &mtx, &ofs, name().c_str());
             getWorkMgr()->addWork( pWork );
@@ -249,9 +309,31 @@ void ArticleService::handleCommand( std::stringstream &stream )
             THROW_RUNTIME_ERROR("Cannot read topk value");
         if (topk <= 0)
             THROW_RUNTIME_ERROR("Invalid topk value " << topk);
-        while( getline(ifs, line) ) {
+        while ( getline(ifs, line) ) {
             WorkItemBasePtr pWork = boost::make_shared<ArticleTaskKeyword>
                 (lineno, line, &m_queIdleClients, &counter, &cond, &mtx, &ofs, name().c_str(), topk);
+            getWorkMgr()->addWork( pWork );
+            ++lineno;
+        } // while
+    };
+
+    auto do_article2vector = [&] {
+        Article::VectorMethod method = (Article::VectorMethod)-1;
+        string strMethod;
+        stream >> strMethod;
+
+        if (bad_stream(stream))
+            THROW_RUNTIME_ERROR("Cannot read method value");
+        if ("wordvec" == strMethod)
+            method = Article::WORDVEC;
+        else if ("clusterid" == strMethod)
+            method = Article::CLUSTERID;
+        else
+            THROW_RUNTIME_ERROR("Invalid vector method " << strMethod);
+
+        while ( getline(ifs, line) ) {
+            WorkItemBasePtr pWork = boost::make_shared<ArticleTaskVector>
+                (lineno, line, &m_queIdleClients, &counter, &cond, &mtx, &ofs, name().c_str(), method);
             getWorkMgr()->addWork( pWork );
             ++lineno;
         } // while
@@ -261,6 +343,7 @@ void ArticleService::handleCommand( std::stringstream &stream )
     std::map<string, ReqFunction>     reqFuncTable;
     reqFuncTable["wordseg"] = do_wordseg;
     reqFuncTable["keyword"] = do_keyword;
+    reqFuncTable["article2vector"] = do_article2vector;
 
     auto it = reqFuncTable.find(reqtype);
     if (it == reqFuncTable.end())

@@ -23,7 +23,7 @@ public:
 
     virtual ~Article2Vector() = default;
 
-    virtual void convert2Vector( const std::string &article, ResultType &result ) = 0;
+    virtual void convert2Vector( const std::vector<std::string> &article, ResultType &result ) = 0;
 
 protected:
     uint32_t    m_nClasses;
@@ -39,7 +39,7 @@ public:
             : Article2Vector(_N_Classes)
     { loadDict(dictFile); }
 
-    virtual void convert2Vector( const std::string &article, ResultType &result );
+    virtual void convert2Vector( const std::vector<std::string> &article, ResultType &result );
 
 private:
     void loadDict(const char *filename);
@@ -58,7 +58,7 @@ public:
             : Article2Vector(_N_Classes)
     { loadDict(dictFile); }
 
-    virtual void convert2Vector( const std::string &article, ResultType &result );
+    virtual void convert2Vector( const std::vector<std::string> &article, ResultType &result );
 
 private:
     void loadDict(const char *filename);
