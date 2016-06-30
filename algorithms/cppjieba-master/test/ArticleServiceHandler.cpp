@@ -61,25 +61,13 @@ void ArticleServiceHandler::keyword(std::vector<KeywordResult> & _return,
     g_JiebaPool.push( pJieba );
 }
 
-void ArticleServiceHandler::toVector(std::vector<double> & _return, 
-            const std::string& sentence, const VectorMethod method)
+void ArticleServiceHandler::toVector(std::vector<double> & _return, const std::string& sentence)
 {
-    Article2Vector::pointer pConverter;
-    if (WORDVEC == method)
-        pConverter = g_pWordVecConverter;
-    else if (CLUSTERID == method)
-        pConverter = g_pClusterIdConverter;
-    else
-        THROW_INVALID_REQUEST("Invalid vector convert method!");
-
-    if (!pConverter)
-        THROW_INVALID_REQUEST("Vector converter not initialized!");
-
     vector<string> wordsegResult;
     wordSegment( wordsegResult, sentence );
 
     vector<float> fResult;
-    pConverter->convert2Vector( wordsegResult, fResult );
+    g_pVecConverter->convert2Vector( wordsegResult, fResult );
     _return.assign( fResult.begin(), fResult.end() );
 }
 

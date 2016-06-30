@@ -24,7 +24,7 @@ class ArticleServiceIf {
   virtual void setFilter(const std::string& filter) = 0;
   virtual void wordSegment(std::vector<std::string> & _return, const std::string& sentence) = 0;
   virtual void keyword(std::vector<KeywordResult> & _return, const std::string& sentence, const int32_t k) = 0;
-  virtual void toVector(std::vector<double> & _return, const std::string& sentence, const VectorMethod method) = 0;
+  virtual void toVector(std::vector<double> & _return, const std::string& sentence) = 0;
   virtual void handleRequest(std::string& _return, const std::string& request) = 0;
 };
 
@@ -64,7 +64,7 @@ class ArticleServiceNull : virtual public ArticleServiceIf {
   void keyword(std::vector<KeywordResult> & /* _return */, const std::string& /* sentence */, const int32_t /* k */) {
     return;
   }
-  void toVector(std::vector<double> & /* _return */, const std::string& /* sentence */, const VectorMethod /* method */) {
+  void toVector(std::vector<double> & /* _return */, const std::string& /* sentence */) {
     return;
   }
   void handleRequest(std::string& /* _return */, const std::string& /* request */) {
@@ -344,9 +344,8 @@ class ArticleService_keyword_presult {
 };
 
 typedef struct _ArticleService_toVector_args__isset {
-  _ArticleService_toVector_args__isset() : sentence(false), method(false) {}
+  _ArticleService_toVector_args__isset() : sentence(false) {}
   bool sentence :1;
-  bool method :1;
 } _ArticleService_toVector_args__isset;
 
 class ArticleService_toVector_args {
@@ -356,18 +355,15 @@ class ArticleService_toVector_args {
   ArticleService_toVector_args(ArticleService_toVector_args&&);
   ArticleService_toVector_args& operator=(const ArticleService_toVector_args&);
   ArticleService_toVector_args& operator=(ArticleService_toVector_args&&);
-  ArticleService_toVector_args() : sentence(), method((VectorMethod)0) {
+  ArticleService_toVector_args() : sentence() {
   }
 
   virtual ~ArticleService_toVector_args() throw();
   std::string sentence;
-  VectorMethod method;
 
   _ArticleService_toVector_args__isset __isset;
 
   void __set_sentence(const std::string& val);
-
-  void __set_method(const VectorMethod val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -383,7 +379,6 @@ class ArticleService_toVector_pargs {
 
   virtual ~ArticleService_toVector_pargs() throw();
   const std::string* sentence;
-  const VectorMethod* method;
 
   template <class Protocol_>
   uint32_t write(Protocol_* oprot) const;
@@ -575,8 +570,8 @@ class ArticleServiceClientT : virtual public ArticleServiceIf {
   void keyword(std::vector<KeywordResult> & _return, const std::string& sentence, const int32_t k);
   void send_keyword(const std::string& sentence, const int32_t k);
   void recv_keyword(std::vector<KeywordResult> & _return);
-  void toVector(std::vector<double> & _return, const std::string& sentence, const VectorMethod method);
-  void send_toVector(const std::string& sentence, const VectorMethod method);
+  void toVector(std::vector<double> & _return, const std::string& sentence);
+  void send_toVector(const std::string& sentence);
   void recv_toVector(std::vector<double> & _return);
   void handleRequest(std::string& _return, const std::string& request);
   void send_handleRequest(const std::string& request);
@@ -699,13 +694,13 @@ class ArticleServiceMultiface : virtual public ArticleServiceIf {
     return;
   }
 
-  void toVector(std::vector<double> & _return, const std::string& sentence, const VectorMethod method) {
+  void toVector(std::vector<double> & _return, const std::string& sentence) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->toVector(_return, sentence, method);
+      ifaces_[i]->toVector(_return, sentence);
     }
-    ifaces_[i]->toVector(_return, sentence, method);
+    ifaces_[i]->toVector(_return, sentence);
     return;
   }
 
@@ -759,8 +754,8 @@ class ArticleServiceConcurrentClientT : virtual public ArticleServiceIf {
   void keyword(std::vector<KeywordResult> & _return, const std::string& sentence, const int32_t k);
   int32_t send_keyword(const std::string& sentence, const int32_t k);
   void recv_keyword(std::vector<KeywordResult> & _return, const int32_t seqid);
-  void toVector(std::vector<double> & _return, const std::string& sentence, const VectorMethod method);
-  int32_t send_toVector(const std::string& sentence, const VectorMethod method);
+  void toVector(std::vector<double> & _return, const std::string& sentence);
+  int32_t send_toVector(const std::string& sentence);
   void recv_toVector(std::vector<double> & _return, const int32_t seqid);
   void handleRequest(std::string& _return, const std::string& request);
   int32_t send_handleRequest(const std::string& request);

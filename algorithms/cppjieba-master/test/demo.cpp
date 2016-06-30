@@ -1,7 +1,8 @@
 /*
  * https://github.com/yanyiwu/cppjieba
  * ./demo -algname jieba -algmgr localhost:9001 -port 10080
- * ./demo -algname jieba -algmgr localhost:9001 -port 10080 -wordvec_dict data/weibo_500w.wordvec -cluster_dict data/weibo_500w.class
+ * ./demo -algname jieba -algmgr localhost:9001 -port 10080 -vec wordvec -vecdict data/weibo_500w.wordvec
+ * ./demo -algname jieba -algmgr localhost:9001 -port 10080 -vec clusterid -vecdict data/weibo_500w.class
  */
 #include "jieba.hpp"
 #include "Article2Vector.h"
@@ -34,8 +35,10 @@ DEFINE_int32(port, 0, "listen port of ths algorithm server.");
 DEFINE_int32(n_work_threads, 10, "Number of work threads on RPC server");
 DEFINE_int32(n_io_threads, 4, "Number of io threads on RPC server");
 
-DEFINE_string(wordvec_dict, "", "File of word-vector");
-DEFINE_string(cluster_dict, "", "File of cluster-id");
+// DEFINE_string(wordvec_dict, "", "File of word-vector");
+// DEFINE_string(cluster_dict, "", "File of cluster-id");
+DEFINE_string(vec, "", "How article converted to vector, \"wordvec\" or \"clusterid\"");
+DEFINE_string(vecdict, "", "File contains word info, word vector or word clusterID");
 
 static std::string                  g_strAlgMgrAddr;
 static uint16_t                     g_nAlgMgrPort = 0;
@@ -49,8 +52,7 @@ static ArticleAlgServer::Pointer              g_pThisServer;
 static boost::asio::io_service                g_io_service;
 static boost::shared_ptr<BigRLab::AlgSvrInfo> g_pSvrInfo;
 
-Article2Vector::pointer                g_pWordVecConverter;
-Article2Vector::pointer                g_pClusterIdConverter;
+Article2Vector::pointer                 g_pVecConverter;
 
 namespace {
 
@@ -158,6 +160,20 @@ bool validate_n_io_threads(const char* flagname, gflags::int32 value)
     return check_above_zero(flagname, value);
 }
 static const bool n_io_threads_dummy = gflags::RegisterFlagValidator(&FLAGS_n_io_threads, &validate_n_io_threads);
+
+static
+bool validate_vec(const char* flagname, const std::string &value)
+{
+    if ("wordvec" == value || "clusterid" == value)
+        return true;
+    return false;
+}
+static bool vec_dummy = gflags::RegisterFlagValidator(&FLAGS_vec, &validate_vec);
+
+static
+bool validate_vecdict(const char* flagname, const std::string &value)
+{ return check_not_empty( flagname, value ); }
+static bool vecdict_dummy = gflags::RegisterFlagValidator(&FLAGS_vecdict, &validate_vecdict);
 
 static
 void get_local_ip()
@@ -356,10 +372,10 @@ void service_init()
 
     cout << "Creating article to vector converter..." << endl;
 
-    if (!FLAGS_wordvec_dict.empty()) {
+    if ("wordvec" == FLAGS_vec) {
         // get n_class
         stringstream stream;
-        stream << "tail -1 " << FLAGS_wordvec_dict << " | awk \'{print NF}\'" << flush;
+        stream << "tail -1 " << FLAGS_vecdict << " | awk \'{print NF}\'" << flush;
 
         boost::shared_ptr<FILE> fp;
         fp.reset(popen(stream.str().c_str(), "r"), [](FILE *ptr){
@@ -368,20 +384,19 @@ void service_init()
 
         uint32_t nClasses = 0;
         if( fscanf(fp.get(), "%u", &nClasses) != 1 || !nClasses )
-            THROW_RUNTIME_ERROR("Cannot get num of classes from file " << FLAGS_wordvec_dict);
+            THROW_RUNTIME_ERROR("Cannot get num of classes from file " << FLAGS_vecdict);
         fp.reset();
 
         --nClasses;
 
-        LOG(INFO) << "Detected nClasses = " << nClasses << " from file " << FLAGS_wordvec_dict;
+        LOG(INFO) << "Detected nClasses = " << nClasses << " from file " << FLAGS_vecdict;
 
-        g_pWordVecConverter = boost::make_shared<Article2VectorByWordVec>( nClasses, FLAGS_wordvec_dict.c_str() );
-    } // if
+        g_pVecConverter = boost::make_shared<Article2VectorByWordVec>( nClasses, FLAGS_vecdict.c_str() );
 
-    if (!FLAGS_cluster_dict.empty()) {
+    } else if ("clusterid" == FLAGS_vec) {
         // get n_class
         stringstream stream;
-        stream << "cat " << FLAGS_cluster_dict << " | awk \'{print $2}\' | sort -nr | head -1" << flush;
+        stream << "cat " << FLAGS_vecdict << " | awk \'{print $2}\' | sort -nr | head -1" << flush;
 
         boost::shared_ptr<FILE> fp;
         fp.reset(popen(stream.str().c_str(), "r"), [](FILE *ptr){
@@ -390,14 +405,17 @@ void service_init()
 
         uint32_t nClasses = 0;
         if( fscanf(fp.get(), "%u", &nClasses) != 1 || !nClasses )
-            THROW_RUNTIME_ERROR("Cannot get num of classes from file " << FLAGS_cluster_dict);
+            THROW_RUNTIME_ERROR("Cannot get num of classes from file " << FLAGS_vecdict);
         fp.reset();
 
         ++nClasses;
 
-        LOG(INFO) << "Detected nClasses = " << nClasses << " from file " << FLAGS_cluster_dict;
+        LOG(INFO) << "Detected nClasses = " << nClasses << " from file " << FLAGS_vecdict;
 
-        g_pClusterIdConverter = boost::make_shared<Article2VectorByCluster>( nClasses, FLAGS_cluster_dict.c_str() );
+        g_pVecConverter = boost::make_shared<Article2VectorByCluster>( nClasses, FLAGS_vecdict.c_str() );
+        
+    } else {
+        THROW_RUNTIME_ERROR( FLAGS_vec << " is not a valid argument");
     } // if
 }
 

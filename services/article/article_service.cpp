@@ -203,10 +203,8 @@ struct ArticleTaskVector : public ArticleTask {
                  boost::condition_variable *_Cond,
                  boost::mutex *_Mtx,
                  std::ofstream *_Ofs, 
-                 const char *_SrvName,
-                 Article::VectorMethod _Method )
-        : ArticleTask(_Id, _Article, _IdleClients, _Counter, _Cond, _Mtx, _Ofs, _SrvName) 
-        , method(_Method) {}
+                 const char *_SrvName )
+        : ArticleTask(_Id, _Article, _IdleClients, _Counter, _Cond, _Mtx, _Ofs, _SrvName) {}
 
     virtual void run()
     {
@@ -228,7 +226,7 @@ struct ArticleTaskVector : public ArticleTask {
 
             try {
                 vector<double> result;
-                pClient->client()->toVector( result, article, method );
+                pClient->client()->toVector( result, article );
                 done = true;
                 idleClients->putBack( pClient );
 
@@ -251,8 +249,6 @@ struct ArticleTaskVector : public ArticleTask {
             } // try
         } while (!done);
     }
-
-    Article::VectorMethod method;
 };
 
 
@@ -318,22 +314,9 @@ void ArticleService::handleCommand( std::stringstream &stream )
     };
 
     auto do_article2vector = [&] {
-        Article::VectorMethod method = (Article::VectorMethod)-1;
-        string strMethod;
-        stream >> strMethod;
-
-        if (bad_stream(stream))
-            THROW_RUNTIME_ERROR("Cannot read method value");
-        if ("wordvec" == strMethod)
-            method = Article::WORDVEC;
-        else if ("clusterid" == strMethod)
-            method = Article::CLUSTERID;
-        else
-            THROW_RUNTIME_ERROR("Invalid vector method " << strMethod);
-
         while ( getline(ifs, line) ) {
             WorkItemBasePtr pWork = boost::make_shared<ArticleTaskVector>
-                (lineno, line, &m_queIdleClients, &counter, &cond, &mtx, &ofs, name().c_str(), method);
+                (lineno, line, &m_queIdleClients, &counter, &cond, &mtx, &ofs, name().c_str());
             getWorkMgr()->addWork( pWork );
             ++lineno;
         } // while

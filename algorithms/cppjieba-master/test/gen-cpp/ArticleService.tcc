@@ -662,16 +662,6 @@ uint32_t ArticleService_toVector_args::read(Protocol_* iprot) {
           xfer += iprot->skip(ftype);
         }
         break;
-      case 2:
-        if (ftype == ::apache::thrift::protocol::T_I32) {
-          int32_t ecast30;
-          xfer += iprot->readI32(ecast30);
-          this->method = (VectorMethod)ecast30;
-          this->__isset.method = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
       default:
         xfer += iprot->skip(ftype);
         break;
@@ -694,10 +684,6 @@ uint32_t ArticleService_toVector_args::write(Protocol_* oprot) const {
   xfer += oprot->writeString(this->sentence);
   xfer += oprot->writeFieldEnd();
 
-  xfer += oprot->writeFieldBegin("method", ::apache::thrift::protocol::T_I32, 2);
-  xfer += oprot->writeI32((int32_t)this->method);
-  xfer += oprot->writeFieldEnd();
-
   xfer += oprot->writeFieldStop();
   xfer += oprot->writeStructEnd();
   return xfer;
@@ -712,10 +698,6 @@ uint32_t ArticleService_toVector_pargs::write(Protocol_* oprot) const {
 
   xfer += oprot->writeFieldBegin("sentence", ::apache::thrift::protocol::T_STRING, 1);
   xfer += oprot->writeString((*(this->sentence)));
-  xfer += oprot->writeFieldEnd();
-
-  xfer += oprot->writeFieldBegin("method", ::apache::thrift::protocol::T_I32, 2);
-  xfer += oprot->writeI32((int32_t)(*(this->method)));
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldStop();
@@ -750,14 +732,14 @@ uint32_t ArticleService_toVector_result::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size31;
-            ::apache::thrift::protocol::TType _etype34;
-            xfer += iprot->readListBegin(_etype34, _size31);
-            this->success.resize(_size31);
-            uint32_t _i35;
-            for (_i35 = 0; _i35 < _size31; ++_i35)
+            uint32_t _size30;
+            ::apache::thrift::protocol::TType _etype33;
+            xfer += iprot->readListBegin(_etype33, _size30);
+            this->success.resize(_size30);
+            uint32_t _i34;
+            for (_i34 = 0; _i34 < _size30; ++_i34)
             {
-              xfer += iprot->readDouble(this->success[_i35]);
+              xfer += iprot->readDouble(this->success[_i34]);
             }
             xfer += iprot->readListEnd();
           }
@@ -797,10 +779,10 @@ uint32_t ArticleService_toVector_result::write(Protocol_* oprot) const {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_DOUBLE, static_cast<uint32_t>(this->success.size()));
-      std::vector<double> ::const_iterator _iter36;
-      for (_iter36 = this->success.begin(); _iter36 != this->success.end(); ++_iter36)
+      std::vector<double> ::const_iterator _iter35;
+      for (_iter35 = this->success.begin(); _iter35 != this->success.end(); ++_iter35)
       {
-        xfer += oprot->writeDouble((*_iter36));
+        xfer += oprot->writeDouble((*_iter35));
       }
       xfer += oprot->writeListEnd();
     }
@@ -842,14 +824,14 @@ uint32_t ArticleService_toVector_presult::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size37;
-            ::apache::thrift::protocol::TType _etype40;
-            xfer += iprot->readListBegin(_etype40, _size37);
-            (*(this->success)).resize(_size37);
-            uint32_t _i41;
-            for (_i41 = 0; _i41 < _size37; ++_i41)
+            uint32_t _size36;
+            ::apache::thrift::protocol::TType _etype39;
+            xfer += iprot->readListBegin(_etype39, _size36);
+            (*(this->success)).resize(_size36);
+            uint32_t _i40;
+            for (_i40 = 0; _i40 < _size36; ++_i40)
             {
-              xfer += iprot->readDouble((*(this->success))[_i41]);
+              xfer += iprot->readDouble((*(this->success))[_i40]);
             }
             xfer += iprot->readListEnd();
           }
@@ -1261,21 +1243,20 @@ void ArticleServiceClientT<Protocol_>::recv_keyword(std::vector<KeywordResult> &
 }
 
 template <class Protocol_>
-void ArticleServiceClientT<Protocol_>::toVector(std::vector<double> & _return, const std::string& sentence, const VectorMethod method)
+void ArticleServiceClientT<Protocol_>::toVector(std::vector<double> & _return, const std::string& sentence)
 {
-  send_toVector(sentence, method);
+  send_toVector(sentence);
   recv_toVector(_return);
 }
 
 template <class Protocol_>
-void ArticleServiceClientT<Protocol_>::send_toVector(const std::string& sentence, const VectorMethod method)
+void ArticleServiceClientT<Protocol_>::send_toVector(const std::string& sentence)
 {
   int32_t cseqid = 0;
   this->oprot_->writeMessageBegin("toVector", ::apache::thrift::protocol::T_CALL, cseqid);
 
   ArticleService_toVector_pargs args;
   args.sentence = &sentence;
-  args.method = &method;
   args.write(this->oprot_);
 
   this->oprot_->writeMessageEnd();
@@ -1793,7 +1774,7 @@ void ArticleServiceProcessorT<Protocol_>::process_toVector(int32_t seqid, ::apac
 
   ArticleService_toVector_result result;
   try {
-    iface_->toVector(result.success, args.sentence, args.method);
+    iface_->toVector(result.success, args.sentence);
     result.__isset.success = true;
   } catch (InvalidRequest &err) {
     result.err = err;
@@ -1851,7 +1832,7 @@ void ArticleServiceProcessorT<Protocol_>::process_toVector(int32_t seqid, Protoc
 
   ArticleService_toVector_result result;
   try {
-    iface_->toVector(result.success, args.sentence, args.method);
+    iface_->toVector(result.success, args.sentence);
     result.__isset.success = true;
   } catch (InvalidRequest &err) {
     result.err = err;
@@ -2274,14 +2255,14 @@ void ArticleServiceConcurrentClientT<Protocol_>::recv_keyword(std::vector<Keywor
 }
 
 template <class Protocol_>
-void ArticleServiceConcurrentClientT<Protocol_>::toVector(std::vector<double> & _return, const std::string& sentence, const VectorMethod method)
+void ArticleServiceConcurrentClientT<Protocol_>::toVector(std::vector<double> & _return, const std::string& sentence)
 {
-  int32_t seqid = send_toVector(sentence, method);
+  int32_t seqid = send_toVector(sentence);
   recv_toVector(_return, seqid);
 }
 
 template <class Protocol_>
-int32_t ArticleServiceConcurrentClientT<Protocol_>::send_toVector(const std::string& sentence, const VectorMethod method)
+int32_t ArticleServiceConcurrentClientT<Protocol_>::send_toVector(const std::string& sentence)
 {
   int32_t cseqid = this->sync_.generateSeqId();
   ::apache::thrift::async::TConcurrentSendSentry sentry(&this->sync_);
@@ -2289,7 +2270,6 @@ int32_t ArticleServiceConcurrentClientT<Protocol_>::send_toVector(const std::str
 
   ArticleService_toVector_pargs args;
   args.sentence = &sentence;
-  args.method = &method;
   args.write(this->oprot_);
 
   this->oprot_->writeMessageEnd();
