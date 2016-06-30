@@ -1,5 +1,5 @@
 #include "ArticleServiceHandler.h"
-#include "Jieba.hpp"
+#include "jieba.hpp"
 #include <glog/logging.h>
 #include <json/json.h>
 #include <boost/foreach.hpp>
@@ -86,9 +86,6 @@ void ArticleServiceHandler::knn(std::vector<KnnResult> & _return, const std::str
     if (n <= 0)
         THROW_INVALID_REQUEST("Invalid n value for knn!");
 
-    if (searchK <= 0)
-        searchK = -1;
-
     vector<double> _result;
     toVector(_result, sentence);
 
@@ -135,7 +132,6 @@ void ArticleServiceHandler::handleRequest(std::string& _return, const std::strin
         } else if ("keyword" == reqtype) {
             vector<KeywordResult> result;
             int topk = root["topk"].asInt();
-            string content = root["content"].asString();
             keyword(result, content, topk);
             for (auto& v : result) {
                 Json::Value item;

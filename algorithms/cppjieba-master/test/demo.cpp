@@ -1,8 +1,7 @@
 /*
  * https://github.com/yanyiwu/cppjieba
  * ./demo -algname jieba -algmgr localhost:9001 -port 10080
- * ./demo -algname jieba -algmgr localhost:9001 -port 10080 -vec wordvec -vecdict data/weibo_500w.wordvec
- * ./demo -algname jieba -algmgr localhost:9001 -port 10080 -vec clusterid -vecdict data/weibo_500w.class
+ * ./demo -algname jieba -algmgr localhost:9001 -port 10080 -vec wordvec -vecdict data/weibo_500w.wordvec -idx data/weibo_1w.sumWordVec.annIdx
  */
 #include "jieba.hpp"
 #include "Article2Vector.h"
