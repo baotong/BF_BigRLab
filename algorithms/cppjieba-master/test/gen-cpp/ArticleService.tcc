@@ -258,14 +258,14 @@ uint32_t ArticleService_wordSegment_result::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size8;
-            ::apache::thrift::protocol::TType _etype11;
-            xfer += iprot->readListBegin(_etype11, _size8);
-            this->success.resize(_size8);
-            uint32_t _i12;
-            for (_i12 = 0; _i12 < _size8; ++_i12)
+            uint32_t _size12;
+            ::apache::thrift::protocol::TType _etype15;
+            xfer += iprot->readListBegin(_etype15, _size12);
+            this->success.resize(_size12);
+            uint32_t _i16;
+            for (_i16 = 0; _i16 < _size12; ++_i16)
             {
-              xfer += iprot->readString(this->success[_i12]);
+              xfer += iprot->readString(this->success[_i16]);
             }
             xfer += iprot->readListEnd();
           }
@@ -305,10 +305,10 @@ uint32_t ArticleService_wordSegment_result::write(Protocol_* oprot) const {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, static_cast<uint32_t>(this->success.size()));
-      std::vector<std::string> ::const_iterator _iter13;
-      for (_iter13 = this->success.begin(); _iter13 != this->success.end(); ++_iter13)
+      std::vector<std::string> ::const_iterator _iter17;
+      for (_iter17 = this->success.begin(); _iter17 != this->success.end(); ++_iter17)
       {
-        xfer += oprot->writeString((*_iter13));
+        xfer += oprot->writeString((*_iter17));
       }
       xfer += oprot->writeListEnd();
     }
@@ -350,14 +350,14 @@ uint32_t ArticleService_wordSegment_presult::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size14;
-            ::apache::thrift::protocol::TType _etype17;
-            xfer += iprot->readListBegin(_etype17, _size14);
-            (*(this->success)).resize(_size14);
-            uint32_t _i18;
-            for (_i18 = 0; _i18 < _size14; ++_i18)
+            uint32_t _size18;
+            ::apache::thrift::protocol::TType _etype21;
+            xfer += iprot->readListBegin(_etype21, _size18);
+            (*(this->success)).resize(_size18);
+            uint32_t _i22;
+            for (_i22 = 0; _i22 < _size18; ++_i22)
             {
-              xfer += iprot->readString((*(this->success))[_i18]);
+              xfer += iprot->readString((*(this->success))[_i22]);
             }
             xfer += iprot->readListEnd();
           }
@@ -503,14 +503,14 @@ uint32_t ArticleService_keyword_result::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size19;
-            ::apache::thrift::protocol::TType _etype22;
-            xfer += iprot->readListBegin(_etype22, _size19);
-            this->success.resize(_size19);
-            uint32_t _i23;
-            for (_i23 = 0; _i23 < _size19; ++_i23)
+            uint32_t _size23;
+            ::apache::thrift::protocol::TType _etype26;
+            xfer += iprot->readListBegin(_etype26, _size23);
+            this->success.resize(_size23);
+            uint32_t _i27;
+            for (_i27 = 0; _i27 < _size23; ++_i27)
             {
-              xfer += this->success[_i23].read(iprot);
+              xfer += this->success[_i27].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -550,10 +550,10 @@ uint32_t ArticleService_keyword_result::write(Protocol_* oprot) const {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->success.size()));
-      std::vector<KeywordResult> ::const_iterator _iter24;
-      for (_iter24 = this->success.begin(); _iter24 != this->success.end(); ++_iter24)
+      std::vector<KeywordResult> ::const_iterator _iter28;
+      for (_iter28 = this->success.begin(); _iter28 != this->success.end(); ++_iter28)
       {
-        xfer += (*_iter24).write(oprot);
+        xfer += (*_iter28).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -595,14 +595,14 @@ uint32_t ArticleService_keyword_presult::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size25;
-            ::apache::thrift::protocol::TType _etype28;
-            xfer += iprot->readListBegin(_etype28, _size25);
-            (*(this->success)).resize(_size25);
-            uint32_t _i29;
-            for (_i29 = 0; _i29 < _size25; ++_i29)
+            uint32_t _size29;
+            ::apache::thrift::protocol::TType _etype32;
+            xfer += iprot->readListBegin(_etype32, _size29);
+            (*(this->success)).resize(_size29);
+            uint32_t _i33;
+            for (_i33 = 0; _i33 < _size29; ++_i33)
             {
-              xfer += (*(this->success))[_i29].read(iprot);
+              xfer += (*(this->success))[_i33].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -732,14 +732,14 @@ uint32_t ArticleService_toVector_result::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size30;
-            ::apache::thrift::protocol::TType _etype33;
-            xfer += iprot->readListBegin(_etype33, _size30);
-            this->success.resize(_size30);
-            uint32_t _i34;
-            for (_i34 = 0; _i34 < _size30; ++_i34)
+            uint32_t _size34;
+            ::apache::thrift::protocol::TType _etype37;
+            xfer += iprot->readListBegin(_etype37, _size34);
+            this->success.resize(_size34);
+            uint32_t _i38;
+            for (_i38 = 0; _i38 < _size34; ++_i38)
             {
-              xfer += iprot->readDouble(this->success[_i34]);
+              xfer += iprot->readDouble(this->success[_i38]);
             }
             xfer += iprot->readListEnd();
           }
@@ -779,10 +779,10 @@ uint32_t ArticleService_toVector_result::write(Protocol_* oprot) const {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_DOUBLE, static_cast<uint32_t>(this->success.size()));
-      std::vector<double> ::const_iterator _iter35;
-      for (_iter35 = this->success.begin(); _iter35 != this->success.end(); ++_iter35)
+      std::vector<double> ::const_iterator _iter39;
+      for (_iter39 = this->success.begin(); _iter39 != this->success.end(); ++_iter39)
       {
-        xfer += oprot->writeDouble((*_iter35));
+        xfer += oprot->writeDouble((*_iter39));
       }
       xfer += oprot->writeListEnd();
     }
@@ -824,14 +824,275 @@ uint32_t ArticleService_toVector_presult::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size36;
-            ::apache::thrift::protocol::TType _etype39;
-            xfer += iprot->readListBegin(_etype39, _size36);
-            (*(this->success)).resize(_size36);
-            uint32_t _i40;
-            for (_i40 = 0; _i40 < _size36; ++_i40)
+            uint32_t _size40;
+            ::apache::thrift::protocol::TType _etype43;
+            xfer += iprot->readListBegin(_etype43, _size40);
+            (*(this->success)).resize(_size40);
+            uint32_t _i44;
+            for (_i44 = 0; _i44 < _size40; ++_i44)
             {
-              xfer += iprot->readDouble((*(this->success))[_i40]);
+              xfer += iprot->readDouble((*(this->success))[_i44]);
+            }
+            xfer += iprot->readListEnd();
+          }
+          this->__isset.success = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->err.read(iprot);
+          this->__isset.err = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+
+template <class Protocol_>
+uint32_t ArticleService_knn_args::read(Protocol_* iprot) {
+
+  apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->sentence);
+          this->__isset.sentence = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 2:
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->n);
+          this->__isset.n = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 3:
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->searchK);
+          this->__isset.searchK = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+template <class Protocol_>
+uint32_t ArticleService_knn_args::write(Protocol_* oprot) const {
+  uint32_t xfer = 0;
+  apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
+  xfer += oprot->writeStructBegin("ArticleService_knn_args");
+
+  xfer += oprot->writeFieldBegin("sentence", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString(this->sentence);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("n", ::apache::thrift::protocol::T_I32, 2);
+  xfer += oprot->writeI32(this->n);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("searchK", ::apache::thrift::protocol::T_I32, 3);
+  xfer += oprot->writeI32(this->searchK);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+
+template <class Protocol_>
+uint32_t ArticleService_knn_pargs::write(Protocol_* oprot) const {
+  uint32_t xfer = 0;
+  apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
+  xfer += oprot->writeStructBegin("ArticleService_knn_pargs");
+
+  xfer += oprot->writeFieldBegin("sentence", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString((*(this->sentence)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("n", ::apache::thrift::protocol::T_I32, 2);
+  xfer += oprot->writeI32((*(this->n)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("searchK", ::apache::thrift::protocol::T_I32, 3);
+  xfer += oprot->writeI32((*(this->searchK)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+
+template <class Protocol_>
+uint32_t ArticleService_knn_result::read(Protocol_* iprot) {
+
+  apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            this->success.clear();
+            uint32_t _size45;
+            ::apache::thrift::protocol::TType _etype48;
+            xfer += iprot->readListBegin(_etype48, _size45);
+            this->success.resize(_size45);
+            uint32_t _i49;
+            for (_i49 = 0; _i49 < _size45; ++_i49)
+            {
+              xfer += this->success[_i49].read(iprot);
+            }
+            xfer += iprot->readListEnd();
+          }
+          this->__isset.success = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->err.read(iprot);
+          this->__isset.err = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+template <class Protocol_>
+uint32_t ArticleService_knn_result::write(Protocol_* oprot) const {
+
+  uint32_t xfer = 0;
+
+  xfer += oprot->writeStructBegin("ArticleService_knn_result");
+
+  if (this->__isset.success) {
+    xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
+    {
+      xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->success.size()));
+      std::vector<KnnResult> ::const_iterator _iter50;
+      for (_iter50 = this->success.begin(); _iter50 != this->success.end(); ++_iter50)
+      {
+        xfer += (*_iter50).write(oprot);
+      }
+      xfer += oprot->writeListEnd();
+    }
+    xfer += oprot->writeFieldEnd();
+  } else if (this->__isset.err) {
+    xfer += oprot->writeFieldBegin("err", ::apache::thrift::protocol::T_STRUCT, 1);
+    xfer += this->err.write(oprot);
+    xfer += oprot->writeFieldEnd();
+  }
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+
+template <class Protocol_>
+uint32_t ArticleService_knn_presult::read(Protocol_* iprot) {
+
+  apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            (*(this->success)).clear();
+            uint32_t _size51;
+            ::apache::thrift::protocol::TType _etype54;
+            xfer += iprot->readListBegin(_etype54, _size51);
+            (*(this->success)).resize(_size51);
+            uint32_t _i55;
+            for (_i55 = 0; _i55 < _size51; ++_i55)
+            {
+              xfer += (*(this->success))[_i55].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -1304,6 +1565,72 @@ void ArticleServiceClientT<Protocol_>::recv_toVector(std::vector<double> & _retu
     throw result.err;
   }
   throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "toVector failed: unknown result");
+}
+
+template <class Protocol_>
+void ArticleServiceClientT<Protocol_>::knn(std::vector<KnnResult> & _return, const std::string& sentence, const int32_t n, const int32_t searchK)
+{
+  send_knn(sentence, n, searchK);
+  recv_knn(_return);
+}
+
+template <class Protocol_>
+void ArticleServiceClientT<Protocol_>::send_knn(const std::string& sentence, const int32_t n, const int32_t searchK)
+{
+  int32_t cseqid = 0;
+  this->oprot_->writeMessageBegin("knn", ::apache::thrift::protocol::T_CALL, cseqid);
+
+  ArticleService_knn_pargs args;
+  args.sentence = &sentence;
+  args.n = &n;
+  args.searchK = &searchK;
+  args.write(this->oprot_);
+
+  this->oprot_->writeMessageEnd();
+  this->oprot_->getTransport()->writeEnd();
+  this->oprot_->getTransport()->flush();
+}
+
+template <class Protocol_>
+void ArticleServiceClientT<Protocol_>::recv_knn(std::vector<KnnResult> & _return)
+{
+
+  int32_t rseqid = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TMessageType mtype;
+
+  this->iprot_->readMessageBegin(fname, mtype, rseqid);
+  if (mtype == ::apache::thrift::protocol::T_EXCEPTION) {
+    ::apache::thrift::TApplicationException x;
+    x.read(this->iprot_);
+    this->iprot_->readMessageEnd();
+    this->iprot_->getTransport()->readEnd();
+    throw x;
+  }
+  if (mtype != ::apache::thrift::protocol::T_REPLY) {
+    this->iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    this->iprot_->readMessageEnd();
+    this->iprot_->getTransport()->readEnd();
+  }
+  if (fname.compare("knn") != 0) {
+    this->iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    this->iprot_->readMessageEnd();
+    this->iprot_->getTransport()->readEnd();
+  }
+  ArticleService_knn_presult result;
+  result.success = &_return;
+  result.read(this->iprot_);
+  this->iprot_->readMessageEnd();
+  this->iprot_->getTransport()->readEnd();
+
+  if (result.__isset.success) {
+    // _return pointer has now been filled
+    return;
+  }
+  if (result.__isset.err) {
+    throw result.err;
+  }
+  throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "knn failed: unknown result");
 }
 
 template <class Protocol_>
@@ -1867,6 +2194,122 @@ void ArticleServiceProcessorT<Protocol_>::process_toVector(int32_t seqid, Protoc
 }
 
 template <class Protocol_>
+void ArticleServiceProcessorT<Protocol_>::process_knn(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
+{
+  void* ctx = NULL;
+  if (this->eventHandler_.get() != NULL) {
+    ctx = this->eventHandler_->getContext("ArticleService.knn", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "ArticleService.knn");
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->preRead(ctx, "ArticleService.knn");
+  }
+
+  ArticleService_knn_args args;
+  args.read(iprot);
+  iprot->readMessageEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->postRead(ctx, "ArticleService.knn", bytes);
+  }
+
+  ArticleService_knn_result result;
+  try {
+    iface_->knn(result.success, args.sentence, args.n, args.searchK);
+    result.__isset.success = true;
+  } catch (InvalidRequest &err) {
+    result.err = err;
+    result.__isset.err = true;
+  } catch (const std::exception& e) {
+    if (this->eventHandler_.get() != NULL) {
+      this->eventHandler_->handlerError(ctx, "ArticleService.knn");
+    }
+
+    ::apache::thrift::TApplicationException x(e.what());
+    oprot->writeMessageBegin("knn", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    x.write(oprot);
+    oprot->writeMessageEnd();
+    oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
+    return;
+  }
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->preWrite(ctx, "ArticleService.knn");
+  }
+
+  oprot->writeMessageBegin("knn", ::apache::thrift::protocol::T_REPLY, seqid);
+  result.write(oprot);
+  oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
+  oprot->getTransport()->flush();
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->postWrite(ctx, "ArticleService.knn", bytes);
+  }
+}
+
+template <class Protocol_>
+void ArticleServiceProcessorT<Protocol_>::process_knn(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext)
+{
+  void* ctx = NULL;
+  if (this->eventHandler_.get() != NULL) {
+    ctx = this->eventHandler_->getContext("ArticleService.knn", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "ArticleService.knn");
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->preRead(ctx, "ArticleService.knn");
+  }
+
+  ArticleService_knn_args args;
+  args.read(iprot);
+  iprot->readMessageEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->postRead(ctx, "ArticleService.knn", bytes);
+  }
+
+  ArticleService_knn_result result;
+  try {
+    iface_->knn(result.success, args.sentence, args.n, args.searchK);
+    result.__isset.success = true;
+  } catch (InvalidRequest &err) {
+    result.err = err;
+    result.__isset.err = true;
+  } catch (const std::exception& e) {
+    if (this->eventHandler_.get() != NULL) {
+      this->eventHandler_->handlerError(ctx, "ArticleService.knn");
+    }
+
+    ::apache::thrift::TApplicationException x(e.what());
+    oprot->writeMessageBegin("knn", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    x.write(oprot);
+    oprot->writeMessageEnd();
+    oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
+    return;
+  }
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->preWrite(ctx, "ArticleService.knn");
+  }
+
+  oprot->writeMessageBegin("knn", ::apache::thrift::protocol::T_REPLY, seqid);
+  result.write(oprot);
+  oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
+  oprot->getTransport()->flush();
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->postWrite(ctx, "ArticleService.knn", bytes);
+  }
+}
+
+template <class Protocol_>
 void ArticleServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
   void* ctx = NULL;
@@ -2336,6 +2779,99 @@ void ArticleServiceConcurrentClientT<Protocol_>::recv_toVector(std::vector<doubl
       }
       // in a bad state, don't commit
       throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "toVector failed: unknown result");
+    }
+    // seqid != rseqid
+    this->sync_.updatePending(fname, mtype, rseqid);
+
+    // this will temporarily unlock the readMutex, and let other clients get work done
+    this->sync_.waitForWork(seqid);
+  } // end while(true)
+}
+
+template <class Protocol_>
+void ArticleServiceConcurrentClientT<Protocol_>::knn(std::vector<KnnResult> & _return, const std::string& sentence, const int32_t n, const int32_t searchK)
+{
+  int32_t seqid = send_knn(sentence, n, searchK);
+  recv_knn(_return, seqid);
+}
+
+template <class Protocol_>
+int32_t ArticleServiceConcurrentClientT<Protocol_>::send_knn(const std::string& sentence, const int32_t n, const int32_t searchK)
+{
+  int32_t cseqid = this->sync_.generateSeqId();
+  ::apache::thrift::async::TConcurrentSendSentry sentry(&this->sync_);
+  this->oprot_->writeMessageBegin("knn", ::apache::thrift::protocol::T_CALL, cseqid);
+
+  ArticleService_knn_pargs args;
+  args.sentence = &sentence;
+  args.n = &n;
+  args.searchK = &searchK;
+  args.write(this->oprot_);
+
+  this->oprot_->writeMessageEnd();
+  this->oprot_->getTransport()->writeEnd();
+  this->oprot_->getTransport()->flush();
+
+  sentry.commit();
+  return cseqid;
+}
+
+template <class Protocol_>
+void ArticleServiceConcurrentClientT<Protocol_>::recv_knn(std::vector<KnnResult> & _return, const int32_t seqid)
+{
+
+  int32_t rseqid = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TMessageType mtype;
+
+  // the read mutex gets dropped and reacquired as part of waitForWork()
+  // The destructor of this sentry wakes up other clients
+  ::apache::thrift::async::TConcurrentRecvSentry sentry(&this->sync_, seqid);
+
+  while(true) {
+    if(!this->sync_.getPending(fname, mtype, rseqid)) {
+      this->iprot_->readMessageBegin(fname, mtype, rseqid);
+    }
+    if(seqid == rseqid) {
+      if (mtype == ::apache::thrift::protocol::T_EXCEPTION) {
+        ::apache::thrift::TApplicationException x;
+        x.read(this->iprot_);
+        this->iprot_->readMessageEnd();
+        this->iprot_->getTransport()->readEnd();
+        sentry.commit();
+        throw x;
+      }
+      if (mtype != ::apache::thrift::protocol::T_REPLY) {
+        this->iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+        this->iprot_->readMessageEnd();
+        this->iprot_->getTransport()->readEnd();
+      }
+      if (fname.compare("knn") != 0) {
+        this->iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+        this->iprot_->readMessageEnd();
+        this->iprot_->getTransport()->readEnd();
+
+        // in a bad state, don't commit
+        using ::apache::thrift::protocol::TProtocolException;
+        throw TProtocolException(TProtocolException::INVALID_DATA);
+      }
+      ArticleService_knn_presult result;
+      result.success = &_return;
+      result.read(this->iprot_);
+      this->iprot_->readMessageEnd();
+      this->iprot_->getTransport()->readEnd();
+
+      if (result.__isset.success) {
+        // _return pointer has now been filled
+        sentry.commit();
+        return;
+      }
+      if (result.__isset.err) {
+        sentry.commit();
+        throw result.err;
+      }
+      // in a bad state, don't commit
+      throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "knn failed: unknown result");
     }
     // seqid != rseqid
     this->sync_.updatePending(fname, mtype, rseqid);

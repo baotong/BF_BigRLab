@@ -14,8 +14,7 @@
  *
  * Test Service jieba
  * service jieba keyword jieba_test.txt out.txt 5
- * service jieba article2vector jieba_test.txt out.txt wordvec
- * service jieba article2vector jieba_test.txt out.txt clusterid
+ * service jieba article2vector jieba_test.txt out.txt
  *
  * To run as a service in background
  * nohup ./apiserver.bin -b > nohup.log 2>&1 &

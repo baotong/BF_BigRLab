@@ -13,16 +13,6 @@
 
 namespace Article {
 
-int _kVectorMethodValues[] = {
-  WORDVEC,
-  CLUSTERID
-};
-const char* _kVectorMethodNames[] = {
-  "WORDVEC",
-  "CLUSTERID"
-};
-const std::map<int, const char*> _VectorMethod_VALUES_TO_NAMES(::apache::thrift::TEnumIterator(2, _kVectorMethodValues, _kVectorMethodNames), ::apache::thrift::TEnumIterator(-1, NULL, NULL));
-
 
 InvalidRequest::~InvalidRequest() throw() {
 }
@@ -121,6 +111,56 @@ void KeywordResult::printTo(std::ostream& out) const {
   out << "KeywordResult(";
   out << "word=" << to_string(word);
   out << ", " << "weight=" << to_string(weight);
+  out << ")";
+}
+
+
+KnnResult::~KnnResult() throw() {
+}
+
+
+void KnnResult::__set_id(const int64_t val) {
+  this->id = val;
+}
+
+void KnnResult::__set_distance(const double val) {
+  this->distance = val;
+}
+
+void swap(KnnResult &a, KnnResult &b) {
+  using ::std::swap;
+  swap(a.id, b.id);
+  swap(a.distance, b.distance);
+  swap(a.__isset, b.__isset);
+}
+
+KnnResult::KnnResult(const KnnResult& other8) {
+  id = other8.id;
+  distance = other8.distance;
+  __isset = other8.__isset;
+}
+KnnResult::KnnResult( KnnResult&& other9) {
+  id = std::move(other9.id);
+  distance = std::move(other9.distance);
+  __isset = std::move(other9.__isset);
+}
+KnnResult& KnnResult::operator=(const KnnResult& other10) {
+  id = other10.id;
+  distance = other10.distance;
+  __isset = other10.__isset;
+  return *this;
+}
+KnnResult& KnnResult::operator=(KnnResult&& other11) {
+  id = std::move(other11.id);
+  distance = std::move(other11.distance);
+  __isset = std::move(other11.__isset);
+  return *this;
+}
+void KnnResult::printTo(std::ostream& out) const {
+  using ::apache::thrift::to_string;
+  out << "KnnResult(";
+  out << "id=" << to_string(id);
+  out << ", " << "distance=" << to_string(distance);
   out << ")";
 }
 

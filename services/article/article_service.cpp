@@ -251,6 +251,66 @@ struct ArticleTaskVector : public ArticleTask {
     }
 };
 
+struct ArticleTaskKnn : public ArticleTask {
+    ArticleTaskKnn( std::size_t _Id,
+                 std::string &_Article, 
+                 ArticleService::IdleClientQueue *_IdleClients, 
+                 std::atomic_size_t *_Counter,
+                 boost::condition_variable *_Cond,
+                 boost::mutex *_Mtx,
+                 std::ofstream *_Ofs, 
+                 const char *_SrvName,
+                 int _N, int _SearchK )
+        : ArticleTask(_Id, _Article, _IdleClients, _Counter, _Cond, _Mtx, _Ofs, _SrvName)
+        , n(_N), searchK(_SearchK) {}
+
+    virtual void run()
+    {
+        using namespace std;
+
+        auto on_finish = [this](void*) {
+            ++*counter;
+            cond->notify_all();
+        };
+
+        boost::shared_ptr<void> pOnFinish((void*)0, on_finish);
+
+        bool done = false;
+
+        do {
+            auto pClient = idleClients->getIdleClient();
+            if (!pClient)
+                THROW_RUNTIME_ERROR("Fail due to no available rpc client object!");
+
+            try {
+                vector<Article::KnnResult> result;
+                pClient->client()->knn( result, article, n, searchK );
+                done = true;
+                idleClients->putBack( pClient );
+
+                // write to file
+                if (!result.empty()) {
+                    boost::unique_lock<boost::mutex> flk( *mtx );
+                    *ofs << id << "\t";
+                    for (auto& v : result)
+                        *ofs << v.id << ":" << v.distance << " ";
+                    *ofs << endl << flush;
+                } // if
+
+            } catch (const Article::InvalidRequest &err) {
+                done = true;
+                idleClients->putBack( pClient );
+                LOG(ERROR) << "Service " << srvName << " caught InvalidRequest: "
+                   << err.reason; 
+            } catch (const std::exception &ex) {
+                LOG(ERROR) << "Service " << srvName << " caught system exception: " << ex.what();
+            } // try
+        } while (!done);
+    }
+
+    int n, searchK;
+};
+
 
 
 // 在ApiServer主线程中执行
@@ -322,11 +382,28 @@ void ArticleService::handleCommand( std::stringstream &stream )
         } // while
     };
 
+    auto do_knn = [&] {
+        int n = 0, searchK = -1;
+        stream >> n;
+        if (bad_stream(stream))
+            THROW_RUNTIME_ERROR("Cannot read n value");
+        if (n <= 0)
+            THROW_RUNTIME_ERROR("Invalid n value " << n);
+        stream >> searchK;
+        while ( getline(ifs, line) ) {
+            WorkItemBasePtr pWork = boost::make_shared<ArticleTaskKnn>
+                (lineno, line, &m_queIdleClients, &counter, &cond, &mtx, &ofs, name().c_str(), n, searchK);
+            getWorkMgr()->addWork( pWork );
+            ++lineno;
+        } // while
+    };
+
     typedef std::function<void(void)> ReqFunction;
     std::map<string, ReqFunction>     reqFuncTable;
     reqFuncTable["wordseg"] = do_wordseg;
     reqFuncTable["keyword"] = do_keyword;
     reqFuncTable["article2vector"] = do_article2vector;
+    reqFuncTable["knn"] = do_knn;
 
     auto it = reqFuncTable.find(reqtype);
     if (it == reqFuncTable.end())

@@ -74,6 +74,22 @@ ArticleService_toVector_presult::~ArticleService_toVector_presult() throw() {
 }
 
 
+ArticleService_knn_args::~ArticleService_knn_args() throw() {
+}
+
+
+ArticleService_knn_pargs::~ArticleService_knn_pargs() throw() {
+}
+
+
+ArticleService_knn_result::~ArticleService_knn_result() throw() {
+}
+
+
+ArticleService_knn_presult::~ArticleService_knn_presult() throw() {
+}
+
+
 ArticleService_handleRequest_args::~ArticleService_handleRequest_args() throw() {
 }
 

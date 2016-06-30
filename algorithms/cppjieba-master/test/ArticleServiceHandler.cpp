@@ -2,6 +2,9 @@
 #include "Jieba.hpp"
 #include <glog/logging.h>
 #include <json/json.h>
+#include <boost/foreach.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <boost/range/combine.hpp>
 
 #define TIMEOUT     5000
 
@@ -23,13 +26,16 @@ void ArticleServiceHandler::wordSegment(std::vector<std::string> & _return, cons
     if (!g_JiebaPool.timed_pop(pJieba, TIMEOUT))
         THROW_INVALID_REQUEST("No available Jieba object!");
 
+    boost::shared_ptr<void> pCleanup((void*)0, [&](void*){
+        g_JiebaPool.push( pJieba );
+    });
+
     try {
         pJieba->wordSegment(sentence, _return);
     } catch (const std::exception &ex) {
         LOG(ERROR) << "Jieba wordSegment error: " << ex.what();
+        THROW_INVALID_REQUEST("Jieba wordSegment error: " << ex.what());
     } // try
-
-    g_JiebaPool.push( pJieba );
 }
 
 void ArticleServiceHandler::keyword(std::vector<KeywordResult> & _return, 
@@ -38,12 +44,16 @@ void ArticleServiceHandler::keyword(std::vector<KeywordResult> & _return,
     if (sentence.empty())
         THROW_INVALID_REQUEST("Input sentence cannot be empty!");
 
+    if (k <= 0)
+        THROW_INVALID_REQUEST("Invalid k value " << k);
+
     Jieba::pointer pJieba;
     if (!g_JiebaPool.timed_pop(pJieba, TIMEOUT))
         THROW_INVALID_REQUEST("No available Jieba object!");
 
-    if (k <= 0)
-        THROW_INVALID_REQUEST("Invalid k value " << k);
+    boost::shared_ptr<void> pCleanup((void*)0, [&](void*){
+        g_JiebaPool.push( pJieba );
+    });
 
     Jieba::KeywordResult result;
     try {
@@ -56,9 +66,8 @@ void ArticleServiceHandler::keyword(std::vector<KeywordResult> & _return,
 
     } catch (const std::exception &ex) {
         LOG(ERROR) << "Jieba extract keyword error: " << ex.what();
+        THROW_INVALID_REQUEST("Jieba extract keyword error: " << ex.what());
     } // try
-
-    g_JiebaPool.push( pJieba );
 }
 
 void ArticleServiceHandler::toVector(std::vector<double> & _return, const std::string& sentence)
@@ -71,6 +80,36 @@ void ArticleServiceHandler::toVector(std::vector<double> & _return, const std::s
     _return.assign( fResult.begin(), fResult.end() );
 }
 
+void ArticleServiceHandler::knn(std::vector<KnnResult> & _return, const std::string& sentence, 
+                const int32_t n, const int32_t searchK)
+{
+    if (n <= 0)
+        THROW_INVALID_REQUEST("Invalid n value for knn!");
+
+    if (searchK <= 0)
+        searchK = -1;
+
+    vector<double> _result;
+    toVector(_result, sentence);
+
+    vector<ValueType>    sentenceVec(_result.begin(), _result.end());
+    vector<IdType>       resultIds;
+    vector<ValueType>    resultDists;
+
+    typedef boost::tuple<KnnResult&, IdType&, ValueType&> IterType;
+
+    try {
+        g_pAnnDB->kNN_By_Vector( sentenceVec, (size_t)n, resultIds, resultDists, (size_t)searchK );
+        _return.resize( resultIds.size() );
+        BOOST_FOREACH( IterType v, boost::combine(_return, resultIds, resultDists) ) {
+            v.get<0>().id = v.get<1>();
+            v.get<0>().distance = v.get<2>();
+        } // for_each
+    } catch (const std::exception &ex) {
+        LOG(ERROR) << "ArticleService knn fail: " << ex.what();
+        THROW_INVALID_REQUEST("ArticleService knn fail:: " << ex.what());
+    } // try
+}
 
 void ArticleServiceHandler::handleRequest(std::string& _return, const std::string& request)
 {
@@ -98,13 +137,32 @@ void ArticleServiceHandler::handleRequest(std::string& _return, const std::strin
             int topk = root["topk"].asInt();
             string content = root["content"].asString();
             keyword(result, content, topk);
-            for (auto& v : result)
-                resp["result"].append(v.word);
+            for (auto& v : result) {
+                Json::Value item;
+                item["word"] = v.word;
+                item["weight"] = v.weight;
+                resp["result"].append(item);
+            } // for
+
+        } else if ("knn" == reqtype) {
+            vector<KnnResult> result;
+            int n = root["n"].asInt();
+            size_t searchK = (size_t)-1;
+            if (root.isMember("search_k"))
+                searchK = (size_t)(root["search_k"].asUInt64());
+            knn( result, content, n, searchK );
+            for (auto& v : result) {
+                Json::Value item;
+                item["id"] = (Json::Int64)(v.id);
+                item["distance"] = v.distance;
+                resp["result"].append(item);
+            } // for
 
         } else {
             THROW_INVALID_REQUEST("Invalid reqtype " << reqtype);
         } // if
     } catch (const std::exception &ex) {
+        LOG(ERROR) << "handleRequest fail: " << ex.what();
         THROW_INVALID_REQUEST("handleRequest fail: " << ex.what());
     } // try
 

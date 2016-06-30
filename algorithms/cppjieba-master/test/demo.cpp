@@ -39,6 +39,7 @@ DEFINE_int32(n_io_threads, 4, "Number of io threads on RPC server");
 // DEFINE_string(cluster_dict, "", "File of cluster-id");
 DEFINE_string(vec, "", "How article converted to vector, \"wordvec\" or \"clusterid\"");
 DEFINE_string(vecdict, "", "File contains word info, word vector or word clusterID");
+DEFINE_string(idx, "", "File of annoy tree index");
 
 static std::string                  g_strAlgMgrAddr;
 static uint16_t                     g_nAlgMgrPort = 0;
@@ -53,6 +54,7 @@ static boost::asio::io_service                g_io_service;
 static boost::shared_ptr<BigRLab::AlgSvrInfo> g_pSvrInfo;
 
 Article2Vector::pointer                 g_pVecConverter;
+boost::shared_ptr<AnnDbType>            g_pAnnDB;
 
 namespace {
 
@@ -174,6 +176,11 @@ static
 bool validate_vecdict(const char* flagname, const std::string &value)
 { return check_not_empty( flagname, value ); }
 static bool vecdict_dummy = gflags::RegisterFlagValidator(&FLAGS_vecdict, &validate_vecdict);
+
+static
+bool validate_idx(const char* flagname, const std::string &value)
+{ return check_not_empty( flagname, value ); }
+static bool idx_dummy = gflags::RegisterFlagValidator(&FLAGS_idx, &validate_idx);
 
 static
 void get_local_ip()
@@ -417,6 +424,18 @@ void service_init()
     } else {
         THROW_RUNTIME_ERROR( FLAGS_vec << " is not a valid argument");
     } // if
+
+    cout << "Loading Annoy tree..." << endl;
+    // check idx file
+    {
+        ifstream ifs(FLAGS_idx, ios::in);
+        if (!ifs)
+            THROW_RUNTIME_ERROR("Cannot open annoy index file " << FLAGS_idx << " for reading!");
+    }
+
+    g_pAnnDB.reset( new AnnDB<IdType, ValueType>((int)(g_pVecConverter->nClasses())) );
+    g_pAnnDB->loadIndex( FLAGS_idx.c_str() );
+    cout << "Totally " << g_pAnnDB->size() << " items loaded from annoy tree." << endl;
 }
 
 static

@@ -19,16 +19,11 @@
 
 namespace Article {
 
-enum VectorMethod {
-  WORDVEC = 0,
-  CLUSTERID = 1
-};
-
-extern const std::map<int, const char*> _VectorMethod_VALUES_TO_NAMES;
-
 class InvalidRequest;
 
 class KeywordResult;
+
+class KnnResult;
 
 typedef struct _InvalidRequest__isset {
   _InvalidRequest__isset() : reason(false) {}
@@ -107,6 +102,48 @@ class KeywordResult {
 void swap(KeywordResult &a, KeywordResult &b);
 
 inline std::ostream& operator<<(std::ostream& out, const KeywordResult& obj)
+{
+  obj.printTo(out);
+  return out;
+}
+
+typedef struct _KnnResult__isset {
+  _KnnResult__isset() : id(false), distance(false) {}
+  bool id :1;
+  bool distance :1;
+} _KnnResult__isset;
+
+class KnnResult {
+ public:
+
+  KnnResult(const KnnResult&);
+  KnnResult(KnnResult&&);
+  KnnResult& operator=(const KnnResult&);
+  KnnResult& operator=(KnnResult&&);
+  KnnResult() : id(0), distance(0) {
+  }
+
+  virtual ~KnnResult() throw();
+  int64_t id;
+  double distance;
+
+  _KnnResult__isset __isset;
+
+  void __set_id(const int64_t val);
+
+  void __set_distance(const double val);
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+  virtual void printTo(std::ostream& out) const;
+};
+
+void swap(KnnResult &a, KnnResult &b);
+
+inline std::ostream& operator<<(std::ostream& out, const KnnResult& obj)
 {
   obj.printTo(out);
   return out;

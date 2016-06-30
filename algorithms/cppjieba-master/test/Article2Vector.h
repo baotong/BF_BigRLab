@@ -25,6 +25,8 @@ public:
 
     virtual void convert2Vector( const std::vector<std::string> &article, ResultType &result ) = 0;
 
+    uint32_t nClasses() const { return m_nClasses; }
+
 protected:
     uint32_t    m_nClasses;
 };
