@@ -123,7 +123,7 @@ struct WorkItem : WorkItemBase
                 , left2Read(nRead) 
     { body.reserve(nRead); }
 
-    void readBody( const ServerType::connection_ptr &conn );
+    virtual void readBody( const ServerType::connection_ptr &conn );
 
     void handleRead(ServerType::connection::input_range range, 
             boost::system::error_code error, std::size_t size, 
@@ -139,6 +139,31 @@ struct WorkItem : WorkItemBase
 
 typedef boost::shared_ptr<WorkItem>   WorkItemPtr;
 
+
+struct WorkItemCmd : WorkItem {
+
+    static const int TIMEOUT = 10000;
+
+    typedef boost::shared_ptr<WorkItemCmd>  pointer;
+
+    WorkItemCmd(const ServerType::request &_Req, 
+             const ServerType::connection_ptr &_Conn, 
+             std::size_t nRead) : WorkItem(_Req, _Conn, nRead) {}
+
+    virtual void readBody( const ServerType::connection_ptr &conn );
+};
+
+extern boost::shared_ptr< SharedQueue<WorkItemCmd::pointer> >    g_pCmdQue;
+
+class HttpWriter : public Writer {
+public:  
+    virtual bool readLine( std::string &line );
+    virtual void writeLine( const std::string &msg );
+private:
+    WorkItemCmd::pointer    m_pWorkCmd;
+};
+
+
 inline
 void send_response(const ServerType::connection_ptr &conn,
                    ServerType::connection::status_t status,
@@ -148,6 +173,13 @@ void send_response(const ServerType::connection_ptr &conn,
     if (!content.empty())
         conn->write(content);
 }
+
+#define RESPONSE_MSG(conn, args) \
+    do { \
+        std::stringstream __response_stream; \
+        __response_stream << args << std::endl << std::flush; \
+        send_response(conn, ServerType::connection::ok, __response_stream.str()); \
+    } while (0)
 
 // #define RESPONSE(conn, status, args) \
     // do { \

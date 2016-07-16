@@ -282,6 +282,7 @@ void KnnServiceHandler::handleRequest(std::string& _return, const std::string& r
     vector<string>  result;
 
     // DLOG(INFO) << "KnnService received request: " << request;
+    // SLEEP_SECONDS(20);
 
     if (!reader.parse(request, root))
         THROW_INVALID_REQUEST("Json parse fail!");

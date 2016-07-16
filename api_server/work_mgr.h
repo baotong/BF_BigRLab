@@ -12,6 +12,7 @@ struct WorkItemBase {
 
 typedef boost::shared_ptr<WorkItemBase>   WorkItemBasePtr;
 
+
 class WorkManager {
 public:
     typedef typename boost::shared_ptr< WorkManager >    Pointer;

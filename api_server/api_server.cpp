@@ -29,6 +29,8 @@ Writer::pointer              g_pWriter;
 boost::shared_ptr<APIServer> g_pApiServer;
 uint16_t                     g_nApiSvrPort = 0;
 
+boost::shared_ptr< SharedQueue<WorkItemCmd::pointer> >    g_pCmdQue;
+
 
 APIServer::APIServer( uint16_t _SvrPort,
         uint32_t _nIoThreads, uint32_t _nWorkThreads,
@@ -92,14 +94,17 @@ try {
     } // if
 
     size_t nRead = 0;
+    bool   isCmd = false;
     for (const auto &v : req.headers) {
-        // if (boost::iequals(v.name, "Content-Type")) {
+        if (boost::iequals(v.name, "Content-Type")) {
+            if (boost::iequals(v.value, "command"))
+                isCmd = true;
             // if (!boost::iequals(v.value, "application/json")) {
                 // LOG(ERROR) << "Wrong request from " << req.source << ", only accept json content.";
                 // send_response(conn, ServerType::connection::bad_request, "Content-Type is not json\n");
                 // return;
             // } // if
-        // } 
+        } // if
         if (boost::iequals(v.name, "Content-Length")) {
             // nRead = boost::lexical_cast<size_t>(v.value);
             if (!boost::conversion::try_lexical_convert(v.value, nRead)) {
@@ -110,10 +115,34 @@ try {
         } // if
     } // for
 
+    if (isCmd) {
+        auto pWorkCmd = boost::make_shared<WorkItemCmd>(req, conn, nRead);
+        pWorkCmd->readBody(conn);
+        return;
+    } // if
+
     WorkItemPtr pWork( new WorkItem(req, conn, nRead) );
     pWork->readBody(conn);
 } catch (const std::exception &ex) {
     LOG(ERROR) << "APIServerHandler exception " << ex.what();
+}
+
+void WorkItemCmd::readBody( const ServerType::connection_ptr &conn )
+{
+    using namespace std;
+
+    if (left2Read) {
+        conn->read( std::bind(&WorkItem::handleRead, shared_from_this(),
+               placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4) );
+    } else {
+        if (g_pCmdQue) {
+            if(!g_pCmdQue->timed_push( boost::static_pointer_cast<WorkItemCmd>(shared_from_this()), TIMEOUT )) {
+                RESPONSE_MSG(conn, "System busy!");
+            } // if
+        } else {
+            RESPONSE_MSG(conn, "ApiServer not running in background mode.");
+        } // if
+    } // if
 }
 
 // NOT sure, use boost::asio_read on socket directly
@@ -187,97 +216,27 @@ void WorkItem::run()
     pSrv->handleRequest(shared_from_this());
 }
 
+bool HttpWriter::readLine( std::string &line )
+{
+    if (!g_pCmdQue)
+        return false;
 
-/*
- * void APIServerHandler::operator()(const ServerType::request& req,
- *         ServerType::connection_ptr conn)
- * {
- *     using namespace std;
- * 
- *     cout << "Received client request from " << req.source << endl; // source 已经包含port
- *     cout << "destination = " << req.destination << endl;  // 去除了URL port
- *     cout << "method = " << req.method << endl;
- *     cout << "http version = " << (uint32_t)(req.http_version_major)
- *         << "." << (uint32_t)(req.http_version_minor) << endl;
- *     cout << "headers:" << endl;
- *     for (const auto &header : req.headers)
- *         cout << header.name << " = " << header.value << endl;
- * 
- *     SLEEP_SECONDS(1);
- * 
- *     stringstream os;
- *     os << "Hello, from server thread " << THIS_THREAD_ID << endl << flush;
- *     conn->write(os.str());
- * }
- */
+    m_pWorkCmd = g_pCmdQue->pop();
+    if (!m_pWorkCmd)
+        return false;
 
+    line.swap(m_pWorkCmd->body);
+
+    return true;
+}
+
+void HttpWriter::writeLine( const std::string &msg )
+{
+    if (m_pWorkCmd) {
+        RESPONSE_MSG(m_pWorkCmd->conn, boost::trim_copy(msg));
+        m_pWorkCmd.reset();
+    } // if
+}
 
 } // namespace BigRLab
 
-/*
- * APIServer::APIServer( const ServerType::options &_Opts,
- *                       const IoServicePtr &_pIoSrv,
- *                       const ThreadGroupPtr &_pThrgrp,
- *                       const char *confFileName )
- *                 : APIServer(_Opts, _pIoSrv, _pThrgrp)
- * {
- *     using namespace std;
- * 
- *     parse_config_file( confFileName, m_mapProperties );
- * 
- *     auto check_addr = [](const std::string &value, std::string &addr, uint16_t &port) {
- *         string::size_type pos = value.find_last_of(':');
- *         if (string::npos == pos)
- *             THROW_RUNTIME_ERROR("Invalid address format for algmgr_server");
- * 
- *         addr = value.substr(0, pos);
- *         if (addr.empty())
- *             THROW_RUNTIME_ERROR("Invalid address format for algmgr_server");
- * 
- *         string strPort = value.substr(pos + 1, string::npos);
- *         if (strPort.empty())
- *             THROW_RUNTIME_ERROR("Invalid address format for algmgr_server");
- * 
- *         if (!boost::conversion::try_lexical_convert(strPort, port))
- *             THROW_RUNTIME_ERROR("Invalid port format for algmgr_server");
- * 
- *         if (!port)
- *             THROW_RUNTIME_ERROR("Invalid port format for algmgr_server");
- *     };
- * 
- *     for (auto &v : m_mapProperties) {
- *         if ("port" == v.first) {
- *             if (!(read_from_string(*(v.second.begin()), m_nPort))) {
- *                 cout << "APIServer Invalid value " << *(v.second.begin())
- *                         << " for port number, set to default." << endl;
- *                 m_nPort = DEFAULT_PORT;
- *             } // if
- *         } else if ("n_io_threads" == v.first) {
- *             if (!(read_from_string(*(v.second.begin()), m_nIoThreads))) {
- *                 cout << "APIServer Invalid value " << *(v.second.begin())
- *                         << " for n_io_threads, set to default." << endl;
- *                 m_nIoThreads = DEFAULT_N_IO_THREADS;
- *             } // if
- *         } else if ("n_work_threads" == v.first) {
- *             if (!(read_from_string(*(v.second.begin()), m_nWorkThreads))) {
- *                 cout << "APIServer Invalid value " << *(v.second.begin())
- *                         << " for n_work_threads, set to default." << endl;
- *                 m_nWorkThreads = DEFAULT_N_WORK_THREADS;
- *             } // if
- *         } // if 
- *         // else if ("algmgr_server" == v.first) {
- *             // const string &addr = *(v.second.begin());
- *             // check_addr(addr, m_strAlgMgrAddr, m_nAlgMgrPort);
- *         // } // if
- *     } // for
- * 
- *     // if (m_strAlgMgrAddr.empty())
- *         // THROW_RUNTIME_ERROR("No item \"algmgr_server\" found in config file");
- * 
- *     // m_pAlgMgrClient = boost::make_shared< AlgMgrClient >(m_strAlgMgrAddr, m_nAlgMgrPort);
- * 
- *     options().port(to_string(m_nPort))
- *         .thread_pool(boost::make_shared<ThreadPool>(m_nIoThreads, m_pIoService, m_pIoThrgrp));
- * }
- * 
- */

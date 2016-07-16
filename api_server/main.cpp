@@ -13,6 +13,7 @@
  * curl -i -X POST -H "Content-Type: application/json" -d '{"item":"李宇春","n":10}' http://localhost:9000/knn_star
  *
  * Test Service article
+ * loadlib ../services/article/article_service.so
  * service jieba keyword jieba_test.txt out.txt 5
  * service jieba article2vector jieba_test.txt out.txt
  * service jieba knn test.txt out.txt 10
@@ -26,7 +27,6 @@
 #include "api_server.h"
 #include "service_manager.h"
 #include "alg_mgr.h"
-#include "shm_writer.h"
 #include <fstream>
 #include <iomanip>
 #include <gflags/gflags.h>
@@ -164,10 +164,12 @@ void init()
     } // if
     g_pWorkMgr.reset(new WorkManager(g_pApiServer->nWorkThreads(), nWorkQueLen) );
 
-    if (FLAGS_b)
-        g_pWriter.reset( new ShmWriter );
-    else
+    if (FLAGS_b) {
+        g_pCmdQue.reset( new SharedQueue<WorkItemCmd::pointer>(1) );
+        g_pWriter.reset( new HttpWriter );
+    } else {
         g_pWriter.reset( new ConsoleWriter );
+    } // if
 
     cout << g_pApiServer->toString() << endl;
 }
@@ -175,8 +177,13 @@ void init()
 static
 void stop_server() 
 {
+    if (FLAGS_b)
+        g_pCmdQue->timed_push( WorkItemCmd::pointer(), 5000 );
+
     if (g_pApiServer && g_pApiServer->isRunning())
         g_pApiServer->stop();
+
+    // DLOG(INFO) << "stop_server() done";
     //!! 在信号处理函数中不可以操作io_service, core dump
     // g_pWork.reset();
     // g_pIoService->stop();
@@ -246,6 +253,8 @@ void start_shell()
             WRITE_LINE(ex.what());
         } // try
 
+        WRITE_LINE("loadlib done!");
+
         return true;
     };
 
@@ -269,6 +278,11 @@ void start_shell()
         stringstream outStream;
         auto &libTable = ServiceManager::getInstance()->serviceLibs();
         boost::shared_lock< ServiceManager::ServiceLibTable > lock(libTable);
+
+        if (libTable.empty()) {
+            WRITE_LINE("No lib loaded.");
+            return true;
+        } // if
 
         for (const auto &v : libTable)
             outStream << v.first << "\t\t" << v.second->path << endl; 
@@ -324,6 +338,9 @@ void start_shell()
         boost::shared_lock<ServiceManager::ServiceLibTable> lock(table);
         for (const auto &v : table)
             ofs << v.second->path << endl;
+
+        WRITE_LINE("save done!");
+        return true;
     };
 
     CmdProcessTable cmdTable;
@@ -406,7 +423,7 @@ void start_shell()
 #undef CHECKED_INPUT
 #undef readLine
 
-    cout << "BigRLab terminated." << endl;
+    return;
 }
 
 
@@ -440,6 +457,7 @@ int main( int argc, char **argv )
         start_shell();
 
         cout << "Terminating server program..." << endl;
+        SLEEP_SECONDS(1); // wait msg sent to client
         stop_server();
         stop_alg_mgr();
         g_pWork.reset();

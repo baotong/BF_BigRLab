@@ -41,6 +41,7 @@ public:
 public:
     explicit ServiceCli( const std::string &url )
                 : m_pCurl(NULL)
+                , m_pHeader(NULL)
                 , m_strUrl(url)
     {
         m_pCurl = curl_easy_init();
@@ -55,9 +56,21 @@ public:
 
     virtual ~ServiceCli()
     {
+        if (m_pHeader)
+            curl_slist_free_all(m_pHeader);
+        m_pHeader = NULL;
         if (m_pCurl)
             curl_easy_cleanup(m_pCurl);
         m_pCurl = NULL;
+    }
+
+    void setTimeout( long timeout )
+    { curl_easy_setopt(m_pCurl, CURLOPT_TIMEOUT, timeout); }
+
+    void setHeader( const std::string &content )
+    {
+        m_pHeader = curl_slist_append(m_pHeader, content.c_str());
+        curl_easy_setopt(m_pCurl, CURLOPT_HTTPHEADER, m_pHeader);
     }
 
     int doRequest( const std::string &req )
@@ -76,7 +89,7 @@ public:
     const std::string& url() const
     { return m_strUrl; }
 
-    const std::string& errmsg() const
+    std::string& errmsg()
     { return m_strErrMsg; }
 
     std::string& respString()
@@ -94,6 +107,7 @@ protected:
 
 protected:
     CURL           *m_pCurl;
+    curl_slist     *m_pHeader;
     std::string    m_strUrl;
     std::string    m_strCbBuf;
     std::string    m_strErrMsg;
