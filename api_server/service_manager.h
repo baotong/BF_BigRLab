@@ -48,6 +48,16 @@ public:
     {};
 
 public:
+    ~ServiceManager()
+    {
+        /*
+         * NOTE!!! Manually control the destructor order
+         * 手动控制析构顺序，service的析构函数在lib.so中实现
+         */
+        m_mapServices.clear();
+        m_mapServiceLibs.clear();
+    }
+
     static pointer getInstance();
 
     void loadServiceLib( const std::string &path );
