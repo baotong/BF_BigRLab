@@ -81,7 +81,7 @@ void ArticleServiceHandler::toVector(std::vector<double> & _return, const std::s
 }
 
 void ArticleServiceHandler::knn(std::vector<KnnResult> & _return, const std::string& sentence, 
-                const int32_t n, const int32_t searchK)
+                const int32_t n, const int32_t searchK, const std::string& reqtype)
 {
     if (n <= 0)
         THROW_INVALID_REQUEST("Invalid n value for knn!");
@@ -102,6 +102,25 @@ void ArticleServiceHandler::knn(std::vector<KnnResult> & _return, const std::str
             v.get<0>().id = v.get<1>();
             v.get<0>().distance = v.get<2>();
         } // for_each
+
+        if ("knn_label" == reqtype) {
+            if (g_arrstrLabel.empty())
+                THROW_INVALID_REQUEST("Label data not loaded!");
+            std::for_each(_return.begin(), _return.end(), [&](KnnResult &res){
+                if (res.id < g_arrstrLabel.size())
+                    res.label = g_arrstrLabel[ res.id ];
+            });
+        } else if ("knn_score" == reqtype) {
+            if (g_arrfScore.empty())
+                THROW_INVALID_REQUEST("Score data not loaded!");
+            std::for_each(_return.begin(), _return.end(), [&](KnnResult &res){
+                if (res.id < g_arrfScore.size())
+                    res.score = g_arrfScore[ res.id ];
+            });
+        } // if
+
+    } catch (const InvalidRequest &ex) {
+        throw ex;
     } catch (const std::exception &ex) {
         LOG(ERROR) << "ArticleService knn fail: " << ex.what();
         THROW_INVALID_REQUEST("ArticleService knn fail:: " << ex.what());
@@ -140,17 +159,21 @@ void ArticleServiceHandler::handleRequest(std::string& _return, const std::strin
                 resp["result"].append(item);
             } // for
 
-        } else if ("knn" == reqtype) {
+        } else if (reqtype.compare(0, 3, "knn") == 0) {
             vector<KnnResult> result;
             int n = root["n"].asInt();
             size_t searchK = (size_t)-1;
             if (root.isMember("search_k"))
                 searchK = (size_t)(root["search_k"].asUInt64());
-            knn( result, content, n, searchK );
+            knn( result, content, n, searchK, reqtype );
             for (auto& v : result) {
                 Json::Value item;
                 item["id"] = (Json::Int64)(v.id);
                 item["distance"] = v.distance;
+                if ("knn_label" == reqtype)
+                    item["label"] = v.label;
+                else if ("knn_score" == reqtype)
+                    item["score"] = v.score;
                 resp["result"].append(item);
             } // for
 

@@ -25,7 +25,7 @@ class ArticleServiceIf {
   virtual void wordSegment(std::vector<std::string> & _return, const std::string& sentence) = 0;
   virtual void keyword(std::vector<KeywordResult> & _return, const std::string& sentence, const int32_t k) = 0;
   virtual void toVector(std::vector<double> & _return, const std::string& sentence) = 0;
-  virtual void knn(std::vector<KnnResult> & _return, const std::string& sentence, const int32_t n, const int32_t searchK) = 0;
+  virtual void knn(std::vector<KnnResult> & _return, const std::string& sentence, const int32_t n, const int32_t searchK, const std::string& reqtype) = 0;
   virtual void handleRequest(std::string& _return, const std::string& request) = 0;
 };
 
@@ -68,7 +68,7 @@ class ArticleServiceNull : virtual public ArticleServiceIf {
   void toVector(std::vector<double> & /* _return */, const std::string& /* sentence */) {
     return;
   }
-  void knn(std::vector<KnnResult> & /* _return */, const std::string& /* sentence */, const int32_t /* n */, const int32_t /* searchK */) {
+  void knn(std::vector<KnnResult> & /* _return */, const std::string& /* sentence */, const int32_t /* n */, const int32_t /* searchK */, const std::string& /* reqtype */) {
     return;
   }
   void handleRequest(std::string& /* _return */, const std::string& /* request */) {
@@ -444,10 +444,11 @@ class ArticleService_toVector_presult {
 };
 
 typedef struct _ArticleService_knn_args__isset {
-  _ArticleService_knn_args__isset() : sentence(false), n(false), searchK(false) {}
+  _ArticleService_knn_args__isset() : sentence(false), n(false), searchK(false), reqtype(false) {}
   bool sentence :1;
   bool n :1;
   bool searchK :1;
+  bool reqtype :1;
 } _ArticleService_knn_args__isset;
 
 class ArticleService_knn_args {
@@ -457,13 +458,14 @@ class ArticleService_knn_args {
   ArticleService_knn_args(ArticleService_knn_args&&);
   ArticleService_knn_args& operator=(const ArticleService_knn_args&);
   ArticleService_knn_args& operator=(ArticleService_knn_args&&);
-  ArticleService_knn_args() : sentence(), n(0), searchK(0) {
+  ArticleService_knn_args() : sentence(), n(0), searchK(0), reqtype() {
   }
 
   virtual ~ArticleService_knn_args() throw();
   std::string sentence;
   int32_t n;
   int32_t searchK;
+  std::string reqtype;
 
   _ArticleService_knn_args__isset __isset;
 
@@ -472,6 +474,8 @@ class ArticleService_knn_args {
   void __set_n(const int32_t val);
 
   void __set_searchK(const int32_t val);
+
+  void __set_reqtype(const std::string& val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -489,6 +493,7 @@ class ArticleService_knn_pargs {
   const std::string* sentence;
   const int32_t* n;
   const int32_t* searchK;
+  const std::string* reqtype;
 
   template <class Protocol_>
   uint32_t write(Protocol_* oprot) const;
@@ -683,8 +688,8 @@ class ArticleServiceClientT : virtual public ArticleServiceIf {
   void toVector(std::vector<double> & _return, const std::string& sentence);
   void send_toVector(const std::string& sentence);
   void recv_toVector(std::vector<double> & _return);
-  void knn(std::vector<KnnResult> & _return, const std::string& sentence, const int32_t n, const int32_t searchK);
-  void send_knn(const std::string& sentence, const int32_t n, const int32_t searchK);
+  void knn(std::vector<KnnResult> & _return, const std::string& sentence, const int32_t n, const int32_t searchK, const std::string& reqtype);
+  void send_knn(const std::string& sentence, const int32_t n, const int32_t searchK, const std::string& reqtype);
   void recv_knn(std::vector<KnnResult> & _return);
   void handleRequest(std::string& _return, const std::string& request);
   void send_handleRequest(const std::string& request);
@@ -822,13 +827,13 @@ class ArticleServiceMultiface : virtual public ArticleServiceIf {
     return;
   }
 
-  void knn(std::vector<KnnResult> & _return, const std::string& sentence, const int32_t n, const int32_t searchK) {
+  void knn(std::vector<KnnResult> & _return, const std::string& sentence, const int32_t n, const int32_t searchK, const std::string& reqtype) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->knn(_return, sentence, n, searchK);
+      ifaces_[i]->knn(_return, sentence, n, searchK, reqtype);
     }
-    ifaces_[i]->knn(_return, sentence, n, searchK);
+    ifaces_[i]->knn(_return, sentence, n, searchK, reqtype);
     return;
   }
 
@@ -885,8 +890,8 @@ class ArticleServiceConcurrentClientT : virtual public ArticleServiceIf {
   void toVector(std::vector<double> & _return, const std::string& sentence);
   int32_t send_toVector(const std::string& sentence);
   void recv_toVector(std::vector<double> & _return, const int32_t seqid);
-  void knn(std::vector<KnnResult> & _return, const std::string& sentence, const int32_t n, const int32_t searchK);
-  int32_t send_knn(const std::string& sentence, const int32_t n, const int32_t searchK);
+  void knn(std::vector<KnnResult> & _return, const std::string& sentence, const int32_t n, const int32_t searchK, const std::string& reqtype);
+  int32_t send_knn(const std::string& sentence, const int32_t n, const int32_t searchK, const std::string& reqtype);
   void recv_knn(std::vector<KnnResult> & _return, const int32_t seqid);
   void handleRequest(std::string& _return, const std::string& request);
   int32_t send_handleRequest(const std::string& request);

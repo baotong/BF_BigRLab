@@ -175,6 +175,22 @@ uint32_t KnnResult::read(Protocol_* iprot) {
           xfer += iprot->skip(ftype);
         }
         break;
+      case 3:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->label);
+          this->__isset.label = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 4:
+        if (ftype == ::apache::thrift::protocol::T_DOUBLE) {
+          xfer += iprot->readDouble(this->score);
+          this->__isset.score = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
       default:
         xfer += iprot->skip(ftype);
         break;
@@ -199,6 +215,14 @@ uint32_t KnnResult::write(Protocol_* oprot) const {
 
   xfer += oprot->writeFieldBegin("distance", ::apache::thrift::protocol::T_DOUBLE, 2);
   xfer += oprot->writeDouble(this->distance);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("label", ::apache::thrift::protocol::T_STRING, 3);
+  xfer += oprot->writeString(this->label);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("score", ::apache::thrift::protocol::T_DOUBLE, 4);
+  xfer += oprot->writeDouble(this->score);
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldStop();

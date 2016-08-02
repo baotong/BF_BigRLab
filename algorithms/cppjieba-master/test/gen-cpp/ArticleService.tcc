@@ -907,6 +907,14 @@ uint32_t ArticleService_knn_args::read(Protocol_* iprot) {
           xfer += iprot->skip(ftype);
         }
         break;
+      case 4:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->reqtype);
+          this->__isset.reqtype = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
       default:
         xfer += iprot->skip(ftype);
         break;
@@ -937,6 +945,10 @@ uint32_t ArticleService_knn_args::write(Protocol_* oprot) const {
   xfer += oprot->writeI32(this->searchK);
   xfer += oprot->writeFieldEnd();
 
+  xfer += oprot->writeFieldBegin("reqtype", ::apache::thrift::protocol::T_STRING, 4);
+  xfer += oprot->writeString(this->reqtype);
+  xfer += oprot->writeFieldEnd();
+
   xfer += oprot->writeFieldStop();
   xfer += oprot->writeStructEnd();
   return xfer;
@@ -959,6 +971,10 @@ uint32_t ArticleService_knn_pargs::write(Protocol_* oprot) const {
 
   xfer += oprot->writeFieldBegin("searchK", ::apache::thrift::protocol::T_I32, 3);
   xfer += oprot->writeI32((*(this->searchK)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("reqtype", ::apache::thrift::protocol::T_STRING, 4);
+  xfer += oprot->writeString((*(this->reqtype)));
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldStop();
@@ -1568,14 +1584,14 @@ void ArticleServiceClientT<Protocol_>::recv_toVector(std::vector<double> & _retu
 }
 
 template <class Protocol_>
-void ArticleServiceClientT<Protocol_>::knn(std::vector<KnnResult> & _return, const std::string& sentence, const int32_t n, const int32_t searchK)
+void ArticleServiceClientT<Protocol_>::knn(std::vector<KnnResult> & _return, const std::string& sentence, const int32_t n, const int32_t searchK, const std::string& reqtype)
 {
-  send_knn(sentence, n, searchK);
+  send_knn(sentence, n, searchK, reqtype);
   recv_knn(_return);
 }
 
 template <class Protocol_>
-void ArticleServiceClientT<Protocol_>::send_knn(const std::string& sentence, const int32_t n, const int32_t searchK)
+void ArticleServiceClientT<Protocol_>::send_knn(const std::string& sentence, const int32_t n, const int32_t searchK, const std::string& reqtype)
 {
   int32_t cseqid = 0;
   this->oprot_->writeMessageBegin("knn", ::apache::thrift::protocol::T_CALL, cseqid);
@@ -1584,6 +1600,7 @@ void ArticleServiceClientT<Protocol_>::send_knn(const std::string& sentence, con
   args.sentence = &sentence;
   args.n = &n;
   args.searchK = &searchK;
+  args.reqtype = &reqtype;
   args.write(this->oprot_);
 
   this->oprot_->writeMessageEnd();
@@ -2217,7 +2234,7 @@ void ArticleServiceProcessorT<Protocol_>::process_knn(int32_t seqid, ::apache::t
 
   ArticleService_knn_result result;
   try {
-    iface_->knn(result.success, args.sentence, args.n, args.searchK);
+    iface_->knn(result.success, args.sentence, args.n, args.searchK, args.reqtype);
     result.__isset.success = true;
   } catch (InvalidRequest &err) {
     result.err = err;
@@ -2275,7 +2292,7 @@ void ArticleServiceProcessorT<Protocol_>::process_knn(int32_t seqid, Protocol_* 
 
   ArticleService_knn_result result;
   try {
-    iface_->knn(result.success, args.sentence, args.n, args.searchK);
+    iface_->knn(result.success, args.sentence, args.n, args.searchK, args.reqtype);
     result.__isset.success = true;
   } catch (InvalidRequest &err) {
     result.err = err;
@@ -2789,14 +2806,14 @@ void ArticleServiceConcurrentClientT<Protocol_>::recv_toVector(std::vector<doubl
 }
 
 template <class Protocol_>
-void ArticleServiceConcurrentClientT<Protocol_>::knn(std::vector<KnnResult> & _return, const std::string& sentence, const int32_t n, const int32_t searchK)
+void ArticleServiceConcurrentClientT<Protocol_>::knn(std::vector<KnnResult> & _return, const std::string& sentence, const int32_t n, const int32_t searchK, const std::string& reqtype)
 {
-  int32_t seqid = send_knn(sentence, n, searchK);
+  int32_t seqid = send_knn(sentence, n, searchK, reqtype);
   recv_knn(_return, seqid);
 }
 
 template <class Protocol_>
-int32_t ArticleServiceConcurrentClientT<Protocol_>::send_knn(const std::string& sentence, const int32_t n, const int32_t searchK)
+int32_t ArticleServiceConcurrentClientT<Protocol_>::send_knn(const std::string& sentence, const int32_t n, const int32_t searchK, const std::string& reqtype)
 {
   int32_t cseqid = this->sync_.generateSeqId();
   ::apache::thrift::async::TConcurrentSendSentry sentry(&this->sync_);
@@ -2806,6 +2823,7 @@ int32_t ArticleServiceConcurrentClientT<Protocol_>::send_knn(const std::string& 
   args.sentence = &sentence;
   args.n = &n;
   args.searchK = &searchK;
+  args.reqtype = &reqtype;
   args.write(this->oprot_);
 
   this->oprot_->writeMessageEnd();

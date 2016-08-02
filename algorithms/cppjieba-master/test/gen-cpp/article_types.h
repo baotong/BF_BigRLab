@@ -108,9 +108,11 @@ inline std::ostream& operator<<(std::ostream& out, const KeywordResult& obj)
 }
 
 typedef struct _KnnResult__isset {
-  _KnnResult__isset() : id(false), distance(false) {}
+  _KnnResult__isset() : id(false), distance(false), label(false), score(false) {}
   bool id :1;
   bool distance :1;
+  bool label :1;
+  bool score :1;
 } _KnnResult__isset;
 
 class KnnResult {
@@ -120,18 +122,24 @@ class KnnResult {
   KnnResult(KnnResult&&);
   KnnResult& operator=(const KnnResult&);
   KnnResult& operator=(KnnResult&&);
-  KnnResult() : id(0), distance(0) {
+  KnnResult() : id(0), distance(0), label(), score(0) {
   }
 
   virtual ~KnnResult() throw();
   int64_t id;
   double distance;
+  std::string label;
+  double score;
 
   _KnnResult__isset __isset;
 
   void __set_id(const int64_t val);
 
   void __set_distance(const double val);
+
+  void __set_label(const std::string& val);
+
+  void __set_score(const double val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);

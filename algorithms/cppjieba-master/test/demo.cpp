@@ -40,6 +40,7 @@ DEFINE_string(vec, "", "How article converted to vector, \"wordvec\" or \"cluste
 DEFINE_string(vecdict, "", "File contains word info, word vector or word clusterID");
 DEFINE_string(idx, "", "File of annoy tree index");
 DEFINE_string(label, "", "Line label of source text");
+DEFINE_string(score, "", "Line regression score of source text");
 
 static std::string                  g_strAlgMgrAddr;
 static uint16_t                     g_nAlgMgrPort = 0;
@@ -56,6 +57,7 @@ static boost::shared_ptr<BigRLab::AlgSvrInfo> g_pSvrInfo;
 Article2Vector::pointer                 g_pVecConverter;
 boost::shared_ptr<AnnDbType>            g_pAnnDB;
 std::vector<std::string>                g_arrstrLabel;
+std::vector<double>                     g_arrfScore;
 
 namespace {
 
@@ -445,6 +447,15 @@ void service_init()
         g_arrstrLabel.reserve(g_pAnnDB->size());
         copy( istream_iterator<string>(ifs), istream_iterator<string>(), back_inserter(g_arrstrLabel) );
         // DLOG(INFO) << "g_arrstrLabel.size() = " << g_arrstrLabel.size();
+    } // if
+
+    if (!FLAGS_score.empty()) {
+        ifstream ifs(FLAGS_score, ios::in);
+        if (!ifs)
+            THROW_RUNTIME_ERROR("Cannot open score file " << FLAGS_score << " for reading!");
+        g_arrfScore.reserve(g_pAnnDB->size());
+        copy( istream_iterator<double>(ifs), istream_iterator<double>(), back_inserter(g_arrfScore) );
+        // DLOG(INFO) << "g_arrfScore.size() = " << g_arrfScore.size();
     } // if
 }
 

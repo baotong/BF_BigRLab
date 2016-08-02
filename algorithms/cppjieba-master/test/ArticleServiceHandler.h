@@ -14,6 +14,9 @@ typedef float    ValueType;
 typedef AnnDB<IdType, ValueType>    AnnDbType;
 extern boost::shared_ptr<AnnDbType> g_pAnnDB;
 
+extern std::vector<std::string>                g_arrstrLabel;
+extern std::vector<double>                     g_arrfScore;
+
 namespace Article {
 
 class ArticleServiceHandler : public ArticleServiceIf {
@@ -23,7 +26,7 @@ public:
     virtual void keyword(std::vector<KeywordResult> & _return, const std::string& sentence, const int32_t k);
     virtual void toVector(std::vector<double> & _return, const std::string& sentence);
     virtual void knn(std::vector<KnnResult> & _return, const std::string& sentence, 
-            const int32_t n, const int32_t searchK);
+            const int32_t n, const int32_t searchK, const std::string& reqtype);
     virtual void handleRequest(std::string& _return, const std::string& request);
 };
 

@@ -15,12 +15,9 @@ struct KeywordResult {
 
 struct KnnResult {
     1: i64 id,
-    2: double distance
-}
-
-struct KnnLabelResult {
-    1: i64 id,
-    2: string label
+    2: double distance,
+    3: string label,
+    4: double score
 }
 
 service ArticleService {
@@ -31,7 +28,7 @@ service ArticleService {
 
     list<double> toVector( 1:string sentence ) throws (1:InvalidRequest err),
 
-    list<KnnResult> knn( 1:string sentence, 2:i32 n, 3:i32 searchK ) throws (1:InvalidRequest err),
+    list<KnnResult> knn( 1:string sentence, 2:i32 n, 3:i32 searchK, 4:string reqtype ) throws (1:InvalidRequest err),
 
     // for http request, input: json string; return: json string
     string handleRequest( 1:string request ) throws (1:InvalidRequest err)
