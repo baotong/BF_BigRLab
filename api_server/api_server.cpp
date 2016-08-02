@@ -97,13 +97,13 @@ try {
     bool   isCmd = false;
     for (const auto &v : req.headers) {
         if (boost::iequals(v.name, "Content-Type")) {
-            if (boost::iequals(v.value, "command"))
+            if (boost::equals(v.value, "BigRLab_Command"))
                 isCmd = true;
-            // if (!boost::iequals(v.value, "application/json")) {
-                // LOG(ERROR) << "Wrong request from " << req.source << ", only accept json content.";
-                // send_response(conn, ServerType::connection::bad_request, "Content-Type is not json\n");
-                // return;
-            // } // if
+            else if (!boost::equals(v.value, "BigRLab_Request")) {
+                LOG(ERROR) << "Wrong request from " << req.source << ", invalid Content-Type.";
+                send_response(conn, ServerType::connection::bad_request, "Content-Type is not valid\n");
+                return;
+            } // if
         } // if
         if (boost::iequals(v.name, "Content-Length")) {
             // nRead = boost::lexical_cast<size_t>(v.value);

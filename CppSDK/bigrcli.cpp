@@ -65,7 +65,7 @@ try {
     if (FLAGS_timeout)
         pSrv->setTimeout( FLAGS_timeout );
 
-    pSrv->setHeader( "Content-Type: command" );
+    pSrv->setHeader( "Content-Type: BigRLab_Command" );
 
     int res = pSrv->doRequest( cmd );
     if (res) {

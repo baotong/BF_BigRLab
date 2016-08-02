@@ -18,6 +18,11 @@ struct KnnResult {
     2: double distance
 }
 
+struct KnnLabelResult {
+    1: i64 id,
+    2: string label
+}
+
 service ArticleService {
     void setFilter( 1:string filter ),
 

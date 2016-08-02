@@ -10,7 +10,8 @@ class WordKnnCli : public BigRLab::ServiceCli {
 public:
     enum { INVALID_JSON = 301 };
 public:
-    WordKnnCli( const std::string &url ) : BaseType(url) {}
+    WordKnnCli( const std::string &url ) : BaseType(url) 
+    { setHeader( "Content-Type: BigRLab_Request" ); }
 
     int queryItem(const std::string &item, int k, std::vector<std::string> &result)
     {

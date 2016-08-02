@@ -39,6 +39,7 @@ DEFINE_int32(n_io_threads, 4, "Number of io threads on RPC server");
 DEFINE_string(vec, "", "How article converted to vector, \"wordvec\" or \"clusterid\"");
 DEFINE_string(vecdict, "", "File contains word info, word vector or word clusterID");
 DEFINE_string(idx, "", "File of annoy tree index");
+DEFINE_string(label, "", "Line label of source text");
 
 static std::string                  g_strAlgMgrAddr;
 static uint16_t                     g_nAlgMgrPort = 0;
@@ -54,6 +55,7 @@ static boost::shared_ptr<BigRLab::AlgSvrInfo> g_pSvrInfo;
 
 Article2Vector::pointer                 g_pVecConverter;
 boost::shared_ptr<AnnDbType>            g_pAnnDB;
+std::vector<std::string>                g_arrstrLabel;
 
 namespace {
 
@@ -435,6 +437,15 @@ void service_init()
     g_pAnnDB.reset( new AnnDB<IdType, ValueType>((int)(g_pVecConverter->nClasses())) );
     g_pAnnDB->loadIndex( FLAGS_idx.c_str() );
     cout << "Totally " << g_pAnnDB->size() << " items loaded from annoy tree." << endl;
+
+    if (!FLAGS_label.empty()) {
+        ifstream ifs(FLAGS_label, ios::in);
+        if (!ifs)
+            THROW_RUNTIME_ERROR("Cannot open label file " << FLAGS_label << " for reading!");
+        g_arrstrLabel.reserve(g_pAnnDB->size());
+        copy( istream_iterator<string>(ifs), istream_iterator<string>(), back_inserter(g_arrstrLabel) );
+        // DLOG(INFO) << "g_arrstrLabel.size() = " << g_arrstrLabel.size();
+    } // if
 }
 
 static
