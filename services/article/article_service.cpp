@@ -5,6 +5,7 @@
 #include <iterator>
 #include <fstream>
 #include <cstring>
+#include <boost/ptr_container/ptr_vector.hpp>
 #include <glog/logging.h>
 
 using namespace BigRLab;
@@ -284,7 +285,7 @@ struct ArticleTaskKnn : public ArticleTask {
 
             try {
                 vector<Article::KnnResult> result;
-                pClient->client()->knn( result, article, n, searchK );
+                pClient->client()->knn( result, article, n, searchK, REQTYPE );
                 done = true;
                 idleClients->putBack( pClient );
 
@@ -309,8 +310,148 @@ struct ArticleTaskKnn : public ArticleTask {
     }
 
     int n, searchK;
+    static constexpr const char* REQTYPE = "knn";
 };
 
+
+struct ArticleTaskKnnLabel : ArticleTaskKnn {
+    ArticleTaskKnnLabel( std::size_t _Id,
+                 std::string &_Article, 
+                 ArticleService::IdleClientQueue *_IdleClients, 
+                 std::atomic_size_t *_Counter,
+                 boost::condition_variable *_Cond,
+                 boost::mutex *_Mtx,
+                 std::ofstream *_Ofs, 
+                 const char *_SrvName,
+                 int _N, int _K, int _SearchK )
+        : ArticleTaskKnn(_Id, _Article, _IdleClients, _Counter, _Cond, _Mtx, _Ofs, _SrvName, _N, _SearchK)
+        , k(_K) {}
+
+    virtual void run()
+    {
+        using namespace std;
+
+        auto on_finish = [this](void*) {
+            ++*counter;
+            cond->notify_all();
+        };
+
+        boost::shared_ptr<void> pOnFinish((void*)0, on_finish);
+
+        bool done = false;
+
+        do {
+            auto pClient = idleClients->getIdleClient();
+            if (!pClient)
+                THROW_RUNTIME_ERROR("Fail due to no available rpc client object!");
+
+            try {
+                vector<Article::KnnResult> result;
+                pClient->client()->knn( result, article, n, searchK, REQTYPE );
+                done = true;
+                idleClients->putBack( pClient );
+
+                // 在这里统计
+                if (!result.empty()) {
+                    typedef map<string, double> Statistics;
+                    Statistics statistics;
+
+                    for (auto& v : result)
+                        statistics[v.label] += 1.0;
+
+                    for (auto& v : statistics)
+                        v.second /= (double)(result.size());
+
+                    boost::ptr_vector<Statistics::value_type> sorted(statistics.begin(), statistics.end());
+                    sorted.sort([](const Statistics::value_type &lhs, const Statistics::value_type &rhs)->bool {
+                        return (lhs.second > rhs.second);
+                    });
+
+                    auto it = sorted.begin();
+                    auto endPos = ( k <= 0 || k >= sorted.size()) ? sorted.end() : sorted.begin() + k;
+                    boost::unique_lock<boost::mutex> flk( *mtx );
+                    *ofs << id << "\t";
+                    for (; it != endPos; ++it)
+                        *ofs << it->first << ":" << it->second << " ";
+                    *ofs << endl << flush;
+                } // if
+
+            } catch (const Article::InvalidRequest &err) {
+                done = true;
+                idleClients->putBack( pClient );
+                LOG(ERROR) << "Service " << srvName << " caught InvalidRequest: "
+                   << err.reason; 
+            } catch (const std::exception &ex) {
+                LOG(ERROR) << "Service " << srvName << " caught system exception: " << ex.what();
+            } // try
+        } while (!done);
+    }
+    
+    int k;
+    static constexpr const char* REQTYPE = "knn_label";
+};
+
+
+struct ArticleTaskKnnScore : ArticleTaskKnn {
+    ArticleTaskKnnScore( std::size_t _Id,
+                 std::string &_Article, 
+                 ArticleService::IdleClientQueue *_IdleClients, 
+                 std::atomic_size_t *_Counter,
+                 boost::condition_variable *_Cond,
+                 boost::mutex *_Mtx,
+                 std::ofstream *_Ofs, 
+                 const char *_SrvName,
+                 int _N, int _SearchK )
+        : ArticleTaskKnn(_Id, _Article, _IdleClients, _Counter, _Cond, _Mtx, _Ofs, _SrvName, _N, _SearchK) {}
+
+    virtual void run()
+    {
+        using namespace std;
+
+        auto on_finish = [this](void*) {
+            ++*counter;
+            cond->notify_all();
+        };
+
+        boost::shared_ptr<void> pOnFinish((void*)0, on_finish);
+
+        bool done = false;
+
+        do {
+            auto pClient = idleClients->getIdleClient();
+            if (!pClient)
+                THROW_RUNTIME_ERROR("Fail due to no available rpc client object!");
+
+            try {
+                vector<Article::KnnResult> result;
+                pClient->client()->knn( result, article, n, searchK, REQTYPE );
+                done = true;
+                idleClients->putBack( pClient );
+
+                // 在这里统计
+                if (!result.empty()) {
+                    double avgScore = 0.0;
+                    for (auto& v : result)
+                        avgScore += v.score;
+                    avgScore /= (double)(result.size());
+
+                    boost::unique_lock<boost::mutex> flk( *mtx );
+                    *ofs << id << "\t" << avgScore << endl << flush;
+                } // if
+
+            } catch (const Article::InvalidRequest &err) {
+                done = true;
+                idleClients->putBack( pClient );
+                LOG(ERROR) << "Service " << srvName << " caught InvalidRequest: "
+                   << err.reason; 
+            } catch (const std::exception &ex) {
+                LOG(ERROR) << "Service " << srvName << " caught system exception: " << ex.what();
+            } // try
+        } while (!done);
+    }
+    
+    static constexpr const char* REQTYPE = "knn_score";
+};
 
 
 // 在ApiServer主线程中执行
@@ -398,12 +539,47 @@ void ArticleService::handleCommand( std::stringstream &stream )
         } // while
     };
 
+    auto do_knn_label = [&] {
+        int n = 0, k = 0, searchK = -1;
+        stream >> n;
+        if (bad_stream(stream))
+            THROW_RUNTIME_ERROR("Cannot read n value");
+        if (n <= 0)
+            THROW_RUNTIME_ERROR("Invalid n value " << n);
+        stream >> k >> searchK;
+        // DLOG(INFO) << "n = " << n << " k = " << k << " searchK = " << searchK;
+        while ( getline(ifs, line) ) {
+            WorkItemBasePtr pWork = boost::make_shared<ArticleTaskKnnLabel>
+                (lineno, line, &m_queIdleClients, &counter, &cond, &mtx, &ofs, name().c_str(), n, k, searchK);
+            getWorkMgr()->addWork( pWork );
+            ++lineno;
+        } // while
+    };
+
+    auto do_knn_score = [&] {
+        int n = 0, searchK = -1;
+        stream >> n;
+        if (bad_stream(stream))
+            THROW_RUNTIME_ERROR("Cannot read n value");
+        if (n <= 0)
+            THROW_RUNTIME_ERROR("Invalid n value " << n);
+        stream >> searchK;
+        while ( getline(ifs, line) ) {
+            WorkItemBasePtr pWork = boost::make_shared<ArticleTaskKnnScore>
+                (lineno, line, &m_queIdleClients, &counter, &cond, &mtx, &ofs, name().c_str(), n, searchK);
+            getWorkMgr()->addWork( pWork );
+            ++lineno;
+        } // while
+    };
+
     typedef std::function<void(void)> ReqFunction;
     std::map<string, ReqFunction>     reqFuncTable;
     reqFuncTable["wordseg"] = do_wordseg;
     reqFuncTable["keyword"] = do_keyword;
     reqFuncTable["article2vector"] = do_article2vector;
     reqFuncTable["knn"] = do_knn;
+    reqFuncTable["knn_label"] = do_knn_label;
+    reqFuncTable["knn_score"] = do_knn_score;
 
     auto it = reqFuncTable.find(reqtype);
     if (it == reqFuncTable.end())

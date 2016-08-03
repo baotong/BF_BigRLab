@@ -2,6 +2,8 @@
  * https://github.com/yanyiwu/cppjieba
  * ./demo -algname jieba -algmgr localhost:9001 -port 10080
  * ./demo -algname jieba -algmgr localhost:9001 -port 10080 -vec wordvec -vecdict data/weibo_500w.wordvec -idx data/weibo_1w.sumWordVec.annIdx
+ * ./demo -algname jieba -algmgr localhost:9001 -port 10080 -vec wordvec -vecdict data/text_class.wordvec -idx data/text_class.annIdx -label data/text_class.index
+ * ./demo -algname jieba -algmgr localhost:9001 -port 10080 -vec wordvec -vecdict data/text_class.wordvec -idx data/text_class.annIdx -score data/text_class.index
  */
 #include "jieba.hpp"
 #include "Article2Vector.h"
@@ -169,6 +171,8 @@ static const bool n_io_threads_dummy = gflags::RegisterFlagValidator(&FLAGS_n_io
 static
 bool validate_vec(const char* flagname, const std::string &value)
 {
+    if (!FLAGS_service)
+        return true;
     if ("wordvec" == value || "clusterid" == value)
         return true;
     return false;
@@ -177,12 +181,20 @@ static bool vec_dummy = gflags::RegisterFlagValidator(&FLAGS_vec, &validate_vec)
 
 static
 bool validate_vecdict(const char* flagname, const std::string &value)
-{ return check_not_empty( flagname, value ); }
+{ 
+    if (!FLAGS_service)
+        return true;
+    return check_not_empty( flagname, value ); 
+}
 static bool vecdict_dummy = gflags::RegisterFlagValidator(&FLAGS_vecdict, &validate_vecdict);
 
 static
 bool validate_idx(const char* flagname, const std::string &value)
-{ return check_not_empty( flagname, value ); }
+{ 
+    if (!FLAGS_service)
+        return true;
+    return check_not_empty( flagname, value ); 
+}
 static bool idx_dummy = gflags::RegisterFlagValidator(&FLAGS_idx, &validate_idx);
 
 static
@@ -475,15 +487,31 @@ void do_standalone_routine()
     using namespace std;
 
     cout << "Running in standalone mode..." << endl;
+
     auto pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, 
             FLAGS_user_dict, FLAGS_idf, FLAGS_stop_words);
     pJieba->setFilter( FLAGS_filter );
 
-    string content = "我是拖拉机学院手扶拖拉机专业的。不用多久，我就会升职加薪，当上CEO，走上人生巅峰。";
-    Jieba::KeywordResult result;
-    pJieba->keywordExtract(content, result, 5);
-    for (auto& v : result)
-        cout << v << endl;
+    Jieba::TagResult result;
+
+    string line;
+    while (getline(cin, line)) {
+        boost::trim(line);
+        pJieba->tagging(line, result);
+        for (const auto &v : result) {
+            cout << v.first << " ";
+            // cout << v.first << "\t" << v.second << endl;
+        } // for
+        cout << endl;
+    } // while
+
+    // string content = "我是拖拉机学院手扶拖拉机专业的。不用多久，我就会升职加薪，当上CEO，走上人生巅峰。";
+    // Jieba::KeywordResult result;
+    // pJieba->keywordExtract(content, result, 5);
+    // for (auto& v : result)
+        // cout << v << endl;
+
+    exit(0);
 }
 
 
