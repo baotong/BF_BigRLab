@@ -1,3 +1,7 @@
+/*
+ * TODO
+ * trim line after read, will skip blank lines
+ */
 #ifndef _ARTICLE_SERVICE_H_
 #define _ARTICLE_SERVICE_H_
 

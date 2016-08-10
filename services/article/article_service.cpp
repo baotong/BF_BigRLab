@@ -362,7 +362,7 @@ struct ArticleTaskKnnLabel : ArticleTaskKnn {
                     for (auto& v : statistics)
                         v.second /= (double)(result.size());
 
-                    boost::ptr_vector<Statistics::value_type> sorted(statistics.begin(), statistics.end());
+                    boost::ptr_vector<Statistics::value_type, boost::view_clone_allocator> sorted(statistics.begin(), statistics.end());
                     sorted.sort([](const Statistics::value_type &lhs, const Statistics::value_type &rhs)->bool {
                         return (lhs.second > rhs.second);
                     });

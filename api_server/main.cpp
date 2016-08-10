@@ -22,6 +22,7 @@
  * curl -i -X POST -H "Content-Type: BigRLab_Request" -d '{"reqtype":"wordseg","content":"我是拖拉机学院手扶拖拉机专业的。不用多久，我就会升职加薪，当上CEO，走上人生巅峰。"}' http://localhost:9000/jieba
  * curl -i -X POST -H "Content-Type: BigRLab_Request" -d '{"reqtype":"keyword","topk":5,"content":"我是拖拉机学院手扶拖拉机专业的。不用多久，我就会升职加薪，当上CEO，走上人生巅峰。"}' http://localhost:9000/jieba
  * curl -i -X POST -H "Content-Type: BigRLab_Request" -d '{"reqtype":"knn","n":10,"content":"我是拖拉机学院手扶拖拉机专业的。不用多久，我就会升职加薪，当上CEO，走上人生巅峰。"}' http://localhost:9000/jieba
+ * curl -i -X POST -H "Content-Type: BigRLab_Request" -d '{"reqtype":"knn_label","n":10,"content":"我是拖拉机学院手扶拖拉机专业的。不用多久，我就会升职加薪，当上CEO，走上人生巅峰。"}' http://localhost:9000/jieba
  *
  * To run as a service in background
  * nohup ./apiserver.bin -b > nohup.log 2>&1 &
