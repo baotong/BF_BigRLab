@@ -14,8 +14,6 @@
  * standalone mode:
  * ./xgboost_svr.bin -standalone -model_in 0002.model < in10.test
  */
-#include "rpc_module.h"
-#include "xgboost_learner.h"
 #include <iostream>
 #include <cstdlib>
 #include <sstream>
@@ -26,6 +24,16 @@
 #include <boost/lexical_cast.hpp>
 #include <glog/logging.h>
 #include <gflags/gflags.h>
+#include "rpc_module.h"
+#include "common.hpp"
+#include "alg_common.hpp"
+#include "get_local_ip.hpp"
+#include "xgboost_learner.h"
+#include "AlgMgrService.h"
+#include "XgBoostServiceHandler.h"
+#include "register_svr.hpp"
+
+#define SERVICE_LIB_NAME        "xgboost"
 
 DEFINE_string(model_in, "", "Same as model_in of xgboost");
 DEFINE_bool(standalone, false, "Whether this program run in standalone mode");
@@ -35,17 +43,18 @@ DEFINE_string(addr, "", "Address of this algorithm server, use system detected i
 DEFINE_int32(port, 0, "listen port of ths algorithm server.");
 DEFINE_int32(n_work_threads, 10, "Number of work threads on RPC server");
 DEFINE_int32(n_io_threads, 4, "Number of io threads on RPC server");
+DEFINE_int32(n_inst, 0, "Number of xgboost object instances");
 
 static std::string                  g_strAlgMgrAddr;
 static uint16_t                     g_nAlgMgrPort = 0;
 static std::string                  g_strThisAddr;
 static uint16_t                     g_nThisPort = 0;
 
-typedef BigRLab::ThriftClient< BigRLab::AlgMgrServiceClient >                AlgMgrClient;
-typedef BigRLab::ThriftServer< Article::ArticleServiceIf, Article::ArticleServiceProcessor > ArticleAlgServer;
+// typedef BigRLab::ThriftClient< BigRLab::AlgMgrServiceClient >                AlgMgrClient;
+typedef BigRLab::ThriftServer< XgBoostSvr::XgBoostServiceIf, 
+            XgBoostSvr::XgBoostServiceProcessor > XgBoostAlgSvr;
 static AlgMgrClient::Pointer                  g_pAlgMgrClient;
-static ArticleAlgServer::Pointer              g_pThisServer;
-static boost::asio::io_service                g_io_service;
+static XgBoostAlgSvr::Pointer                 g_pThisServer;
 static boost::shared_ptr<BigRLab::AlgSvrInfo> g_pSvrInfo;
 
 namespace {
@@ -172,6 +181,22 @@ static std::unique_ptr<CLIParam>        g_pCLIParam;
 SharedQueue<XgBoostLearner::pointer>    g_LearnerPool;
 
 static
+void stop_server()
+{
+    if (g_pThisServer)
+        g_pThisServer->stop();
+}
+
+static
+void stop_client()
+{
+    if (g_pAlgMgrClient) {
+        (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
+        g_pAlgMgrClient->stop();
+    } // if
+}
+
+static
 void finalize()
 {
     // LOG(INFO) << "finalize()";
@@ -218,13 +243,83 @@ void do_standalone_routine()
     } // while
 }
 
+static
+void service_init()
+{
+    using namespace std;
+
+    try {
+        g_strThisAddr = get_local_ip(FLAGS_algmgr);
+    } catch (const std::exception &ex) {
+        LOG(ERROR) << "get_local_ip() fail! " << ex.what();
+        exit(-1);
+    } // try
+
+    cout << "Detected local ip is " << g_strThisAddr << endl;
+
+    g_pSvrInfo = boost::make_shared<BigRLab::AlgSvrInfo>();
+    g_pSvrInfo->addr = g_strThisAddr;
+    g_pSvrInfo->port = (int16_t)g_nThisPort;
+    g_pSvrInfo->maxConcurrency = FLAGS_n_work_threads;
+    g_pSvrInfo->serviceName = SERVICE_LIB_NAME;
+
+    if (FLAGS_n_inst <= 0 || FLAGS_n_inst > FLAGS_n_work_threads) {
+        LOG(INFO) << "Adjust -n_inst from old value " << FLAGS_n_inst 
+            << " to new value -n_work_threads " << FLAGS_n_work_threads;
+        FLAGS_n_inst = FLAGS_n_work_threads;
+    } // if
+
+    cout << "Creating xgboost instances..." << endl;
+    for (int i = 0; i < FLAGS_n_inst; ++i) {
+        auto pInst = std::make_shared<XgBoostLearner>(g_pCLIParam.get());
+        g_LearnerPool.push_back( pInst );
+    } // for
+}
+
+static
+void start_rpc_service()
+{
+    using namespace std;
+
+    // start client to alg_mgr
+    // 需要在单独线程中执行，防止和alg_mgr形成死锁
+    // 这里调用addSvr，alg_mgr那边调用 Service::addServer
+    // 尝试连接本server，而本server还没有启动
+    cout << "Registering server..." << endl;
+    g_pAlgMgrClient = boost::make_shared< AlgMgrClient >(g_strAlgMgrAddr, g_nAlgMgrPort);
+    boost::thread register_thr(register_svr, g_pAlgMgrClient.get(), FLAGS_algname, g_pSvrInfo.get());
+    register_thr.detach();
+
+    // start this alg server
+    cout << "Launching alogrithm server... " << endl;
+    boost::shared_ptr< XgBoostSvr::XgBoostServiceIf > 
+            pHandler = boost::make_shared< XgBoostSvr::XgBoostServiceHandler >();
+    // Test::test1(pHandler);
+    g_pThisServer = boost::make_shared< XgBoostAlgSvr >(pHandler, g_nThisPort);
+    try {
+        g_pThisServer->start(); //!! NOTE blocking until quit
+    } catch (const std::exception &ex) {
+        cerr << "Start this alg server fail, " << ex.what() << endl;
+        exit(-1);
+    } // try
+}
+
+static
+void do_service_routine()
+{
+    using namespace std;
+    cout << "Initializing service..." << endl;
+    service_init();
+    cout << "Starting rpc service..." << endl;
+    start_rpc_service();
+}
 
 int main(int argc, char **argv)
 {
-    try {
-        google::InitGoogleLogging(argv[0]);
-        gflags::ParseCommandLineFlags(&argc, &argv, true);
+    google::InitGoogleLogging(argv[0]);
+    gflags::ParseCommandLineFlags(&argc, &argv, true);
 
+    try {
         auto _cleanup = initialize(argc, argv);
 
         // install signal handler

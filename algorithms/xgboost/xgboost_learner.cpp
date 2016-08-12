@@ -26,7 +26,9 @@ DMatrix* XgBoostLearner::DMatrixFromStr( const std::string &line )
     indp[1] = indices.size()+1;
 
     DMatrix *mat = NULL;
-    XGDMatrixCreateFromCSR(&indp[0], &indices[0], &values[0],
+
+    if (!values.empty())
+        XGDMatrixCreateFromCSR(&indp[0], &indices[0], &values[0],
                         2, indices.size(), (DMatrixHandle*)&mat);
 
     return mat;

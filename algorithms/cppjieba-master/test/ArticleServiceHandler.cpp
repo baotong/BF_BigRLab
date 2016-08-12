@@ -6,7 +6,7 @@
 #include <boost/tuple/tuple.hpp>
 #include <boost/range/combine.hpp>
 
-#define TIMEOUT     5000
+#define TIMEOUT     30000
 
 namespace Article {
 
