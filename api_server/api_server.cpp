@@ -95,8 +95,11 @@ try {
 
     size_t nRead = 0;
     bool   isCmd = false;
+    // NOTE!!! 先检查是否存在，再检查是否合法
+    bool   hasContentType = false, hasContentLength = false;
     for (const auto &v : req.headers) {
         if (boost::iequals(v.name, "Content-Type")) {
+            hasContentType = true;
             if (boost::equals(v.value, "BigRLab_Command"))
                 isCmd = true;
             else if (!boost::equals(v.value, "BigRLab_Request")) {
@@ -106,6 +109,7 @@ try {
             } // if
         } // if
         if (boost::iequals(v.name, "Content-Length")) {
+            hasContentLength = true;
             // nRead = boost::lexical_cast<size_t>(v.value);
             if (!boost::conversion::try_lexical_convert(v.value, nRead)) {
                 RESPONSE_ERROR(conn, ServerType::connection::bad_request, APIServer::BAD_REQUEST, 
@@ -114,6 +118,13 @@ try {
             } // if
         } // if
     } // for
+
+    if (!hasContentType || !hasContentLength) {
+        LOG(ERROR) << "Bad http header";
+        RESPONSE_ERROR(conn, ServerType::connection::bad_request, APIServer::BAD_REQUEST, 
+                    "Bad http header");
+        return;
+    } // if
 
     if (isCmd) {
         auto pWorkCmd = boost::make_shared<WorkItemCmd>(req, conn, nRead);

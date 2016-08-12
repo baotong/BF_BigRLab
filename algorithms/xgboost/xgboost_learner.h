@@ -138,7 +138,7 @@ struct CLIParam : public dmlc::Parameter<CLIParam> {
 
 class XgBoostLearner {
 public:
-    typedef std::shared_ptr<XgBoostLearner>     pointer;
+    typedef boost::shared_ptr<XgBoostLearner>     pointer;
 
 public:
     explicit XgBoostLearner( CLIParam *param );

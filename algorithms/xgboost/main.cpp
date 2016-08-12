@@ -271,7 +271,7 @@ void service_init()
 
     cout << "Creating xgboost instances..." << endl;
     for (int i = 0; i < FLAGS_n_inst; ++i) {
-        auto pInst = std::make_shared<XgBoostLearner>(g_pCLIParam.get());
+        auto pInst = boost::make_shared<XgBoostLearner>(g_pCLIParam.get());
         g_LearnerPool.push_back( pInst );
     } // for
 }
