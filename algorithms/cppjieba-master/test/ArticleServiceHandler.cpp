@@ -180,6 +180,8 @@ void ArticleServiceHandler::handleRequest(std::string& _return, const std::strin
         } else {
             THROW_INVALID_REQUEST("Invalid reqtype " << reqtype);
         } // if
+    } catch (const InvalidRequest &err) {
+        throw err;
     } catch (const std::exception &ex) {
         LOG(ERROR) << "handleRequest fail: " << ex.what();
         THROW_INVALID_REQUEST("handleRequest fail: " << ex.what());

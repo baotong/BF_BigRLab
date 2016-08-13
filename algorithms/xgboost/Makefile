@@ -8,7 +8,7 @@ API_SERVER_DIR = ../../api_server
 INCLUDE = -I./gen-cpp -I$(COMM_DIR) -I$(ALG_COMM_DIR) -I$(API_SERVER_DIR)/gen-cpp
 SRC = $(shell find . -type f -name '*.cpp')
 SRC += $(shell find $(API_SERVER_DIR)/gen-cpp -type f -name '*.cpp')
-LIBS = -lthriftnb -lthrift -lboost_thread -lboost_system -lboost_chrono -levent -lxgboost -ldmlc -lrabit -lm -lglog -lgflags -ljsoncpp
+LIBS = -lthriftnb -lthrift -lboost_thread -lboost_system -lboost_chrono -lboost_iostreams -levent -lxgboost -ldmlc -lrabit -lm -lglog -lgflags -ljsoncpp
 FLAGS = -std=c++11 -pthread -fopenmp -O3 -g
 
 xgboost_svr:

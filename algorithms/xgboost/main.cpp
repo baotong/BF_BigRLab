@@ -8,6 +8,8 @@
  * sudo cp lib/libxgboost.so /usr/local/lib/
  * sudo cp rabit/lib/librabit.a /usr/local/lib/
  * sudo cp dmlc-core/libdmlc.a /usr/local/lib/
+ * 3. install xgboost exe to system
+ * sudo cp xgboost /usr/local/bin/
  *
  * Usage:
  *
@@ -15,13 +17,17 @@
  * ./xgboost_svr.bin -standalone -model_in 0002.model < in10.test
  */
 #include <iostream>
+#include <cstdio>
 #include <cstdlib>
 #include <sstream>
+#include <fstream>
 #include <iterator>
 #include <boost/asio.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/device/file_descriptor.hpp>
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 #include "rpc_module.h"
@@ -179,6 +185,7 @@ using namespace BigRLab;
 // global vars
 static std::unique_ptr<CLIParam>        g_pCLIParam;
 SharedQueue<XgBoostLearner::pointer>    g_LearnerPool;
+std::vector<uint32_t>                   g_arrMaxLeafId;
 
 static
 void stop_server()
@@ -237,9 +244,61 @@ void do_standalone_routine()
     // ifstream cin("in10.test");
     while (getline(cin, line)) {
         std::unique_ptr<DMatrix> pMat( XgBoostLearner::DMatrixFromStr(line) );
-        learner->predict( pMat.get(), resultVec );
+        learner->predict( pMat.get(), resultVec, true );
         std::copy( resultVec.begin(), resultVec.end(), ostream_iterator<float>(cout, " ") );
         cout << endl;
+    } // while
+}
+
+static
+void parse_model( const std::string &modelFile, std::vector<uint32_t> &result )
+{
+    using namespace std;
+
+    result.clear();
+
+    string fakeConf = std::tmpnam(nullptr);
+    if (fakeConf.empty())
+        THROW_RUNTIME_ERROR("Cannot create tmp file on system");
+
+    // create fake conf
+    {
+        ofstream ofs( fakeConf, ios::out );
+        ofs << "#" << flush;
+    }
+
+    string cmd = "xgboost ";
+    cmd.append(fakeConf).append(" task=dump ").append("model_in=")
+            .append(FLAGS_model_in).append(" name_dump=stdout");
+
+    // DLOG(INFO) << "cmd: " << cmd; 
+
+    FILE *fp = ::popen(cmd.c_str(), "r");
+    if (!fp)
+        THROW_RUNTIME_ERROR("Cannot run cmd: " << cmd);
+
+    ON_FINISH( _pcloseFp, { ::pclose(fp); } );
+
+    setlinebuf(fp);
+
+    typedef boost::iostreams::stream< boost::iostreams::file_descriptor_source >
+            FDStream;
+    FDStream pipeStream( fileno(fp), boost::iostreams::never_close_handle );
+
+    string line;
+    uint32_t treeId = 0, leafId = 0;
+    double leafVal = 0.0;
+    while (getline(pipeStream, line)) {
+        if (sscanf(line.c_str(), "booster[%u]:\n", &treeId) == 1) {
+            if (treeId != result.size())
+                THROW_RUNTIME_ERROR("Parse tree model error! tree id not continuous");
+            result.push_back(0);
+        } else if (sscanf(line.c_str(), "%u:leaf=%lf\n", &leafId, &leafVal) == 2) {
+            if (result.empty())
+                THROW_RUNTIME_ERROR("Parse tree model error! leaf appear before tree mark");
+            if (leafId > result.back())
+                result.back() = leafId;
+        } // if
     } // while
 }
 
@@ -247,6 +306,26 @@ static
 void service_init()
 {
     using namespace std;
+
+    cout << "Parsing model..." << endl;
+    parse_model( FLAGS_model_in, g_arrMaxLeafId );
+    if (g_arrMaxLeafId.empty())
+        THROW_RUNTIME_ERROR("No valid tree found in model file " << FLAGS_model_in);
+    // DEBUG
+    // std::copy(g_arrMaxLeafId.begin(), g_arrMaxLeafId.end(), ostream_iterator<uint32_t>(cout, " "));
+    // cout << endl; exit(0);
+
+    if (FLAGS_n_inst <= 0 || FLAGS_n_inst > FLAGS_n_work_threads) {
+        LOG(INFO) << "Adjust -n_inst from old value " << FLAGS_n_inst 
+            << " to new value -n_work_threads " << FLAGS_n_work_threads;
+        FLAGS_n_inst = FLAGS_n_work_threads;
+    } // if
+
+    cout << "Creating xgboost instances..." << endl;
+    for (int i = 0; i < FLAGS_n_inst; ++i) {
+        auto pInst = boost::make_shared<XgBoostLearner>(g_pCLIParam.get());
+        g_LearnerPool.push_back( pInst );
+    } // for
 
     try {
         g_strThisAddr = get_local_ip(FLAGS_algmgr);
@@ -262,18 +341,6 @@ void service_init()
     g_pSvrInfo->port = (int16_t)g_nThisPort;
     g_pSvrInfo->maxConcurrency = FLAGS_n_work_threads;
     g_pSvrInfo->serviceName = SERVICE_LIB_NAME;
-
-    if (FLAGS_n_inst <= 0 || FLAGS_n_inst > FLAGS_n_work_threads) {
-        LOG(INFO) << "Adjust -n_inst from old value " << FLAGS_n_inst 
-            << " to new value -n_work_threads " << FLAGS_n_work_threads;
-        FLAGS_n_inst = FLAGS_n_work_threads;
-    } // if
-
-    cout << "Creating xgboost instances..." << endl;
-    for (int i = 0; i < FLAGS_n_inst; ++i) {
-        auto pInst = boost::make_shared<XgBoostLearner>(g_pCLIParam.get());
-        g_LearnerPool.push_back( pInst );
-    } // for
 }
 
 static
@@ -342,7 +409,7 @@ int main(int argc, char **argv)
 
         stop_client();
 
-        cout << argv[0] << " done!" << endl;
+        LOG(INFO) << argv[0] << " done!";
 
     } catch (const std::exception &ex) {
         cerr << "Exception caught in main: " << ex.what() << endl;

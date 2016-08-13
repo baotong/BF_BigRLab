@@ -3,6 +3,7 @@
 
 #include <string>
 #include <sstream>
+#include <memory>
 #include <stdexcept>
 #include <boost/thread.hpp>
 #include <boost/chrono.hpp>
@@ -48,6 +49,14 @@
     do { \
         if (cond) RET_MSG_VAL(val, args); \
     } while (0)
+
+#define ON_FINISH(name, deleter) \
+    std::unique_ptr<void, std::function<void(void*)> > \
+        name((void*)-1, [&](void*) deleter )
+
+#define ON_FINISH_TYPE(type, name, ptr, deleter) \
+    std::unique_ptr<type, std::function<void(type*)> > \
+        name((ptr), [&](type* pArg) deleter )
 
 template < typename T >
 std::string to_string( const T &value )

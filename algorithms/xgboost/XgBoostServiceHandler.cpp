@@ -1,7 +1,9 @@
 #include "XgBoostServiceHandler.h"
 #include "xgboost_learner.h"
+#include "common.hpp"
 #include "alg_common.hpp"
 #include <json/json.h>
+#include <cassert>
 
 #define TIMEOUT     30000
 
@@ -24,13 +26,21 @@ void XgBoostServiceHandler::predictStr(std::vector<double> & _return,
     if (!g_LearnerPool.timed_pop(pLearner, TIMEOUT))
         THROW_INVALID_REQUEST("No available xgboost object!");
 
-    boost::shared_ptr<void> pCleanup((void*)0, [&](void*){
+    ON_FINISH(pCleanup, {
+        DLOG(INFO) << "Putting back xgboost object...";
         g_LearnerPool.push( pLearner );
     });
 
     vector<float> fResult;
-    pLearner->predict( pMat.get(), fResult );
+    pLearner->predict( pMat.get(), fResult, leaf );
     _return.assign( fResult.begin(), fResult.end() );
+
+    assert(_return.size() == g_arrMaxLeafId.size());
+
+    if (leaf) {
+        for (std::size_t i = 1; i < _return.size(); ++i)
+            _return[i] += g_arrMaxLeafId[i-1]+1;
+    } // if
 }
 
 void XgBoostServiceHandler::predictVec(std::vector<double> & _return, 
@@ -49,7 +59,35 @@ void XgBoostServiceHandler::handleRequest(std::string& _return, const std::strin
     if (!reader.parse(request, root))
         THROW_INVALID_REQUEST("Json parse fail!");
     
+    try {
+        string         reqtype = root["req"].asString();
+        string         data = root["data"].asString();
+        vector<double> result;
 
+        if ("predict" == reqtype) {
+            predictStr(result, data, false);
+            resp["result"] = result[0];
+        } else if ("leaf" == reqtype) {
+            predictStr(result, data, true);
+            Json::Value resJson;
+            for (auto &v : result)
+                resJson.append(v);
+            resp["result"].swap(resJson);
+        } else {
+            THROW_INVALID_REQUEST("Invalid reqtype " << reqtype);
+        } // if
+
+    } catch (const InvalidRequest &err) {
+        throw err;
+    } catch (const std::exception &ex) {
+        LOG(ERROR) << "handleRequest fail: " << ex.what();
+        THROW_INVALID_REQUEST("handleRequest fail: " << ex.what());
+    } // try
+
+    resp["status"] = 0;
+
+    Json::FastWriter writer;  
+    _return = writer.write(resp);
 }
 
 

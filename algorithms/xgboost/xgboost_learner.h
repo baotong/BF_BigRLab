@@ -153,6 +153,7 @@ private:
 };
 
 extern BigRLab::SharedQueue<XgBoostLearner::pointer>      g_LearnerPool;
+extern std::vector<uint32_t>        g_arrMaxLeafId;
 
 #endif
 
