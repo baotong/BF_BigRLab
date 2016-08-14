@@ -54,6 +54,10 @@
     std::unique_ptr<void, std::function<void(void*)> > \
         name((void*)-1, [&](void*) deleter )
 
+#define ON_FINISH_CLASS(name, deleter) \
+    std::unique_ptr<void, std::function<void(void*)> > \
+        name((void*)-1, [&, this](void*) deleter )
+
 #define ON_FINISH_TYPE(type, name, ptr, deleter) \
     std::unique_ptr<type, std::function<void(type*)> > \
         name((ptr), [&](type* pArg) deleter )
@@ -66,9 +70,9 @@ std::string to_string( const T &value )
     return os.str();
 }
 
-template< typename StreamType >
-bool bad_stream( const StreamType &stream )
-{ return (stream.fail() || stream.bad()); }
+// template< typename StreamType >
+// bool bad_stream( const StreamType &stream )
+// { return (stream.fail() || stream.bad()); }
 
 #endif
 

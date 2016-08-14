@@ -492,6 +492,7 @@ void ArticleService::handleCommand( std::stringstream &stream )
 
     auto do_wordseg = [&] {
         while ( getline(ifs, line) ) {
+            boost::trim_right( line );
             WorkItemBasePtr pWork = boost::make_shared<ArticleTask>
                 (lineno, line, &m_queIdleClients, &counter, &cond, &mtx, &ofs, name().c_str());
             getWorkMgr()->addWork( pWork );
@@ -507,6 +508,7 @@ void ArticleService::handleCommand( std::stringstream &stream )
         if (topk <= 0)
             THROW_RUNTIME_ERROR("Invalid topk value " << topk);
         while ( getline(ifs, line) ) {
+            boost::trim_right( line );
             WorkItemBasePtr pWork = boost::make_shared<ArticleTaskKeyword>
                 (lineno, line, &m_queIdleClients, &counter, &cond, &mtx, &ofs, name().c_str(), topk);
             getWorkMgr()->addWork( pWork );
@@ -516,6 +518,7 @@ void ArticleService::handleCommand( std::stringstream &stream )
 
     auto do_article2vector = [&] {
         while ( getline(ifs, line) ) {
+            boost::trim_right( line );
             WorkItemBasePtr pWork = boost::make_shared<ArticleTaskVector>
                 (lineno, line, &m_queIdleClients, &counter, &cond, &mtx, &ofs, name().c_str());
             getWorkMgr()->addWork( pWork );
@@ -532,6 +535,7 @@ void ArticleService::handleCommand( std::stringstream &stream )
             THROW_RUNTIME_ERROR("Invalid n value " << n);
         stream >> searchK;
         while ( getline(ifs, line) ) {
+            boost::trim_right( line );
             WorkItemBasePtr pWork = boost::make_shared<ArticleTaskKnn>
                 (lineno, line, &m_queIdleClients, &counter, &cond, &mtx, &ofs, name().c_str(), n, searchK);
             getWorkMgr()->addWork( pWork );
@@ -549,6 +553,7 @@ void ArticleService::handleCommand( std::stringstream &stream )
         stream >> k >> searchK;
         // DLOG(INFO) << "n = " << n << " k = " << k << " searchK = " << searchK;
         while ( getline(ifs, line) ) {
+            boost::trim_right( line );
             WorkItemBasePtr pWork = boost::make_shared<ArticleTaskKnnLabel>
                 (lineno, line, &m_queIdleClients, &counter, &cond, &mtx, &ofs, name().c_str(), n, k, searchK);
             getWorkMgr()->addWork( pWork );
@@ -565,6 +570,7 @@ void ArticleService::handleCommand( std::stringstream &stream )
             THROW_RUNTIME_ERROR("Invalid n value " << n);
         stream >> searchK;
         while ( getline(ifs, line) ) {
+            boost::trim_right( line );
             WorkItemBasePtr pWork = boost::make_shared<ArticleTaskKnnScore>
                 (lineno, line, &m_queIdleClients, &counter, &cond, &mtx, &ofs, name().c_str(), n, searchK);
             getWorkMgr()->addWork( pWork );
