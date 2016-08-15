@@ -108,7 +108,8 @@ struct XgBoostTask : BigRLab::WorkItemBase {
                     boost::unique_lock<boost::mutex> flk( *mtx );
                     *ofs << id << "\t";
                     if (!leaf) {
-                        *ofs << result[0];
+                        for (auto& v : result)
+                            *ofs << v << " ";
                     } else {
                         for (auto& v : result)
                             *ofs << (uint32_t)v << " ";

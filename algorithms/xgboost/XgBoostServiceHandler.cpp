@@ -20,14 +20,13 @@ void XgBoostServiceHandler::predictStr(std::vector<double> & _return,
 
     std::unique_ptr<DMatrix> pMat( XgBoostLearner::DMatrixFromStr(input) );
     if (!pMat)
-        THROW_INVALID_REQUEST("Cannot build matrix from input string");
+        THROW_INVALID_REQUEST("Cannot build matrix from input string: " << input);
 
     XgBoostLearner::pointer pLearner;
     if (!g_LearnerPool.timed_pop(pLearner, TIMEOUT))
         THROW_INVALID_REQUEST("No available xgboost object!");
 
     ON_FINISH(pCleanup, {
-        DLOG(INFO) << "Putting back xgboost object...";
         g_LearnerPool.push( pLearner );
     });
 
@@ -35,9 +34,9 @@ void XgBoostServiceHandler::predictStr(std::vector<double> & _return,
     pLearner->predict( pMat.get(), fResult, leaf );
     _return.assign( fResult.begin(), fResult.end() );
 
-    assert(_return.size() == g_arrMaxLeafId.size());
 
     if (leaf) {
+        assert(_return.size() == g_arrMaxLeafId.size());
         for (std::size_t i = 1; i < _return.size(); ++i)
             _return[i] += g_arrMaxLeafId[i-1]+1;
     } // if
@@ -66,12 +65,15 @@ void XgBoostServiceHandler::handleRequest(std::string& _return, const std::strin
 
         if ("predict" == reqtype) {
             predictStr(result, data, false);
-            resp["result"] = result[0];
+            Json::Value resJson;
+            for (auto &v : result)
+                resJson.append(v);
+            resp["result"].swap(resJson);
         } else if ("leaf" == reqtype) {
             predictStr(result, data, true);
             Json::Value resJson;
             for (auto &v : result)
-                resJson.append(v);
+                resJson.append((uint32_t)v);
             resp["result"].swap(resJson);
         } else {
             THROW_INVALID_REQUEST("Invalid reqtype " << reqtype);

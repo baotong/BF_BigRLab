@@ -244,9 +244,10 @@ void do_standalone_routine()
     // ifstream cin("in10.test");
     while (getline(cin, line)) {
         std::unique_ptr<DMatrix> pMat( XgBoostLearner::DMatrixFromStr(line) );
-        learner->predict( pMat.get(), resultVec, true );
-        std::copy( resultVec.begin(), resultVec.end(), ostream_iterator<float>(cout, " ") );
-        cout << endl;
+        learner->predict( pMat.get(), resultVec, false );
+        // std::copy( resultVec.begin(), resultVec.end(), ostream_iterator<float>(cout, " ") );
+        // cout << endl;
+        cout << resultVec[0] << endl;
     } // while
 }
 

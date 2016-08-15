@@ -1,3 +1,10 @@
+/*
+ * Test:
+ * service booster predict in.test out.test
+ * service booster leaf in.test out.test
+ * curl -i -X POST -H "Content-Type: BigRLab_Request" -d '{"req":"predict","data":"1:1 9:1 19:1 21:1 24:1 34:1 36:1 39:1 42:1 53:1 56:1 65:1 69:1 77:1 86:1 88:1 92:1 95:1 102:1 106:1 117:1 122:1"}' http://localhost:9000/booster
+ * curl -i -X POST -H "Content-Type: BigRLab_Request" -d '{"req":"leaf","data":"1:1 9:1 19:1 21:1 24:1 34:1 36:1 39:1 42:1 53:1 56:1 65:1 69:1 77:1 86:1 88:1 92:1 95:1 102:1 106:1 117:1 122:1"}' http://localhost:9000/booster
+ */
 #ifndef _XGBOOST_SERVICE_H_
 #define _XGBOOST_SERVICE_H_
 
