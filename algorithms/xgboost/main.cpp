@@ -15,6 +15,8 @@
  *
  * standalone mode:
  * ./xgboost_svr.bin -standalone -model_in 0002.model < in10.test
+ * service mode:
+ * ./xgboost_svr.bin -model_in 0002.model -algname booster -algmgr localhost:9001 -port 10080
  */
 #include <iostream>
 #include <cstdio>
@@ -301,6 +303,16 @@ void parse_model( const std::string &modelFile, std::vector<uint32_t> &result )
                 result.back() = leafId;
         } // if
     } // while
+    
+    // DEBUG
+    cout << "Max leaf id in this tree:" << endl;
+    std::copy(result.begin(), result.end(), ostream_iterator<uint32_t>(cout, " "));
+    cout << endl;
+
+    if (result.size() > 1) {
+        for (size_t i = 1; i < result.size(); ++i)
+            result[i] += result[i-1];
+    } // for
 }
 
 static
@@ -313,8 +325,9 @@ void service_init()
     if (g_arrMaxLeafId.empty())
         THROW_RUNTIME_ERROR("No valid tree found in model file " << FLAGS_model_in);
     // DEBUG
-    // std::copy(g_arrMaxLeafId.begin(), g_arrMaxLeafId.end(), ostream_iterator<uint32_t>(cout, " "));
-    // cout << endl; exit(0);
+    cout << "g_arrMaxLeafId:" << endl;
+    std::copy(g_arrMaxLeafId.begin(), g_arrMaxLeafId.end(), ostream_iterator<uint32_t>(cout, " "));
+    cout << endl;
 
     if (FLAGS_n_inst <= 0 || FLAGS_n_inst > FLAGS_n_work_threads) {
         LOG(INFO) << "Adjust -n_inst from old value " << FLAGS_n_inst 
