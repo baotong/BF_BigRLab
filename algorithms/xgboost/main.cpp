@@ -188,6 +188,7 @@ using namespace BigRLab;
 static std::unique_ptr<CLIParam>        g_pCLIParam;
 SharedQueue<XgBoostLearner::pointer>    g_LearnerPool;
 std::vector<uint32_t>                   g_arrMaxLeafId;
+std::vector<bool>                       g_arrTreeMark;
 
 static
 void stop_server()
@@ -254,11 +255,13 @@ void do_standalone_routine()
 }
 
 static
-void parse_model( const std::string &modelFile, std::vector<uint32_t> &result )
+void parse_model( const std::string &modelFile, std::vector<uint32_t> &result,
+                    std::vector<bool> &mark )
 {
     using namespace std;
 
     result.clear();
+    mark.clear();
 
     string fakeConf = std::tmpnam(nullptr);
     if (fakeConf.empty())
@@ -305,9 +308,14 @@ void parse_model( const std::string &modelFile, std::vector<uint32_t> &result )
     } // while
     
     // DEBUG
-    cout << "Max leaf id in this tree:" << endl;
-    std::copy(result.begin(), result.end(), ostream_iterator<uint32_t>(cout, " "));
-    cout << endl;
+    // cout << "Max leaf id in this tree:" << endl;
+    // std::copy(result.begin(), result.end(), ostream_iterator<uint32_t>(cout, " "));
+    // cout << endl;
+    
+    mark.resize( result.size(), false );
+
+    for (size_t i = 0; i < result.size(); ++i)
+        mark[i] = result[i] ? true : false;
 
     if (result.size() > 1) {
         for (size_t i = 1; i < result.size(); ++i)
@@ -321,13 +329,13 @@ void service_init()
     using namespace std;
 
     cout << "Parsing model..." << endl;
-    parse_model( FLAGS_model_in, g_arrMaxLeafId );
+    parse_model( FLAGS_model_in, g_arrMaxLeafId, g_arrTreeMark );
     if (g_arrMaxLeafId.empty())
         THROW_RUNTIME_ERROR("No valid tree found in model file " << FLAGS_model_in);
     // DEBUG
-    cout << "g_arrMaxLeafId:" << endl;
-    std::copy(g_arrMaxLeafId.begin(), g_arrMaxLeafId.end(), ostream_iterator<uint32_t>(cout, " "));
-    cout << endl;
+    // cout << "g_arrMaxLeafId:" << endl;
+    // std::copy(g_arrMaxLeafId.begin(), g_arrMaxLeafId.end(), ostream_iterator<uint32_t>(cout, " "));
+    // cout << endl;
 
     if (FLAGS_n_inst <= 0 || FLAGS_n_inst > FLAGS_n_work_threads) {
         LOG(INFO) << "Adjust -n_inst from old value " << FLAGS_n_inst 

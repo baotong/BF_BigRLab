@@ -37,8 +37,14 @@ void XgBoostServiceHandler::predictStr(std::vector<double> & _return,
 
     if (leaf) {
         assert(_return.size() == g_arrMaxLeafId.size());
-        for (std::size_t i = 1; i < _return.size(); ++i)
-            _return[i] += g_arrMaxLeafId[i-1]+1;
+        if (!g_arrTreeMark[0])
+            _return[0] = 0.0;
+        for (std::size_t i = 1; i < _return.size(); ++i) {
+            if (g_arrTreeMark[i])
+                _return[i] += g_arrMaxLeafId[i-1]+1;
+            else
+                _return[i] = 0.0;
+        } // for
     } // if
 }
 

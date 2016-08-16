@@ -111,8 +111,11 @@ struct XgBoostTask : BigRLab::WorkItemBase {
                         for (auto& v : result)
                             *ofs << v << " ";
                     } else {
-                        for (auto& v : result)
-                            *ofs << (uint32_t)v << " ";
+                        for (size_t i = 0; i < result.size(); ++i) {
+                            uint32_t v = (uint32_t)result[i];
+                            if (v)
+                                *ofs << i << ":" << v << " ";
+                        } // for
                     } // if
                     *ofs << endl << flush;
                 } // if

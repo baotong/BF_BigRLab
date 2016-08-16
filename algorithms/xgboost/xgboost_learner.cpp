@@ -9,7 +9,8 @@ DMLC_REGISTER_PARAMETER(CLIParam);
 DMatrix* XgBoostLearner::DMatrixFromStr( const std::string &line )
 {
     string                       item;
-    unsigned long                indp[2];
+    // unsigned long                indp[2];
+    vector<unsigned long>        indp;
     vector<uint32_t>             indices;
     vector<float>                values;
     uint32_t         index = 0;
@@ -22,14 +23,16 @@ DMatrix* XgBoostLearner::DMatrixFromStr( const std::string &line )
         indices.push_back(index);
         values.push_back(value);
     } // while
-    indp[0] = 0;
-    indp[1] = indices.size()+1;
+    // indp[0] = 0;
+    // indp[1] = indices.size()+1;
+    indp.push_back(0);
+    indp.push_back(indices.size()+1);
 
     DMatrix *mat = NULL;
 
     if (!values.empty())
         XGDMatrixCreateFromCSR(&indp[0], &indices[0], &values[0],
-                        2, indices.size(), (DMatrixHandle*)&mat);
+                        indp.size(), indices.size(), (DMatrixHandle*)&mat);
 
     return mat;
 }
