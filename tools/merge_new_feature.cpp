@@ -1,5 +1,21 @@
 /*
+ * compile:
  * c++ -o merge merge_new_feature.cpp -lglog -lgflags -std=c++11 -g -O3
+ * 
+ * Usage:
+ * 输入源文件格式 [index:value...]
+ * 1. 查询最大index
+ * ./merge -req maxidx -src train1.data
+ * 2. 源文件上追加 new feature 
+ *      [label SrcIdx1:value1, ... SrcIdxN:valueN, NewIdx1:NewVal1, ... NewIdxN:NewValN]
+ * ./merge -req merge -src train1.data -newf feature.data -dst train2.data -offset value
+ * 注意 -offset 指定的值应该是查询到的最大index+1
+ * 3. 源文件追加 leaf index feature
+ *      [label SrcIdx1:Value1, ... SrcIdxN:ValueN, LeafIdx1:1, LeafIdx2:1, ... LeafIdxN:1]
+ * ./merge -req merge_gbdt -src train1.data -newf leaf.data -dst train2.data -offset value
+ * 4. 只有 leaf feature 的 gbdt
+ *      [label LeafIdx1:1, LeafIdx2:1, ... LeafIdxN:1]
+ * ./merge -req gbdt_new -src train1.data -newf leaf.data -dst train2.data
  */
 #include <iostream>
 #include <string>
