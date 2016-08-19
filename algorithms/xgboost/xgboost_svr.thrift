@@ -9,7 +9,7 @@ exception InvalidRequest {
 }
 
 service XgBoostService {
-    list<double> predictStr( 1:string input, 2:bool leaf ) throws (1:InvalidRequest err),
-    list<double> predictVec( 1:list<i64> indices, 2:list<double> values ) throws (1:InvalidRequest err),
+    list<double> predict( 1:string input, 2:bool leaf ) throws (1:InvalidRequest err),
+    list<double> predict_GBDT( 1:string input, 2:bool simple ) throws (1:InvalidRequest err),
     string handleRequest( 1:string request ) throws (1:InvalidRequest err)
 }

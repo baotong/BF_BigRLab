@@ -34,6 +34,10 @@ public:
         INVALID_REQUEST
     };
 
+    enum ReqType {
+        PREDICT, LEAF, PREDICT_GBDT, PREDICT_GBDT_SIMPLE
+    };
+
 public:
     static const uint32_t       TIMEOUT = 5000;     // 5s
 public:

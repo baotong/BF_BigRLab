@@ -10,6 +10,7 @@
 #include <vector>
 #include <string>
 #include <cstring>
+#include <functional>
 
 enum CLITask {
   kTrain = 0,
@@ -139,17 +140,27 @@ struct CLIParam : public dmlc::Parameter<CLIParam> {
 class XgBoostLearner {
 public:
     typedef boost::shared_ptr<XgBoostLearner>     pointer;
+    typedef std::function<void(xgboost::DMatrix*, std::vector<float>&)> Predict2Func;
 
 public:
-    explicit XgBoostLearner( CLIParam *param );
+    explicit XgBoostLearner( CLIParam *param, CLIParam *param2 = nullptr );
 
     void predict( xgboost::DMatrix *inMat, std::vector<float> &result, bool pred_leaf = false );
+
+    // 用 learner2 predict，gbdt or rnn
+    void predict2( xgboost::DMatrix *inMat, std::vector<float> &result )
+    { m_pfnPredict2(inMat, result); }
 
     static xgboost::DMatrix* DMatrixFromStr( const std::string &line );
 
 private:
-    CLIParam*                           m_pParam;
-    std::unique_ptr<xgboost::Learner>   m_pLearner;
+    void doPredict2( xgboost::DMatrix *inMat, std::vector<float> &result );
+    void noPredict2( xgboost::DMatrix *inMat, std::vector<float> &result );
+
+private:
+    CLIParam                            *m_pParam, *m_pParam2;
+    std::unique_ptr<xgboost::Learner>   m_pLearner, m_pLearner2;
+    Predict2Func                        m_pfnPredict2;
 };
 
 extern BigRLab::SharedQueue<XgBoostLearner::pointer>      g_LearnerPool;

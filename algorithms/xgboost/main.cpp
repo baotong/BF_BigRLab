@@ -14,9 +14,9 @@
  * Usage:
  *
  * standalone mode:
- * ./xgboost_svr.bin -standalone -model_in 0002.model < in10.test
+ * ./xgboost_svr.bin -standalone -model 0002.model < in10.test
  * service mode:
- * ./xgboost_svr.bin -model_in 0002.model -algname booster -algmgr localhost:9001 -port 10080
+ * ./xgboost_svr.bin -model 0002.model -algname booster -algmgr localhost:9001 -port 10080
  */
 #include <iostream>
 #include <cstdio>
@@ -43,7 +43,8 @@
 
 #define SERVICE_LIB_NAME        "xgboost"
 
-DEFINE_string(model_in, "", "Same as model_in of xgboost");
+DEFINE_string(model, "", "Same as model_in of xgboost");
+DEFINE_string(model2, "", "Secondary model for GBDT and RNN");
 DEFINE_bool(standalone, false, "Whether this program run in standalone mode");
 DEFINE_string(algname, "", "Name of this algorithm");
 DEFINE_string(algmgr, "", "Address algorithm server manager, in form of addr:port");
@@ -89,9 +90,9 @@ bool check_not_empty(const char* flagname, const std::string &value)
     return true;
 }
 
-static bool validate_model_in(const char* flagname, const std::string &value)
+static bool validate_model(const char* flagname, const std::string &value)
 { return check_not_empty(flagname, value); }
-static const bool model_in_dummy = gflags::RegisterFlagValidator(&FLAGS_model_in, &validate_model_in);
+static const bool model_dummy = gflags::RegisterFlagValidator(&FLAGS_model, &validate_model);
 
 static bool validate_algname(const char* flagname, const std::string &value) 
 { 
@@ -186,6 +187,7 @@ using namespace BigRLab;
 
 // global vars
 static std::unique_ptr<CLIParam>        g_pCLIParam;
+static std::unique_ptr<CLIParam>        g_pCLIParam2;
 SharedQueue<XgBoostLearner::pointer>    g_LearnerPool;
 std::vector<uint32_t>                   g_arrMaxLeafId;
 std::vector<bool>                       g_arrTreeMark;
@@ -216,10 +218,16 @@ void finalize()
 static
 std::shared_ptr<void> initialize( int argc, char **argv )
 {
-    // for (int i = 0; i < argc; ++i)
-        // cout << argv[i] << endl;
+    using namespace std;
 
-    std::shared_ptr<void> ret( (void*)0, [](void*){
+    // check model file
+    {
+        ifstream ifs(FLAGS_model, ios::in);
+        if (!ifs)
+            THROW_RUNTIME_ERROR("Cannot read file " << FLAGS_model << " specified by -model");
+    }
+
+    std::shared_ptr<void> ret( (void*)-1, [](void*){
         // DLOG(INFO) << "doing global cleanup...";
         finalize();
     } );
@@ -228,11 +236,24 @@ std::shared_ptr<void> initialize( int argc, char **argv )
 
     std::vector<std::pair<std::string, std::string> > cfg;
     cfg.push_back(std::make_pair("seed", "0"));
-    cfg.push_back(std::make_pair("model_in", FLAGS_model_in));
+    cfg.push_back(std::make_pair("model", FLAGS_model));
     cfg.push_back(std::make_pair("name_pred", "stdout"));
 
     g_pCLIParam.reset(new CLIParam);
     g_pCLIParam->Configure(cfg);
+
+    if (!FLAGS_model2.empty()) {
+        ifstream ifs(FLAGS_model2, ios::in);
+        if (!ifs)
+            THROW_RUNTIME_ERROR("Cannot read file " << FLAGS_model2 << " specified by -model2");
+        ifs.close();
+        cfg.clear();
+        cfg.push_back(std::make_pair("seed", "0"));
+        cfg.push_back(std::make_pair("model", FLAGS_model2));
+        cfg.push_back(std::make_pair("name_pred", "stdout"));
+        g_pCLIParam2.reset(new CLIParam);
+        g_pCLIParam2->Configure(cfg);
+    } // if
 
     return ret;
 }
@@ -275,7 +296,7 @@ void parse_model( const std::string &modelFile, std::vector<uint32_t> &result,
 
     string cmd = "xgboost ";
     cmd.append(fakeConf).append(" task=dump ").append("model_in=")
-            .append(FLAGS_model_in).append(" name_dump=stdout");
+            .append(FLAGS_model).append(" name_dump=stdout");
 
     // DLOG(INFO) << "cmd: " << cmd; 
 
@@ -329,9 +350,9 @@ void service_init()
     using namespace std;
 
     cout << "Parsing model..." << endl;
-    parse_model( FLAGS_model_in, g_arrMaxLeafId, g_arrTreeMark );
+    parse_model( FLAGS_model, g_arrMaxLeafId, g_arrTreeMark );
     if (g_arrMaxLeafId.empty())
-        THROW_RUNTIME_ERROR("No valid tree found in model file " << FLAGS_model_in);
+        THROW_RUNTIME_ERROR("No valid tree found in model file " << FLAGS_model);
     // DEBUG
     // cout << "g_arrMaxLeafId:" << endl;
     // std::copy(g_arrMaxLeafId.begin(), g_arrMaxLeafId.end(), ostream_iterator<uint32_t>(cout, " "));
@@ -345,7 +366,7 @@ void service_init()
 
     cout << "Creating xgboost instances..." << endl;
     for (int i = 0; i < FLAGS_n_inst; ++i) {
-        auto pInst = boost::make_shared<XgBoostLearner>(g_pCLIParam.get());
+        auto pInst = boost::make_shared<XgBoostLearner>(g_pCLIParam.get(), g_pCLIParam2.get());
         g_LearnerPool.push_back( pInst );
     } // for
 

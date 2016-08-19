@@ -13,7 +13,7 @@ namespace XgBoostSvr {
 
 
 template <class Protocol_>
-uint32_t XgBoostService_predictStr_args::read(Protocol_* iprot) {
+uint32_t XgBoostService_predict_args::read(Protocol_* iprot) {
 
   apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -63,10 +63,10 @@ uint32_t XgBoostService_predictStr_args::read(Protocol_* iprot) {
 }
 
 template <class Protocol_>
-uint32_t XgBoostService_predictStr_args::write(Protocol_* oprot) const {
+uint32_t XgBoostService_predict_args::write(Protocol_* oprot) const {
   uint32_t xfer = 0;
   apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
-  xfer += oprot->writeStructBegin("XgBoostService_predictStr_args");
+  xfer += oprot->writeStructBegin("XgBoostService_predict_args");
 
   xfer += oprot->writeFieldBegin("input", ::apache::thrift::protocol::T_STRING, 1);
   xfer += oprot->writeString(this->input);
@@ -83,10 +83,10 @@ uint32_t XgBoostService_predictStr_args::write(Protocol_* oprot) const {
 
 
 template <class Protocol_>
-uint32_t XgBoostService_predictStr_pargs::write(Protocol_* oprot) const {
+uint32_t XgBoostService_predict_pargs::write(Protocol_* oprot) const {
   uint32_t xfer = 0;
   apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
-  xfer += oprot->writeStructBegin("XgBoostService_predictStr_pargs");
+  xfer += oprot->writeStructBegin("XgBoostService_predict_pargs");
 
   xfer += oprot->writeFieldBegin("input", ::apache::thrift::protocol::T_STRING, 1);
   xfer += oprot->writeString((*(this->input)));
@@ -103,7 +103,7 @@ uint32_t XgBoostService_predictStr_pargs::write(Protocol_* oprot) const {
 
 
 template <class Protocol_>
-uint32_t XgBoostService_predictStr_result::read(Protocol_* iprot) {
+uint32_t XgBoostService_predict_result::read(Protocol_* iprot) {
 
   apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -165,11 +165,11 @@ uint32_t XgBoostService_predictStr_result::read(Protocol_* iprot) {
 }
 
 template <class Protocol_>
-uint32_t XgBoostService_predictStr_result::write(Protocol_* oprot) const {
+uint32_t XgBoostService_predict_result::write(Protocol_* oprot) const {
 
   uint32_t xfer = 0;
 
-  xfer += oprot->writeStructBegin("XgBoostService_predictStr_result");
+  xfer += oprot->writeStructBegin("XgBoostService_predict_result");
 
   if (this->__isset.success) {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
@@ -195,7 +195,7 @@ uint32_t XgBoostService_predictStr_result::write(Protocol_* oprot) const {
 
 
 template <class Protocol_>
-uint32_t XgBoostService_predictStr_presult::read(Protocol_* iprot) {
+uint32_t XgBoostService_predict_presult::read(Protocol_* iprot) {
 
   apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -258,7 +258,7 @@ uint32_t XgBoostService_predictStr_presult::read(Protocol_* iprot) {
 
 
 template <class Protocol_>
-uint32_t XgBoostService_predictVec_args::read(Protocol_* iprot) {
+uint32_t XgBoostService_predict_GBDT_args::read(Protocol_* iprot) {
 
   apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -280,41 +280,17 @@ uint32_t XgBoostService_predictVec_args::read(Protocol_* iprot) {
     switch (fid)
     {
       case 1:
-        if (ftype == ::apache::thrift::protocol::T_LIST) {
-          {
-            this->indices.clear();
-            uint32_t _size15;
-            ::apache::thrift::protocol::TType _etype18;
-            xfer += iprot->readListBegin(_etype18, _size15);
-            this->indices.resize(_size15);
-            uint32_t _i19;
-            for (_i19 = 0; _i19 < _size15; ++_i19)
-            {
-              xfer += iprot->readI64(this->indices[_i19]);
-            }
-            xfer += iprot->readListEnd();
-          }
-          this->__isset.indices = true;
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->input);
+          this->__isset.input = true;
         } else {
           xfer += iprot->skip(ftype);
         }
         break;
       case 2:
-        if (ftype == ::apache::thrift::protocol::T_LIST) {
-          {
-            this->values.clear();
-            uint32_t _size20;
-            ::apache::thrift::protocol::TType _etype23;
-            xfer += iprot->readListBegin(_etype23, _size20);
-            this->values.resize(_size20);
-            uint32_t _i24;
-            for (_i24 = 0; _i24 < _size20; ++_i24)
-            {
-              xfer += iprot->readDouble(this->values[_i24]);
-            }
-            xfer += iprot->readListEnd();
-          }
-          this->__isset.values = true;
+        if (ftype == ::apache::thrift::protocol::T_BOOL) {
+          xfer += iprot->readBool(this->simple);
+          this->__isset.simple = true;
         } else {
           xfer += iprot->skip(ftype);
         }
@@ -332,33 +308,17 @@ uint32_t XgBoostService_predictVec_args::read(Protocol_* iprot) {
 }
 
 template <class Protocol_>
-uint32_t XgBoostService_predictVec_args::write(Protocol_* oprot) const {
+uint32_t XgBoostService_predict_GBDT_args::write(Protocol_* oprot) const {
   uint32_t xfer = 0;
   apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
-  xfer += oprot->writeStructBegin("XgBoostService_predictVec_args");
+  xfer += oprot->writeStructBegin("XgBoostService_predict_GBDT_args");
 
-  xfer += oprot->writeFieldBegin("indices", ::apache::thrift::protocol::T_LIST, 1);
-  {
-    xfer += oprot->writeListBegin(::apache::thrift::protocol::T_I64, static_cast<uint32_t>(this->indices.size()));
-    std::vector<int64_t> ::const_iterator _iter25;
-    for (_iter25 = this->indices.begin(); _iter25 != this->indices.end(); ++_iter25)
-    {
-      xfer += oprot->writeI64((*_iter25));
-    }
-    xfer += oprot->writeListEnd();
-  }
+  xfer += oprot->writeFieldBegin("input", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString(this->input);
   xfer += oprot->writeFieldEnd();
 
-  xfer += oprot->writeFieldBegin("values", ::apache::thrift::protocol::T_LIST, 2);
-  {
-    xfer += oprot->writeListBegin(::apache::thrift::protocol::T_DOUBLE, static_cast<uint32_t>(this->values.size()));
-    std::vector<double> ::const_iterator _iter26;
-    for (_iter26 = this->values.begin(); _iter26 != this->values.end(); ++_iter26)
-    {
-      xfer += oprot->writeDouble((*_iter26));
-    }
-    xfer += oprot->writeListEnd();
-  }
+  xfer += oprot->writeFieldBegin("simple", ::apache::thrift::protocol::T_BOOL, 2);
+  xfer += oprot->writeBool(this->simple);
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldStop();
@@ -368,33 +328,17 @@ uint32_t XgBoostService_predictVec_args::write(Protocol_* oprot) const {
 
 
 template <class Protocol_>
-uint32_t XgBoostService_predictVec_pargs::write(Protocol_* oprot) const {
+uint32_t XgBoostService_predict_GBDT_pargs::write(Protocol_* oprot) const {
   uint32_t xfer = 0;
   apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
-  xfer += oprot->writeStructBegin("XgBoostService_predictVec_pargs");
+  xfer += oprot->writeStructBegin("XgBoostService_predict_GBDT_pargs");
 
-  xfer += oprot->writeFieldBegin("indices", ::apache::thrift::protocol::T_LIST, 1);
-  {
-    xfer += oprot->writeListBegin(::apache::thrift::protocol::T_I64, static_cast<uint32_t>((*(this->indices)).size()));
-    std::vector<int64_t> ::const_iterator _iter27;
-    for (_iter27 = (*(this->indices)).begin(); _iter27 != (*(this->indices)).end(); ++_iter27)
-    {
-      xfer += oprot->writeI64((*_iter27));
-    }
-    xfer += oprot->writeListEnd();
-  }
+  xfer += oprot->writeFieldBegin("input", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString((*(this->input)));
   xfer += oprot->writeFieldEnd();
 
-  xfer += oprot->writeFieldBegin("values", ::apache::thrift::protocol::T_LIST, 2);
-  {
-    xfer += oprot->writeListBegin(::apache::thrift::protocol::T_DOUBLE, static_cast<uint32_t>((*(this->values)).size()));
-    std::vector<double> ::const_iterator _iter28;
-    for (_iter28 = (*(this->values)).begin(); _iter28 != (*(this->values)).end(); ++_iter28)
-    {
-      xfer += oprot->writeDouble((*_iter28));
-    }
-    xfer += oprot->writeListEnd();
-  }
+  xfer += oprot->writeFieldBegin("simple", ::apache::thrift::protocol::T_BOOL, 2);
+  xfer += oprot->writeBool((*(this->simple)));
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldStop();
@@ -404,7 +348,7 @@ uint32_t XgBoostService_predictVec_pargs::write(Protocol_* oprot) const {
 
 
 template <class Protocol_>
-uint32_t XgBoostService_predictVec_result::read(Protocol_* iprot) {
+uint32_t XgBoostService_predict_GBDT_result::read(Protocol_* iprot) {
 
   apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -429,14 +373,14 @@ uint32_t XgBoostService_predictVec_result::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size29;
-            ::apache::thrift::protocol::TType _etype32;
-            xfer += iprot->readListBegin(_etype32, _size29);
-            this->success.resize(_size29);
-            uint32_t _i33;
-            for (_i33 = 0; _i33 < _size29; ++_i33)
+            uint32_t _size15;
+            ::apache::thrift::protocol::TType _etype18;
+            xfer += iprot->readListBegin(_etype18, _size15);
+            this->success.resize(_size15);
+            uint32_t _i19;
+            for (_i19 = 0; _i19 < _size15; ++_i19)
             {
-              xfer += iprot->readDouble(this->success[_i33]);
+              xfer += iprot->readDouble(this->success[_i19]);
             }
             xfer += iprot->readListEnd();
           }
@@ -466,20 +410,20 @@ uint32_t XgBoostService_predictVec_result::read(Protocol_* iprot) {
 }
 
 template <class Protocol_>
-uint32_t XgBoostService_predictVec_result::write(Protocol_* oprot) const {
+uint32_t XgBoostService_predict_GBDT_result::write(Protocol_* oprot) const {
 
   uint32_t xfer = 0;
 
-  xfer += oprot->writeStructBegin("XgBoostService_predictVec_result");
+  xfer += oprot->writeStructBegin("XgBoostService_predict_GBDT_result");
 
   if (this->__isset.success) {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_DOUBLE, static_cast<uint32_t>(this->success.size()));
-      std::vector<double> ::const_iterator _iter34;
-      for (_iter34 = this->success.begin(); _iter34 != this->success.end(); ++_iter34)
+      std::vector<double> ::const_iterator _iter20;
+      for (_iter20 = this->success.begin(); _iter20 != this->success.end(); ++_iter20)
       {
-        xfer += oprot->writeDouble((*_iter34));
+        xfer += oprot->writeDouble((*_iter20));
       }
       xfer += oprot->writeListEnd();
     }
@@ -496,7 +440,7 @@ uint32_t XgBoostService_predictVec_result::write(Protocol_* oprot) const {
 
 
 template <class Protocol_>
-uint32_t XgBoostService_predictVec_presult::read(Protocol_* iprot) {
+uint32_t XgBoostService_predict_GBDT_presult::read(Protocol_* iprot) {
 
   apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -521,14 +465,14 @@ uint32_t XgBoostService_predictVec_presult::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size35;
-            ::apache::thrift::protocol::TType _etype38;
-            xfer += iprot->readListBegin(_etype38, _size35);
-            (*(this->success)).resize(_size35);
-            uint32_t _i39;
-            for (_i39 = 0; _i39 < _size35; ++_i39)
+            uint32_t _size21;
+            ::apache::thrift::protocol::TType _etype24;
+            xfer += iprot->readListBegin(_etype24, _size21);
+            (*(this->success)).resize(_size21);
+            uint32_t _i25;
+            for (_i25 = 0; _i25 < _size21; ++_i25)
             {
-              xfer += iprot->readDouble((*(this->success))[_i39]);
+              xfer += iprot->readDouble((*(this->success))[_i25]);
             }
             xfer += iprot->readListEnd();
           }
@@ -755,19 +699,19 @@ uint32_t XgBoostService_handleRequest_presult::read(Protocol_* iprot) {
 }
 
 template <class Protocol_>
-void XgBoostServiceClientT<Protocol_>::predictStr(std::vector<double> & _return, const std::string& input, const bool leaf)
+void XgBoostServiceClientT<Protocol_>::predict(std::vector<double> & _return, const std::string& input, const bool leaf)
 {
-  send_predictStr(input, leaf);
-  recv_predictStr(_return);
+  send_predict(input, leaf);
+  recv_predict(_return);
 }
 
 template <class Protocol_>
-void XgBoostServiceClientT<Protocol_>::send_predictStr(const std::string& input, const bool leaf)
+void XgBoostServiceClientT<Protocol_>::send_predict(const std::string& input, const bool leaf)
 {
   int32_t cseqid = 0;
-  this->oprot_->writeMessageBegin("predictStr", ::apache::thrift::protocol::T_CALL, cseqid);
+  this->oprot_->writeMessageBegin("predict", ::apache::thrift::protocol::T_CALL, cseqid);
 
-  XgBoostService_predictStr_pargs args;
+  XgBoostService_predict_pargs args;
   args.input = &input;
   args.leaf = &leaf;
   args.write(this->oprot_);
@@ -778,7 +722,7 @@ void XgBoostServiceClientT<Protocol_>::send_predictStr(const std::string& input,
 }
 
 template <class Protocol_>
-void XgBoostServiceClientT<Protocol_>::recv_predictStr(std::vector<double> & _return)
+void XgBoostServiceClientT<Protocol_>::recv_predict(std::vector<double> & _return)
 {
 
   int32_t rseqid = 0;
@@ -798,12 +742,12 @@ void XgBoostServiceClientT<Protocol_>::recv_predictStr(std::vector<double> & _re
     this->iprot_->readMessageEnd();
     this->iprot_->getTransport()->readEnd();
   }
-  if (fname.compare("predictStr") != 0) {
+  if (fname.compare("predict") != 0) {
     this->iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     this->iprot_->readMessageEnd();
     this->iprot_->getTransport()->readEnd();
   }
-  XgBoostService_predictStr_presult result;
+  XgBoostService_predict_presult result;
   result.success = &_return;
   result.read(this->iprot_);
   this->iprot_->readMessageEnd();
@@ -816,25 +760,25 @@ void XgBoostServiceClientT<Protocol_>::recv_predictStr(std::vector<double> & _re
   if (result.__isset.err) {
     throw result.err;
   }
-  throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "predictStr failed: unknown result");
+  throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "predict failed: unknown result");
 }
 
 template <class Protocol_>
-void XgBoostServiceClientT<Protocol_>::predictVec(std::vector<double> & _return, const std::vector<int64_t> & indices, const std::vector<double> & values)
+void XgBoostServiceClientT<Protocol_>::predict_GBDT(std::vector<double> & _return, const std::string& input, const bool simple)
 {
-  send_predictVec(indices, values);
-  recv_predictVec(_return);
+  send_predict_GBDT(input, simple);
+  recv_predict_GBDT(_return);
 }
 
 template <class Protocol_>
-void XgBoostServiceClientT<Protocol_>::send_predictVec(const std::vector<int64_t> & indices, const std::vector<double> & values)
+void XgBoostServiceClientT<Protocol_>::send_predict_GBDT(const std::string& input, const bool simple)
 {
   int32_t cseqid = 0;
-  this->oprot_->writeMessageBegin("predictVec", ::apache::thrift::protocol::T_CALL, cseqid);
+  this->oprot_->writeMessageBegin("predict_GBDT", ::apache::thrift::protocol::T_CALL, cseqid);
 
-  XgBoostService_predictVec_pargs args;
-  args.indices = &indices;
-  args.values = &values;
+  XgBoostService_predict_GBDT_pargs args;
+  args.input = &input;
+  args.simple = &simple;
   args.write(this->oprot_);
 
   this->oprot_->writeMessageEnd();
@@ -843,7 +787,7 @@ void XgBoostServiceClientT<Protocol_>::send_predictVec(const std::vector<int64_t
 }
 
 template <class Protocol_>
-void XgBoostServiceClientT<Protocol_>::recv_predictVec(std::vector<double> & _return)
+void XgBoostServiceClientT<Protocol_>::recv_predict_GBDT(std::vector<double> & _return)
 {
 
   int32_t rseqid = 0;
@@ -863,12 +807,12 @@ void XgBoostServiceClientT<Protocol_>::recv_predictVec(std::vector<double> & _re
     this->iprot_->readMessageEnd();
     this->iprot_->getTransport()->readEnd();
   }
-  if (fname.compare("predictVec") != 0) {
+  if (fname.compare("predict_GBDT") != 0) {
     this->iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     this->iprot_->readMessageEnd();
     this->iprot_->getTransport()->readEnd();
   }
-  XgBoostService_predictVec_presult result;
+  XgBoostService_predict_GBDT_presult result;
   result.success = &_return;
   result.read(this->iprot_);
   this->iprot_->readMessageEnd();
@@ -881,7 +825,7 @@ void XgBoostServiceClientT<Protocol_>::recv_predictVec(std::vector<double> & _re
   if (result.__isset.err) {
     throw result.err;
   }
-  throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "predictVec failed: unknown result");
+  throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "predict_GBDT failed: unknown result");
 }
 
 template <class Protocol_>
@@ -989,41 +933,41 @@ bool XgBoostServiceProcessorT<Protocol_>::dispatchCallTemplated(Protocol_* iprot
 }
 
 template <class Protocol_>
-void XgBoostServiceProcessorT<Protocol_>::process_predictStr(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
+void XgBoostServiceProcessorT<Protocol_>::process_predict(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
   void* ctx = NULL;
   if (this->eventHandler_.get() != NULL) {
-    ctx = this->eventHandler_->getContext("XgBoostService.predictStr", callContext);
+    ctx = this->eventHandler_->getContext("XgBoostService.predict", callContext);
   }
-  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "XgBoostService.predictStr");
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "XgBoostService.predict");
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preRead(ctx, "XgBoostService.predictStr");
+    this->eventHandler_->preRead(ctx, "XgBoostService.predict");
   }
 
-  XgBoostService_predictStr_args args;
+  XgBoostService_predict_args args;
   args.read(iprot);
   iprot->readMessageEnd();
   uint32_t bytes = iprot->getTransport()->readEnd();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postRead(ctx, "XgBoostService.predictStr", bytes);
+    this->eventHandler_->postRead(ctx, "XgBoostService.predict", bytes);
   }
 
-  XgBoostService_predictStr_result result;
+  XgBoostService_predict_result result;
   try {
-    iface_->predictStr(result.success, args.input, args.leaf);
+    iface_->predict(result.success, args.input, args.leaf);
     result.__isset.success = true;
   } catch (InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
     if (this->eventHandler_.get() != NULL) {
-      this->eventHandler_->handlerError(ctx, "XgBoostService.predictStr");
+      this->eventHandler_->handlerError(ctx, "XgBoostService.predict");
     }
 
     ::apache::thrift::TApplicationException x(e.what());
-    oprot->writeMessageBegin("predictStr", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    oprot->writeMessageBegin("predict", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
     oprot->getTransport()->writeEnd();
@@ -1032,56 +976,56 @@ void XgBoostServiceProcessorT<Protocol_>::process_predictStr(int32_t seqid, ::ap
   }
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preWrite(ctx, "XgBoostService.predictStr");
+    this->eventHandler_->preWrite(ctx, "XgBoostService.predict");
   }
 
-  oprot->writeMessageBegin("predictStr", ::apache::thrift::protocol::T_REPLY, seqid);
+  oprot->writeMessageBegin("predict", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
   bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postWrite(ctx, "XgBoostService.predictStr", bytes);
+    this->eventHandler_->postWrite(ctx, "XgBoostService.predict", bytes);
   }
 }
 
 template <class Protocol_>
-void XgBoostServiceProcessorT<Protocol_>::process_predictStr(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext)
+void XgBoostServiceProcessorT<Protocol_>::process_predict(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext)
 {
   void* ctx = NULL;
   if (this->eventHandler_.get() != NULL) {
-    ctx = this->eventHandler_->getContext("XgBoostService.predictStr", callContext);
+    ctx = this->eventHandler_->getContext("XgBoostService.predict", callContext);
   }
-  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "XgBoostService.predictStr");
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "XgBoostService.predict");
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preRead(ctx, "XgBoostService.predictStr");
+    this->eventHandler_->preRead(ctx, "XgBoostService.predict");
   }
 
-  XgBoostService_predictStr_args args;
+  XgBoostService_predict_args args;
   args.read(iprot);
   iprot->readMessageEnd();
   uint32_t bytes = iprot->getTransport()->readEnd();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postRead(ctx, "XgBoostService.predictStr", bytes);
+    this->eventHandler_->postRead(ctx, "XgBoostService.predict", bytes);
   }
 
-  XgBoostService_predictStr_result result;
+  XgBoostService_predict_result result;
   try {
-    iface_->predictStr(result.success, args.input, args.leaf);
+    iface_->predict(result.success, args.input, args.leaf);
     result.__isset.success = true;
   } catch (InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
     if (this->eventHandler_.get() != NULL) {
-      this->eventHandler_->handlerError(ctx, "XgBoostService.predictStr");
+      this->eventHandler_->handlerError(ctx, "XgBoostService.predict");
     }
 
     ::apache::thrift::TApplicationException x(e.what());
-    oprot->writeMessageBegin("predictStr", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    oprot->writeMessageBegin("predict", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
     oprot->getTransport()->writeEnd();
@@ -1090,56 +1034,56 @@ void XgBoostServiceProcessorT<Protocol_>::process_predictStr(int32_t seqid, Prot
   }
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preWrite(ctx, "XgBoostService.predictStr");
+    this->eventHandler_->preWrite(ctx, "XgBoostService.predict");
   }
 
-  oprot->writeMessageBegin("predictStr", ::apache::thrift::protocol::T_REPLY, seqid);
+  oprot->writeMessageBegin("predict", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
   bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postWrite(ctx, "XgBoostService.predictStr", bytes);
+    this->eventHandler_->postWrite(ctx, "XgBoostService.predict", bytes);
   }
 }
 
 template <class Protocol_>
-void XgBoostServiceProcessorT<Protocol_>::process_predictVec(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
+void XgBoostServiceProcessorT<Protocol_>::process_predict_GBDT(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
   void* ctx = NULL;
   if (this->eventHandler_.get() != NULL) {
-    ctx = this->eventHandler_->getContext("XgBoostService.predictVec", callContext);
+    ctx = this->eventHandler_->getContext("XgBoostService.predict_GBDT", callContext);
   }
-  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "XgBoostService.predictVec");
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "XgBoostService.predict_GBDT");
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preRead(ctx, "XgBoostService.predictVec");
+    this->eventHandler_->preRead(ctx, "XgBoostService.predict_GBDT");
   }
 
-  XgBoostService_predictVec_args args;
+  XgBoostService_predict_GBDT_args args;
   args.read(iprot);
   iprot->readMessageEnd();
   uint32_t bytes = iprot->getTransport()->readEnd();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postRead(ctx, "XgBoostService.predictVec", bytes);
+    this->eventHandler_->postRead(ctx, "XgBoostService.predict_GBDT", bytes);
   }
 
-  XgBoostService_predictVec_result result;
+  XgBoostService_predict_GBDT_result result;
   try {
-    iface_->predictVec(result.success, args.indices, args.values);
+    iface_->predict_GBDT(result.success, args.input, args.simple);
     result.__isset.success = true;
   } catch (InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
     if (this->eventHandler_.get() != NULL) {
-      this->eventHandler_->handlerError(ctx, "XgBoostService.predictVec");
+      this->eventHandler_->handlerError(ctx, "XgBoostService.predict_GBDT");
     }
 
     ::apache::thrift::TApplicationException x(e.what());
-    oprot->writeMessageBegin("predictVec", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    oprot->writeMessageBegin("predict_GBDT", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
     oprot->getTransport()->writeEnd();
@@ -1148,56 +1092,56 @@ void XgBoostServiceProcessorT<Protocol_>::process_predictVec(int32_t seqid, ::ap
   }
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preWrite(ctx, "XgBoostService.predictVec");
+    this->eventHandler_->preWrite(ctx, "XgBoostService.predict_GBDT");
   }
 
-  oprot->writeMessageBegin("predictVec", ::apache::thrift::protocol::T_REPLY, seqid);
+  oprot->writeMessageBegin("predict_GBDT", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
   bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postWrite(ctx, "XgBoostService.predictVec", bytes);
+    this->eventHandler_->postWrite(ctx, "XgBoostService.predict_GBDT", bytes);
   }
 }
 
 template <class Protocol_>
-void XgBoostServiceProcessorT<Protocol_>::process_predictVec(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext)
+void XgBoostServiceProcessorT<Protocol_>::process_predict_GBDT(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext)
 {
   void* ctx = NULL;
   if (this->eventHandler_.get() != NULL) {
-    ctx = this->eventHandler_->getContext("XgBoostService.predictVec", callContext);
+    ctx = this->eventHandler_->getContext("XgBoostService.predict_GBDT", callContext);
   }
-  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "XgBoostService.predictVec");
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "XgBoostService.predict_GBDT");
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preRead(ctx, "XgBoostService.predictVec");
+    this->eventHandler_->preRead(ctx, "XgBoostService.predict_GBDT");
   }
 
-  XgBoostService_predictVec_args args;
+  XgBoostService_predict_GBDT_args args;
   args.read(iprot);
   iprot->readMessageEnd();
   uint32_t bytes = iprot->getTransport()->readEnd();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postRead(ctx, "XgBoostService.predictVec", bytes);
+    this->eventHandler_->postRead(ctx, "XgBoostService.predict_GBDT", bytes);
   }
 
-  XgBoostService_predictVec_result result;
+  XgBoostService_predict_GBDT_result result;
   try {
-    iface_->predictVec(result.success, args.indices, args.values);
+    iface_->predict_GBDT(result.success, args.input, args.simple);
     result.__isset.success = true;
   } catch (InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
     if (this->eventHandler_.get() != NULL) {
-      this->eventHandler_->handlerError(ctx, "XgBoostService.predictVec");
+      this->eventHandler_->handlerError(ctx, "XgBoostService.predict_GBDT");
     }
 
     ::apache::thrift::TApplicationException x(e.what());
-    oprot->writeMessageBegin("predictVec", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    oprot->writeMessageBegin("predict_GBDT", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
     oprot->getTransport()->writeEnd();
@@ -1206,17 +1150,17 @@ void XgBoostServiceProcessorT<Protocol_>::process_predictVec(int32_t seqid, Prot
   }
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preWrite(ctx, "XgBoostService.predictVec");
+    this->eventHandler_->preWrite(ctx, "XgBoostService.predict_GBDT");
   }
 
-  oprot->writeMessageBegin("predictVec", ::apache::thrift::protocol::T_REPLY, seqid);
+  oprot->writeMessageBegin("predict_GBDT", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
   bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postWrite(ctx, "XgBoostService.predictVec", bytes);
+    this->eventHandler_->postWrite(ctx, "XgBoostService.predict_GBDT", bytes);
   }
 }
 
@@ -1345,20 +1289,20 @@ template <class Protocol_>
 }
 
 template <class Protocol_>
-void XgBoostServiceConcurrentClientT<Protocol_>::predictStr(std::vector<double> & _return, const std::string& input, const bool leaf)
+void XgBoostServiceConcurrentClientT<Protocol_>::predict(std::vector<double> & _return, const std::string& input, const bool leaf)
 {
-  int32_t seqid = send_predictStr(input, leaf);
-  recv_predictStr(_return, seqid);
+  int32_t seqid = send_predict(input, leaf);
+  recv_predict(_return, seqid);
 }
 
 template <class Protocol_>
-int32_t XgBoostServiceConcurrentClientT<Protocol_>::send_predictStr(const std::string& input, const bool leaf)
+int32_t XgBoostServiceConcurrentClientT<Protocol_>::send_predict(const std::string& input, const bool leaf)
 {
   int32_t cseqid = this->sync_.generateSeqId();
   ::apache::thrift::async::TConcurrentSendSentry sentry(&this->sync_);
-  this->oprot_->writeMessageBegin("predictStr", ::apache::thrift::protocol::T_CALL, cseqid);
+  this->oprot_->writeMessageBegin("predict", ::apache::thrift::protocol::T_CALL, cseqid);
 
-  XgBoostService_predictStr_pargs args;
+  XgBoostService_predict_pargs args;
   args.input = &input;
   args.leaf = &leaf;
   args.write(this->oprot_);
@@ -1372,7 +1316,7 @@ int32_t XgBoostServiceConcurrentClientT<Protocol_>::send_predictStr(const std::s
 }
 
 template <class Protocol_>
-void XgBoostServiceConcurrentClientT<Protocol_>::recv_predictStr(std::vector<double> & _return, const int32_t seqid)
+void XgBoostServiceConcurrentClientT<Protocol_>::recv_predict(std::vector<double> & _return, const int32_t seqid)
 {
 
   int32_t rseqid = 0;
@@ -1401,7 +1345,7 @@ void XgBoostServiceConcurrentClientT<Protocol_>::recv_predictStr(std::vector<dou
         this->iprot_->readMessageEnd();
         this->iprot_->getTransport()->readEnd();
       }
-      if (fname.compare("predictStr") != 0) {
+      if (fname.compare("predict") != 0) {
         this->iprot_->skip(::apache::thrift::protocol::T_STRUCT);
         this->iprot_->readMessageEnd();
         this->iprot_->getTransport()->readEnd();
@@ -1410,7 +1354,7 @@ void XgBoostServiceConcurrentClientT<Protocol_>::recv_predictStr(std::vector<dou
         using ::apache::thrift::protocol::TProtocolException;
         throw TProtocolException(TProtocolException::INVALID_DATA);
       }
-      XgBoostService_predictStr_presult result;
+      XgBoostService_predict_presult result;
       result.success = &_return;
       result.read(this->iprot_);
       this->iprot_->readMessageEnd();
@@ -1426,7 +1370,7 @@ void XgBoostServiceConcurrentClientT<Protocol_>::recv_predictStr(std::vector<dou
         throw result.err;
       }
       // in a bad state, don't commit
-      throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "predictStr failed: unknown result");
+      throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "predict failed: unknown result");
     }
     // seqid != rseqid
     this->sync_.updatePending(fname, mtype, rseqid);
@@ -1437,22 +1381,22 @@ void XgBoostServiceConcurrentClientT<Protocol_>::recv_predictStr(std::vector<dou
 }
 
 template <class Protocol_>
-void XgBoostServiceConcurrentClientT<Protocol_>::predictVec(std::vector<double> & _return, const std::vector<int64_t> & indices, const std::vector<double> & values)
+void XgBoostServiceConcurrentClientT<Protocol_>::predict_GBDT(std::vector<double> & _return, const std::string& input, const bool simple)
 {
-  int32_t seqid = send_predictVec(indices, values);
-  recv_predictVec(_return, seqid);
+  int32_t seqid = send_predict_GBDT(input, simple);
+  recv_predict_GBDT(_return, seqid);
 }
 
 template <class Protocol_>
-int32_t XgBoostServiceConcurrentClientT<Protocol_>::send_predictVec(const std::vector<int64_t> & indices, const std::vector<double> & values)
+int32_t XgBoostServiceConcurrentClientT<Protocol_>::send_predict_GBDT(const std::string& input, const bool simple)
 {
   int32_t cseqid = this->sync_.generateSeqId();
   ::apache::thrift::async::TConcurrentSendSentry sentry(&this->sync_);
-  this->oprot_->writeMessageBegin("predictVec", ::apache::thrift::protocol::T_CALL, cseqid);
+  this->oprot_->writeMessageBegin("predict_GBDT", ::apache::thrift::protocol::T_CALL, cseqid);
 
-  XgBoostService_predictVec_pargs args;
-  args.indices = &indices;
-  args.values = &values;
+  XgBoostService_predict_GBDT_pargs args;
+  args.input = &input;
+  args.simple = &simple;
   args.write(this->oprot_);
 
   this->oprot_->writeMessageEnd();
@@ -1464,7 +1408,7 @@ int32_t XgBoostServiceConcurrentClientT<Protocol_>::send_predictVec(const std::v
 }
 
 template <class Protocol_>
-void XgBoostServiceConcurrentClientT<Protocol_>::recv_predictVec(std::vector<double> & _return, const int32_t seqid)
+void XgBoostServiceConcurrentClientT<Protocol_>::recv_predict_GBDT(std::vector<double> & _return, const int32_t seqid)
 {
 
   int32_t rseqid = 0;
@@ -1493,7 +1437,7 @@ void XgBoostServiceConcurrentClientT<Protocol_>::recv_predictVec(std::vector<dou
         this->iprot_->readMessageEnd();
         this->iprot_->getTransport()->readEnd();
       }
-      if (fname.compare("predictVec") != 0) {
+      if (fname.compare("predict_GBDT") != 0) {
         this->iprot_->skip(::apache::thrift::protocol::T_STRUCT);
         this->iprot_->readMessageEnd();
         this->iprot_->getTransport()->readEnd();
@@ -1502,7 +1446,7 @@ void XgBoostServiceConcurrentClientT<Protocol_>::recv_predictVec(std::vector<dou
         using ::apache::thrift::protocol::TProtocolException;
         throw TProtocolException(TProtocolException::INVALID_DATA);
       }
-      XgBoostService_predictVec_presult result;
+      XgBoostService_predict_GBDT_presult result;
       result.success = &_return;
       result.read(this->iprot_);
       this->iprot_->readMessageEnd();
@@ -1518,7 +1462,7 @@ void XgBoostServiceConcurrentClientT<Protocol_>::recv_predictVec(std::vector<dou
         throw result.err;
       }
       // in a bad state, don't commit
-      throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "predictVec failed: unknown result");
+      throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "predict_GBDT failed: unknown result");
     }
     // seqid != rseqid
     this->sync_.updatePending(fname, mtype, rseqid);

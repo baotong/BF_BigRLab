@@ -21,8 +21,8 @@ namespace XgBoostSvr {
 class XgBoostServiceIf {
  public:
   virtual ~XgBoostServiceIf() {}
-  virtual void predictStr(std::vector<double> & _return, const std::string& input, const bool leaf) = 0;
-  virtual void predictVec(std::vector<double> & _return, const std::vector<int64_t> & indices, const std::vector<double> & values) = 0;
+  virtual void predict(std::vector<double> & _return, const std::string& input, const bool leaf) = 0;
+  virtual void predict_GBDT(std::vector<double> & _return, const std::string& input, const bool simple) = 0;
   virtual void handleRequest(std::string& _return, const std::string& request) = 0;
 };
 
@@ -53,10 +53,10 @@ class XgBoostServiceIfSingletonFactory : virtual public XgBoostServiceIfFactory 
 class XgBoostServiceNull : virtual public XgBoostServiceIf {
  public:
   virtual ~XgBoostServiceNull() {}
-  void predictStr(std::vector<double> & /* _return */, const std::string& /* input */, const bool /* leaf */) {
+  void predict(std::vector<double> & /* _return */, const std::string& /* input */, const bool /* leaf */) {
     return;
   }
-  void predictVec(std::vector<double> & /* _return */, const std::vector<int64_t> & /* indices */, const std::vector<double> & /* values */) {
+  void predict_GBDT(std::vector<double> & /* _return */, const std::string& /* input */, const bool /* simple */) {
     return;
   }
   void handleRequest(std::string& /* _return */, const std::string& /* request */) {
@@ -64,27 +64,27 @@ class XgBoostServiceNull : virtual public XgBoostServiceIf {
   }
 };
 
-typedef struct _XgBoostService_predictStr_args__isset {
-  _XgBoostService_predictStr_args__isset() : input(false), leaf(false) {}
+typedef struct _XgBoostService_predict_args__isset {
+  _XgBoostService_predict_args__isset() : input(false), leaf(false) {}
   bool input :1;
   bool leaf :1;
-} _XgBoostService_predictStr_args__isset;
+} _XgBoostService_predict_args__isset;
 
-class XgBoostService_predictStr_args {
+class XgBoostService_predict_args {
  public:
 
-  XgBoostService_predictStr_args(const XgBoostService_predictStr_args&);
-  XgBoostService_predictStr_args(XgBoostService_predictStr_args&&);
-  XgBoostService_predictStr_args& operator=(const XgBoostService_predictStr_args&);
-  XgBoostService_predictStr_args& operator=(XgBoostService_predictStr_args&&);
-  XgBoostService_predictStr_args() : input(), leaf(0) {
+  XgBoostService_predict_args(const XgBoostService_predict_args&);
+  XgBoostService_predict_args(XgBoostService_predict_args&&);
+  XgBoostService_predict_args& operator=(const XgBoostService_predict_args&);
+  XgBoostService_predict_args& operator=(XgBoostService_predict_args&&);
+  XgBoostService_predict_args() : input(), leaf(0) {
   }
 
-  virtual ~XgBoostService_predictStr_args() throw();
+  virtual ~XgBoostService_predict_args() throw();
   std::string input;
   bool leaf;
 
-  _XgBoostService_predictStr_args__isset __isset;
+  _XgBoostService_predict_args__isset __isset;
 
   void __set_input(const std::string& val);
 
@@ -98,11 +98,11 @@ class XgBoostService_predictStr_args {
 };
 
 
-class XgBoostService_predictStr_pargs {
+class XgBoostService_predict_pargs {
  public:
 
 
-  virtual ~XgBoostService_predictStr_pargs() throw();
+  virtual ~XgBoostService_predict_pargs() throw();
   const std::string* input;
   const bool* leaf;
 
@@ -111,27 +111,27 @@ class XgBoostService_predictStr_pargs {
 
 };
 
-typedef struct _XgBoostService_predictStr_result__isset {
-  _XgBoostService_predictStr_result__isset() : success(false), err(false) {}
+typedef struct _XgBoostService_predict_result__isset {
+  _XgBoostService_predict_result__isset() : success(false), err(false) {}
   bool success :1;
   bool err :1;
-} _XgBoostService_predictStr_result__isset;
+} _XgBoostService_predict_result__isset;
 
-class XgBoostService_predictStr_result {
+class XgBoostService_predict_result {
  public:
 
-  XgBoostService_predictStr_result(const XgBoostService_predictStr_result&);
-  XgBoostService_predictStr_result(XgBoostService_predictStr_result&&);
-  XgBoostService_predictStr_result& operator=(const XgBoostService_predictStr_result&);
-  XgBoostService_predictStr_result& operator=(XgBoostService_predictStr_result&&);
-  XgBoostService_predictStr_result() {
+  XgBoostService_predict_result(const XgBoostService_predict_result&);
+  XgBoostService_predict_result(XgBoostService_predict_result&&);
+  XgBoostService_predict_result& operator=(const XgBoostService_predict_result&);
+  XgBoostService_predict_result& operator=(XgBoostService_predict_result&&);
+  XgBoostService_predict_result() {
   }
 
-  virtual ~XgBoostService_predictStr_result() throw();
+  virtual ~XgBoostService_predict_result() throw();
   std::vector<double>  success;
   InvalidRequest err;
 
-  _XgBoostService_predictStr_result__isset __isset;
+  _XgBoostService_predict_result__isset __isset;
 
   void __set_success(const std::vector<double> & val);
 
@@ -144,52 +144,52 @@ class XgBoostService_predictStr_result {
 
 };
 
-typedef struct _XgBoostService_predictStr_presult__isset {
-  _XgBoostService_predictStr_presult__isset() : success(false), err(false) {}
+typedef struct _XgBoostService_predict_presult__isset {
+  _XgBoostService_predict_presult__isset() : success(false), err(false) {}
   bool success :1;
   bool err :1;
-} _XgBoostService_predictStr_presult__isset;
+} _XgBoostService_predict_presult__isset;
 
-class XgBoostService_predictStr_presult {
+class XgBoostService_predict_presult {
  public:
 
 
-  virtual ~XgBoostService_predictStr_presult() throw();
+  virtual ~XgBoostService_predict_presult() throw();
   std::vector<double> * success;
   InvalidRequest err;
 
-  _XgBoostService_predictStr_presult__isset __isset;
+  _XgBoostService_predict_presult__isset __isset;
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
 
 };
 
-typedef struct _XgBoostService_predictVec_args__isset {
-  _XgBoostService_predictVec_args__isset() : indices(false), values(false) {}
-  bool indices :1;
-  bool values :1;
-} _XgBoostService_predictVec_args__isset;
+typedef struct _XgBoostService_predict_GBDT_args__isset {
+  _XgBoostService_predict_GBDT_args__isset() : input(false), simple(false) {}
+  bool input :1;
+  bool simple :1;
+} _XgBoostService_predict_GBDT_args__isset;
 
-class XgBoostService_predictVec_args {
+class XgBoostService_predict_GBDT_args {
  public:
 
-  XgBoostService_predictVec_args(const XgBoostService_predictVec_args&);
-  XgBoostService_predictVec_args(XgBoostService_predictVec_args&&);
-  XgBoostService_predictVec_args& operator=(const XgBoostService_predictVec_args&);
-  XgBoostService_predictVec_args& operator=(XgBoostService_predictVec_args&&);
-  XgBoostService_predictVec_args() {
+  XgBoostService_predict_GBDT_args(const XgBoostService_predict_GBDT_args&);
+  XgBoostService_predict_GBDT_args(XgBoostService_predict_GBDT_args&&);
+  XgBoostService_predict_GBDT_args& operator=(const XgBoostService_predict_GBDT_args&);
+  XgBoostService_predict_GBDT_args& operator=(XgBoostService_predict_GBDT_args&&);
+  XgBoostService_predict_GBDT_args() : input(), simple(0) {
   }
 
-  virtual ~XgBoostService_predictVec_args() throw();
-  std::vector<int64_t>  indices;
-  std::vector<double>  values;
+  virtual ~XgBoostService_predict_GBDT_args() throw();
+  std::string input;
+  bool simple;
 
-  _XgBoostService_predictVec_args__isset __isset;
+  _XgBoostService_predict_GBDT_args__isset __isset;
 
-  void __set_indices(const std::vector<int64_t> & val);
+  void __set_input(const std::string& val);
 
-  void __set_values(const std::vector<double> & val);
+  void __set_simple(const bool val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -199,40 +199,40 @@ class XgBoostService_predictVec_args {
 };
 
 
-class XgBoostService_predictVec_pargs {
+class XgBoostService_predict_GBDT_pargs {
  public:
 
 
-  virtual ~XgBoostService_predictVec_pargs() throw();
-  const std::vector<int64_t> * indices;
-  const std::vector<double> * values;
+  virtual ~XgBoostService_predict_GBDT_pargs() throw();
+  const std::string* input;
+  const bool* simple;
 
   template <class Protocol_>
   uint32_t write(Protocol_* oprot) const;
 
 };
 
-typedef struct _XgBoostService_predictVec_result__isset {
-  _XgBoostService_predictVec_result__isset() : success(false), err(false) {}
+typedef struct _XgBoostService_predict_GBDT_result__isset {
+  _XgBoostService_predict_GBDT_result__isset() : success(false), err(false) {}
   bool success :1;
   bool err :1;
-} _XgBoostService_predictVec_result__isset;
+} _XgBoostService_predict_GBDT_result__isset;
 
-class XgBoostService_predictVec_result {
+class XgBoostService_predict_GBDT_result {
  public:
 
-  XgBoostService_predictVec_result(const XgBoostService_predictVec_result&);
-  XgBoostService_predictVec_result(XgBoostService_predictVec_result&&);
-  XgBoostService_predictVec_result& operator=(const XgBoostService_predictVec_result&);
-  XgBoostService_predictVec_result& operator=(XgBoostService_predictVec_result&&);
-  XgBoostService_predictVec_result() {
+  XgBoostService_predict_GBDT_result(const XgBoostService_predict_GBDT_result&);
+  XgBoostService_predict_GBDT_result(XgBoostService_predict_GBDT_result&&);
+  XgBoostService_predict_GBDT_result& operator=(const XgBoostService_predict_GBDT_result&);
+  XgBoostService_predict_GBDT_result& operator=(XgBoostService_predict_GBDT_result&&);
+  XgBoostService_predict_GBDT_result() {
   }
 
-  virtual ~XgBoostService_predictVec_result() throw();
+  virtual ~XgBoostService_predict_GBDT_result() throw();
   std::vector<double>  success;
   InvalidRequest err;
 
-  _XgBoostService_predictVec_result__isset __isset;
+  _XgBoostService_predict_GBDT_result__isset __isset;
 
   void __set_success(const std::vector<double> & val);
 
@@ -245,21 +245,21 @@ class XgBoostService_predictVec_result {
 
 };
 
-typedef struct _XgBoostService_predictVec_presult__isset {
-  _XgBoostService_predictVec_presult__isset() : success(false), err(false) {}
+typedef struct _XgBoostService_predict_GBDT_presult__isset {
+  _XgBoostService_predict_GBDT_presult__isset() : success(false), err(false) {}
   bool success :1;
   bool err :1;
-} _XgBoostService_predictVec_presult__isset;
+} _XgBoostService_predict_GBDT_presult__isset;
 
-class XgBoostService_predictVec_presult {
+class XgBoostService_predict_GBDT_presult {
  public:
 
 
-  virtual ~XgBoostService_predictVec_presult() throw();
+  virtual ~XgBoostService_predict_GBDT_presult() throw();
   std::vector<double> * success;
   InvalidRequest err;
 
-  _XgBoostService_predictVec_presult__isset __isset;
+  _XgBoostService_predict_GBDT_presult__isset __isset;
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -388,12 +388,12 @@ class XgBoostServiceClientT : virtual public XgBoostServiceIf {
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> getOutputProtocol() {
     return this->poprot_;
   }
-  void predictStr(std::vector<double> & _return, const std::string& input, const bool leaf);
-  void send_predictStr(const std::string& input, const bool leaf);
-  void recv_predictStr(std::vector<double> & _return);
-  void predictVec(std::vector<double> & _return, const std::vector<int64_t> & indices, const std::vector<double> & values);
-  void send_predictVec(const std::vector<int64_t> & indices, const std::vector<double> & values);
-  void recv_predictVec(std::vector<double> & _return);
+  void predict(std::vector<double> & _return, const std::string& input, const bool leaf);
+  void send_predict(const std::string& input, const bool leaf);
+  void recv_predict(std::vector<double> & _return);
+  void predict_GBDT(std::vector<double> & _return, const std::string& input, const bool simple);
+  void send_predict_GBDT(const std::string& input, const bool simple);
+  void recv_predict_GBDT(std::vector<double> & _return);
   void handleRequest(std::string& _return, const std::string& request);
   void send_handleRequest(const std::string& request);
   void recv_handleRequest(std::string& _return);
@@ -425,21 +425,21 @@ class XgBoostServiceProcessorT : public ::apache::thrift::TDispatchProcessorT<Pr
   };
   typedef std::map<std::string, ProcessFunctions> ProcessMap;
   ProcessMap processMap_;
-  void process_predictStr(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_predictStr(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
-  void process_predictVec(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_predictVec(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
+  void process_predict(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_predict(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
+  void process_predict_GBDT(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_predict_GBDT(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
   void process_handleRequest(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_handleRequest(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
  public:
   XgBoostServiceProcessorT(boost::shared_ptr<XgBoostServiceIf> iface) :
     iface_(iface) {
-    processMap_["predictStr"] = ProcessFunctions(
-      &XgBoostServiceProcessorT::process_predictStr,
-      &XgBoostServiceProcessorT::process_predictStr);
-    processMap_["predictVec"] = ProcessFunctions(
-      &XgBoostServiceProcessorT::process_predictVec,
-      &XgBoostServiceProcessorT::process_predictVec);
+    processMap_["predict"] = ProcessFunctions(
+      &XgBoostServiceProcessorT::process_predict,
+      &XgBoostServiceProcessorT::process_predict);
+    processMap_["predict_GBDT"] = ProcessFunctions(
+      &XgBoostServiceProcessorT::process_predict_GBDT,
+      &XgBoostServiceProcessorT::process_predict_GBDT);
     processMap_["handleRequest"] = ProcessFunctions(
       &XgBoostServiceProcessorT::process_handleRequest,
       &XgBoostServiceProcessorT::process_handleRequest);
@@ -476,23 +476,23 @@ class XgBoostServiceMultiface : virtual public XgBoostServiceIf {
     ifaces_.push_back(iface);
   }
  public:
-  void predictStr(std::vector<double> & _return, const std::string& input, const bool leaf) {
+  void predict(std::vector<double> & _return, const std::string& input, const bool leaf) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->predictStr(_return, input, leaf);
+      ifaces_[i]->predict(_return, input, leaf);
     }
-    ifaces_[i]->predictStr(_return, input, leaf);
+    ifaces_[i]->predict(_return, input, leaf);
     return;
   }
 
-  void predictVec(std::vector<double> & _return, const std::vector<int64_t> & indices, const std::vector<double> & values) {
+  void predict_GBDT(std::vector<double> & _return, const std::string& input, const bool simple) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->predictVec(_return, indices, values);
+      ifaces_[i]->predict_GBDT(_return, input, simple);
     }
-    ifaces_[i]->predictVec(_return, indices, values);
+    ifaces_[i]->predict_GBDT(_return, input, simple);
     return;
   }
 
@@ -537,12 +537,12 @@ class XgBoostServiceConcurrentClientT : virtual public XgBoostServiceIf {
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> getOutputProtocol() {
     return this->poprot_;
   }
-  void predictStr(std::vector<double> & _return, const std::string& input, const bool leaf);
-  int32_t send_predictStr(const std::string& input, const bool leaf);
-  void recv_predictStr(std::vector<double> & _return, const int32_t seqid);
-  void predictVec(std::vector<double> & _return, const std::vector<int64_t> & indices, const std::vector<double> & values);
-  int32_t send_predictVec(const std::vector<int64_t> & indices, const std::vector<double> & values);
-  void recv_predictVec(std::vector<double> & _return, const int32_t seqid);
+  void predict(std::vector<double> & _return, const std::string& input, const bool leaf);
+  int32_t send_predict(const std::string& input, const bool leaf);
+  void recv_predict(std::vector<double> & _return, const int32_t seqid);
+  void predict_GBDT(std::vector<double> & _return, const std::string& input, const bool simple);
+  int32_t send_predict_GBDT(const std::string& input, const bool simple);
+  void recv_predict_GBDT(std::vector<double> & _return, const int32_t seqid);
   void handleRequest(std::string& _return, const std::string& request);
   int32_t send_handleRequest(const std::string& request);
   void recv_handleRequest(std::string& _return, const int32_t seqid);

@@ -10,35 +10,35 @@
 namespace XgBoostSvr {
 
 
-XgBoostService_predictStr_args::~XgBoostService_predictStr_args() throw() {
+XgBoostService_predict_args::~XgBoostService_predict_args() throw() {
 }
 
 
-XgBoostService_predictStr_pargs::~XgBoostService_predictStr_pargs() throw() {
+XgBoostService_predict_pargs::~XgBoostService_predict_pargs() throw() {
 }
 
 
-XgBoostService_predictStr_result::~XgBoostService_predictStr_result() throw() {
+XgBoostService_predict_result::~XgBoostService_predict_result() throw() {
 }
 
 
-XgBoostService_predictStr_presult::~XgBoostService_predictStr_presult() throw() {
+XgBoostService_predict_presult::~XgBoostService_predict_presult() throw() {
 }
 
 
-XgBoostService_predictVec_args::~XgBoostService_predictVec_args() throw() {
+XgBoostService_predict_GBDT_args::~XgBoostService_predict_GBDT_args() throw() {
 }
 
 
-XgBoostService_predictVec_pargs::~XgBoostService_predictVec_pargs() throw() {
+XgBoostService_predict_GBDT_pargs::~XgBoostService_predict_GBDT_pargs() throw() {
 }
 
 
-XgBoostService_predictVec_result::~XgBoostService_predictVec_result() throw() {
+XgBoostService_predict_GBDT_result::~XgBoostService_predict_GBDT_result() throw() {
 }
 
 
-XgBoostService_predictVec_presult::~XgBoostService_predictVec_presult() throw() {
+XgBoostService_predict_GBDT_presult::~XgBoostService_predict_GBDT_presult() throw() {
 }
 
 

@@ -12,7 +12,7 @@ namespace XgBoostSvr {
 using namespace std;
 using namespace xgboost;
 
-void XgBoostServiceHandler::predictStr(std::vector<double> & _return, 
+void XgBoostServiceHandler::predict(std::vector<double> & _return, 
                     const std::string& input, const bool leaf)
 {
     if (input.empty())
@@ -34,7 +34,6 @@ void XgBoostServiceHandler::predictStr(std::vector<double> & _return,
     pLearner->predict( pMat.get(), fResult, leaf );
     _return.assign( fResult.begin(), fResult.end() );
 
-
     if (leaf) {
         assert(_return.size() == g_arrMaxLeafId.size());
         if (!g_arrTreeMark[0])
@@ -48,18 +47,44 @@ void XgBoostServiceHandler::predictStr(std::vector<double> & _return,
     } // if
 }
 
-void XgBoostServiceHandler::predictVec(std::vector<double> & _return, 
-                    const std::vector<int64_t> & indices, 
-                    const std::vector<double> & values)
+void XgBoostServiceHandler::predict_GBDT(std::vector<double> & _return, 
+                    const std::string& input, const bool simple)
 {
-    THROW_INVALID_REQUEST("Not implemented!");
+    predict(_return, input, true);
+    
+    stringstream stream;
+
+    if (!simple)
+        stream << input;
+
+    for (auto &dv : _return) {
+        uint32_t v = (uint32_t)dv;
+        if (v)
+            stream << " " << v << ":1";
+    } // for
+
+    std::unique_ptr<DMatrix> pMat( XgBoostLearner::DMatrixFromStr(stream.str()) );
+    if (!pMat)
+        THROW_INVALID_REQUEST("Cannot build matrix from string with leaf feature!");
+
+    XgBoostLearner::pointer pLearner;
+    if (!g_LearnerPool.timed_pop(pLearner, TIMEOUT))
+        THROW_INVALID_REQUEST("No available xgboost object!");
+
+    ON_FINISH(pCleanup, {
+        g_LearnerPool.push( pLearner );
+    });
+
+    vector<float> fResult;
+    pLearner->predict2( pMat.get(), fResult );
+    _return.assign( fResult.begin(), fResult.end() );
 }
 
 void XgBoostServiceHandler::handleRequest(std::string& _return, const std::string& request)
 {
     Json::Reader    reader;
     Json::Value     root;
-    Json::Value     resp;
+    Json::Value     resp, resJson;
 
     if (!reader.parse(request, root))
         THROW_INVALID_REQUEST("Json parse fail!");
@@ -70,16 +95,24 @@ void XgBoostServiceHandler::handleRequest(std::string& _return, const std::strin
         vector<double> result;
 
         if ("predict" == reqtype) {
-            predictStr(result, data, false);
-            Json::Value resJson;
+            predict(result, data, false);
             for (auto &v : result)
                 resJson.append(v);
             resp["result"].swap(resJson);
         } else if ("leaf" == reqtype) {
-            predictStr(result, data, true);
-            Json::Value resJson;
+            predict(result, data, true);
             for (auto &v : result)
                 resJson.append((uint32_t)v);
+            resp["result"].swap(resJson);
+        } else if ("predict_gbdt" == reqtype) {
+            predict_GBDT(result, data, false);
+            for (auto &v : result)
+                resJson.append(v);
+            resp["result"].swap(resJson);
+        } else if ("predict_gbdt_simple" == reqtype) {
+            predict_GBDT(result, data, true);
+            for (auto &v : result)
+                resJson.append(v);
             resp["result"].swap(resJson);
         } else {
             THROW_INVALID_REQUEST("Invalid reqtype " << reqtype);

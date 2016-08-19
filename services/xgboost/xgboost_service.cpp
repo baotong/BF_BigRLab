@@ -67,7 +67,7 @@ XgBoostService::XgBoostClientArr::XgBoostClientArr(const BigRLab::AlgSvrInfo &sv
 struct XgBoostTask : BigRLab::WorkItemBase {
     XgBoostTask( std::size_t _Id,
                  std::string &_Data, 
-                 const bool _Leaf,
+                 const int _ReqType,
                  XgBoostService::IdleClientQueue *_IdleClients, 
                  std::atomic_size_t *_Counter,
                  boost::condition_variable *_Cond,
@@ -75,7 +75,7 @@ struct XgBoostTask : BigRLab::WorkItemBase {
                  std::ofstream *_Ofs, 
                  const char *_SrvName )
         : id(_Id)
-        , leaf(_Leaf)
+        , reqtype(_ReqType)
         , idleClients(_IdleClients)
         , counter(_Counter)
         , cond(_Cond)
@@ -99,7 +99,20 @@ struct XgBoostTask : BigRLab::WorkItemBase {
 
             try {
                 vector<double> result;
-                pClient->client()->predictStr( result, strData, leaf );
+                switch (reqtype) {
+                    case XgBoostService::PREDICT:
+                        pClient->client()->predict( result, strData, false );
+                        break;
+                    case XgBoostService::LEAF:
+                        pClient->client()->predict( result, strData, true );
+                        break;
+                    case XgBoostService::PREDICT_GBDT:
+                        pClient->client()->predict_GBDT( result, strData, false );
+                        break;
+                    case XgBoostService::PREDICT_GBDT_SIMPLE:
+                        pClient->client()->predict_GBDT( result, strData, true );
+                        break;
+                } // switch
                 done = true;
                 idleClients->putBack( pClient );
 
@@ -107,7 +120,7 @@ struct XgBoostTask : BigRLab::WorkItemBase {
                 if (!result.empty()) {
                     boost::unique_lock<boost::mutex> flk( *mtx );
                     *ofs << id << "\t";
-                    if (!leaf) {
+                    if (reqtype != XgBoostService::LEAF) {
                         for (auto& v : result)
                             *ofs << v << " ";
                     } else {
@@ -134,7 +147,7 @@ struct XgBoostTask : BigRLab::WorkItemBase {
 
     std::size_t                     id;
     std::string                     strData;
-    const bool                      leaf;
+    const int                       reqtype;
     XgBoostService::IdleClientQueue *idleClients;
     std::atomic_size_t              *counter;
     boost::condition_variable       *cond;
@@ -171,12 +184,18 @@ void XgBoostService::handleCommand( std::stringstream &stream )
     if (!ofs)
         THROW_RUNTIME_ERROR("Cannot open " << outfile << " for writting.");
 
-    bool leaf = false;
+    int iReqType = -1;
 
-    if ("leaf" == reqtype)
-        leaf = true;
-    else if ("predict" != reqtype)
-        THROW_RUNTIME_ERROR("reqtype must be \"predict\" or \"leaf\"");
+    if ("predict" == reqtype)
+        iReqType = PREDICT;
+    else if ("leaf" == reqtype)
+        iReqType = LEAF;
+    else if ("predict_gbdt" == reqtype)
+        iReqType = PREDICT_GBDT;
+    else if ("predict_gbdt_simple" == reqtype)
+        iReqType = PREDICT_GBDT_SIMPLE;
+    else
+        THROW_RUNTIME_ERROR("Invalid request type!");
 
     string                       line;
     size_t                       lineno = 0;
@@ -190,7 +209,7 @@ void XgBoostService::handleCommand( std::stringstream &stream )
         while ( getline(ifs, line) ) {
             boost::trim_right( line );
             WorkItemBasePtr pWork = boost::make_shared<XgBoostTask>
-                (lineno, line, leaf, &m_queIdleClients, &counter, &cond, &mtx, &ofs, name().c_str());
+                (lineno, line, iReqType, &m_queIdleClients, &counter, &cond, &mtx, &ofs, name().c_str());
             getWorkMgr()->addWork( pWork );
             ++lineno;
         } // while
