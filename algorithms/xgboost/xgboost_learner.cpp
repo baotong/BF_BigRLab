@@ -46,6 +46,7 @@ XgBoostLearner::XgBoostLearner( CLIParam *param, CLIParam *param2 )
     m_pLearner.reset(Learner::Create({}));
     // 加载model和配置参数
     {
+        // DLOG(INFO) << "param->model_in: " << param->model_in;
         std::unique_ptr<dmlc::Stream> fi(
                 dmlc::Stream::Create( param->model_in.c_str(), "r" ) );
         m_pLearner->Configure( param->cfg );

@@ -17,6 +17,8 @@
  * ./xgboost_svr.bin -standalone -model 0002.model < in10.test
  * service mode:
  * ./xgboost_svr.bin -model 0002.model -algname booster -algmgr localhost:9001 -port 10080
+ * GBDT
+ * ./xgboost_svr.bin -model train1.model -model2 train2.model -algname booster -algmgr localhost:9001 -port 10080
  */
 #include <iostream>
 #include <cstdio>
@@ -236,11 +238,12 @@ std::shared_ptr<void> initialize( int argc, char **argv )
 
     std::vector<std::pair<std::string, std::string> > cfg;
     cfg.push_back(std::make_pair("seed", "0"));
-    cfg.push_back(std::make_pair("model", FLAGS_model));
+    cfg.push_back(std::make_pair("model_in", FLAGS_model));
     cfg.push_back(std::make_pair("name_pred", "stdout"));
 
     g_pCLIParam.reset(new CLIParam);
     g_pCLIParam->Configure(cfg);
+    // DLOG(INFO) << g_pCLIParam->model_in;
 
     if (!FLAGS_model2.empty()) {
         ifstream ifs(FLAGS_model2, ios::in);
@@ -249,11 +252,13 @@ std::shared_ptr<void> initialize( int argc, char **argv )
         ifs.close();
         cfg.clear();
         cfg.push_back(std::make_pair("seed", "0"));
-        cfg.push_back(std::make_pair("model", FLAGS_model2));
+        cfg.push_back(std::make_pair("model_in", FLAGS_model2));
         cfg.push_back(std::make_pair("name_pred", "stdout"));
         g_pCLIParam2.reset(new CLIParam);
         g_pCLIParam2->Configure(cfg);
     } // if
+
+    // DLOG(INFO) << g_pCLIParam2->model_in;
 
     return ret;
 }
