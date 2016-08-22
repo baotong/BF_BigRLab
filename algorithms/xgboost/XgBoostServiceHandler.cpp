@@ -59,8 +59,12 @@ void XgBoostServiceHandler::predict_GBDT(std::vector<double> & _return,
 
     for (auto &dv : _return) {
         uint32_t v = (uint32_t)dv;
-        if (v)
-            stream << " " << v << ":1";
+        if (v) {
+            if (simple)
+                stream << " " << v << ":1";
+            else
+                stream << " " << (v + (uint32_t)FLAGS_offset) << ":1";
+        } // if v
     } // for
 
     std::unique_ptr<DMatrix> pMat( XgBoostLearner::DMatrixFromStr(stream.str()) );

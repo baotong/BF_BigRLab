@@ -2,6 +2,8 @@
 #define _XGBOOST_SERVICE_HANDLER_H_
 
 #include "XgBoostService.h"
+#include <gflags/gflags.h>
+
 
 namespace XgBoostSvr {
 
@@ -13,6 +15,8 @@ public:
 };
 
 } // namespace XgBoostSvr
+
+DECLARE_int64(offset);
 
 #endif
 

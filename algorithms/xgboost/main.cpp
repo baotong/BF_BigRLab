@@ -18,7 +18,7 @@
  * service mode:
  * ./xgboost_svr.bin -model 0002.model -algname booster -algmgr localhost:9001 -port 10080
  * GBDT
- * ./xgboost_svr.bin -model train1.model -model2 train2.model -algname booster -algmgr localhost:9001 -port 10080
+ * ./xgboost_svr.bin -model train1.model -model2 train2.model -offset 101 -algname booster -algmgr localhost:9001 -port 10080
  */
 #include <iostream>
 #include <cstdio>
@@ -33,7 +33,6 @@
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <glog/logging.h>
-#include <gflags/gflags.h>
 #include "rpc_module.h"
 #include "common.hpp"
 #include "alg_common.hpp"
@@ -48,6 +47,7 @@
 DEFINE_string(model, "", "Same as model_in of xgboost");
 DEFINE_string(model2, "", "Secondary model for GBDT and RNN");
 DEFINE_bool(standalone, false, "Whether this program run in standalone mode");
+DEFINE_int64(offset, 1, "attribute index offset of data, should be max(trainIdx)+1");
 DEFINE_string(algname, "", "Name of this algorithm");
 DEFINE_string(algmgr, "", "Address algorithm server manager, in form of addr:port");
 DEFINE_string(addr, "", "Address of this algorithm server, use system detected if not specified.");
@@ -95,6 +95,15 @@ bool check_not_empty(const char* flagname, const std::string &value)
 static bool validate_model(const char* flagname, const std::string &value)
 { return check_not_empty(flagname, value); }
 static const bool model_dummy = gflags::RegisterFlagValidator(&FLAGS_model, &validate_model);
+
+static 
+bool validate_offset(const char* flagname, gflags::int64 value) 
+{
+    if (FLAGS_standalone)
+        return true;
+    return check_above_zero(flagname, value);
+}
+static const bool offset_dummy = gflags::RegisterFlagValidator(&FLAGS_offset, &validate_offset);
 
 static bool validate_algname(const char* flagname, const std::string &value) 
 { 

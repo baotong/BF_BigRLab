@@ -7,6 +7,7 @@
  *
  * GBDT
  * service booster predict_gbdt_simple train1.data out.data
+ * service booster predict_gbdt train1.data out.data
  */
 #ifndef _XGBOOST_SERVICE_H_
 #define _XGBOOST_SERVICE_H_
