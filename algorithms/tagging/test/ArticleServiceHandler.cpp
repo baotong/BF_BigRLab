@@ -87,6 +87,8 @@ void ArticleServiceHandler::do_tagging_concur(std::vector<TagResult> & _return, 
 {
     using namespace std;
 
+    // DLOG(INFO) << "do_tagging_concur";
+
     typedef std::map<std::string, double>   CandidateType;
     CandidateType candidates; // 存储结果 tag:weight
 
@@ -134,6 +136,8 @@ void ArticleServiceHandler::do_tagging_knn(std::vector<TagResult> & _return, con
         const int32_t k1, const int32_t k2, const int32_t searchK)
 {
     using namespace std;
+
+    // DLOG(INFO) << "do_tagging_knn";
 
     typedef std::map<std::string, double>   CandidateType;
     CandidateType candidates; // 存储结果 tag:weight

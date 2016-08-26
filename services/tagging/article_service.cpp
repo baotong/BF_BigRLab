@@ -110,7 +110,7 @@ struct ArticleTask : BigRLab::WorkItemBase {
                     *ofs << id << "\t";
                     for (auto& v : result)
                         *ofs << v.tag << ":" << v.weight << " ";
-                    *ofs << endl << flush;
+                    *ofs << endl;
                 } // if
 
             } catch (const Article::InvalidRequest &err) {
@@ -158,6 +158,7 @@ void ArticleService::handleCommand( std::stringstream &stream )
             THROW_RUNTIME_ERROR("Usage: service " << name() << " arg1:value1 ...");
         string key = arg.substr(0, colon);
         string value = arg.substr(colon + 1);
+        // DLOG(INFO) << key << ": " << value;
         if ("method" == key) {
             if ("concur" == value)
                 method = CONCUR;
