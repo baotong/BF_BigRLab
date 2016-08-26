@@ -29,6 +29,19 @@ public:
     typedef std::vector<ConcurItem>                            ConcurItemList;
     typedef std::map<StringPtr, ConcurItemList, StrPtrCmp>     TableType;
 
+    TableType& data()
+    { return m_mapTable; }
+
+    ConcurItemList& lookup( const std::string &key )
+    {
+        std::string &_key = const_cast<std::string&>(key);
+        StringPtr pKey(&_key, [](std::string*){ /* DLOG(INFO) << "fake delete"; */ });
+        auto it = m_mapTable.find( pKey );
+        if (it == m_mapTable.end())
+            return m_vecEmptyList;
+        return it->second;
+    }
+
 public:
     void loadFromFile( const std::string &filename );
 
@@ -37,6 +50,7 @@ public:
 
 private:
     TableType                       m_mapTable;
+    ConcurItemList                  m_vecEmptyList;
 };
 
 inline

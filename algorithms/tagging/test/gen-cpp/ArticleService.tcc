@@ -258,14 +258,14 @@ uint32_t ArticleService_wordSegment_result::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size12;
-            ::apache::thrift::protocol::TType _etype15;
-            xfer += iprot->readListBegin(_etype15, _size12);
-            this->success.resize(_size12);
-            uint32_t _i16;
-            for (_i16 = 0; _i16 < _size12; ++_i16)
+            uint32_t _size16;
+            ::apache::thrift::protocol::TType _etype19;
+            xfer += iprot->readListBegin(_etype19, _size16);
+            this->success.resize(_size16);
+            uint32_t _i20;
+            for (_i20 = 0; _i20 < _size16; ++_i20)
             {
-              xfer += iprot->readString(this->success[_i16]);
+              xfer += iprot->readString(this->success[_i20]);
             }
             xfer += iprot->readListEnd();
           }
@@ -305,10 +305,10 @@ uint32_t ArticleService_wordSegment_result::write(Protocol_* oprot) const {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, static_cast<uint32_t>(this->success.size()));
-      std::vector<std::string> ::const_iterator _iter17;
-      for (_iter17 = this->success.begin(); _iter17 != this->success.end(); ++_iter17)
+      std::vector<std::string> ::const_iterator _iter21;
+      for (_iter21 = this->success.begin(); _iter21 != this->success.end(); ++_iter21)
       {
-        xfer += oprot->writeString((*_iter17));
+        xfer += oprot->writeString((*_iter21));
       }
       xfer += oprot->writeListEnd();
     }
@@ -350,14 +350,14 @@ uint32_t ArticleService_wordSegment_presult::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size18;
-            ::apache::thrift::protocol::TType _etype21;
-            xfer += iprot->readListBegin(_etype21, _size18);
-            (*(this->success)).resize(_size18);
-            uint32_t _i22;
-            for (_i22 = 0; _i22 < _size18; ++_i22)
+            uint32_t _size22;
+            ::apache::thrift::protocol::TType _etype25;
+            xfer += iprot->readListBegin(_etype25, _size22);
+            (*(this->success)).resize(_size22);
+            uint32_t _i26;
+            for (_i26 = 0; _i26 < _size22; ++_i26)
             {
-              xfer += iprot->readString((*(this->success))[_i22]);
+              xfer += iprot->readString((*(this->success))[_i26]);
             }
             xfer += iprot->readListEnd();
           }
@@ -503,14 +503,14 @@ uint32_t ArticleService_keyword_result::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size23;
-            ::apache::thrift::protocol::TType _etype26;
-            xfer += iprot->readListBegin(_etype26, _size23);
-            this->success.resize(_size23);
-            uint32_t _i27;
-            for (_i27 = 0; _i27 < _size23; ++_i27)
+            uint32_t _size27;
+            ::apache::thrift::protocol::TType _etype30;
+            xfer += iprot->readListBegin(_etype30, _size27);
+            this->success.resize(_size27);
+            uint32_t _i31;
+            for (_i31 = 0; _i31 < _size27; ++_i31)
             {
-              xfer += this->success[_i27].read(iprot);
+              xfer += this->success[_i31].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -550,10 +550,10 @@ uint32_t ArticleService_keyword_result::write(Protocol_* oprot) const {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->success.size()));
-      std::vector<KeywordResult> ::const_iterator _iter28;
-      for (_iter28 = this->success.begin(); _iter28 != this->success.end(); ++_iter28)
+      std::vector<KeywordResult> ::const_iterator _iter32;
+      for (_iter32 = this->success.begin(); _iter32 != this->success.end(); ++_iter32)
       {
-        xfer += (*_iter28).write(oprot);
+        xfer += (*_iter32).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -595,14 +595,14 @@ uint32_t ArticleService_keyword_presult::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size29;
-            ::apache::thrift::protocol::TType _etype32;
-            xfer += iprot->readListBegin(_etype32, _size29);
-            (*(this->success)).resize(_size29);
-            uint32_t _i33;
-            for (_i33 = 0; _i33 < _size29; ++_i33)
+            uint32_t _size33;
+            ::apache::thrift::protocol::TType _etype36;
+            xfer += iprot->readListBegin(_etype36, _size33);
+            (*(this->success)).resize(_size33);
+            uint32_t _i37;
+            for (_i37 = 0; _i37 < _size33; ++_i37)
             {
-              xfer += (*(this->success))[_i33].read(iprot);
+              xfer += (*(this->success))[_i37].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -732,14 +732,14 @@ uint32_t ArticleService_toVector_result::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size34;
-            ::apache::thrift::protocol::TType _etype37;
-            xfer += iprot->readListBegin(_etype37, _size34);
-            this->success.resize(_size34);
-            uint32_t _i38;
-            for (_i38 = 0; _i38 < _size34; ++_i38)
+            uint32_t _size38;
+            ::apache::thrift::protocol::TType _etype41;
+            xfer += iprot->readListBegin(_etype41, _size38);
+            this->success.resize(_size38);
+            uint32_t _i42;
+            for (_i42 = 0; _i42 < _size38; ++_i42)
             {
-              xfer += iprot->readDouble(this->success[_i38]);
+              xfer += iprot->readDouble(this->success[_i42]);
             }
             xfer += iprot->readListEnd();
           }
@@ -779,10 +779,10 @@ uint32_t ArticleService_toVector_result::write(Protocol_* oprot) const {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_DOUBLE, static_cast<uint32_t>(this->success.size()));
-      std::vector<double> ::const_iterator _iter39;
-      for (_iter39 = this->success.begin(); _iter39 != this->success.end(); ++_iter39)
+      std::vector<double> ::const_iterator _iter43;
+      for (_iter43 = this->success.begin(); _iter43 != this->success.end(); ++_iter43)
       {
-        xfer += oprot->writeDouble((*_iter39));
+        xfer += oprot->writeDouble((*_iter43));
       }
       xfer += oprot->writeListEnd();
     }
@@ -824,14 +824,14 @@ uint32_t ArticleService_toVector_presult::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size40;
-            ::apache::thrift::protocol::TType _etype43;
-            xfer += iprot->readListBegin(_etype43, _size40);
-            (*(this->success)).resize(_size40);
-            uint32_t _i44;
-            for (_i44 = 0; _i44 < _size40; ++_i44)
+            uint32_t _size44;
+            ::apache::thrift::protocol::TType _etype47;
+            xfer += iprot->readListBegin(_etype47, _size44);
+            (*(this->success)).resize(_size44);
+            uint32_t _i48;
+            for (_i48 = 0; _i48 < _size44; ++_i48)
             {
-              xfer += iprot->readDouble((*(this->success))[_i44]);
+              xfer += iprot->readDouble((*(this->success))[_i48]);
             }
             xfer += iprot->readListEnd();
           }
@@ -1009,14 +1009,14 @@ uint32_t ArticleService_knn_result::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size45;
-            ::apache::thrift::protocol::TType _etype48;
-            xfer += iprot->readListBegin(_etype48, _size45);
-            this->success.resize(_size45);
-            uint32_t _i49;
-            for (_i49 = 0; _i49 < _size45; ++_i49)
+            uint32_t _size49;
+            ::apache::thrift::protocol::TType _etype52;
+            xfer += iprot->readListBegin(_etype52, _size49);
+            this->success.resize(_size49);
+            uint32_t _i53;
+            for (_i53 = 0; _i53 < _size49; ++_i53)
             {
-              xfer += this->success[_i49].read(iprot);
+              xfer += this->success[_i53].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -1056,10 +1056,10 @@ uint32_t ArticleService_knn_result::write(Protocol_* oprot) const {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->success.size()));
-      std::vector<KnnResult> ::const_iterator _iter50;
-      for (_iter50 = this->success.begin(); _iter50 != this->success.end(); ++_iter50)
+      std::vector<KnnResult> ::const_iterator _iter54;
+      for (_iter54 = this->success.begin(); _iter54 != this->success.end(); ++_iter54)
       {
-        xfer += (*_iter50).write(oprot);
+        xfer += (*_iter54).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -1101,14 +1101,307 @@ uint32_t ArticleService_knn_presult::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size51;
-            ::apache::thrift::protocol::TType _etype54;
-            xfer += iprot->readListBegin(_etype54, _size51);
-            (*(this->success)).resize(_size51);
-            uint32_t _i55;
-            for (_i55 = 0; _i55 < _size51; ++_i55)
+            uint32_t _size55;
+            ::apache::thrift::protocol::TType _etype58;
+            xfer += iprot->readListBegin(_etype58, _size55);
+            (*(this->success)).resize(_size55);
+            uint32_t _i59;
+            for (_i59 = 0; _i59 < _size55; ++_i59)
             {
-              xfer += (*(this->success))[_i55].read(iprot);
+              xfer += (*(this->success))[_i59].read(iprot);
+            }
+            xfer += iprot->readListEnd();
+          }
+          this->__isset.success = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->err.read(iprot);
+          this->__isset.err = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+
+template <class Protocol_>
+uint32_t ArticleService_tagging_args::read(Protocol_* iprot) {
+
+  apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->text);
+          this->__isset.text = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 2:
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->method);
+          this->__isset.method = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 3:
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->k1);
+          this->__isset.k1 = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 4:
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->k2);
+          this->__isset.k2 = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 5:
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->searchK);
+          this->__isset.searchK = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+template <class Protocol_>
+uint32_t ArticleService_tagging_args::write(Protocol_* oprot) const {
+  uint32_t xfer = 0;
+  apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
+  xfer += oprot->writeStructBegin("ArticleService_tagging_args");
+
+  xfer += oprot->writeFieldBegin("text", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString(this->text);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("method", ::apache::thrift::protocol::T_I32, 2);
+  xfer += oprot->writeI32(this->method);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("k1", ::apache::thrift::protocol::T_I32, 3);
+  xfer += oprot->writeI32(this->k1);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("k2", ::apache::thrift::protocol::T_I32, 4);
+  xfer += oprot->writeI32(this->k2);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("searchK", ::apache::thrift::protocol::T_I32, 5);
+  xfer += oprot->writeI32(this->searchK);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+
+template <class Protocol_>
+uint32_t ArticleService_tagging_pargs::write(Protocol_* oprot) const {
+  uint32_t xfer = 0;
+  apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
+  xfer += oprot->writeStructBegin("ArticleService_tagging_pargs");
+
+  xfer += oprot->writeFieldBegin("text", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString((*(this->text)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("method", ::apache::thrift::protocol::T_I32, 2);
+  xfer += oprot->writeI32((*(this->method)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("k1", ::apache::thrift::protocol::T_I32, 3);
+  xfer += oprot->writeI32((*(this->k1)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("k2", ::apache::thrift::protocol::T_I32, 4);
+  xfer += oprot->writeI32((*(this->k2)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("searchK", ::apache::thrift::protocol::T_I32, 5);
+  xfer += oprot->writeI32((*(this->searchK)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+
+template <class Protocol_>
+uint32_t ArticleService_tagging_result::read(Protocol_* iprot) {
+
+  apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            this->success.clear();
+            uint32_t _size60;
+            ::apache::thrift::protocol::TType _etype63;
+            xfer += iprot->readListBegin(_etype63, _size60);
+            this->success.resize(_size60);
+            uint32_t _i64;
+            for (_i64 = 0; _i64 < _size60; ++_i64)
+            {
+              xfer += this->success[_i64].read(iprot);
+            }
+            xfer += iprot->readListEnd();
+          }
+          this->__isset.success = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->err.read(iprot);
+          this->__isset.err = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+template <class Protocol_>
+uint32_t ArticleService_tagging_result::write(Protocol_* oprot) const {
+
+  uint32_t xfer = 0;
+
+  xfer += oprot->writeStructBegin("ArticleService_tagging_result");
+
+  if (this->__isset.success) {
+    xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
+    {
+      xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->success.size()));
+      std::vector<TagResult> ::const_iterator _iter65;
+      for (_iter65 = this->success.begin(); _iter65 != this->success.end(); ++_iter65)
+      {
+        xfer += (*_iter65).write(oprot);
+      }
+      xfer += oprot->writeListEnd();
+    }
+    xfer += oprot->writeFieldEnd();
+  } else if (this->__isset.err) {
+    xfer += oprot->writeFieldBegin("err", ::apache::thrift::protocol::T_STRUCT, 1);
+    xfer += this->err.write(oprot);
+    xfer += oprot->writeFieldEnd();
+  }
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+
+template <class Protocol_>
+uint32_t ArticleService_tagging_presult::read(Protocol_* iprot) {
+
+  apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+        if (ftype == ::apache::thrift::protocol::T_LIST) {
+          {
+            (*(this->success)).clear();
+            uint32_t _size66;
+            ::apache::thrift::protocol::TType _etype69;
+            xfer += iprot->readListBegin(_etype69, _size66);
+            (*(this->success)).resize(_size66);
+            uint32_t _i70;
+            for (_i70 = 0; _i70 < _size66; ++_i70)
+            {
+              xfer += (*(this->success))[_i70].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -1648,6 +1941,74 @@ void ArticleServiceClientT<Protocol_>::recv_knn(std::vector<KnnResult> & _return
     throw result.err;
   }
   throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "knn failed: unknown result");
+}
+
+template <class Protocol_>
+void ArticleServiceClientT<Protocol_>::tagging(std::vector<TagResult> & _return, const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK)
+{
+  send_tagging(text, method, k1, k2, searchK);
+  recv_tagging(_return);
+}
+
+template <class Protocol_>
+void ArticleServiceClientT<Protocol_>::send_tagging(const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK)
+{
+  int32_t cseqid = 0;
+  this->oprot_->writeMessageBegin("tagging", ::apache::thrift::protocol::T_CALL, cseqid);
+
+  ArticleService_tagging_pargs args;
+  args.text = &text;
+  args.method = &method;
+  args.k1 = &k1;
+  args.k2 = &k2;
+  args.searchK = &searchK;
+  args.write(this->oprot_);
+
+  this->oprot_->writeMessageEnd();
+  this->oprot_->getTransport()->writeEnd();
+  this->oprot_->getTransport()->flush();
+}
+
+template <class Protocol_>
+void ArticleServiceClientT<Protocol_>::recv_tagging(std::vector<TagResult> & _return)
+{
+
+  int32_t rseqid = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TMessageType mtype;
+
+  this->iprot_->readMessageBegin(fname, mtype, rseqid);
+  if (mtype == ::apache::thrift::protocol::T_EXCEPTION) {
+    ::apache::thrift::TApplicationException x;
+    x.read(this->iprot_);
+    this->iprot_->readMessageEnd();
+    this->iprot_->getTransport()->readEnd();
+    throw x;
+  }
+  if (mtype != ::apache::thrift::protocol::T_REPLY) {
+    this->iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    this->iprot_->readMessageEnd();
+    this->iprot_->getTransport()->readEnd();
+  }
+  if (fname.compare("tagging") != 0) {
+    this->iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+    this->iprot_->readMessageEnd();
+    this->iprot_->getTransport()->readEnd();
+  }
+  ArticleService_tagging_presult result;
+  result.success = &_return;
+  result.read(this->iprot_);
+  this->iprot_->readMessageEnd();
+  this->iprot_->getTransport()->readEnd();
+
+  if (result.__isset.success) {
+    // _return pointer has now been filled
+    return;
+  }
+  if (result.__isset.err) {
+    throw result.err;
+  }
+  throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "tagging failed: unknown result");
 }
 
 template <class Protocol_>
@@ -2327,6 +2688,122 @@ void ArticleServiceProcessorT<Protocol_>::process_knn(int32_t seqid, Protocol_* 
 }
 
 template <class Protocol_>
+void ArticleServiceProcessorT<Protocol_>::process_tagging(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
+{
+  void* ctx = NULL;
+  if (this->eventHandler_.get() != NULL) {
+    ctx = this->eventHandler_->getContext("ArticleService.tagging", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "ArticleService.tagging");
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->preRead(ctx, "ArticleService.tagging");
+  }
+
+  ArticleService_tagging_args args;
+  args.read(iprot);
+  iprot->readMessageEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->postRead(ctx, "ArticleService.tagging", bytes);
+  }
+
+  ArticleService_tagging_result result;
+  try {
+    iface_->tagging(result.success, args.text, args.method, args.k1, args.k2, args.searchK);
+    result.__isset.success = true;
+  } catch (InvalidRequest &err) {
+    result.err = err;
+    result.__isset.err = true;
+  } catch (const std::exception& e) {
+    if (this->eventHandler_.get() != NULL) {
+      this->eventHandler_->handlerError(ctx, "ArticleService.tagging");
+    }
+
+    ::apache::thrift::TApplicationException x(e.what());
+    oprot->writeMessageBegin("tagging", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    x.write(oprot);
+    oprot->writeMessageEnd();
+    oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
+    return;
+  }
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->preWrite(ctx, "ArticleService.tagging");
+  }
+
+  oprot->writeMessageBegin("tagging", ::apache::thrift::protocol::T_REPLY, seqid);
+  result.write(oprot);
+  oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
+  oprot->getTransport()->flush();
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->postWrite(ctx, "ArticleService.tagging", bytes);
+  }
+}
+
+template <class Protocol_>
+void ArticleServiceProcessorT<Protocol_>::process_tagging(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext)
+{
+  void* ctx = NULL;
+  if (this->eventHandler_.get() != NULL) {
+    ctx = this->eventHandler_->getContext("ArticleService.tagging", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "ArticleService.tagging");
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->preRead(ctx, "ArticleService.tagging");
+  }
+
+  ArticleService_tagging_args args;
+  args.read(iprot);
+  iprot->readMessageEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->postRead(ctx, "ArticleService.tagging", bytes);
+  }
+
+  ArticleService_tagging_result result;
+  try {
+    iface_->tagging(result.success, args.text, args.method, args.k1, args.k2, args.searchK);
+    result.__isset.success = true;
+  } catch (InvalidRequest &err) {
+    result.err = err;
+    result.__isset.err = true;
+  } catch (const std::exception& e) {
+    if (this->eventHandler_.get() != NULL) {
+      this->eventHandler_->handlerError(ctx, "ArticleService.tagging");
+    }
+
+    ::apache::thrift::TApplicationException x(e.what());
+    oprot->writeMessageBegin("tagging", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    x.write(oprot);
+    oprot->writeMessageEnd();
+    oprot->getTransport()->writeEnd();
+    oprot->getTransport()->flush();
+    return;
+  }
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->preWrite(ctx, "ArticleService.tagging");
+  }
+
+  oprot->writeMessageBegin("tagging", ::apache::thrift::protocol::T_REPLY, seqid);
+  result.write(oprot);
+  oprot->writeMessageEnd();
+  bytes = oprot->getTransport()->writeEnd();
+  oprot->getTransport()->flush();
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->postWrite(ctx, "ArticleService.tagging", bytes);
+  }
+}
+
+template <class Protocol_>
 void ArticleServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
   void* ctx = NULL;
@@ -2890,6 +3367,101 @@ void ArticleServiceConcurrentClientT<Protocol_>::recv_knn(std::vector<KnnResult>
       }
       // in a bad state, don't commit
       throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "knn failed: unknown result");
+    }
+    // seqid != rseqid
+    this->sync_.updatePending(fname, mtype, rseqid);
+
+    // this will temporarily unlock the readMutex, and let other clients get work done
+    this->sync_.waitForWork(seqid);
+  } // end while(true)
+}
+
+template <class Protocol_>
+void ArticleServiceConcurrentClientT<Protocol_>::tagging(std::vector<TagResult> & _return, const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK)
+{
+  int32_t seqid = send_tagging(text, method, k1, k2, searchK);
+  recv_tagging(_return, seqid);
+}
+
+template <class Protocol_>
+int32_t ArticleServiceConcurrentClientT<Protocol_>::send_tagging(const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK)
+{
+  int32_t cseqid = this->sync_.generateSeqId();
+  ::apache::thrift::async::TConcurrentSendSentry sentry(&this->sync_);
+  this->oprot_->writeMessageBegin("tagging", ::apache::thrift::protocol::T_CALL, cseqid);
+
+  ArticleService_tagging_pargs args;
+  args.text = &text;
+  args.method = &method;
+  args.k1 = &k1;
+  args.k2 = &k2;
+  args.searchK = &searchK;
+  args.write(this->oprot_);
+
+  this->oprot_->writeMessageEnd();
+  this->oprot_->getTransport()->writeEnd();
+  this->oprot_->getTransport()->flush();
+
+  sentry.commit();
+  return cseqid;
+}
+
+template <class Protocol_>
+void ArticleServiceConcurrentClientT<Protocol_>::recv_tagging(std::vector<TagResult> & _return, const int32_t seqid)
+{
+
+  int32_t rseqid = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TMessageType mtype;
+
+  // the read mutex gets dropped and reacquired as part of waitForWork()
+  // The destructor of this sentry wakes up other clients
+  ::apache::thrift::async::TConcurrentRecvSentry sentry(&this->sync_, seqid);
+
+  while(true) {
+    if(!this->sync_.getPending(fname, mtype, rseqid)) {
+      this->iprot_->readMessageBegin(fname, mtype, rseqid);
+    }
+    if(seqid == rseqid) {
+      if (mtype == ::apache::thrift::protocol::T_EXCEPTION) {
+        ::apache::thrift::TApplicationException x;
+        x.read(this->iprot_);
+        this->iprot_->readMessageEnd();
+        this->iprot_->getTransport()->readEnd();
+        sentry.commit();
+        throw x;
+      }
+      if (mtype != ::apache::thrift::protocol::T_REPLY) {
+        this->iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+        this->iprot_->readMessageEnd();
+        this->iprot_->getTransport()->readEnd();
+      }
+      if (fname.compare("tagging") != 0) {
+        this->iprot_->skip(::apache::thrift::protocol::T_STRUCT);
+        this->iprot_->readMessageEnd();
+        this->iprot_->getTransport()->readEnd();
+
+        // in a bad state, don't commit
+        using ::apache::thrift::protocol::TProtocolException;
+        throw TProtocolException(TProtocolException::INVALID_DATA);
+      }
+      ArticleService_tagging_presult result;
+      result.success = &_return;
+      result.read(this->iprot_);
+      this->iprot_->readMessageEnd();
+      this->iprot_->getTransport()->readEnd();
+
+      if (result.__isset.success) {
+        // _return pointer has now been filled
+        sentry.commit();
+        return;
+      }
+      if (result.__isset.err) {
+        sentry.commit();
+        throw result.err;
+      }
+      // in a bad state, don't commit
+      throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "tagging failed: unknown result");
     }
     // seqid != rseqid
     this->sync_.updatePending(fname, mtype, rseqid);

@@ -1,9 +1,6 @@
 /*
- * https://github.com/yanyiwu/cppjieba
- * ./demo -algname jieba -algmgr localhost:9001 -port 10080
- * ./demo -algname jieba -algmgr localhost:9001 -port 10080 -vec wordvec -vecdict data/weibo_500w.wordvec -idx data/weibo_1w.sumWordVec.annIdx
- * ./demo -algname jieba -algmgr localhost:9001 -port 10080 -vec wordvec -vecdict data/text_class.wordvec -idx data/text_class.annIdx -label data/text_class.index
- * ./demo -algname jieba -algmgr localhost:9001 -port 10080 -vec wordvec -vecdict data/text_class.wordvec -idx data/text_class.annIdx -score data/text_class.index
+ * Usage
+ * ./demo -algname tagger -algmgr localhost:9001 -port 10080 -concur concur.data -tagset tagset.data -idx idx.ann -idxlen 200 -wt wt.data
  */
 #include "jieba.hpp"
 #include "Article2Vector.h"
@@ -255,6 +252,18 @@ void test_anndb()
         cout << result[i] << "\t" << distances[i] << endl;
 }
 
+void test_concur_table()
+{
+    auto& cList = g_pConcurTable->lookup("fuck");
+    if (cList.empty()) {
+        cout << "Cannot find required item in concur table!" << endl;
+        return;
+    } // if
+    for (auto &v : cList)
+        cout << *(boost::get<ConcurTable::StringPtr>(v.item)) << ":" << v.weight << " ";
+    cout << endl;
+}
+
 } // namespace Test
 
 
@@ -417,6 +426,7 @@ void service_init()
     cout << "Totally " << g_pAnnDB->size() << " items loaded from annoy tree." << endl;
 
     // Test::test_anndb();
+    // Test::test_concur_table();
     // exit(0);
 }
 

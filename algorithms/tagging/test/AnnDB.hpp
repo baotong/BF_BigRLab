@@ -125,10 +125,11 @@ public:
                     std::vector<std::string> &result, std::vector<float> &distances,
                     size_t search_k = (size_t)-1 )
     {
+        result.clear(); distances.clear();
+
         uint32_t id = getWordId( word );
         if (id == INVALID_ID)
-            THROW_RUNTIME_ERROR("WordAnnDB::kNN_By_Word() cannot find "
-                    << word << " in database!");
+            return;
         
         std::vector<uint32_t> resultIds;
         kNN_By_Id( id, n, resultIds, distances, search_k );

@@ -25,6 +25,8 @@ class KeywordResult;
 
 class KnnResult;
 
+class TagResult;
+
 typedef struct _InvalidRequest__isset {
   _InvalidRequest__isset() : reason(false) {}
   bool reason :1;
@@ -152,6 +154,48 @@ class KnnResult {
 void swap(KnnResult &a, KnnResult &b);
 
 inline std::ostream& operator<<(std::ostream& out, const KnnResult& obj)
+{
+  obj.printTo(out);
+  return out;
+}
+
+typedef struct _TagResult__isset {
+  _TagResult__isset() : tag(false), weight(false) {}
+  bool tag :1;
+  bool weight :1;
+} _TagResult__isset;
+
+class TagResult {
+ public:
+
+  TagResult(const TagResult&);
+  TagResult(TagResult&&);
+  TagResult& operator=(const TagResult&);
+  TagResult& operator=(TagResult&&);
+  TagResult() : tag(), weight(0) {
+  }
+
+  virtual ~TagResult() throw();
+  std::string tag;
+  double weight;
+
+  _TagResult__isset __isset;
+
+  void __set_tag(const std::string& val);
+
+  void __set_weight(const double val);
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+  virtual void printTo(std::ostream& out) const;
+};
+
+void swap(TagResult &a, TagResult &b);
+
+inline std::ostream& operator<<(std::ostream& out, const TagResult& obj)
 {
   obj.printTo(out);
   return out;

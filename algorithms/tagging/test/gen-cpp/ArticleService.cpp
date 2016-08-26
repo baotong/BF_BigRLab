@@ -90,6 +90,22 @@ ArticleService_knn_presult::~ArticleService_knn_presult() throw() {
 }
 
 
+ArticleService_tagging_args::~ArticleService_tagging_args() throw() {
+}
+
+
+ArticleService_tagging_pargs::~ArticleService_tagging_pargs() throw() {
+}
+
+
+ArticleService_tagging_result::~ArticleService_tagging_result() throw() {
+}
+
+
+ArticleService_tagging_presult::~ArticleService_tagging_presult() throw() {
+}
+
+
 ArticleService_handleRequest_args::~ArticleService_handleRequest_args() throw() {
 }
 

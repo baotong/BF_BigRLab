@@ -26,6 +26,7 @@ class ArticleServiceIf {
   virtual void keyword(std::vector<KeywordResult> & _return, const std::string& sentence, const int32_t k) = 0;
   virtual void toVector(std::vector<double> & _return, const std::string& sentence) = 0;
   virtual void knn(std::vector<KnnResult> & _return, const std::string& sentence, const int32_t n, const int32_t searchK, const std::string& reqtype) = 0;
+  virtual void tagging(std::vector<TagResult> & _return, const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK) = 0;
   virtual void handleRequest(std::string& _return, const std::string& request) = 0;
 };
 
@@ -69,6 +70,9 @@ class ArticleServiceNull : virtual public ArticleServiceIf {
     return;
   }
   void knn(std::vector<KnnResult> & /* _return */, const std::string& /* sentence */, const int32_t /* n */, const int32_t /* searchK */, const std::string& /* reqtype */) {
+    return;
+  }
+  void tagging(std::vector<TagResult> & /* _return */, const std::string& /* text */, const int32_t /* method */, const int32_t /* k1 */, const int32_t /* k2 */, const int32_t /* searchK */) {
     return;
   }
   void handleRequest(std::string& /* _return */, const std::string& /* request */) {
@@ -554,6 +558,122 @@ class ArticleService_knn_presult {
 
 };
 
+typedef struct _ArticleService_tagging_args__isset {
+  _ArticleService_tagging_args__isset() : text(false), method(false), k1(false), k2(false), searchK(false) {}
+  bool text :1;
+  bool method :1;
+  bool k1 :1;
+  bool k2 :1;
+  bool searchK :1;
+} _ArticleService_tagging_args__isset;
+
+class ArticleService_tagging_args {
+ public:
+
+  ArticleService_tagging_args(const ArticleService_tagging_args&);
+  ArticleService_tagging_args(ArticleService_tagging_args&&);
+  ArticleService_tagging_args& operator=(const ArticleService_tagging_args&);
+  ArticleService_tagging_args& operator=(ArticleService_tagging_args&&);
+  ArticleService_tagging_args() : text(), method(0), k1(0), k2(0), searchK(0) {
+  }
+
+  virtual ~ArticleService_tagging_args() throw();
+  std::string text;
+  int32_t method;
+  int32_t k1;
+  int32_t k2;
+  int32_t searchK;
+
+  _ArticleService_tagging_args__isset __isset;
+
+  void __set_text(const std::string& val);
+
+  void __set_method(const int32_t val);
+
+  void __set_k1(const int32_t val);
+
+  void __set_k2(const int32_t val);
+
+  void __set_searchK(const int32_t val);
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+};
+
+
+class ArticleService_tagging_pargs {
+ public:
+
+
+  virtual ~ArticleService_tagging_pargs() throw();
+  const std::string* text;
+  const int32_t* method;
+  const int32_t* k1;
+  const int32_t* k2;
+  const int32_t* searchK;
+
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+};
+
+typedef struct _ArticleService_tagging_result__isset {
+  _ArticleService_tagging_result__isset() : success(false), err(false) {}
+  bool success :1;
+  bool err :1;
+} _ArticleService_tagging_result__isset;
+
+class ArticleService_tagging_result {
+ public:
+
+  ArticleService_tagging_result(const ArticleService_tagging_result&);
+  ArticleService_tagging_result(ArticleService_tagging_result&&);
+  ArticleService_tagging_result& operator=(const ArticleService_tagging_result&);
+  ArticleService_tagging_result& operator=(ArticleService_tagging_result&&);
+  ArticleService_tagging_result() {
+  }
+
+  virtual ~ArticleService_tagging_result() throw();
+  std::vector<TagResult>  success;
+  InvalidRequest err;
+
+  _ArticleService_tagging_result__isset __isset;
+
+  void __set_success(const std::vector<TagResult> & val);
+
+  void __set_err(const InvalidRequest& val);
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+};
+
+typedef struct _ArticleService_tagging_presult__isset {
+  _ArticleService_tagging_presult__isset() : success(false), err(false) {}
+  bool success :1;
+  bool err :1;
+} _ArticleService_tagging_presult__isset;
+
+class ArticleService_tagging_presult {
+ public:
+
+
+  virtual ~ArticleService_tagging_presult() throw();
+  std::vector<TagResult> * success;
+  InvalidRequest err;
+
+  _ArticleService_tagging_presult__isset __isset;
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+
+};
+
 typedef struct _ArticleService_handleRequest_args__isset {
   _ArticleService_handleRequest_args__isset() : request(false) {}
   bool request :1;
@@ -691,6 +811,9 @@ class ArticleServiceClientT : virtual public ArticleServiceIf {
   void knn(std::vector<KnnResult> & _return, const std::string& sentence, const int32_t n, const int32_t searchK, const std::string& reqtype);
   void send_knn(const std::string& sentence, const int32_t n, const int32_t searchK, const std::string& reqtype);
   void recv_knn(std::vector<KnnResult> & _return);
+  void tagging(std::vector<TagResult> & _return, const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK);
+  void send_tagging(const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK);
+  void recv_tagging(std::vector<TagResult> & _return);
   void handleRequest(std::string& _return, const std::string& request);
   void send_handleRequest(const std::string& request);
   void recv_handleRequest(std::string& _return);
@@ -732,6 +855,8 @@ class ArticleServiceProcessorT : public ::apache::thrift::TDispatchProcessorT<Pr
   void process_toVector(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
   void process_knn(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_knn(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
+  void process_tagging(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_tagging(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
   void process_handleRequest(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_handleRequest(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
  public:
@@ -752,6 +877,9 @@ class ArticleServiceProcessorT : public ::apache::thrift::TDispatchProcessorT<Pr
     processMap_["knn"] = ProcessFunctions(
       &ArticleServiceProcessorT::process_knn,
       &ArticleServiceProcessorT::process_knn);
+    processMap_["tagging"] = ProcessFunctions(
+      &ArticleServiceProcessorT::process_tagging,
+      &ArticleServiceProcessorT::process_tagging);
     processMap_["handleRequest"] = ProcessFunctions(
       &ArticleServiceProcessorT::process_handleRequest,
       &ArticleServiceProcessorT::process_handleRequest);
@@ -837,6 +965,16 @@ class ArticleServiceMultiface : virtual public ArticleServiceIf {
     return;
   }
 
+  void tagging(std::vector<TagResult> & _return, const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK) {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->tagging(_return, text, method, k1, k2, searchK);
+    }
+    ifaces_[i]->tagging(_return, text, method, k1, k2, searchK);
+    return;
+  }
+
   void handleRequest(std::string& _return, const std::string& request) {
     size_t sz = ifaces_.size();
     size_t i = 0;
@@ -893,6 +1031,9 @@ class ArticleServiceConcurrentClientT : virtual public ArticleServiceIf {
   void knn(std::vector<KnnResult> & _return, const std::string& sentence, const int32_t n, const int32_t searchK, const std::string& reqtype);
   int32_t send_knn(const std::string& sentence, const int32_t n, const int32_t searchK, const std::string& reqtype);
   void recv_knn(std::vector<KnnResult> & _return, const int32_t seqid);
+  void tagging(std::vector<TagResult> & _return, const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK);
+  int32_t send_tagging(const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK);
+  void recv_tagging(std::vector<TagResult> & _return, const int32_t seqid);
   void handleRequest(std::string& _return, const std::string& request);
   int32_t send_handleRequest(const std::string& request);
   void recv_handleRequest(std::string& _return, const int32_t seqid);

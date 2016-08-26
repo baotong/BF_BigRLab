@@ -184,4 +184,54 @@ void KnnResult::printTo(std::ostream& out) const {
   out << ")";
 }
 
+
+TagResult::~TagResult() throw() {
+}
+
+
+void TagResult::__set_tag(const std::string& val) {
+  this->tag = val;
+}
+
+void TagResult::__set_weight(const double val) {
+  this->weight = val;
+}
+
+void swap(TagResult &a, TagResult &b) {
+  using ::std::swap;
+  swap(a.tag, b.tag);
+  swap(a.weight, b.weight);
+  swap(a.__isset, b.__isset);
+}
+
+TagResult::TagResult(const TagResult& other12) {
+  tag = other12.tag;
+  weight = other12.weight;
+  __isset = other12.__isset;
+}
+TagResult::TagResult( TagResult&& other13) {
+  tag = std::move(other13.tag);
+  weight = std::move(other13.weight);
+  __isset = std::move(other13.__isset);
+}
+TagResult& TagResult::operator=(const TagResult& other14) {
+  tag = other14.tag;
+  weight = other14.weight;
+  __isset = other14.__isset;
+  return *this;
+}
+TagResult& TagResult::operator=(TagResult&& other15) {
+  tag = std::move(other15.tag);
+  weight = std::move(other15.weight);
+  __isset = std::move(other15.__isset);
+  return *this;
+}
+void TagResult::printTo(std::ostream& out) const {
+  using ::apache::thrift::to_string;
+  out << "TagResult(";
+  out << "tag=" << to_string(tag);
+  out << ", " << "weight=" << to_string(weight);
+  out << ")";
+}
+
 } // namespace
