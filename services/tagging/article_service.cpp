@@ -68,7 +68,7 @@ ArticleService::ArticleClientArr::ArticleClientArr(const BigRLab::AlgSvrInfo &sv
 struct ArticleTask : BigRLab::WorkItemBase {
     ArticleTask( std::size_t _Id,
                  std::string &_Article, 
-                 int _K1, int _K2, int _SearchK,
+                 int _Method, int _K1, int _K2, int _SearchK,
                  ArticleService::IdleClientQueue *_IdleClients, 
                  std::atomic_size_t *_Counter,
                  boost::condition_variable *_Cond,
@@ -76,7 +76,7 @@ struct ArticleTask : BigRLab::WorkItemBase {
                  std::ofstream *_Ofs, 
                  const char *_SrvName )
         : id(_Id)
-        , k1(_K1), k2(_K2), searchK(_SearchK)
+        , method(_Method), k1(_K1), k2(_K2), searchK(_SearchK)
         , idleClients(_IdleClients)
         , counter(_Counter)
         , cond(_Cond)
@@ -110,7 +110,7 @@ struct ArticleTask : BigRLab::WorkItemBase {
                     *ofs << id << "\t";
                     for (auto& v : result)
                         *ofs << v.tag << ":" << v.weight << " ";
-                    *ofs << endl;
+                    *ofs << endl << flush;
                 } // if
 
             } catch (const Article::InvalidRequest &err) {
@@ -212,7 +212,7 @@ void ArticleService::handleCommand( std::stringstream &stream )
     while ( getline(ifs, line) ) {
         boost::trim_right( line );
         WorkItemBasePtr pWork = boost::make_shared<ArticleTask>
-            (lineno, line, k1, k2, searchK, &m_queIdleClients, &counter, &cond, &mtx, &ofs, name().c_str());
+            (lineno, line, method, k1, k2, searchK, &m_queIdleClients, &counter, &cond, &mtx, &ofs, name().c_str());
         getWorkMgr()->addWork( pWork );
         ++lineno;
     } // while
