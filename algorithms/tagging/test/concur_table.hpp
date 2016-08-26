@@ -34,6 +34,7 @@ public:
 
     ConcurItemList& lookup( const std::string &key )
     {
+        // NOTE!!! lookup pointer in this way
         std::string &_key = const_cast<std::string&>(key);
         StringPtr pKey(&_key, [](std::string*){ /* DLOG(INFO) << "fake delete"; */ });
         auto it = m_mapTable.find( pKey );
@@ -84,9 +85,9 @@ void ConcurTable::loadFromFile( const std::string &filename )
         while (stream >> strItem) {
             if (sscanf(strItem.c_str(), "%lu:%lu:%lf", &id, &freq, &weight) != 3)
                 continue;
-            cList.emplace_back( ConcurItem() );
-            cList.back().item = id;
-            cList.back().weight = weight;
+            cList.emplace_back( ConcurItem{id, weight} );
+            // cList.back().item = id;
+            // cList.back().weight = weight;
         } // while
 
         if (!cList.empty()) {
