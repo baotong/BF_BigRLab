@@ -26,8 +26,7 @@ ArticleService::ArticleClientPtr ArticleService::IdleClientQueue::getIdleClient(
 
     do {
         ArticleClientWptr wptr;
-        if (!this->timed_pop(wptr, TIMEOUT))
-            return ArticleClientPtr();      // return empty ptr when no client available
+        this->pop(wptr);
         pRet = wptr.lock();
         // DLOG_IF(INFO, !pRet) << "IdleClientQueue::getIdleClient() got empty ptr";
     } while (!pRet);
@@ -113,7 +112,7 @@ struct ArticleTask : BigRLab::WorkItemBase {
                     *ofs << endl;
                 } else {
                     boost::unique_lock<boost::mutex> flk( *mtx );
-                    *ofs << "null" << endl;
+                    *ofs << id << "\tnull" << endl;
                 } // if
 
             } catch (const Article::InvalidRequest &err) {

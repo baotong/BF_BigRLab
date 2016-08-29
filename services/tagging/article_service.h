@@ -44,7 +44,7 @@ public:
     };
 
 public:
-    static const uint32_t       TIMEOUT = 5000;     // 5s
+    static const uint32_t       TIMEOUT = 10000;
 public:
     typedef BigRLab::ThriftClient< Article::ArticleServiceClient > ArticleClient;
     typedef ArticleClient::Pointer                             ArticleClientPtr;
