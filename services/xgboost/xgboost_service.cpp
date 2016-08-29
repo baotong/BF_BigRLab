@@ -131,7 +131,7 @@ struct XgBoostTask : BigRLab::WorkItemBase {
                                 // *ofs << i << ":" << v << " ";
                         } // for
                     } // if
-                    *ofs << endl << flush;
+                    *ofs << endl;
                 } // if
 
             } catch (const XgBoostSvr::InvalidRequest &err) {

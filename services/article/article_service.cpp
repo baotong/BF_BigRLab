@@ -112,7 +112,7 @@ struct ArticleTask : BigRLab::WorkItemBase {
                     *ofs << id << "\t";
                     for (auto& v : result)
                         *ofs << v << " ";
-                    *ofs << endl << flush;
+                    *ofs << endl;
                 } // if
 
             } catch (const Article::InvalidRequest &err) {
@@ -179,7 +179,7 @@ struct ArticleTaskKeyword : public ArticleTask {
                     *ofs << id << "\t";
                     for (auto& v : result)
                         *ofs << v.word << ":" << v.weight << " ";
-                    *ofs << endl << flush;
+                    *ofs << endl;
                 } // if
 
             } catch (const Article::InvalidRequest &err) {
@@ -237,7 +237,7 @@ struct ArticleTaskVector : public ArticleTask {
                     *ofs << id << "\t";
                     for (auto& v : result)
                         *ofs << v << " ";
-                    *ofs << endl << flush;
+                    *ofs << endl;
                 } // if
 
             } catch (const Article::InvalidRequest &err) {
@@ -295,7 +295,7 @@ struct ArticleTaskKnn : public ArticleTask {
                     *ofs << id << "\t";
                     for (auto& v : result)
                         *ofs << v.id << ":" << v.distance << " ";
-                    *ofs << endl << flush;
+                    *ofs << endl;
                 } // if
 
             } catch (const Article::InvalidRequest &err) {
@@ -373,7 +373,7 @@ struct ArticleTaskKnnLabel : ArticleTaskKnn {
                     *ofs << id << "\t";
                     for (; it != endPos; ++it)
                         *ofs << it->first << ":" << it->second << " ";
-                    *ofs << endl << flush;
+                    *ofs << endl;
                 } // if
 
             } catch (const Article::InvalidRequest &err) {
@@ -436,7 +436,7 @@ struct ArticleTaskKnnScore : ArticleTaskKnn {
                     avgScore /= (double)(result.size());
 
                     boost::unique_lock<boost::mutex> flk( *mtx );
-                    *ofs << id << "\t" << avgScore << endl << flush;
+                    *ofs << id << "\t" << avgScore << endl;
                 } // if
 
             } catch (const Article::InvalidRequest &err) {

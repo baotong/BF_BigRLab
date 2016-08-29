@@ -68,7 +68,7 @@ ArticleService::ArticleClientArr::ArticleClientArr(const BigRLab::AlgSvrInfo &sv
 struct ArticleTask : BigRLab::WorkItemBase {
     ArticleTask( std::size_t _Id,
                  std::string &_Article, 
-                 int _Method, int _K1, int _K2, int _SearchK,
+                 int _Method, int _K1, int _K2, int _SearchK, int _TopK,
                  ArticleService::IdleClientQueue *_IdleClients, 
                  std::atomic_size_t *_Counter,
                  boost::condition_variable *_Cond,
@@ -76,7 +76,7 @@ struct ArticleTask : BigRLab::WorkItemBase {
                  std::ofstream *_Ofs, 
                  const char *_SrvName )
         : id(_Id)
-        , method(_Method), k1(_K1), k2(_K2), searchK(_SearchK)
+        , method(_Method), k1(_K1), k2(_K2), searchK(_SearchK), topk(_TopK)
         , idleClients(_IdleClients)
         , counter(_Counter)
         , cond(_Cond)
@@ -100,7 +100,7 @@ struct ArticleTask : BigRLab::WorkItemBase {
 
             try {
                 vector<Article::TagResult> result;
-                pClient->client()->tagging( result, article, method, k1, k2, searchK );
+                pClient->client()->tagging( result, article, method, k1, k2, searchK, topk );
                 done = true;
                 idleClients->putBack( pClient );
 
@@ -126,7 +126,7 @@ struct ArticleTask : BigRLab::WorkItemBase {
 
     std::size_t                     id;
     std::string                     article;
-    int                             method, k1, k2, searchK;
+    int                             method, k1, k2, searchK, topk;
     ArticleService::IdleClientQueue *idleClients;
     std::atomic_size_t              *counter;
     boost::condition_variable       *cond;
@@ -150,7 +150,7 @@ void ArticleService::handleCommand( std::stringstream &stream )
     } while (0)
 
     string arg, strMethod, infile, outfile;
-    int method = -1, k1 = 0, k2 = 0, searchK = -1;
+    int method = -1, k1 = 0, k2 = 0, searchK = -1, topk = 0;
 
     while (stream >> arg) {
         auto colon = arg.find(':');
@@ -179,6 +179,9 @@ void ArticleService::handleCommand( std::stringstream &stream )
         } else if ("searchk" == key) {
             if (sscanf(value.c_str(), "%d", &searchK) != 1)
                 THROW_RUNTIME_ERROR("Invalid searchk value!");
+        } else if ("topk" == key) {
+            if (sscanf(value.c_str(), "%d", &topk) != 1)
+                THROW_RUNTIME_ERROR("Invalid topk value!");
         } else {
             THROW_RUNTIME_ERROR("Unrecogonized arg " << key);
         } // if
@@ -213,7 +216,7 @@ void ArticleService::handleCommand( std::stringstream &stream )
     while ( getline(ifs, line) ) {
         boost::trim_right( line );
         WorkItemBasePtr pWork = boost::make_shared<ArticleTask>
-            (lineno, line, method, k1, k2, searchK, &m_queIdleClients, &counter, &cond, &mtx, &ofs, name().c_str());
+            (lineno, line, method, k1, k2, searchK, topk, &m_queIdleClients, &counter, &cond, &mtx, &ofs, name().c_str());
         getWorkMgr()->addWork( pWork );
         ++lineno;
     } // while

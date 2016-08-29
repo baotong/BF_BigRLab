@@ -33,7 +33,7 @@ public:
     virtual void knn(std::vector<KnnResult> & _return, const std::string& sentence, 
             const int32_t n, const int32_t searchK, const std::string& reqtype);
     virtual void tagging(std::vector<TagResult> & _return, const std::string& text, 
-            const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK);
+            const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK, const int32_t topk);
     virtual void handleRequest(std::string& _return, const std::string& request);
 private:
     void do_tagging_concur(std::vector<TagResult> & _return, const std::string& text, 

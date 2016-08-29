@@ -5,6 +5,7 @@
 #include <boost/foreach.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/range/combine.hpp>
+#include <boost/algorithm/string.hpp>
 
 #define TIMEOUT     30000
 
@@ -143,6 +144,7 @@ void ArticleServiceHandler::handleRequest(std::string& _return, const std::strin
         vector<string>  result;
         string content = root["content"].asString();
         string reqtype = root["reqtype"].asString();
+        boost::trim_right(content);
         if ("wordseg" == reqtype) {
             wordSegment( result, content );
             for (auto &v : result)

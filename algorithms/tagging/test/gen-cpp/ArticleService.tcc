@@ -1200,6 +1200,14 @@ uint32_t ArticleService_tagging_args::read(Protocol_* iprot) {
           xfer += iprot->skip(ftype);
         }
         break;
+      case 6:
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->topk);
+          this->__isset.topk = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
       default:
         xfer += iprot->skip(ftype);
         break;
@@ -1238,6 +1246,10 @@ uint32_t ArticleService_tagging_args::write(Protocol_* oprot) const {
   xfer += oprot->writeI32(this->searchK);
   xfer += oprot->writeFieldEnd();
 
+  xfer += oprot->writeFieldBegin("topk", ::apache::thrift::protocol::T_I32, 6);
+  xfer += oprot->writeI32(this->topk);
+  xfer += oprot->writeFieldEnd();
+
   xfer += oprot->writeFieldStop();
   xfer += oprot->writeStructEnd();
   return xfer;
@@ -1268,6 +1280,10 @@ uint32_t ArticleService_tagging_pargs::write(Protocol_* oprot) const {
 
   xfer += oprot->writeFieldBegin("searchK", ::apache::thrift::protocol::T_I32, 5);
   xfer += oprot->writeI32((*(this->searchK)));
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("topk", ::apache::thrift::protocol::T_I32, 6);
+  xfer += oprot->writeI32((*(this->topk)));
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldStop();
@@ -1944,14 +1960,14 @@ void ArticleServiceClientT<Protocol_>::recv_knn(std::vector<KnnResult> & _return
 }
 
 template <class Protocol_>
-void ArticleServiceClientT<Protocol_>::tagging(std::vector<TagResult> & _return, const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK)
+void ArticleServiceClientT<Protocol_>::tagging(std::vector<TagResult> & _return, const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK, const int32_t topk)
 {
-  send_tagging(text, method, k1, k2, searchK);
+  send_tagging(text, method, k1, k2, searchK, topk);
   recv_tagging(_return);
 }
 
 template <class Protocol_>
-void ArticleServiceClientT<Protocol_>::send_tagging(const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK)
+void ArticleServiceClientT<Protocol_>::send_tagging(const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK, const int32_t topk)
 {
   int32_t cseqid = 0;
   this->oprot_->writeMessageBegin("tagging", ::apache::thrift::protocol::T_CALL, cseqid);
@@ -1962,6 +1978,7 @@ void ArticleServiceClientT<Protocol_>::send_tagging(const std::string& text, con
   args.k1 = &k1;
   args.k2 = &k2;
   args.searchK = &searchK;
+  args.topk = &topk;
   args.write(this->oprot_);
 
   this->oprot_->writeMessageEnd();
@@ -2711,7 +2728,7 @@ void ArticleServiceProcessorT<Protocol_>::process_tagging(int32_t seqid, ::apach
 
   ArticleService_tagging_result result;
   try {
-    iface_->tagging(result.success, args.text, args.method, args.k1, args.k2, args.searchK);
+    iface_->tagging(result.success, args.text, args.method, args.k1, args.k2, args.searchK, args.topk);
     result.__isset.success = true;
   } catch (InvalidRequest &err) {
     result.err = err;
@@ -2769,7 +2786,7 @@ void ArticleServiceProcessorT<Protocol_>::process_tagging(int32_t seqid, Protoco
 
   ArticleService_tagging_result result;
   try {
-    iface_->tagging(result.success, args.text, args.method, args.k1, args.k2, args.searchK);
+    iface_->tagging(result.success, args.text, args.method, args.k1, args.k2, args.searchK, args.topk);
     result.__isset.success = true;
   } catch (InvalidRequest &err) {
     result.err = err;
@@ -3377,14 +3394,14 @@ void ArticleServiceConcurrentClientT<Protocol_>::recv_knn(std::vector<KnnResult>
 }
 
 template <class Protocol_>
-void ArticleServiceConcurrentClientT<Protocol_>::tagging(std::vector<TagResult> & _return, const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK)
+void ArticleServiceConcurrentClientT<Protocol_>::tagging(std::vector<TagResult> & _return, const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK, const int32_t topk)
 {
-  int32_t seqid = send_tagging(text, method, k1, k2, searchK);
+  int32_t seqid = send_tagging(text, method, k1, k2, searchK, topk);
   recv_tagging(_return, seqid);
 }
 
 template <class Protocol_>
-int32_t ArticleServiceConcurrentClientT<Protocol_>::send_tagging(const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK)
+int32_t ArticleServiceConcurrentClientT<Protocol_>::send_tagging(const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK, const int32_t topk)
 {
   int32_t cseqid = this->sync_.generateSeqId();
   ::apache::thrift::async::TConcurrentSendSentry sentry(&this->sync_);
@@ -3396,6 +3413,7 @@ int32_t ArticleServiceConcurrentClientT<Protocol_>::send_tagging(const std::stri
   args.k1 = &k1;
   args.k2 = &k2;
   args.searchK = &searchK;
+  args.topk = &topk;
   args.write(this->oprot_);
 
   this->oprot_->writeMessageEnd();

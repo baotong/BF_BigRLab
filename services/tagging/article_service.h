@@ -1,6 +1,14 @@
 /*
- * Usage:
- * service tagging method:concur in:infile out:outfile k1:10 k2:10
+ *** Usage:
+ * Command:
+ * service tagging method:concur in:infile out:outfile k1:100 k2:100 topk:10
+ * k1: number of keyword
+ * k2: k in knn if use knn tagging, or first k concur items if use concur.
+ * topk: top k final result (default all), if topk <= 0, get all results
+ *
+ * http:
+ * curl -i -X POST -H "Content-Type: BigRLab_Request" -d '{"method":"knn","k1":100,"k2":100,"topk":5,"text":"Put your text here"}' http://localhost:9000/tagger
+ * 返回值可能是空的，此时返回json字段 "result":"null", "status":"0"
  */
 #ifndef _ARTICLE_SERVICE_H_
 #define _ARTICLE_SERVICE_H_

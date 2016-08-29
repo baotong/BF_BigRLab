@@ -3,6 +3,7 @@
 #include <glog/logging.h>
 #include <json/json.h>
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/algorithm/string.hpp>
 // #include <boost/foreach.hpp>
 // #include <boost/tuple/tuple.hpp>
 // #include <boost/range/combine.hpp>
@@ -27,7 +28,7 @@ void ArticleServiceHandler::wordSegment(std::vector<std::string> & _return, cons
     if (!g_JiebaPool.timed_pop(pJieba, TIMEOUT))
         THROW_INVALID_REQUEST("No available Jieba object!");
 
-    boost::shared_ptr<void> pCleanup((void*)0, [&](void*){
+    boost::shared_ptr<void> pCleanup((void*)-1, [&](void*){
         g_JiebaPool.push( pJieba );
     });
 
@@ -52,7 +53,7 @@ void ArticleServiceHandler::keyword(std::vector<KeywordResult> & _return,
     if (!g_JiebaPool.timed_pop(pJieba, TIMEOUT))
         THROW_INVALID_REQUEST("No available Jieba object!");
 
-    boost::shared_ptr<void> pCleanup((void*)0, [&](void*){
+    boost::shared_ptr<void> pCleanup((void*)-1, [&](void*){
         g_JiebaPool.push( pJieba );
     });
 
@@ -72,14 +73,27 @@ void ArticleServiceHandler::keyword(std::vector<KeywordResult> & _return,
 }
 
 void ArticleServiceHandler::tagging(std::vector<TagResult> & _return, const std::string& text, 
-        const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK)
+        const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK, const int32_t topk)
 {
+    // DLOG(INFO) << "ArticleServiceHandler::tagging() ...";
+    // DLOG(INFO) << "method: " << method;
+    // DLOG(INFO) << "text: " << text;
+    // DLOG(INFO) << "k1: " << k1;
+    // DLOG(INFO) << "k2: " << k2;
+    // DLOG(INFO) << "searchK: " << searchK;
+    // DLOG(INFO) << "topk: " << topk;
+
     if (method == CONCUR)
         do_tagging_concur(_return, text, k1, k2 );
     else if (method == KNN)
         do_tagging_knn(_return, text, k1, k2, searchK);
     else
         THROW_INVALID_REQUEST("Invalid tagging method!");
+
+    if (topk > 0 && topk < _return.size())
+        _return.resize(topk);
+
+    // DLOG(INFO) << "_return.size() = " << _return.size();
 }
 
 void ArticleServiceHandler::do_tagging_concur(std::vector<TagResult> & _return, const std::string& text, 
@@ -138,6 +152,9 @@ void ArticleServiceHandler::do_tagging_knn(std::vector<TagResult> & _return, con
     using namespace std;
 
     // DLOG(INFO) << "do_tagging_knn";
+    
+    if (k2 <= 0)
+        THROW_RUNTIME_ERROR("Invalid k2 value, must be greater than 0");
 
     typedef std::map<std::string, double>   CandidateType;
     CandidateType candidates; // 存储结果 tag:weight
@@ -150,7 +167,7 @@ void ArticleServiceHandler::do_tagging_knn(std::vector<TagResult> & _return, con
         // get knn result
         vector<string>      knnResult;
         vector<float>       knnDist;
-        g_pAnnDB->kNN_By_Word(kw.word, k2, knnResult, knnDist, searchK);
+        g_pAnnDB->kNN_By_Word(kw.word, k2, knnResult, knnDist, (size_t)searchK);
         if (knnResult.empty())
             continue;
         for (size_t i = 0; i != knnResult.size(); ++i) {
@@ -196,6 +213,70 @@ void ArticleServiceHandler::knn(std::vector<KnnResult> & _return, const std::str
 
 void ArticleServiceHandler::handleRequest(std::string& _return, const std::string& request)
 {
+    Json::Reader    reader;
+    Json::Value     root;
+    Json::Value     resp;
+
+    // DLOG(INFO) << "KnnService received request: " << request;
+
+    if (!reader.parse(request, root))
+        THROW_INVALID_REQUEST("Json parse fail!");
+
+    try {
+        string strMethod = root["method"].asString();
+        string text = root["text"].asString();
+        int    k1 = root["k1"].asInt();
+        int    k2 = root["k2"].asInt();
+        int    searchK = -1, topk = 0, method = -1;
+
+        boost::trim_right(text);
+
+        if (root.isMember("searchk"))
+            searchK = root["searchk"].asInt();
+        if (root.isMember("topk"))
+            topk = root["topk"].asInt();
+
+        // DLOG(INFO) << "method: " << strMethod;
+        // DLOG(INFO) << "text: " << text;
+        // DLOG(INFO) << "k1: " << k1;
+        // DLOG(INFO) << "k2: " << k2;
+        // DLOG(INFO) << "searchK: " << searchK;
+        // DLOG(INFO) << "topk: " << topk;
+
+        vector<TagResult> result;
+        if ("concur" == strMethod)
+            method = CONCUR;
+        else if ("knn" == strMethod)
+            method = KNN;
+        else
+            THROW_INVALID_REQUEST("Invalid method name " << strMethod);
+
+        tagging(result, text, method, k1, k2, (size_t)searchK, topk);
+
+        // DLOG(INFO) << "result.size() = " << result.size();
+
+        if (result.empty()) {
+            resp["result"] = "null";
+        } else {
+            for (auto &v : result) {
+                Json::Value item;
+                item["tag"] = v.tag;
+                item["weight"] = v.weight;
+                resp["result"].append(item);
+            } // for
+        } // if
+
+        resp["status"] = 0;
+
+        Json::FastWriter writer;  
+        _return = writer.write(resp);
+
+    } catch (const InvalidRequest &err) {
+        throw err;
+    } catch (const std::exception &ex) {
+        LOG(ERROR) << "handleRequest fail: " << ex.what();
+        THROW_INVALID_REQUEST("handleRequest fail: " << ex.what());
+    } // try
 }
 
 } // namespace Article
