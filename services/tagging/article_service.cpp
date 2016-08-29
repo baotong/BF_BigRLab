@@ -111,6 +111,9 @@ struct ArticleTask : BigRLab::WorkItemBase {
                     for (auto& v : result)
                         *ofs << v.tag << ":" << v.weight << " ";
                     *ofs << endl;
+                } else {
+                    boost::unique_lock<boost::mutex> flk( *mtx );
+                    *ofs << "null" << endl;
                 } // if
 
             } catch (const Article::InvalidRequest &err) {

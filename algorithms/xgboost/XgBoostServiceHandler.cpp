@@ -122,6 +122,9 @@ void XgBoostServiceHandler::handleRequest(std::string& _return, const std::strin
             THROW_INVALID_REQUEST("Invalid reqtype " << reqtype);
         } // if
 
+        if (result.empty())
+            resp["result"] = "null";
+
     } catch (const InvalidRequest &err) {
         throw err;
     } catch (const std::exception &ex) {

@@ -113,6 +113,9 @@ struct ArticleTask : BigRLab::WorkItemBase {
                     for (auto& v : result)
                         *ofs << v << " ";
                     *ofs << endl;
+                } else {
+                    boost::unique_lock<boost::mutex> flk( *mtx );
+                    *ofs << "null" << endl;
                 } // if
 
             } catch (const Article::InvalidRequest &err) {
@@ -180,6 +183,9 @@ struct ArticleTaskKeyword : public ArticleTask {
                     for (auto& v : result)
                         *ofs << v.word << ":" << v.weight << " ";
                     *ofs << endl;
+                } else {
+                    boost::unique_lock<boost::mutex> flk( *mtx );
+                    *ofs << "null" << endl;
                 } // if
 
             } catch (const Article::InvalidRequest &err) {
@@ -238,6 +244,9 @@ struct ArticleTaskVector : public ArticleTask {
                     for (auto& v : result)
                         *ofs << v << " ";
                     *ofs << endl;
+                } else {
+                    boost::unique_lock<boost::mutex> flk( *mtx );
+                    *ofs << "null" << endl;
                 } // if
 
             } catch (const Article::InvalidRequest &err) {
@@ -296,6 +305,9 @@ struct ArticleTaskKnn : public ArticleTask {
                     for (auto& v : result)
                         *ofs << v.id << ":" << v.distance << " ";
                     *ofs << endl;
+                } else {
+                    boost::unique_lock<boost::mutex> flk( *mtx );
+                    *ofs << "null" << endl;
                 } // if
 
             } catch (const Article::InvalidRequest &err) {
@@ -374,6 +386,9 @@ struct ArticleTaskKnnLabel : ArticleTaskKnn {
                     for (; it != endPos; ++it)
                         *ofs << it->first << ":" << it->second << " ";
                     *ofs << endl;
+                } else {
+                    boost::unique_lock<boost::mutex> flk( *mtx );
+                    *ofs << "null" << endl;
                 } // if
 
             } catch (const Article::InvalidRequest &err) {
@@ -437,6 +452,9 @@ struct ArticleTaskKnnScore : ArticleTaskKnn {
 
                     boost::unique_lock<boost::mutex> flk( *mtx );
                     *ofs << id << "\t" << avgScore << endl;
+                } else {
+                    boost::unique_lock<boost::mutex> flk( *mtx );
+                    *ofs << "null" << endl;
                 } // if
 
             } catch (const Article::InvalidRequest &err) {

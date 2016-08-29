@@ -141,25 +141,33 @@ void ArticleServiceHandler::handleRequest(std::string& _return, const std::strin
         THROW_INVALID_REQUEST("Json parse fail!");
     
     try {
-        vector<string>  result;
         string content = root["content"].asString();
         string reqtype = root["reqtype"].asString();
         boost::trim_right(content);
         if ("wordseg" == reqtype) {
+            vector<string>  result;
             wordSegment( result, content );
-            for (auto &v : result)
-                resp["result"].append(v);
+            if (result.empty()) {
+                resp["result"] = "null";
+            } else {
+                for (auto &v : result)
+                    resp["result"].append(v);
+            } // if
 
         } else if ("keyword" == reqtype) {
             vector<KeywordResult> result;
             int topk = root["topk"].asInt();
             keyword(result, content, topk);
-            for (auto& v : result) {
-                Json::Value item;
-                item["word"] = v.word;
-                item["weight"] = v.weight;
-                resp["result"].append(item);
-            } // for
+            if (result.empty()) {
+                resp["result"] = "null";
+            } else {
+                for (auto& v : result) {
+                    Json::Value item;
+                    item["word"] = v.word;
+                    item["weight"] = v.weight;
+                    resp["result"].append(item);
+                } // for
+            } // if
 
         } else if (reqtype.compare(0, 3, "knn") == 0) {
             vector<KnnResult> result;
@@ -168,16 +176,20 @@ void ArticleServiceHandler::handleRequest(std::string& _return, const std::strin
             if (root.isMember("search_k"))
                 searchK = (size_t)(root["search_k"].asUInt64());
             knn( result, content, n, searchK, reqtype );
-            for (auto& v : result) {
-                Json::Value item;
-                item["id"] = (Json::Int64)(v.id);
-                item["distance"] = v.distance;
-                if ("knn_label" == reqtype)
-                    item["label"] = v.label;
-                else if ("knn_score" == reqtype)
-                    item["score"] = v.score;
-                resp["result"].append(item);
-            } // for
+            if (result.empty()) {
+                resp["result"] = "null";
+            } else {
+                for (auto& v : result) {
+                    Json::Value item;
+                    item["id"] = (Json::Int64)(v.id);
+                    item["distance"] = v.distance;
+                    if ("knn_label" == reqtype)
+                        item["label"] = v.label;
+                    else if ("knn_score" == reqtype)
+                        item["score"] = v.score;
+                    resp["result"].append(item);
+                } // for
+            } // if
 
         } else {
             THROW_INVALID_REQUEST("Invalid reqtype " << reqtype);
