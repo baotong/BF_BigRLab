@@ -26,7 +26,8 @@ ArticleService::ArticleClientPtr ArticleService::IdleClientQueue::getIdleClient(
 
     do {
         ArticleClientWptr wptr;
-        this->pop(wptr);
+        if (!this->timed_pop(wptr, TIMEOUT))
+            return ArticleClientPtr();      // return empty ptr when no client available
         pRet = wptr.lock();
         // DLOG_IF(INFO, !pRet) << "IdleClientQueue::getIdleClient() got empty ptr";
     } while (!pRet);

@@ -30,11 +30,6 @@ service ArticleService {
 
     list<string> wordSegment( 1:string sentence ) throws (1:InvalidRequest err),
     list<KeywordResult> keyword( 1:string sentence, 2:i32 k ) throws (1:InvalidRequest err),
-
-    list<double> toVector( 1:string sentence ) throws (1:InvalidRequest err),
-
-    list<KnnResult> knn( 1:string sentence, 2:i32 n, 3:i32 searchK, 4:string reqtype ) throws (1:InvalidRequest err),
-
     list<TagResult> tagging( 1:string text, 2:i32 method, 3:i32 k1, 4:i32 k2, 5:i32 searchK, 6:i32 topk ) throws (1:InvalidRequest err),
 
     // for http request, input: json string; return: json string

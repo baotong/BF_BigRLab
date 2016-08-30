@@ -24,8 +24,6 @@ class ArticleServiceIf {
   virtual void setFilter(const std::string& filter) = 0;
   virtual void wordSegment(std::vector<std::string> & _return, const std::string& sentence) = 0;
   virtual void keyword(std::vector<KeywordResult> & _return, const std::string& sentence, const int32_t k) = 0;
-  virtual void toVector(std::vector<double> & _return, const std::string& sentence) = 0;
-  virtual void knn(std::vector<KnnResult> & _return, const std::string& sentence, const int32_t n, const int32_t searchK, const std::string& reqtype) = 0;
   virtual void tagging(std::vector<TagResult> & _return, const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK, const int32_t topk) = 0;
   virtual void handleRequest(std::string& _return, const std::string& request) = 0;
 };
@@ -64,12 +62,6 @@ class ArticleServiceNull : virtual public ArticleServiceIf {
     return;
   }
   void keyword(std::vector<KeywordResult> & /* _return */, const std::string& /* sentence */, const int32_t /* k */) {
-    return;
-  }
-  void toVector(std::vector<double> & /* _return */, const std::string& /* sentence */) {
-    return;
-  }
-  void knn(std::vector<KnnResult> & /* _return */, const std::string& /* sentence */, const int32_t /* n */, const int32_t /* searchK */, const std::string& /* reqtype */) {
     return;
   }
   void tagging(std::vector<TagResult> & /* _return */, const std::string& /* text */, const int32_t /* method */, const int32_t /* k1 */, const int32_t /* k2 */, const int32_t /* searchK */, const int32_t /* topk */) {
@@ -351,213 +343,6 @@ class ArticleService_keyword_presult {
 
 };
 
-typedef struct _ArticleService_toVector_args__isset {
-  _ArticleService_toVector_args__isset() : sentence(false) {}
-  bool sentence :1;
-} _ArticleService_toVector_args__isset;
-
-class ArticleService_toVector_args {
- public:
-
-  ArticleService_toVector_args(const ArticleService_toVector_args&);
-  ArticleService_toVector_args(ArticleService_toVector_args&&);
-  ArticleService_toVector_args& operator=(const ArticleService_toVector_args&);
-  ArticleService_toVector_args& operator=(ArticleService_toVector_args&&);
-  ArticleService_toVector_args() : sentence() {
-  }
-
-  virtual ~ArticleService_toVector_args() throw();
-  std::string sentence;
-
-  _ArticleService_toVector_args__isset __isset;
-
-  void __set_sentence(const std::string& val);
-
-  template <class Protocol_>
-  uint32_t read(Protocol_* iprot);
-  template <class Protocol_>
-  uint32_t write(Protocol_* oprot) const;
-
-};
-
-
-class ArticleService_toVector_pargs {
- public:
-
-
-  virtual ~ArticleService_toVector_pargs() throw();
-  const std::string* sentence;
-
-  template <class Protocol_>
-  uint32_t write(Protocol_* oprot) const;
-
-};
-
-typedef struct _ArticleService_toVector_result__isset {
-  _ArticleService_toVector_result__isset() : success(false), err(false) {}
-  bool success :1;
-  bool err :1;
-} _ArticleService_toVector_result__isset;
-
-class ArticleService_toVector_result {
- public:
-
-  ArticleService_toVector_result(const ArticleService_toVector_result&);
-  ArticleService_toVector_result(ArticleService_toVector_result&&);
-  ArticleService_toVector_result& operator=(const ArticleService_toVector_result&);
-  ArticleService_toVector_result& operator=(ArticleService_toVector_result&&);
-  ArticleService_toVector_result() {
-  }
-
-  virtual ~ArticleService_toVector_result() throw();
-  std::vector<double>  success;
-  InvalidRequest err;
-
-  _ArticleService_toVector_result__isset __isset;
-
-  void __set_success(const std::vector<double> & val);
-
-  void __set_err(const InvalidRequest& val);
-
-  template <class Protocol_>
-  uint32_t read(Protocol_* iprot);
-  template <class Protocol_>
-  uint32_t write(Protocol_* oprot) const;
-
-};
-
-typedef struct _ArticleService_toVector_presult__isset {
-  _ArticleService_toVector_presult__isset() : success(false), err(false) {}
-  bool success :1;
-  bool err :1;
-} _ArticleService_toVector_presult__isset;
-
-class ArticleService_toVector_presult {
- public:
-
-
-  virtual ~ArticleService_toVector_presult() throw();
-  std::vector<double> * success;
-  InvalidRequest err;
-
-  _ArticleService_toVector_presult__isset __isset;
-
-  template <class Protocol_>
-  uint32_t read(Protocol_* iprot);
-
-};
-
-typedef struct _ArticleService_knn_args__isset {
-  _ArticleService_knn_args__isset() : sentence(false), n(false), searchK(false), reqtype(false) {}
-  bool sentence :1;
-  bool n :1;
-  bool searchK :1;
-  bool reqtype :1;
-} _ArticleService_knn_args__isset;
-
-class ArticleService_knn_args {
- public:
-
-  ArticleService_knn_args(const ArticleService_knn_args&);
-  ArticleService_knn_args(ArticleService_knn_args&&);
-  ArticleService_knn_args& operator=(const ArticleService_knn_args&);
-  ArticleService_knn_args& operator=(ArticleService_knn_args&&);
-  ArticleService_knn_args() : sentence(), n(0), searchK(0), reqtype() {
-  }
-
-  virtual ~ArticleService_knn_args() throw();
-  std::string sentence;
-  int32_t n;
-  int32_t searchK;
-  std::string reqtype;
-
-  _ArticleService_knn_args__isset __isset;
-
-  void __set_sentence(const std::string& val);
-
-  void __set_n(const int32_t val);
-
-  void __set_searchK(const int32_t val);
-
-  void __set_reqtype(const std::string& val);
-
-  template <class Protocol_>
-  uint32_t read(Protocol_* iprot);
-  template <class Protocol_>
-  uint32_t write(Protocol_* oprot) const;
-
-};
-
-
-class ArticleService_knn_pargs {
- public:
-
-
-  virtual ~ArticleService_knn_pargs() throw();
-  const std::string* sentence;
-  const int32_t* n;
-  const int32_t* searchK;
-  const std::string* reqtype;
-
-  template <class Protocol_>
-  uint32_t write(Protocol_* oprot) const;
-
-};
-
-typedef struct _ArticleService_knn_result__isset {
-  _ArticleService_knn_result__isset() : success(false), err(false) {}
-  bool success :1;
-  bool err :1;
-} _ArticleService_knn_result__isset;
-
-class ArticleService_knn_result {
- public:
-
-  ArticleService_knn_result(const ArticleService_knn_result&);
-  ArticleService_knn_result(ArticleService_knn_result&&);
-  ArticleService_knn_result& operator=(const ArticleService_knn_result&);
-  ArticleService_knn_result& operator=(ArticleService_knn_result&&);
-  ArticleService_knn_result() {
-  }
-
-  virtual ~ArticleService_knn_result() throw();
-  std::vector<KnnResult>  success;
-  InvalidRequest err;
-
-  _ArticleService_knn_result__isset __isset;
-
-  void __set_success(const std::vector<KnnResult> & val);
-
-  void __set_err(const InvalidRequest& val);
-
-  template <class Protocol_>
-  uint32_t read(Protocol_* iprot);
-  template <class Protocol_>
-  uint32_t write(Protocol_* oprot) const;
-
-};
-
-typedef struct _ArticleService_knn_presult__isset {
-  _ArticleService_knn_presult__isset() : success(false), err(false) {}
-  bool success :1;
-  bool err :1;
-} _ArticleService_knn_presult__isset;
-
-class ArticleService_knn_presult {
- public:
-
-
-  virtual ~ArticleService_knn_presult() throw();
-  std::vector<KnnResult> * success;
-  InvalidRequest err;
-
-  _ArticleService_knn_presult__isset __isset;
-
-  template <class Protocol_>
-  uint32_t read(Protocol_* iprot);
-
-};
-
 typedef struct _ArticleService_tagging_args__isset {
   _ArticleService_tagging_args__isset() : text(false), method(false), k1(false), k2(false), searchK(false), topk(false) {}
   bool text :1;
@@ -810,12 +595,6 @@ class ArticleServiceClientT : virtual public ArticleServiceIf {
   void keyword(std::vector<KeywordResult> & _return, const std::string& sentence, const int32_t k);
   void send_keyword(const std::string& sentence, const int32_t k);
   void recv_keyword(std::vector<KeywordResult> & _return);
-  void toVector(std::vector<double> & _return, const std::string& sentence);
-  void send_toVector(const std::string& sentence);
-  void recv_toVector(std::vector<double> & _return);
-  void knn(std::vector<KnnResult> & _return, const std::string& sentence, const int32_t n, const int32_t searchK, const std::string& reqtype);
-  void send_knn(const std::string& sentence, const int32_t n, const int32_t searchK, const std::string& reqtype);
-  void recv_knn(std::vector<KnnResult> & _return);
   void tagging(std::vector<TagResult> & _return, const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK, const int32_t topk);
   void send_tagging(const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK, const int32_t topk);
   void recv_tagging(std::vector<TagResult> & _return);
@@ -856,10 +635,6 @@ class ArticleServiceProcessorT : public ::apache::thrift::TDispatchProcessorT<Pr
   void process_wordSegment(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
   void process_keyword(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_keyword(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
-  void process_toVector(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_toVector(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
-  void process_knn(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_knn(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
   void process_tagging(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_tagging(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
   void process_handleRequest(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
@@ -876,12 +651,6 @@ class ArticleServiceProcessorT : public ::apache::thrift::TDispatchProcessorT<Pr
     processMap_["keyword"] = ProcessFunctions(
       &ArticleServiceProcessorT::process_keyword,
       &ArticleServiceProcessorT::process_keyword);
-    processMap_["toVector"] = ProcessFunctions(
-      &ArticleServiceProcessorT::process_toVector,
-      &ArticleServiceProcessorT::process_toVector);
-    processMap_["knn"] = ProcessFunctions(
-      &ArticleServiceProcessorT::process_knn,
-      &ArticleServiceProcessorT::process_knn);
     processMap_["tagging"] = ProcessFunctions(
       &ArticleServiceProcessorT::process_tagging,
       &ArticleServiceProcessorT::process_tagging);
@@ -950,26 +719,6 @@ class ArticleServiceMultiface : virtual public ArticleServiceIf {
     return;
   }
 
-  void toVector(std::vector<double> & _return, const std::string& sentence) {
-    size_t sz = ifaces_.size();
-    size_t i = 0;
-    for (; i < (sz - 1); ++i) {
-      ifaces_[i]->toVector(_return, sentence);
-    }
-    ifaces_[i]->toVector(_return, sentence);
-    return;
-  }
-
-  void knn(std::vector<KnnResult> & _return, const std::string& sentence, const int32_t n, const int32_t searchK, const std::string& reqtype) {
-    size_t sz = ifaces_.size();
-    size_t i = 0;
-    for (; i < (sz - 1); ++i) {
-      ifaces_[i]->knn(_return, sentence, n, searchK, reqtype);
-    }
-    ifaces_[i]->knn(_return, sentence, n, searchK, reqtype);
-    return;
-  }
-
   void tagging(std::vector<TagResult> & _return, const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK, const int32_t topk) {
     size_t sz = ifaces_.size();
     size_t i = 0;
@@ -1030,12 +779,6 @@ class ArticleServiceConcurrentClientT : virtual public ArticleServiceIf {
   void keyword(std::vector<KeywordResult> & _return, const std::string& sentence, const int32_t k);
   int32_t send_keyword(const std::string& sentence, const int32_t k);
   void recv_keyword(std::vector<KeywordResult> & _return, const int32_t seqid);
-  void toVector(std::vector<double> & _return, const std::string& sentence);
-  int32_t send_toVector(const std::string& sentence);
-  void recv_toVector(std::vector<double> & _return, const int32_t seqid);
-  void knn(std::vector<KnnResult> & _return, const std::string& sentence, const int32_t n, const int32_t searchK, const std::string& reqtype);
-  int32_t send_knn(const std::string& sentence, const int32_t n, const int32_t searchK, const std::string& reqtype);
-  void recv_knn(std::vector<KnnResult> & _return, const int32_t seqid);
   void tagging(std::vector<TagResult> & _return, const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK, const int32_t topk);
   int32_t send_tagging(const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK, const int32_t topk);
   void recv_tagging(std::vector<TagResult> & _return, const int32_t seqid);

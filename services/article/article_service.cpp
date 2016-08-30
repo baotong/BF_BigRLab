@@ -115,7 +115,7 @@ struct ArticleTask : BigRLab::WorkItemBase {
                     *ofs << endl;
                 } else {
                     boost::unique_lock<boost::mutex> flk( *mtx );
-                    *ofs << "null" << endl;
+                    *ofs << id << "\tnull" << endl;
                 } // if
 
             } catch (const Article::InvalidRequest &err) {
@@ -185,7 +185,7 @@ struct ArticleTaskKeyword : public ArticleTask {
                     *ofs << endl;
                 } else {
                     boost::unique_lock<boost::mutex> flk( *mtx );
-                    *ofs << "null" << endl;
+                    *ofs << id << "\tnull" << endl;
                 } // if
 
             } catch (const Article::InvalidRequest &err) {
@@ -246,7 +246,7 @@ struct ArticleTaskVector : public ArticleTask {
                     *ofs << endl;
                 } else {
                     boost::unique_lock<boost::mutex> flk( *mtx );
-                    *ofs << "null" << endl;
+                    *ofs << id << "\tnull" << endl;
                 } // if
 
             } catch (const Article::InvalidRequest &err) {
@@ -307,7 +307,7 @@ struct ArticleTaskKnn : public ArticleTask {
                     *ofs << endl;
                 } else {
                     boost::unique_lock<boost::mutex> flk( *mtx );
-                    *ofs << "null" << endl;
+                    *ofs << id << "\tnull" << endl;
                 } // if
 
             } catch (const Article::InvalidRequest &err) {
@@ -388,7 +388,7 @@ struct ArticleTaskKnnLabel : ArticleTaskKnn {
                     *ofs << endl;
                 } else {
                     boost::unique_lock<boost::mutex> flk( *mtx );
-                    *ofs << "null" << endl;
+                    *ofs << id << "\tnull" << endl;
                 } // if
 
             } catch (const Article::InvalidRequest &err) {
@@ -454,7 +454,7 @@ struct ArticleTaskKnnScore : ArticleTaskKnn {
                     *ofs << id << "\t" << avgScore << endl;
                 } else {
                     boost::unique_lock<boost::mutex> flk( *mtx );
-                    *ofs << "null" << endl;
+                    *ofs << id << "\tnull" << endl;
                 } // if
 
             } catch (const Article::InvalidRequest &err) {

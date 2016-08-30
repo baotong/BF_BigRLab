@@ -134,7 +134,7 @@ struct XgBoostTask : BigRLab::WorkItemBase {
                     *ofs << endl;
                 } else {
                     boost::unique_lock<boost::mutex> flk( *mtx );
-                    *ofs << "null" << endl;
+                    *ofs << id << "\tnull" << endl;
                 } // if
 
             } catch (const XgBoostSvr::InvalidRequest &err) {

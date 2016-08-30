@@ -3,7 +3,7 @@
  * ./demo -algname tagger -algmgr localhost:9001 -port 10080 -concur concur.data -tagset tagset.data -idx idx.ann -idxlen 200 -wt wt.data
  */
 #include "jieba.hpp"
-#include "Article2Vector.h"
+// #include "Article2Vector.h"
 #include "rpc_module.h"
 #include "AlgMgrService.h"
 #include "ArticleServiceHandler.h"
@@ -403,15 +403,16 @@ void service_init()
         g_JiebaPool.push(pJieba);
     } // for
 // #endif
-    cout << "Loading concur table..." << endl;
-    g_pConcurTable.reset( new ConcurTable );
-    g_pConcurTable->loadFromFile( FLAGS_concur );
-    LOG(INFO) << "Totally " << g_pConcurTable->size() << " concur records loaded.";
-    // exit(0);
-
     cout << "Loading tagset..." << endl;
     load_tagset(FLAGS_tagset, g_TagSet);
     LOG(INFO) << "Totally " << g_TagSet.size() << " tags in tagset.";
+
+    cout << "Loading concur table..." << endl;
+    g_pConcurTable.reset( new ConcurTable );
+    // g_pConcurTable->loadFromFile( FLAGS_concur );
+    g_pConcurTable->loadFromFile( FLAGS_concur, g_TagSet );
+    LOG(INFO) << "Totally " << g_pConcurTable->size() << " concur records loaded.";
+    // exit(0);
 
     cout << "Loading Annoy tree..." << endl;
     // check idx file

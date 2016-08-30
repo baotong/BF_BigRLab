@@ -120,6 +120,56 @@ void ArticleServiceHandler::do_tagging_concur(std::vector<TagResult> & _return, 
         for (auto cit = cList.begin(); cit != endIt; ++cit) {
             auto &cItem = *cit;
             string &cij = *(boost::get<ConcurTable::StringPtr>(cItem.item));
+            double &cwij = cItem.weight;
+            // DLOG(INFO) << "cij = " << cij << " cwij = " << cwij;
+            auto ret = candidates.insert(std::make_pair(cij, 0.0));
+            auto it = ret.first;
+            if (cij == kw.word)
+                it->second += kw.weight;
+            else
+                it->second += kw.weight * cwij;
+        } // for cItem
+    } // for kw
+
+    // sort candidates
+    boost::ptr_vector<CandidateType::value_type, boost::view_clone_allocator> 
+            ptrArray(candidates.begin(), candidates.end());
+    ptrArray.sort([](const CandidateType::value_type &lhs, const CandidateType::value_type &rhs)->bool {
+        return lhs.second > rhs.second;
+    });
+
+    _return.resize( ptrArray.size() );
+    for (size_t i = 0; i != ptrArray.size(); ++i) {
+        _return[i].tag = ptrArray[i].first;
+        _return[i].weight = ptrArray[i].second;
+    } // for
+}
+
+#if 0
+void ArticleServiceHandler::do_tagging_concur(std::vector<TagResult> & _return, const std::string& text, 
+        const int32_t k1, const int32_t k2)
+{
+    using namespace std;
+
+    // DLOG(INFO) << "do_tagging_concur";
+
+    typedef std::map<std::string, double>   CandidateType;
+    CandidateType candidates; // 存储结果 tag:weight
+
+    // 找 keyword
+    std::vector<KeywordResult> keywords;
+    keyword( keywords, text, k1 );
+
+    for (auto &kw : keywords) {
+        // get concur(ki)
+        auto cList = g_pConcurTable->lookup( kw.word );
+        if (cList.empty())
+            continue;
+        // DLOG(INFO) << "keyword: " << kw;
+        auto endIt = (k2 >= cList.size()) ? cList.end() : cList.begin() + k2;
+        for (auto cit = cList.begin(); cit != endIt; ++cit) {
+            auto &cItem = *cit;
+            string &cij = *(boost::get<ConcurTable::StringPtr>(cItem.item));
             // auto pCij = boost::get<ConcurTable::StringPtr>(cItem.item);
             // assert( pCij );
             // string &cij = *pCij;
@@ -151,6 +201,7 @@ void ArticleServiceHandler::do_tagging_concur(std::vector<TagResult> & _return, 
         _return[i].weight = ptrArray[i].second;
     } // for
 }
+#endif
 
 void ArticleServiceHandler::do_tagging_knn(std::vector<TagResult> & _return, const std::string& text, 
         const int32_t k1, const int32_t k2, const int32_t searchK)
@@ -205,17 +256,6 @@ void ArticleServiceHandler::do_tagging_knn(std::vector<TagResult> & _return, con
     } // for
 }
 
-
-
-
-void ArticleServiceHandler::toVector(std::vector<double> & _return, const std::string& sentence)
-{
-}
-
-void ArticleServiceHandler::knn(std::vector<KnnResult> & _return, const std::string& sentence, 
-                const int32_t n, const int32_t searchK, const std::string& reqtype)
-{
-}
 
 void ArticleServiceHandler::handleRequest(std::string& _return, const std::string& request)
 {
