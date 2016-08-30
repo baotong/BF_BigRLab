@@ -115,11 +115,17 @@ void ArticleServiceHandler::do_tagging_concur(std::vector<TagResult> & _return, 
         auto cList = g_pConcurTable->lookup( kw.word );
         if (cList.empty())
             continue;
+        // DLOG(INFO) << "keyword: " << kw;
         auto endIt = (k2 >= cList.size()) ? cList.end() : cList.begin() + k2;
         for (auto cit = cList.begin(); cit != endIt; ++cit) {
             auto &cItem = *cit;
             string &cij = *(boost::get<ConcurTable::StringPtr>(cItem.item));
+            // auto pCij = boost::get<ConcurTable::StringPtr>(cItem.item);
+            // assert( pCij );
+            // string &cij = *pCij;
+            // assert(!cij.empty());
             double &cwij = cItem.weight;
+            // DLOG(INFO) << "cij = " << cij << " cwij = " << cwij;
             if (g_TagSet.count(cij)) {
                 // cij in tagset
                 auto ret = candidates.insert(std::make_pair(cij, 0.0));

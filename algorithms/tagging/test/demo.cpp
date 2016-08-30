@@ -386,7 +386,7 @@ static
 void service_init()
 {
     using namespace std;
-
+// #if 0
     if (FLAGS_n_jieba_inst <= 0 || FLAGS_n_jieba_inst > FLAGS_n_work_threads) {
         LOG(INFO) << "Adjust -n_jieba_inst from old value " << FLAGS_n_jieba_inst 
             << " to new value -n_work_threads " << FLAGS_n_work_threads;
@@ -402,11 +402,12 @@ void service_init()
         pJieba->setFilter( FLAGS_filter );
         g_JiebaPool.push(pJieba);
     } // for
-
+// #endif
     cout << "Loading concur table..." << endl;
     g_pConcurTable.reset( new ConcurTable );
     g_pConcurTable->loadFromFile( FLAGS_concur );
     LOG(INFO) << "Totally " << g_pConcurTable->size() << " concur records loaded.";
+    // exit(0);
 
     cout << "Loading tagset..." << endl;
     load_tagset(FLAGS_tagset, g_TagSet);

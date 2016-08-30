@@ -80,6 +80,7 @@ void ConcurTable::loadFromFile( const std::string &filename )
         if (colon == string::npos || colon == 0)
             continue;
         pKey->erase(colon);
+        // DLOG(INFO) << "pKey = " << *pKey;
 
         ConcurItemList cList;
         while (stream >> strItem) {
@@ -90,27 +91,42 @@ void ConcurTable::loadFromFile( const std::string &filename )
             // cList.back().weight = weight;
         } // while
 
-        if (!cList.empty()) {
-            vecItems.push_back( pKey );
-            auto ret = m_mapTable.insert( std::make_pair(pKey, TableType::mapped_type()) );
-            ret.first->second.swap( cList );
-        } // if
+        // assert( !cList.empty() );
+
+        vecItems.push_back( pKey );
+        auto ret = m_mapTable.insert( std::make_pair(pKey, TableType::mapped_type()) );
+        ret.first->second.swap( cList );
     } // while
 
     // DLOG(INFO) << "Totally " << (vecItems.size()-1) << " items loaded.";
     
     for (auto &kv : m_mapTable) {
-        for (auto &v : kv.second)
-            v.item = vecItems[boost::get<IdType>(v.item)];
+        // DLOG(INFO) << "keyword = " << *(kv.first);
+        for (auto &v : kv.second) {
+            auto idx = boost::get<IdType>(v.item);
+            // DLOG(INFO) << "idx = " << idx;
+            assert( idx != 0 && idx < vecItems.size() );
+            v.item = vecItems[idx];
+            // v.item = vecItems[boost::get<IdType>(v.item)];
+        } // for
     } // for
 
     // DEBUG
-    // for (auto &kv : m_mapTable) {
+#if 0
+    for (auto &kv : m_mapTable) {
         // cout << *(kv.first) << "\t";
+        DLOG(INFO) << "keyword = " << *(kv.first);
+        auto &cList = kv.second;
+        if (cList.size() > 1) {
+            for (auto it = cList.begin(); it != cList.end()-1; ++it)
+                if (it->weight < (it+1)->weight)
+                { DLOG(INFO) << "found inconsistent record!"; break; }
+        } // if
         // for (auto &v : kv.second)
             // cout << *(boost::get<StringPtr>(v.item)) << ":" << v.weight << " ";
         // cout << endl;
-    // } // for
+    } // for
+#endif
 }
 
 
