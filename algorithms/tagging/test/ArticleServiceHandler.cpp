@@ -4,11 +4,12 @@
 #include <json/json.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/algorithm/string.hpp>
-// #include <boost/foreach.hpp>
-// #include <boost/tuple/tuple.hpp>
-// #include <boost/range/combine.hpp>
 
-#define TIMEOUT     30000
+#define TIMEOUT     60000   // 1min
+
+#define ON_FINISH_CLASS(name, deleter) \
+    std::unique_ptr<void, std::function<void(void*)> > \
+        name((void*)-1, [&, this](void*) deleter )
 
 namespace Article {
 
@@ -28,9 +29,7 @@ void ArticleServiceHandler::wordSegment(std::vector<std::string> & _return, cons
     if (!g_JiebaPool.timed_pop(pJieba, TIMEOUT))
         THROW_INVALID_REQUEST("No available Jieba object!");
 
-    boost::shared_ptr<void> pCleanup((void*)-1, [&](void*){
-        g_JiebaPool.push( pJieba );
-    });
+    ON_FINISH_CLASS(pCleanup, {g_JiebaPool.push(pJieba);});
 
     try {
         pJieba->wordSegment(sentence, _return);
@@ -53,9 +52,7 @@ void ArticleServiceHandler::keyword(std::vector<KeywordResult> & _return,
     if (!g_JiebaPool.timed_pop(pJieba, TIMEOUT))
         THROW_INVALID_REQUEST("No available Jieba object!");
 
-    boost::shared_ptr<void> pCleanup((void*)-1, [&](void*){
-        g_JiebaPool.push( pJieba );
-    });
+    ON_FINISH_CLASS(pCleanup, {g_JiebaPool.push(pJieba);});
 
     Jieba::KeywordResult result;
     try {

@@ -101,9 +101,8 @@ void ConcurTable::loadFromFile( const std::string &filename, const std::set<std:
 
     // DLOG(INFO) << "Totally " << (vecItems.size()-1) << " items loaded.";
     
-    for (auto &kv : m_mapTable) {
-        // DLOG(INFO) << "keyword = " << *(kv.first);
-        auto &cList = kv.second;
+    for (auto mit = m_mapTable.begin(); mit != m_mapTable.end();) {
+        auto &cList = mit->second;
         for (auto it = cList.begin(); it != cList.end(); ) {
             auto idx = boost::get<IdType>(it->item);
             assert( idx != 0 && idx < vecItems.size() );
@@ -115,6 +114,11 @@ void ConcurTable::loadFromFile( const std::string &filename, const std::set<std:
                 it = cList.erase(it);
             } // if
         } // for
+
+        if (cList.empty())
+            m_mapTable.erase(mit++);
+        else
+            ++mit;
     } // for
 
     // DEBUG

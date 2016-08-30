@@ -3,7 +3,6 @@
  * ./demo -algname tagger -algmgr localhost:9001 -port 10080 -concur concur.data -tagset tagset.data -idx idx.ann -idxlen 200 -wt wt.data
  */
 #include "jieba.hpp"
-// #include "Article2Vector.h"
 #include "rpc_module.h"
 #include "AlgMgrService.h"
 #include "ArticleServiceHandler.h"
@@ -11,6 +10,7 @@
 #include <boost/asio.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
+#include <thread>
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 
@@ -386,35 +386,13 @@ static
 void service_init()
 {
     using namespace std;
-// #if 0
+
     if (FLAGS_n_jieba_inst <= 0 || FLAGS_n_jieba_inst > FLAGS_n_work_threads) {
         LOG(INFO) << "Adjust -n_jieba_inst from old value " << FLAGS_n_jieba_inst 
             << " to new value -n_work_threads " << FLAGS_n_work_threads;
         FLAGS_n_jieba_inst = FLAGS_n_work_threads;
     } // if
 
-    // LOG(INFO) << "FLAGS_n_jieba_inst = " << FLAGS_n_jieba_inst;
-
-    cout << "Creating jieba instances..." << endl;
-    for (int i = 0; i < FLAGS_n_jieba_inst; ++i) {
-        auto pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, 
-                FLAGS_user_dict, FLAGS_idf, FLAGS_stop_words);
-        pJieba->setFilter( FLAGS_filter );
-        g_JiebaPool.push(pJieba);
-    } // for
-// #endif
-    cout << "Loading tagset..." << endl;
-    load_tagset(FLAGS_tagset, g_TagSet);
-    LOG(INFO) << "Totally " << g_TagSet.size() << " tags in tagset.";
-
-    cout << "Loading concur table..." << endl;
-    g_pConcurTable.reset( new ConcurTable );
-    // g_pConcurTable->loadFromFile( FLAGS_concur );
-    g_pConcurTable->loadFromFile( FLAGS_concur, g_TagSet );
-    LOG(INFO) << "Totally " << g_pConcurTable->size() << " concur records loaded.";
-    // exit(0);
-
-    cout << "Loading Annoy tree..." << endl;
     // check idx file
     {
         ifstream ifs(FLAGS_idx, ios::in);
@@ -422,10 +400,71 @@ void service_init()
             THROW_RUNTIME_ERROR("Cannot open annoy index file " << FLAGS_idx << " for reading!");
     }
 
-    g_pAnnDB.reset( new WordAnnDB(FLAGS_idxlen) );
-    g_pAnnDB->loadIndex( FLAGS_idx.c_str() );
-    g_pAnnDB->loadWordTable( FLAGS_wt.c_str() );
-    cout << "Totally " << g_pAnnDB->size() << " items loaded from annoy tree." << endl;
+    // LOG(INFO) << "FLAGS_n_jieba_inst = " << FLAGS_n_jieba_inst;
+    
+    bool success = true;
+
+    cout << "Creating jieba instances..." << endl;
+    std::thread thrCreateJiebaInst([&] {
+        try {
+            for (int i = 0; i < FLAGS_n_jieba_inst; ++i) {
+                auto pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, 
+                        FLAGS_user_dict, FLAGS_idf, FLAGS_stop_words);
+                pJieba->setFilter( FLAGS_filter );
+                g_JiebaPool.push(pJieba);
+            } // for
+        } catch (const std::exception &ex) {
+            cerr << ex.what() << endl;
+            success = false;
+        } // try
+    });
+
+    cout << "Loading tagset..." << endl;
+    std::thread thrLoadTagSet([&]{
+        try {
+            load_tagset(FLAGS_tagset, g_TagSet);
+        } catch (const std::exception &ex) {
+            cerr << ex.what() << endl;
+            success = false;
+        } // try
+    });
+
+    cout << "Loading concur table..." << endl;
+    std::thread thrLoadConcur([&]{
+        try {
+            g_pConcurTable.reset( new ConcurTable );
+            g_pConcurTable->loadFromFile( FLAGS_concur, g_TagSet );
+        } catch (const std::exception &ex) {
+            cerr << ex.what() << endl;
+            success = false;
+        } // try
+    });
+
+    cout << "Loading Annoy tree..." << endl;
+    std::thread thrLoadIdx([&]{
+        try {
+            g_pAnnDB.reset( new WordAnnDB(FLAGS_idxlen) );
+            g_pAnnDB->loadIndex( FLAGS_idx.c_str() );
+            g_pAnnDB->loadWordTable( FLAGS_wt.c_str() );
+        } catch (const std::exception &ex) {
+            cerr << ex.what() << endl;
+            success = false;
+        } // try
+    });
+
+    thrCreateJiebaInst.join();
+    thrLoadTagSet.join();
+    thrLoadConcur.join();
+    thrLoadIdx.join();
+
+    if (!success) {
+        std::raise(SIGTERM);
+        return;
+    } // if
+
+    LOG(INFO) << "Totally " << g_TagSet.size() << " tags in tagset.";
+    LOG(INFO) << "Totally " << g_pConcurTable->size() << " concur records loaded.";
+    LOG(INFO) << "Totally " << g_pAnnDB->size() << " items loaded from annoy tree.";
 
     // Test::test_anndb();
     // Test::test_concur_table();
