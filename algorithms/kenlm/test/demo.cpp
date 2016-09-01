@@ -5,7 +5,7 @@
  *      生成的log文件 demo.INFO 可能会很大, log文件用于辅助调试
  * Step 2
  * echo "我是拖拉机学院手扶拖拉机专业的。不用多久，我就会升职加薪，当上CEO，走上人生巅峰。" | ./demo -algname tagger -algmgr localhost:9001 -port 10080 --idx ../data/index.ann.500 -idxlen 500 -wt ../data/words_table.txt.500 -k 5 > all_sentences.txt
- *      将输入语料所有可能的句子组成的新句子输出到 all_sentences.txt
+ *      将输入语料所有可能的句子组成的新句子输出到 all_sentences.txt, -k 就是knn的最近邻词个数
  * Step 3
  * cd into kenlm build
  * cat all_sentences.txt | bin/query text.bin -v sentence | grep 'Total' | awk '{print $2}' > score.txt
