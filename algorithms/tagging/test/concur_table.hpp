@@ -17,7 +17,7 @@ public:
     typedef std::shared_ptr<std::string>            StringPtr;
 
     struct StrPtrCmp {
-        bool operator()(const StringPtr &lhs, const StringPtr &rhs)
+        bool operator()(const StringPtr &lhs, const StringPtr &rhs) const
         { return (*lhs < *rhs); }
     };
 
