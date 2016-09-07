@@ -296,8 +296,9 @@ void get_all_sentences( GramArray &arr )
 
     for (size_t i = 0; i != arr.size(); ++i) {
         g_pAnnDB->kNN_By_Gram(arr[i], (size_t)FLAGS_k, mat[i], dist);
-        mat[i].push_back(arr[i]);
-        std::swap(mat[i][0], mat[i].back());
+        mat[i].insert(mat[i].begin(), arr[i]);
+        // mat[i].push_back(arr[i]);
+        // std::swap(mat[i][0], mat[i].back());
     } // for i
 
     DLOG(INFO) << "knn result:";
@@ -324,6 +325,12 @@ void experiment()
         DLOG(INFO) << "Input text: " << text;
         GramArray tagResult;
         g_pJieba->wordSegment(text, tagResult);
+#ifndef NDEBUG
+        DLOG(INFO) << "After word segment:";
+        ostringstream ostr;
+        std::copy(tagResult.begin(), tagResult.end(), ostream_iterator<Jieba::Gram>(ostr, " "));
+        DLOG(INFO) << ostr.str();
+#endif 
         get_all_sentences(tagResult);
         // std::copy(tagResult.begin(), tagResult.end(), ostream_iterator<Jieba::Gram>(cout, " "));
         // cout << endl;
