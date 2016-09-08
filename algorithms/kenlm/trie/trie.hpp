@@ -210,7 +210,7 @@ public:
     }
 
     std::size_t countNodes()
-    { return root()->countNodes(); }
+    { return root()->countNodes()-1; }
 
     std::size_t nLevels()
     { return m_matNodes.size(); }

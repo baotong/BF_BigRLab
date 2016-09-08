@@ -26,6 +26,32 @@ public:
 };
 
 
+template<typename T>
+void print_tree_info( Trie<T> &tree )
+{
+    using namespace std;
+
+    tree.traverse(cout);
+    cout << endl;
+
+    cout << "Totally " << tree.countNodes() << " nodes in this tree." << endl;
+
+    for (const auto &v : tree.elemSet())
+        cout << *v << ":" << v.use_count() << " ";
+    cout << endl;
+    cout << "Totally " << tree.elemSet().size() << " elems in this tree." << endl;
+
+    // check level nodes
+    auto &levels = tree.levelNodes();
+    for (size_t i = 0; i < levels.size(); ++i) {
+        cout << i+1 << ": ";
+        for (auto &v : levels[i])
+            cout << v->data() << " ";
+        cout << endl;
+    } // for
+}
+
+
 void test1()
 {
     using namespace std;
@@ -51,32 +77,16 @@ void test1()
         cout << endl;
     }
 
-    tree.traverse(cout);
-    cout << endl;
-
-    cout << "Totally " << tree.countNodes() << " nodes in this tree." << endl;
-
-    for (const auto &v : tree.elemSet())
-        cout << *v << " ";
-    cout << endl;
-    cout << "Totally " << tree.elemSet().size() << " elems in this tree." << endl;
-
-    // check level nodes
-    StringTrie::NodeMatrix &levels = tree.levelNodes();
-    for (size_t i = 0; i < levels.size(); ++i) {
-        cout << i+1 << ": ";
-        for (auto &v : levels[i])
-            cout << v->data() << " ";
-        cout << endl;
-    } // for
+    print_tree_info(tree);
 
     // test lookup
-    auto ret = tree.lookup("she is a lawyer");
+    auto ret = tree.lookup("I am a teacher");
     if (ret.second)
         cout << "Found!" << endl;
     else
         cout << "Not found!" << endl;
 
+    // lookup path
     {
         deque<StringTrie::elem_pointer> path;
         ret.first->getPath( path );
@@ -84,6 +94,12 @@ void test1()
             cout << *v << " ";
         cout << endl;
     }
+    
+    // test removeSelf
+    ret.first->removeSelf();
+    cout << "After remove node..." << endl;
+    print_tree_info(tree);
+    cout << endl;
 }
 
 
