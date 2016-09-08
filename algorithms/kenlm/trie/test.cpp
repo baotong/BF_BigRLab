@@ -21,7 +21,7 @@ public:
     {
         using namespace std;
         stringstream stream(text);
-        return BaseType::lookup( istream_iterator<string>(stream), istream_iterator<string>() );
+        return BaseType::lookup( istream_iterator<string>(stream), istream_iterator<string>() ); // NOTE!!! BaseType is must
     }
 };
 
@@ -40,15 +40,6 @@ void print_tree_info( Trie<T> &tree )
         cout << *v << ":" << v.use_count() << " ";
     cout << endl;
     cout << "Totally " << tree.elemSet().size() << " elems in this tree." << endl;
-
-    // check level nodes
-    auto &levels = tree.levelNodes();
-    for (size_t i = 0; i < levels.size(); ++i) {
-        cout << i+1 << ": ";
-        for (auto &v : levels[i])
-            cout << v->data() << " ";
-        cout << endl;
-    } // for
 }
 
 

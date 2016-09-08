@@ -128,10 +128,6 @@ public:
         weak_pointer    m_wpParent;
     }; // struct Node
 
-    // store nodes in levels;
-    typedef std::vector<typename Node::pointer>    NodeArray;
-    typedef std::vector<NodeArray>                 NodeMatrix;
-
 public:
     Trie()
     { m_pRoot = std::make_shared<Node>(); }
@@ -144,27 +140,17 @@ public:
     ElemSet& elemSet()
     { return m_setElems; }
 
-    NodeMatrix& levelNodes()
-    { return m_matNodes; }
-
     template<typename Iter>
     typename Node::pointer addPath( Iter beg, Iter end )
     {
         typename Node::pointer curNode = m_pRoot;
 
-        std::size_t level = 0;
         for (; beg != end; ++beg) {
             auto ret = m_setElems.insert( std::make_shared<T>(*beg) );
             auto pData = *(ret.first);
             auto newNode = std::make_shared<Node>(pData);
             auto acRet = curNode->addChild(newNode);
             curNode = acRet.first;
-            if (acRet.second) { // insert into level table
-                if (m_matNodes.size() < level+1)
-                    m_matNodes.resize(level+1);
-                m_matNodes[level].push_back(curNode);
-            } // if
-            ++level;
         } // for
 
         return curNode;
@@ -212,13 +198,9 @@ public:
     std::size_t countNodes()
     { return root()->countNodes()-1; }
 
-    std::size_t nLevels()
-    { return m_matNodes.size(); }
-
 protected:
     typename Node::pointer    m_pRoot;
-    NodeMatrix                m_matNodes; // levels
-    ElemSet                   m_setElems;
+    ElemSet                   m_setElems; // check when remove node
 };
 
 
