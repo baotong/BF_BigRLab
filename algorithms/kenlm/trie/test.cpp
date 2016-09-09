@@ -1,9 +1,11 @@
 #include <string>
+#include <iostream>
 #include <sstream>
 #include <iterator>
+#include <cassert>
 #include <glog/logging.h>
+#include "lm/model.hh"
 #include "trie.hpp"
-
 
 class StringTrie : public Trie<std::string> {
 public:
@@ -94,6 +96,49 @@ void test1()
 }
 
 
+
+
+std::unique_ptr<lm::ngram::Model>       g_pLMmodel;
+
+double get_score( const std::string &text)
+{
+    using namespace std;
+    using namespace lm::ngram;
+
+    auto &vocab = g_pLMmodel->GetVocabulary();
+    lm::FullScoreReturn ret; // score
+    Model::State state, out_state;
+    double total = 0.0;
+    vector<string> vec;
+
+    stringstream stream(text);
+    std::copy( istream_iterator<string>(stream), istream_iterator<string>(),
+                back_inserter(vec) );
+
+    state = g_pLMmodel->BeginSentenceState();
+    for (auto &v : vec) {
+        ret = g_pLMmodel->FullScore(state, vocab.Index(v), out_state);
+        total += ret.prob;
+        state = out_state;
+    } // for
+    ret = g_pLMmodel->FullScore(state, vocab.EndSentence(), out_state);
+    total += ret.prob;
+
+    return total;
+}
+
+void test2()
+{
+    using namespace std;
+
+    string line;
+    double score = 0.0;
+    while (getline(cin, line)) {
+        score = get_score(line);
+        cout << score << "\t" << line << endl;
+    } // while
+}
+
 int main(int argc, char **argv)
 {
     using namespace std;
@@ -101,7 +146,13 @@ int main(int argc, char **argv)
     google::InitGoogleLogging(argv[0]);
 
     try {
-        test1();
+        // test1();
+        
+        cout << "Initialzing LM model..." << endl;
+        g_pLMmodel.reset(new lm::ngram::Model("text.bin"));
+        cout << "LM model initialize done!" << endl;
+
+        test2();
 
     } catch (const std::exception &ex) {
         cerr << ex.what() << endl;
@@ -110,4 +161,31 @@ int main(int argc, char **argv)
 
     return 0;
 }
+
+
+
+
+
+
+#if 0
+// official example
+#include "lm/model.hh"
+#include <iostream>
+#include <string>
+#include <memory>
+int main() {
+  using namespace lm::ngram;
+  // std::unique_ptr<Model> pModel(new Model("text.bin"));
+  // Model *pModel = new Model("text.bin");
+  Model model("text.bin");
+  State state(model.BeginSentenceState()), out_state;
+  const Vocabulary &vocab = model.GetVocabulary();
+  std::string word;
+  while (std::cin >> word) {
+    std::cout << model.Score(state, vocab.Index(word), out_state) << '\n';
+    state = out_state;
+  }
+}
+#endif
+
 

@@ -5,8 +5,6 @@
 #include <set>
 #include <vector>
 #include <deque>
-#include <iostream>
-#include <cassert>
 
 
 template<typename T>
@@ -197,6 +195,17 @@ public:
 
     std::size_t countNodes()
     { return root()->countNodes()-1; }
+
+    void syncElems()
+    {
+        auto it = m_setElems.begin();
+        for (; it != m_setElems.end();) {
+            if (it->use_count() == 1)
+                m_setElems.erase(it++);
+            else
+                ++it;
+        } // for
+    }
 
 protected:
     typename Node::pointer    m_pRoot;
