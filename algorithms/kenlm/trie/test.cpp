@@ -6,6 +6,7 @@
 #include <glog/logging.h>
 #include "lm/model.hh"
 #include "trie.hpp"
+#include "ngram_model.hpp"
 
 class StringTrie : public Trie<std::string> {
 public:
@@ -96,8 +97,62 @@ void test1()
 }
 
 
+std::unique_ptr<NGram_Model>    g_pLMmodel;
 
 
+void test3()
+{
+    using namespace std;
+
+    string text = "姑苏 城外 寒山寺";
+
+    cout << g_pLMmodel->score(text) << endl;
+    
+    using StringPtr = std::shared_ptr<std::string>;
+
+    {
+        deque<StringPtr> list;
+        stringstream stream(text);
+        string tmp;
+        while (stream >> tmp)
+            list.push_back(std::make_shared<string>(tmp));
+        cout << g_pLMmodel->score(list.begin(), list.end()) << endl;
+    }
+}
+
+
+
+int main(int argc, char **argv)
+{
+    using namespace std;
+
+    google::InitGoogleLogging(argv[0]);
+
+    try {
+        // test1();
+        
+        cout << "Initialzing LM model..." << endl;
+        g_pLMmodel.reset(new NGram_Model("text.bin"));
+        cout << "LM model initialize done!" << endl;
+        test3();
+        
+        // g_pLMmodel.reset(new lm::ngram::Model("text.bin"));
+        // test2();
+
+    } catch (const std::exception &ex) {
+        cerr << ex.what() << endl;
+        return -1;
+    } // try
+
+    return 0;
+}
+
+
+
+
+
+
+#if 0
 std::unique_ptr<lm::ngram::Model>       g_pLMmodel;
 
 double get_score( const std::string &text)
@@ -138,34 +193,7 @@ void test2()
         cout << score << "\t" << line << endl;
     } // while
 }
-
-int main(int argc, char **argv)
-{
-    using namespace std;
-
-    google::InitGoogleLogging(argv[0]);
-
-    try {
-        // test1();
-        
-        cout << "Initialzing LM model..." << endl;
-        g_pLMmodel.reset(new lm::ngram::Model("text.bin"));
-        cout << "LM model initialize done!" << endl;
-
-        test2();
-
-    } catch (const std::exception &ex) {
-        cerr << ex.what() << endl;
-        return -1;
-    } // try
-
-    return 0;
-}
-
-
-
-
-
+#endif
 
 #if 0
 // official example
