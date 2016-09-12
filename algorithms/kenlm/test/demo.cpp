@@ -321,7 +321,7 @@ void get_all_sentences( GramArray &arr )
 #endif
 
     vector<size_t> work(mat.size(), 0);
-    print_all(mat, 0, work);
+    // print_all(mat, 0, work);
 }
 
 void experiment()

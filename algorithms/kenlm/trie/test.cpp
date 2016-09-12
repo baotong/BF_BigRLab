@@ -299,7 +299,7 @@ int main(int argc, char **argv)
         // test2();
 
     } catch (const std::exception &ex) {
-        cerr << ex.what() << endl;
+        cerr << "Exception caught in main: " << ex.what() << endl;
         return -1;
     } // try
 
