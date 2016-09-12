@@ -154,6 +154,28 @@ public:
         return curNode;
     }
 
+    typename Node::pointer
+    addPath( const std::vector<T> &vec )
+    { return addPath(vec.begin(), vec.end()); }
+
+    std::pair<typename Node::pointer, bool>
+    addNode(const typename Node::pointer &parent, 
+            const typename Node::pointer &newNode)
+    {
+        assert(parent);
+        return parent->addChild(newNode);
+    }
+
+    std::pair<typename Node::pointer, bool>
+    addNode(const typename Node::pointer &parent, 
+            const T& data)
+    {
+        auto ret = m_setElems.insert( std::make_shared<T>(data) );
+        auto pData = *(ret.first);
+        auto newNode = std::make_shared<Node>(pData);
+        return addNode(parent, newNode);
+    }
+
     template<typename Iter>
     std::pair<typename Node::pointer, bool>
     lookup( Iter beg, Iter end )
@@ -182,10 +204,6 @@ public:
 
         return std::make_pair(curNode, true);
     }
-
-    typename Node::pointer
-    addPath( const std::vector<T> &vec )
-    { return addPath(vec.begin(), vec.end()); }
 
     std::ostream& traverse( std::ostream &os )
     {

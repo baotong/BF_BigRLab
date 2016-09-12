@@ -121,6 +121,113 @@ void test3()
 }
 
 
+std::ostream& operator << (std::ostream &os, const std::deque<StringTrie::elem_pointer> &path)
+{
+    for (const auto &v : path)
+        os << *v << " ";
+    return os;
+}
+
+
+typedef std::vector<std::vector<std::string>>  StringMatrix;
+
+void test_alg( const StringMatrix &strMat, std::size_t searchK )
+{
+    using namespace std;
+
+    struct NodeCmp {
+        bool operator()(const StringTrie::Node::pointer &lhs,
+                        const StringTrie::Node::pointer &rhs) const
+        { return lhs->weight() < rhs->weight(); }
+    };
+
+    typedef std::multiset<StringTrie::Node::pointer, NodeCmp>   WorkSet;
+
+    if (strMat.size() <= 1)
+        return;
+
+    StringTrie                              trie;
+    WorkSet                                 lastLevel, curLevel;
+    std::deque<StringTrie::elem_pointer>    path;
+
+    auto rowIt = strMat.begin();
+    auto& firstRow = *rowIt++;
+    // add first row to tree
+    for (auto &v : firstRow) {
+        auto ret = trie.addNode( trie.root(), v );
+        if (ret.second)
+            curLevel.insert(ret.first);
+    } // for
+    // trie.traverse(cout);
+    // cout << endl;
+    // cout << curLevel.size() << endl;
+
+    // from 2nd row to end
+    for (; rowIt != strMat.end(); ++rowIt) {
+        curLevel.swap(lastLevel);
+        curLevel.clear();
+        // for every word in this row
+        for (auto &word : *rowIt) {
+            // for every node in last level
+            for (auto &parent : lastLevel) {
+                auto ret = trie.addNode(parent, word);
+                if (ret.second) {
+                    auto pNewChild = ret.first;
+                    pNewChild->getPath(path);
+                    double score = g_pLMmodel->score(path.begin(), path.end());
+                    pNewChild->setWeight(score);
+                    DLOG(INFO) << score << "\t" << path;
+                    // try to add to cur level
+                    if (curLevel.size() < searchK) {
+                        curLevel.insert(pNewChild);   
+                    } else if (pNewChild->weight() > (*curLevel.begin())->weight()) {
+                        auto pRemoved = *curLevel.begin();
+                        curLevel.erase(curLevel.begin());
+                        pRemoved->removeSelf();
+                        curLevel.insert(pNewChild);
+                    } else {
+                        pNewChild->removeSelf();
+                    } // if
+                } // if ret.second
+            } // for parent
+        } // for word
+    } // for
+
+    // trie.syncElems();
+
+#ifndef NDEBUG
+    cout << "Final results:" << endl;
+    for (auto &node : curLevel) {
+        node->getPath(path);
+        cout << node->weight() << "\t" << path << endl;
+    } // for
+#endif
+}
+
+void test4()
+{
+    using namespace std;
+    
+    StringMatrix    strMat;
+    string          line;
+
+    while (getline(cin, line)) {
+        stringstream stream(line);
+        strMat.emplace_back();
+        std::copy( istream_iterator<string>(stream),
+                   istream_iterator<string>(),
+                   back_inserter(strMat.back()) );
+    } // while
+
+    // print matrix
+    // for (auto &row : strMat) {
+        // std::copy( row.begin(), row.end(), ostream_iterator<string>(cout, " ") );
+        // cout << endl;
+    // } // for
+
+    test_alg(strMat, 3);
+}
+
 
 int main(int argc, char **argv)
 {
@@ -134,7 +241,10 @@ int main(int argc, char **argv)
         cout << "Initialzing LM model..." << endl;
         g_pLMmodel.reset(new NGram_Model("text.bin"));
         cout << "LM model initialize done!" << endl;
-        test3();
+        
+        test4();
+
+        // test3();
         
         // g_pLMmodel.reset(new lm::ngram::Model("text.bin"));
         // test2();
