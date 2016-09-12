@@ -41,7 +41,7 @@ DEFINE_string(idf, "../dict/idf.utf8", "训练过的idf，关键词提取");
 DEFINE_string(stop_words, "../dict/stop_words.utf8", "停用词");
 DEFINE_int32(n_jieba_inst, 0, "Number of jieba instances");
 DEFINE_int32(k, 0, "knn's k");
-DEFINE_int32(searchk, 0, "beam_search's k");
+// DEFINE_int32(searchk, 0, "beam_search's k");
 DEFINE_string(algname, "", "Name of this algorithm");
 DEFINE_string(algmgr, "", "Address algorithm server manager, in form of addr:port");
 DEFINE_string(addr, "", "Address of this algorithm server, use system detected if not specified.");
@@ -174,9 +174,9 @@ static bool validate_k(const char* flagname, gflags::int32 value)
 { return check_above_zero(flagname, value); }
 static const bool k_dummy = gflags::RegisterFlagValidator(&FLAGS_k, &validate_k);
 
-static bool validate_searchk(const char* flagname, gflags::int32 value) 
-{ return check_above_zero(flagname, value); }
-static const bool searchk_dummy = gflags::RegisterFlagValidator(&FLAGS_searchk, &validate_searchk);
+// static bool validate_searchk(const char* flagname, gflags::int32 value) 
+// { return check_above_zero(flagname, value); }
+// static const bool searchk_dummy = gflags::RegisterFlagValidator(&FLAGS_searchk, &validate_searchk);
 
 static
 void get_local_ip()
@@ -307,14 +307,15 @@ void get_all_sentences( GramArray &arr )
     DLOG(INFO) << "knn result:";
 #ifndef NDEBUG
     size_t total = 1;
+    ofstream ofs("knn_result.txt", ios::out);
     for (auto &row : mat) {
         total *= row.size();
         ostringstream ostr;
         copy(row.begin(), row.end(), ostream_iterator<Jieba::Gram>(ostr, " "));
         DLOG(INFO) << ostr.str();
-        // for (auto &v : row)
-            // cout << v.word << " ";
-        // cout << endl;
+        for (auto &v : row)
+            ofs << v.word << " ";
+        ofs << endl;
     } // for
     DLOG(INFO) << "Total " << total << " possible sentences.";
 #endif

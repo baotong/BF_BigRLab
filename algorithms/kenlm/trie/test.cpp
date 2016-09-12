@@ -1,12 +1,50 @@
+/*
+ * Usage:
+ * GLOG_logtostderr=1 /tmp/test -searchk 3 -model text.bin < knn_result.txt
+ */
 #include <string>
 #include <iostream>
 #include <sstream>
 #include <iterator>
 #include <cassert>
 #include <glog/logging.h>
+#include <gflags/gflags.h>
 #include "lm/model.hh"
 #include "trie.hpp"
 #include "ngram_model.hpp"
+
+DEFINE_int32(searchk, 0, "beam_search's k");
+DEFINE_string(model, "", "filename of kenlm model (binary file)");
+
+namespace {
+using namespace std;
+static inline
+bool check_above_zero(const char* flagname, gflags::int32 value)
+{
+    if (value <= 0) {
+        cerr << "value of " << flagname << " must be greater than 0" << endl;
+        return false;
+    } // if
+    return true;
+}
+static inline
+bool check_not_empty(const char* flagname, const std::string &value) 
+{
+    if (value.empty()) {
+        cerr << "value of " << flagname << " cannot be empty" << endl;
+        return false;
+    } // if
+    return true;
+}
+static bool validate_searchk(const char* flagname, gflags::int32 value) 
+{ return check_above_zero(flagname, value); }
+static const bool searchk_dummy = gflags::RegisterFlagValidator(&FLAGS_searchk, &validate_searchk);
+static bool validate_model(const char* flagname, const std::string &value) 
+{ return check_not_empty(flagname, value); }
+static const bool model_dummy = gflags::RegisterFlagValidator(&FLAGS_model, &validate_model);
+} // namespace
+
+
 
 class StringTrie : public Trie<std::string> {
 public:
@@ -131,7 +169,7 @@ std::ostream& operator << (std::ostream &os, const std::deque<StringTrie::elem_p
 
 typedef std::vector<std::vector<std::string>>  StringMatrix;
 
-void test_alg( const StringMatrix &strMat, std::size_t searchK )
+void beam_search( const StringMatrix &strMat, std::size_t searchK )
 {
     using namespace std;
 
@@ -149,6 +187,14 @@ void test_alg( const StringMatrix &strMat, std::size_t searchK )
     StringTrie                              trie;
     WorkSet                                 lastLevel, curLevel;
     std::deque<StringTrie::elem_pointer>    path;
+    std::vector<std::size_t>                searchkVec;
+
+    searchkVec.resize( strMat.size() );
+    for (auto it = searchkVec.rbegin(); it != searchkVec.rend(); ++it)
+        *it = searchK * (std::distance(searchkVec.rbegin(), it) + 1);
+
+    // DLOG(INFO) << "searchkVec:";
+    // std::copy(searchkVec.begin(), searchkVec.end(), ostream_iterator<size_t>(DLOG(INFO), " "));
 
     auto rowIt = strMat.begin();
     auto& firstRow = *rowIt++;
@@ -163,7 +209,7 @@ void test_alg( const StringMatrix &strMat, std::size_t searchK )
     // cout << curLevel.size() << endl;
 
     // from 2nd row to end
-    for (; rowIt != strMat.end(); ++rowIt) {
+    for (auto searchkIt = searchkVec.begin()+1; rowIt != strMat.end(); ++rowIt, ++searchkIt) {
         curLevel.swap(lastLevel);
         curLevel.clear();
         // for every word in this row
@@ -177,8 +223,9 @@ void test_alg( const StringMatrix &strMat, std::size_t searchK )
                     double score = g_pLMmodel->score(path.begin(), path.end());
                     pNewChild->setWeight(score);
                     DLOG(INFO) << score << "\t" << path;
+                    // DLOG(INFO) << "searchK = " << *searchkIt;
                     // try to add to cur level
-                    if (curLevel.size() < searchK) {
+                    if (curLevel.size() < *searchkIt) {
                         curLevel.insert(pNewChild);   
                     } else if (pNewChild->weight() > (*curLevel.begin())->weight()) {
                         auto pRemoved = *curLevel.begin();
@@ -197,7 +244,8 @@ void test_alg( const StringMatrix &strMat, std::size_t searchK )
 
 #ifndef NDEBUG
     cout << "Final results:" << endl;
-    for (auto &node : curLevel) {
+    for (auto it = curLevel.rbegin(); it != curLevel.rend(); ++it) {
+        auto &node = *it;
         node->getPath(path);
         cout << node->weight() << "\t" << path << endl;
     } // for
@@ -225,7 +273,7 @@ void test4()
         // cout << endl;
     // } // for
 
-    test_alg(strMat, 3);
+    beam_search(strMat, (size_t)FLAGS_searchk);
 }
 
 
@@ -234,12 +282,13 @@ int main(int argc, char **argv)
     using namespace std;
 
     google::InitGoogleLogging(argv[0]);
+    gflags::ParseCommandLineFlags(&argc, &argv, true);
 
     try {
         // test1();
         
         cout << "Initialzing LM model..." << endl;
-        g_pLMmodel.reset(new NGram_Model("text.bin"));
+        g_pLMmodel.reset(new NGram_Model(FLAGS_model));
         cout << "LM model initialize done!" << endl;
         
         test4();
