@@ -21,11 +21,7 @@ namespace Article {
 
 class InvalidRequest;
 
-class KeywordResult;
-
-class KnnResult;
-
-class TagResult;
+class Result;
 
 typedef struct _InvalidRequest__isset {
   _InvalidRequest__isset() : reason(false) {}
@@ -67,79 +63,29 @@ inline std::ostream& operator<<(std::ostream& out, const InvalidRequest& obj)
   return out;
 }
 
-typedef struct _KeywordResult__isset {
-  _KeywordResult__isset() : word(false), weight(false) {}
-  bool word :1;
-  bool weight :1;
-} _KeywordResult__isset;
-
-class KeywordResult {
- public:
-
-  KeywordResult(const KeywordResult&);
-  KeywordResult(KeywordResult&&);
-  KeywordResult& operator=(const KeywordResult&);
-  KeywordResult& operator=(KeywordResult&&);
-  KeywordResult() : word(), weight(0) {
-  }
-
-  virtual ~KeywordResult() throw();
-  std::string word;
-  double weight;
-
-  _KeywordResult__isset __isset;
-
-  void __set_word(const std::string& val);
-
-  void __set_weight(const double val);
-
-  template <class Protocol_>
-  uint32_t read(Protocol_* iprot);
-  template <class Protocol_>
-  uint32_t write(Protocol_* oprot) const;
-
-  virtual void printTo(std::ostream& out) const;
-};
-
-void swap(KeywordResult &a, KeywordResult &b);
-
-inline std::ostream& operator<<(std::ostream& out, const KeywordResult& obj)
-{
-  obj.printTo(out);
-  return out;
-}
-
-typedef struct _KnnResult__isset {
-  _KnnResult__isset() : id(false), distance(false), label(false), score(false) {}
-  bool id :1;
-  bool distance :1;
-  bool label :1;
+typedef struct _Result__isset {
+  _Result__isset() : text(false), score(false) {}
+  bool text :1;
   bool score :1;
-} _KnnResult__isset;
+} _Result__isset;
 
-class KnnResult {
+class Result {
  public:
 
-  KnnResult(const KnnResult&);
-  KnnResult(KnnResult&&);
-  KnnResult& operator=(const KnnResult&);
-  KnnResult& operator=(KnnResult&&);
-  KnnResult() : id(0), distance(0), label(), score(0) {
+  Result(const Result&);
+  Result(Result&&);
+  Result& operator=(const Result&);
+  Result& operator=(Result&&);
+  Result() : text(), score(0) {
   }
 
-  virtual ~KnnResult() throw();
-  int64_t id;
-  double distance;
-  std::string label;
+  virtual ~Result() throw();
+  std::string text;
   double score;
 
-  _KnnResult__isset __isset;
+  _Result__isset __isset;
 
-  void __set_id(const int64_t val);
-
-  void __set_distance(const double val);
-
-  void __set_label(const std::string& val);
+  void __set_text(const std::string& val);
 
   void __set_score(const double val);
 
@@ -151,51 +97,9 @@ class KnnResult {
   virtual void printTo(std::ostream& out) const;
 };
 
-void swap(KnnResult &a, KnnResult &b);
+void swap(Result &a, Result &b);
 
-inline std::ostream& operator<<(std::ostream& out, const KnnResult& obj)
-{
-  obj.printTo(out);
-  return out;
-}
-
-typedef struct _TagResult__isset {
-  _TagResult__isset() : tag(false), weight(false) {}
-  bool tag :1;
-  bool weight :1;
-} _TagResult__isset;
-
-class TagResult {
- public:
-
-  TagResult(const TagResult&);
-  TagResult(TagResult&&);
-  TagResult& operator=(const TagResult&);
-  TagResult& operator=(TagResult&&);
-  TagResult() : tag(), weight(0) {
-  }
-
-  virtual ~TagResult() throw();
-  std::string tag;
-  double weight;
-
-  _TagResult__isset __isset;
-
-  void __set_tag(const std::string& val);
-
-  void __set_weight(const double val);
-
-  template <class Protocol_>
-  uint32_t read(Protocol_* iprot);
-  template <class Protocol_>
-  uint32_t write(Protocol_* oprot) const;
-
-  virtual void printTo(std::ostream& out) const;
-};
-
-void swap(TagResult &a, TagResult &b);
-
-inline std::ostream& operator<<(std::ostream& out, const TagResult& obj)
+inline std::ostream& operator<<(std::ostream& out, const Result& obj)
 {
   obj.printTo(out);
   return out;

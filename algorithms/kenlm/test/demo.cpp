@@ -1,4 +1,9 @@
 /*
+ * Usage as service:
+ * GLOG_logtostderr=1 ./demo -algname kenlm -algmgr localhost:9001 -port 10080 --idx ../data/index.ann.500 -idxlen 500 -wt ../data/words_table.txt.500 -model ../test/kenlm/build/text.bin
+ *
+ *
+ *
  * Usage
  * Step 1
  * export GLOG_log_dir="."
@@ -17,10 +22,6 @@
  * 对结果从大到小排序
  * cat merge.txt | sort -k1,1nr > final.txt
  */
-#include "jieba.hpp"
-#include "rpc_module.h"
-#include "AlgMgrService.h"
-#include "ArticleServiceHandler.h"
 #include <cstdio>
 #include <boost/asio.hpp>
 #include <boost/algorithm/string.hpp>
@@ -28,8 +29,13 @@
 #include <thread>
 #include <glog/logging.h>
 #include <gflags/gflags.h>
+#include "jieba.hpp"
+#include "rpc_module.h"
+#include "AlgMgrService.h"
+#include "ArticleServiceHandler.h"
+#include "ngram_model.hpp"
 
-#define SERVICE_LIB_NAME        "tagging"
+#define SERVICE_LIB_NAME        "kenlm"
 
 using namespace BigRLab;
 
@@ -39,9 +45,9 @@ DEFINE_string(hmm, "../dict/hmm_model.utf8", "Path to hmm model file");
 DEFINE_string(user_dict, "../dict/user.dict.utf8", "用户自定义词典");
 DEFINE_string(idf, "../dict/idf.utf8", "训练过的idf，关键词提取");
 DEFINE_string(stop_words, "../dict/stop_words.utf8", "停用词");
-DEFINE_int32(n_jieba_inst, 0, "Number of jieba instances");
-DEFINE_int32(k, 0, "knn's k");
-// DEFINE_int32(searchk, 0, "beam_search's k");
+
+DEFINE_string(model, "", "filename of kenlm model (binary file)");
+
 DEFINE_string(algname, "", "Name of this algorithm");
 DEFINE_string(algmgr, "", "Address algorithm server manager, in form of addr:port");
 DEFINE_string(addr, "", "Address of this algorithm server, use system detected if not specified.");
@@ -170,13 +176,9 @@ static bool validate_idxlen(const char* flagname, gflags::int32 value)
 { return check_above_zero(flagname, value); }
 static const bool idxlen_dummy = gflags::RegisterFlagValidator(&FLAGS_idxlen, &validate_idxlen);
 
-static bool validate_k(const char* flagname, gflags::int32 value) 
-{ return check_above_zero(flagname, value); }
-static const bool k_dummy = gflags::RegisterFlagValidator(&FLAGS_k, &validate_k);
-
-// static bool validate_searchk(const char* flagname, gflags::int32 value) 
-// { return check_above_zero(flagname, value); }
-// static const bool searchk_dummy = gflags::RegisterFlagValidator(&FLAGS_searchk, &validate_searchk);
+static bool validate_model(const char* flagname, const std::string &value) 
+{ return check_not_empty(flagname, value); }
+static const bool model_dummy = gflags::RegisterFlagValidator(&FLAGS_model, &validate_model);
 
 static
 void get_local_ip()
@@ -228,10 +230,11 @@ private:
 
 } // namespace
 
-SharedQueue<Jieba::pointer>      g_JiebaPool;
-Jieba::pointer       g_pJieba;
+Jieba::pointer                  g_pJieba;
+std::unique_ptr<NGram_Model>    g_pLMmodel;
 
 
+#if 0
 namespace Test {
 
 using namespace std;
@@ -344,8 +347,8 @@ void experiment()
     } // while
 }
 
-
 } // namespace Test
+#endif
 
 
 static
@@ -447,12 +450,6 @@ void service_init()
 {
     using namespace std;
 
-    if (FLAGS_n_jieba_inst <= 0 || FLAGS_n_jieba_inst > FLAGS_n_work_threads) {
-        LOG(INFO) << "Adjust -n_jieba_inst from old value " << FLAGS_n_jieba_inst 
-            << " to new value -n_work_threads " << FLAGS_n_work_threads;
-        FLAGS_n_jieba_inst = FLAGS_n_work_threads;
-    } // if
-
     // check idx file
     {
         ifstream ifs(FLAGS_idx, ios::in);
@@ -460,18 +457,10 @@ void service_init()
             THROW_RUNTIME_ERROR("Cannot open annoy index file " << FLAGS_idx << " for reading!");
     }
 
-    // LOG(INFO) << "FLAGS_n_jieba_inst = " << FLAGS_n_jieba_inst;
-    
     DLOG(INFO) << "Creating jieba instances...";
     g_pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, 
             FLAGS_user_dict, FLAGS_idf, FLAGS_stop_words);
     g_pJieba->setFilter( FLAGS_filter );
-    // for (int i = 0; i < FLAGS_n_jieba_inst; ++i) {
-        // auto pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, 
-                // FLAGS_user_dict, FLAGS_idf, FLAGS_stop_words);
-        // pJieba->setFilter( FLAGS_filter );
-        // g_JiebaPool.push(pJieba);
-    // } // for
 
     DLOG(INFO) << "Loading Annoy tree...";
     g_pAnnDB.reset( new WordAnnDB(FLAGS_idxlen) );
@@ -479,10 +468,14 @@ void service_init()
     g_pAnnDB->loadWordTable( FLAGS_wt.c_str() );
 
     LOG(INFO) << "Totally " << g_pAnnDB->size() << " items loaded from annoy tree.";
-    Test::experiment();
+
+    cout << "Initialzing LM model..." << endl;
+    g_pLMmodel.reset(new NGram_Model(FLAGS_model));
+    cout << "LM model initialize done!" << endl;
+    // Test::experiment();
 
     // Test::test_wordseg();
-    exit(0);
+    // exit(0);
 }
 
 static

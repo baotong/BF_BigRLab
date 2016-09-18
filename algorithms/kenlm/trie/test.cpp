@@ -189,12 +189,14 @@ void beam_search( const StringMatrix &strMat, std::size_t searchK )
     std::deque<StringTrie::elem_pointer>    path;
     std::vector<std::size_t>                searchkVec;
 
-    searchkVec.resize( strMat.size() );
+    searchkVec.resize( strMat.size(), searchK );
     for (auto it = searchkVec.rbegin(); it != searchkVec.rend(); ++it)
         *it = searchK * (std::distance(searchkVec.rbegin(), it) + 1);
 
-    // DLOG(INFO) << "searchkVec:";
-    // std::copy(searchkVec.begin(), searchkVec.end(), ostream_iterator<size_t>(DLOG(INFO), " "));
+    std::reverse(searchkVec.begin(), searchkVec.end());
+
+    DLOG(INFO) << "searchkVec:";
+    std::copy(searchkVec.begin(), searchkVec.end(), ostream_iterator<size_t>(DLOG(INFO), " "));
 
     auto rowIt = strMat.begin();
     auto& firstRow = *rowIt++;
@@ -222,7 +224,7 @@ void beam_search( const StringMatrix &strMat, std::size_t searchK )
                     pNewChild->getPath(path);
                     double score = g_pLMmodel->score(path.begin(), path.end());
                     pNewChild->setWeight(score);
-                    DLOG(INFO) << score << "\t" << path;
+                    // DLOG(INFO) << score << "\t" << path;
                     // DLOG(INFO) << "searchK = " << *searchkIt;
                     // try to add to cur level
                     if (curLevel.size() < *searchkIt) {

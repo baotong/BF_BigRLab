@@ -89,6 +89,7 @@ private:
     std::shared_ptr<lm::ngram::Model>       m_pLMmodel;
 };
 
+extern std::unique_ptr<NGram_Model>         g_pLMmodel;
 
 #endif
 

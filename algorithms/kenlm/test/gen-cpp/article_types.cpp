@@ -65,172 +65,52 @@ const char* InvalidRequest::what() const throw() {
 }
 
 
-KeywordResult::~KeywordResult() throw() {
+Result::~Result() throw() {
 }
 
 
-void KeywordResult::__set_word(const std::string& val) {
-  this->word = val;
+void Result::__set_text(const std::string& val) {
+  this->text = val;
 }
 
-void KeywordResult::__set_weight(const double val) {
-  this->weight = val;
-}
-
-void swap(KeywordResult &a, KeywordResult &b) {
-  using ::std::swap;
-  swap(a.word, b.word);
-  swap(a.weight, b.weight);
-  swap(a.__isset, b.__isset);
-}
-
-KeywordResult::KeywordResult(const KeywordResult& other4) {
-  word = other4.word;
-  weight = other4.weight;
-  __isset = other4.__isset;
-}
-KeywordResult::KeywordResult( KeywordResult&& other5) {
-  word = std::move(other5.word);
-  weight = std::move(other5.weight);
-  __isset = std::move(other5.__isset);
-}
-KeywordResult& KeywordResult::operator=(const KeywordResult& other6) {
-  word = other6.word;
-  weight = other6.weight;
-  __isset = other6.__isset;
-  return *this;
-}
-KeywordResult& KeywordResult::operator=(KeywordResult&& other7) {
-  word = std::move(other7.word);
-  weight = std::move(other7.weight);
-  __isset = std::move(other7.__isset);
-  return *this;
-}
-void KeywordResult::printTo(std::ostream& out) const {
-  using ::apache::thrift::to_string;
-  out << "KeywordResult(";
-  out << "word=" << to_string(word);
-  out << ", " << "weight=" << to_string(weight);
-  out << ")";
-}
-
-
-KnnResult::~KnnResult() throw() {
-}
-
-
-void KnnResult::__set_id(const int64_t val) {
-  this->id = val;
-}
-
-void KnnResult::__set_distance(const double val) {
-  this->distance = val;
-}
-
-void KnnResult::__set_label(const std::string& val) {
-  this->label = val;
-}
-
-void KnnResult::__set_score(const double val) {
+void Result::__set_score(const double val) {
   this->score = val;
 }
 
-void swap(KnnResult &a, KnnResult &b) {
+void swap(Result &a, Result &b) {
   using ::std::swap;
-  swap(a.id, b.id);
-  swap(a.distance, b.distance);
-  swap(a.label, b.label);
+  swap(a.text, b.text);
   swap(a.score, b.score);
   swap(a.__isset, b.__isset);
 }
 
-KnnResult::KnnResult(const KnnResult& other8) {
-  id = other8.id;
-  distance = other8.distance;
-  label = other8.label;
-  score = other8.score;
-  __isset = other8.__isset;
+Result::Result(const Result& other4) {
+  text = other4.text;
+  score = other4.score;
+  __isset = other4.__isset;
 }
-KnnResult::KnnResult( KnnResult&& other9) {
-  id = std::move(other9.id);
-  distance = std::move(other9.distance);
-  label = std::move(other9.label);
-  score = std::move(other9.score);
-  __isset = std::move(other9.__isset);
+Result::Result( Result&& other5) {
+  text = std::move(other5.text);
+  score = std::move(other5.score);
+  __isset = std::move(other5.__isset);
 }
-KnnResult& KnnResult::operator=(const KnnResult& other10) {
-  id = other10.id;
-  distance = other10.distance;
-  label = other10.label;
-  score = other10.score;
-  __isset = other10.__isset;
+Result& Result::operator=(const Result& other6) {
+  text = other6.text;
+  score = other6.score;
+  __isset = other6.__isset;
   return *this;
 }
-KnnResult& KnnResult::operator=(KnnResult&& other11) {
-  id = std::move(other11.id);
-  distance = std::move(other11.distance);
-  label = std::move(other11.label);
-  score = std::move(other11.score);
-  __isset = std::move(other11.__isset);
+Result& Result::operator=(Result&& other7) {
+  text = std::move(other7.text);
+  score = std::move(other7.score);
+  __isset = std::move(other7.__isset);
   return *this;
 }
-void KnnResult::printTo(std::ostream& out) const {
+void Result::printTo(std::ostream& out) const {
   using ::apache::thrift::to_string;
-  out << "KnnResult(";
-  out << "id=" << to_string(id);
-  out << ", " << "distance=" << to_string(distance);
-  out << ", " << "label=" << to_string(label);
+  out << "Result(";
+  out << "text=" << to_string(text);
   out << ", " << "score=" << to_string(score);
-  out << ")";
-}
-
-
-TagResult::~TagResult() throw() {
-}
-
-
-void TagResult::__set_tag(const std::string& val) {
-  this->tag = val;
-}
-
-void TagResult::__set_weight(const double val) {
-  this->weight = val;
-}
-
-void swap(TagResult &a, TagResult &b) {
-  using ::std::swap;
-  swap(a.tag, b.tag);
-  swap(a.weight, b.weight);
-  swap(a.__isset, b.__isset);
-}
-
-TagResult::TagResult(const TagResult& other12) {
-  tag = other12.tag;
-  weight = other12.weight;
-  __isset = other12.__isset;
-}
-TagResult::TagResult( TagResult&& other13) {
-  tag = std::move(other13.tag);
-  weight = std::move(other13.weight);
-  __isset = std::move(other13.__isset);
-}
-TagResult& TagResult::operator=(const TagResult& other14) {
-  tag = other14.tag;
-  weight = other14.weight;
-  __isset = other14.__isset;
-  return *this;
-}
-TagResult& TagResult::operator=(TagResult&& other15) {
-  tag = std::move(other15.tag);
-  weight = std::move(other15.weight);
-  __isset = std::move(other15.__isset);
-  return *this;
-}
-void TagResult::printTo(std::ostream& out) const {
-  using ::apache::thrift::to_string;
-  out << "TagResult(";
-  out << "tag=" << to_string(tag);
-  out << ", " << "weight=" << to_string(weight);
   out << ")";
 }
 

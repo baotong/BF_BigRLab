@@ -69,7 +69,7 @@ uint32_t InvalidRequest::write(Protocol_* oprot) const {
 }
 
 template <class Protocol_>
-uint32_t KeywordResult::read(Protocol_* iprot) {
+uint32_t Result::read(Protocol_* iprot) {
 
   apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -92,98 +92,13 @@ uint32_t KeywordResult::read(Protocol_* iprot) {
     {
       case 1:
         if (ftype == ::apache::thrift::protocol::T_STRING) {
-          xfer += iprot->readString(this->word);
-          this->__isset.word = true;
+          xfer += iprot->readString(this->text);
+          this->__isset.text = true;
         } else {
           xfer += iprot->skip(ftype);
         }
         break;
       case 2:
-        if (ftype == ::apache::thrift::protocol::T_DOUBLE) {
-          xfer += iprot->readDouble(this->weight);
-          this->__isset.weight = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
-      default:
-        xfer += iprot->skip(ftype);
-        break;
-    }
-    xfer += iprot->readFieldEnd();
-  }
-
-  xfer += iprot->readStructEnd();
-
-  return xfer;
-}
-
-template <class Protocol_>
-uint32_t KeywordResult::write(Protocol_* oprot) const {
-  uint32_t xfer = 0;
-  apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
-  xfer += oprot->writeStructBegin("KeywordResult");
-
-  xfer += oprot->writeFieldBegin("word", ::apache::thrift::protocol::T_STRING, 1);
-  xfer += oprot->writeString(this->word);
-  xfer += oprot->writeFieldEnd();
-
-  xfer += oprot->writeFieldBegin("weight", ::apache::thrift::protocol::T_DOUBLE, 2);
-  xfer += oprot->writeDouble(this->weight);
-  xfer += oprot->writeFieldEnd();
-
-  xfer += oprot->writeFieldStop();
-  xfer += oprot->writeStructEnd();
-  return xfer;
-}
-
-template <class Protocol_>
-uint32_t KnnResult::read(Protocol_* iprot) {
-
-  apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
-  uint32_t xfer = 0;
-  std::string fname;
-  ::apache::thrift::protocol::TType ftype;
-  int16_t fid;
-
-  xfer += iprot->readStructBegin(fname);
-
-  using ::apache::thrift::protocol::TProtocolException;
-
-
-  while (true)
-  {
-    xfer += iprot->readFieldBegin(fname, ftype, fid);
-    if (ftype == ::apache::thrift::protocol::T_STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-        if (ftype == ::apache::thrift::protocol::T_I64) {
-          xfer += iprot->readI64(this->id);
-          this->__isset.id = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
-      case 2:
-        if (ftype == ::apache::thrift::protocol::T_DOUBLE) {
-          xfer += iprot->readDouble(this->distance);
-          this->__isset.distance = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
-      case 3:
-        if (ftype == ::apache::thrift::protocol::T_STRING) {
-          xfer += iprot->readString(this->label);
-          this->__isset.label = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
-      case 4:
         if (ftype == ::apache::thrift::protocol::T_DOUBLE) {
           xfer += iprot->readDouble(this->score);
           this->__isset.score = true;
@@ -204,94 +119,17 @@ uint32_t KnnResult::read(Protocol_* iprot) {
 }
 
 template <class Protocol_>
-uint32_t KnnResult::write(Protocol_* oprot) const {
+uint32_t Result::write(Protocol_* oprot) const {
   uint32_t xfer = 0;
   apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
-  xfer += oprot->writeStructBegin("KnnResult");
+  xfer += oprot->writeStructBegin("Result");
 
-  xfer += oprot->writeFieldBegin("id", ::apache::thrift::protocol::T_I64, 1);
-  xfer += oprot->writeI64(this->id);
+  xfer += oprot->writeFieldBegin("text", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString(this->text);
   xfer += oprot->writeFieldEnd();
 
-  xfer += oprot->writeFieldBegin("distance", ::apache::thrift::protocol::T_DOUBLE, 2);
-  xfer += oprot->writeDouble(this->distance);
-  xfer += oprot->writeFieldEnd();
-
-  xfer += oprot->writeFieldBegin("label", ::apache::thrift::protocol::T_STRING, 3);
-  xfer += oprot->writeString(this->label);
-  xfer += oprot->writeFieldEnd();
-
-  xfer += oprot->writeFieldBegin("score", ::apache::thrift::protocol::T_DOUBLE, 4);
+  xfer += oprot->writeFieldBegin("score", ::apache::thrift::protocol::T_DOUBLE, 2);
   xfer += oprot->writeDouble(this->score);
-  xfer += oprot->writeFieldEnd();
-
-  xfer += oprot->writeFieldStop();
-  xfer += oprot->writeStructEnd();
-  return xfer;
-}
-
-template <class Protocol_>
-uint32_t TagResult::read(Protocol_* iprot) {
-
-  apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
-  uint32_t xfer = 0;
-  std::string fname;
-  ::apache::thrift::protocol::TType ftype;
-  int16_t fid;
-
-  xfer += iprot->readStructBegin(fname);
-
-  using ::apache::thrift::protocol::TProtocolException;
-
-
-  while (true)
-  {
-    xfer += iprot->readFieldBegin(fname, ftype, fid);
-    if (ftype == ::apache::thrift::protocol::T_STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-        if (ftype == ::apache::thrift::protocol::T_STRING) {
-          xfer += iprot->readString(this->tag);
-          this->__isset.tag = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
-      case 2:
-        if (ftype == ::apache::thrift::protocol::T_DOUBLE) {
-          xfer += iprot->readDouble(this->weight);
-          this->__isset.weight = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
-      default:
-        xfer += iprot->skip(ftype);
-        break;
-    }
-    xfer += iprot->readFieldEnd();
-  }
-
-  xfer += iprot->readStructEnd();
-
-  return xfer;
-}
-
-template <class Protocol_>
-uint32_t TagResult::write(Protocol_* oprot) const {
-  uint32_t xfer = 0;
-  apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
-  xfer += oprot->writeStructBegin("TagResult");
-
-  xfer += oprot->writeFieldBegin("tag", ::apache::thrift::protocol::T_STRING, 1);
-  xfer += oprot->writeString(this->tag);
-  xfer += oprot->writeFieldEnd();
-
-  xfer += oprot->writeFieldBegin("weight", ::apache::thrift::protocol::T_DOUBLE, 2);
-  xfer += oprot->writeDouble(this->weight);
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldStop();
