@@ -171,6 +171,10 @@ void ArticleService::handleCommand( std::stringstream &stream )
         } else if ("topk" == key) {
             if (sscanf(value.c_str(), "%d", &topk) != 1 || topk <= 0)
                 THROW_RUNTIME_ERROR("Invalid topk value!");
+        } else if ("in" == key) {
+            infile.swap(value);   
+        } else if ("out" == key) {
+            outfile.swap(value);
         } else {
             THROW_RUNTIME_ERROR("Unrecogonized arg " << key);
         } // if

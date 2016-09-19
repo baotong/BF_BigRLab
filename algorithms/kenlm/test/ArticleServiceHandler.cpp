@@ -17,6 +17,14 @@ namespace Article {
 
 using namespace std;
 
+inline
+std::ostream& operator << (std::ostream &os, const std::deque<StringTrie::elem_pointer> &path)
+{
+    for (const auto &v : path)
+        os << *v << " ";
+    return os;
+}
+
 void ArticleServiceHandler::setFilter( const std::string &strFilter )
 {
     THROW_INVALID_REQUEST("not implemented");
@@ -152,6 +160,7 @@ void ArticleServiceHandler::beam_search( std::vector<Result> &result,
         --topk;
         ostringstream stream;
         stream << path << flush;
+        DLOG(INFO) << path;
         result.emplace_back();
         result.back().text = std::move(stream.str());
         boost::trim_right(result.back().text);

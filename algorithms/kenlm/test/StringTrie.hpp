@@ -23,13 +23,5 @@ public:
     }
 };
 
-inline
-std::ostream& operator << (std::ostream &os, const std::deque<StringTrie::elem_pointer> &path)
-{
-    for (const auto &v : path)
-        os << *v << " ";
-    return os;
-}
-
 #endif
 
