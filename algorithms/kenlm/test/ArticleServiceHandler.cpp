@@ -54,12 +54,12 @@ void ArticleServiceHandler::creativeRoutine(std::vector<Result> & _return,
     if (tagResult.empty())
         return;
 
-#ifndef NDEBUG
-    DLOG(INFO) << "After word segment:";
-    ostringstream ostr;
-    std::copy(tagResult.begin(), tagResult.end(), ostream_iterator<Jieba::Gram>(ostr, " "));
-    DLOG(INFO) << ostr.str();
-#endif 
+// #ifndef NDEBUG
+    // DLOG(INFO) << "After word segment:";
+    // ostringstream ostr;
+    // std::copy(tagResult.begin(), tagResult.end(), ostream_iterator<Jieba::Gram>(ostr, " "));
+    // DLOG(INFO) << ostr.str();
+// #endif 
 
     StringMatrix knnResult;
     knn(tagResult, knnResult, k);
@@ -154,6 +154,7 @@ void ArticleServiceHandler::beam_search( std::vector<Result> &result,
         stream << path << flush;
         result.emplace_back();
         result.back().text = std::move(stream.str());
+        boost::trim_right(result.back().text);
         result.back().score = node->weight();
     } // for
 
@@ -170,6 +171,49 @@ void ArticleServiceHandler::beam_search( std::vector<Result> &result,
 
 void ArticleServiceHandler::handleRequest(std::string& _return, const std::string& request)
 {
+    Json::Reader    reader;
+    Json::Value     root;
+    Json::Value     resp;
+
+    // DLOG(INFO) << "KnnService received request: " << request;
+
+    if (!reader.parse(request, root))
+        THROW_INVALID_REQUEST("Json parse fail!");
+
+    try {
+        string text = root["text"].asString();
+        int    k = root["k"].asInt();
+        int    bSearchK = root["bsearchk"].asInt();
+        int    topk = root["topk"].asInt();
+        // int    searchK = -1, topk = 0, method = -1;
+
+        vector<Result> result;
+        creativeRoutine(result, text, k, bSearchK, topk);
+
+        // DLOG(INFO) << "result.size() = " << result.size();
+
+        if (result.empty()) {
+            resp["result"] = "null";
+        } else {
+            for (auto &v : result) {
+                Json::Value item;
+                item["text"] = v.text;
+                item["score"] = v.score;
+                resp["result"].append(item);
+            } // for
+        } // if
+
+        resp["status"] = 0;
+
+        Json::FastWriter writer;  
+        _return = writer.write(resp);
+
+    } catch (const InvalidRequest &err) {
+        throw err;
+    } catch (const std::exception &ex) {
+        LOG(ERROR) << "handleRequest fail: " << ex.what();
+        THROW_INVALID_REQUEST("handleRequest fail: " << ex.what());
+    } // try
 }
 
 } // namespace Article
