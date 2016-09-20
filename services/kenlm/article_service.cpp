@@ -12,6 +12,7 @@
 using namespace BigRLab;
 using namespace std;
 
+// service 的名称 like kenlm1, kenlm2
 Service* create_instance(const char *name)
 { return new ArticleService(name); }
 
@@ -221,7 +222,7 @@ void ArticleService::handleCommand( std::stringstream &stream )
 #undef MY_WRITE_LINE
 }
 
-// 在apiserver的工作线程中执行
+// 在apiserver的工作线程中执行 不用改
 void ArticleService::handleRequest(const BigRLab::WorkItemPtr &pWork)
 {
     // DLOG(INFO) << "Service " << name() << " received request: " << pWork->body;

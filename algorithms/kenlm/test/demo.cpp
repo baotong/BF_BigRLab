@@ -35,6 +35,7 @@
 #include "ArticleServiceHandler.h"
 #include "ngram_model.hpp"
 
+// .so 的名字
 #define SERVICE_LIB_NAME        "kenlm"
 
 using namespace BigRLab;

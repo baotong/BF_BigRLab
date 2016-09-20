@@ -1,9 +1,9 @@
 /*
  *** Usage:
- * Command:
+ * Command:   by handleCommand
  * service kenlm in:infile out:outfile k:10 bsearchk:10000 topk:10
  *
- * http:
+ * http:    by handleRequest
  * curl -i -X POST -H "Content-Type: BigRLab_Request" -d '{"k":10,"bsearchk":10000,"topk":10,"text":"Put your text here"}' http://localhost:9000/kenlm
  * 返回值可能是空的，此时返回json字段 "result":"null", "status":"0"
  */

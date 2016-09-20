@@ -51,6 +51,8 @@ void ArticleServiceHandler::knn(const GramArray &arr, StringMatrix &result, int3
 void ArticleServiceHandler::creativeRoutine(std::vector<Result> & _return, 
             const std::string& input, const int32_t k, const int32_t bSearchK, const int32_t topk)
 {
+    // DLOG(INFO) << "Got request: " << input;
+
     if (input.empty())
         THROW_INVALID_REQUEST("Input string is empty!");
 
@@ -160,7 +162,7 @@ void ArticleServiceHandler::beam_search( std::vector<Result> &result,
         --topk;
         ostringstream stream;
         stream << path << flush;
-        DLOG(INFO) << path;
+        // DLOG(INFO) << path;
         result.emplace_back();
         result.back().text = std::move(stream.str());
         boost::trim_right(result.back().text);
