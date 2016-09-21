@@ -38,6 +38,8 @@
 // .so 的名字
 #define SERVICE_LIB_NAME        "kenlm"
 
+#define TIMER_REJOIN            15          // 15s
+
 using namespace BigRLab;
 
 DEFINE_string(filter, "x", "Filter out specific kinds of word in word segment");
@@ -234,6 +236,9 @@ private:
 Jieba::pointer                  g_pJieba;
 std::unique_ptr<NGram_Model>    g_pLMmodel;
 
+static bool                                                g_bLoginSuccess = false;
+static std::unique_ptr< boost::asio::deadline_timer >      g_Timer;
+
 
 #if 0
 namespace Test {
@@ -355,6 +360,7 @@ void experiment()
 static
 void stop_server()
 {
+    DLOG(INFO) << "stop_server()";
     if (g_pThisServer)
         g_pThisServer->stop();
 }
@@ -362,11 +368,75 @@ void stop_server()
 static
 void stop_client()
 {
+    DLOG(INFO) << "stop_client()";
     if (g_pAlgMgrClient) {
         (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
         g_pAlgMgrClient->stop();
     } // if
 }
+
+
+static
+void register_svr()
+{
+    try {
+        SLEEP_MILLISECONDS(500);   // let thrift server start first
+        if (!g_pAlgMgrClient->start(50, 300)) {
+            cerr << "AlgMgr server unreachable!" << endl;
+            exit(-1);
+        } // if
+        (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
+        int ret = (*g_pAlgMgrClient)()->addSvr(FLAGS_algname, *g_pSvrInfo);
+        if (ret != BigRLab::SUCCESS) {
+            cerr << "Register alg server fail!";
+            switch (ret) {
+                case BigRLab::ALREADY_EXIST:
+                    cerr << " server with same addr:port already exists!";
+                    break;
+                case BigRLab::SERVER_UNREACHABLE:
+                    cerr << " this server is unreachable by algmgr! check the server address setting.";
+                    break;
+                case BigRLab::NO_SERVICE:
+                    cerr << " service lib has not benn loaded on apiserver!";
+                    break;
+                case BigRLab::INTERNAL_FAIL:
+                    cerr << " fail due to internal error!";
+                    break;
+            } // switch
+            cerr << endl;
+            std::raise(SIGTERM);
+            return;
+        } // if
+        
+        g_bLoginSuccess = true;
+
+    } catch (const std::exception &ex) {
+        cerr << "Unable to connect to algmgr server, " << ex.what() << endl;
+        std::raise(SIGTERM);
+    } // try
+}
+
+
+static
+void rejoin(const boost::system::error_code &ec)
+{
+    // DLOG(INFO) << "rejoin timer called";
+
+    if (g_bLoginSuccess) {
+        try {
+            (*g_pAlgMgrClient)()->addSvr(FLAGS_algname, *g_pSvrInfo);
+        } catch (const std::exception &ex) {
+            LOG(ERROR) << "Connection with apiserver lost, re-connecting...";
+            g_pAlgMgrClient.reset();
+            g_pAlgMgrClient = boost::make_shared< AlgMgrClient >(g_strAlgMgrAddr, g_nAlgMgrPort);
+            g_pAlgMgrClient->start(); 
+        } // try
+    } // if
+
+    g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_REJOIN));
+    g_Timer->async_wait(rejoin);
+}
+
 
 static
 void start_rpc_service()
@@ -396,39 +466,6 @@ void start_rpc_service()
     // 尝试连接本server，而本server还没有启动
     cout << "Registering server..." << endl;
     g_pAlgMgrClient = boost::make_shared< AlgMgrClient >(g_strAlgMgrAddr, g_nAlgMgrPort);
-    auto register_svr = [&] {
-        try {
-            SLEEP_MILLISECONDS(500);   // let thrift server start first
-            if (!g_pAlgMgrClient->start(50, 300)) {
-                cerr << "AlgMgr server unreachable!" << endl;
-                exit(-1);
-            } // if
-            (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
-            int ret = (*g_pAlgMgrClient)()->addSvr(FLAGS_algname, *g_pSvrInfo);
-            if (ret != BigRLab::SUCCESS) {
-                cerr << "Register alg server fail!";
-                switch (ret) {
-                    case BigRLab::ALREADY_EXIST:
-                        cerr << " server with same addr:port already exists!";
-                        break;
-                    case BigRLab::SERVER_UNREACHABLE:
-                        cerr << " this server is unreachable by algmgr! check the server address setting.";
-                        break;
-                    case BigRLab::NO_SERVICE:
-                        cerr << " service lib has not benn loaded on apiserver!";
-                        break;
-                    case BigRLab::INTERNAL_FAIL:
-                        cerr << " fail due to internal error!";
-                        break;
-                } // switch
-                cerr << endl;
-                std::raise(SIGTERM);
-            } // if
-        } catch (const std::exception &ex) {
-            cerr << "Unable to connect to algmgr server, " << ex.what() << endl;
-            std::raise(SIGTERM);
-        } // try
-    };
     boost::thread register_thr(register_svr);
     register_thr.detach();
 
@@ -504,13 +541,24 @@ int main(int argc, char **argv)
         
         // install signal handler
         auto pIoServiceWork = boost::make_shared< boost::asio::io_service::work >(std::ref(g_io_service));
+
         boost::asio::signal_set signals(g_io_service, SIGINT, SIGTERM);
-        signals.async_wait( [](const boost::system::error_code& error, int signal)
-                { stop_server(); } );
+        signals.async_wait( [](const boost::system::error_code& error, int signal) { 
+            if (g_Timer)
+                g_Timer->cancel();
+            stop_server(); 
+        } );
+
+        g_Timer.reset(new boost::asio::deadline_timer(std::ref(g_io_service)));
+
         auto io_service_thr = boost::thread( [&]{ g_io_service.run(); } );
 
-        do_service_routine();
+        g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_REJOIN));
+        g_Timer->async_wait(rejoin);
 
+        do_service_routine(); // block on start server, unblock by stop_server
+
+        DLOG(INFO) << "main cleaning up...";
         pIoServiceWork.reset();
         g_io_service.stop();
         if (io_service_thr.joinable())
@@ -528,4 +576,8 @@ int main(int argc, char **argv)
     return 0;
 }
 
-
+/*
+ * apiserver 退出后，按 Ctrl-C 退出本程序会收到异常
+ * Exception caught by main: No more data to read.
+ * 这是由 stop_client rmSvr 远程调用失败引发
+ */

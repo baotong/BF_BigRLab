@@ -12,7 +12,7 @@ int32_t AlgMgrServiceHandler::addSvr(const std::string& algName, const AlgSvrInf
 {
     int ret = SUCCESS;
 
-    DLOG(INFO) << "received addSvr request: name = " << algName << " info = " << svrInfo;
+    // DLOG(INFO) << "received addSvr request: name = " << algName << " info = " << svrInfo;
 
     boost::upgrade_lock< AlgSvrTable > sLock(m_mapSvrTable);
     auto it = m_mapSvrTable.find( algName );

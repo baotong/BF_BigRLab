@@ -112,7 +112,7 @@ public:
     { 
         stop();
 
-        for (int i = 0; i < try_count; ++i) { // totally wait 15s
+        for (int i = 0; i < try_count; ++i) {
             try {
                 m_pTransport->open(); 
                 m_bRunning = true;
