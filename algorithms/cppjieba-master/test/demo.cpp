@@ -19,6 +19,8 @@
 
 #define SERVICE_LIB_NAME        "article"
 
+#define TIMER_REJOIN            15          // 15s
+
 using namespace BigRLab;
 
 DEFINE_string(filter, "x", "Filter out specific kinds of word in word segment");
@@ -249,6 +251,9 @@ private:
 
 SharedQueue<Jieba::pointer>      g_JiebaPool;
 
+static bool                                                g_bLoginSuccess = false;
+static std::unique_ptr< boost::asio::deadline_timer >      g_Timer;
+
 
 namespace Test {
 
@@ -304,7 +309,8 @@ void start_rpc_service()
         get_local_ip();
     } catch (const std::exception &ex) {
         LOG(ERROR) << "get_local_ip() fail! " << ex.what();
-        exit(-1);
+        std::raise(SIGTERM);
+        return;
     } // try
 
     cout << "Detected local ip is " << g_strThisAddr << endl;
@@ -326,7 +332,8 @@ void start_rpc_service()
             SLEEP_MILLISECONDS(500);   // let thrift server start first
             if (!g_pAlgMgrClient->start(50, 300)) {
                 cerr << "AlgMgr server unreachable!" << endl;
-                exit(-1);
+                std::raise(SIGTERM);
+                return;
             } // if
             (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
             int ret = (*g_pAlgMgrClient)()->addSvr(FLAGS_algname, *g_pSvrInfo);
@@ -348,7 +355,11 @@ void start_rpc_service()
                 } // switch
                 cerr << endl;
                 std::raise(SIGTERM);
+                return;
             } // if
+
+            g_bLoginSuccess = true;
+
         } catch (const std::exception &ex) {
             cerr << "Unable to connect to algmgr server, " << ex.what() << endl;
             std::raise(SIGTERM);
@@ -367,8 +378,29 @@ void start_rpc_service()
         g_pThisServer->start(); //!! NOTE blocking until quit
     } catch (const std::exception &ex) {
         cerr << "Start this alg server fail, " << ex.what() << endl;
-        exit(-1);
+        std::raise(SIGTERM);
+        return;
     } // try
+}
+
+static
+void rejoin(const boost::system::error_code &ec)
+{
+    // DLOG(INFO) << "rejoin timer called";
+
+    if (g_bLoginSuccess) {
+        try {
+            (*g_pAlgMgrClient)()->addSvr(FLAGS_algname, *g_pSvrInfo);
+        } catch (const std::exception &ex) {
+            LOG(ERROR) << "Connection with apiserver lost, re-connecting...";
+            g_pAlgMgrClient.reset();
+            g_pAlgMgrClient = boost::make_shared< AlgMgrClient >(g_strAlgMgrAddr, g_nAlgMgrPort);
+            g_pAlgMgrClient->start(); 
+        } // try
+    } // if
+
+    g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_REJOIN));
+    g_Timer->async_wait(rejoin);
 }
 
 static
@@ -511,7 +543,7 @@ void do_standalone_routine()
     // for (auto& v : result)
         // cout << v << endl;
 
-    exit(0);
+    return;
 }
 
 
@@ -529,9 +561,18 @@ int main(int argc, char **argv)
         
         // install signal handler
         auto pIoServiceWork = boost::make_shared< boost::asio::io_service::work >(std::ref(g_io_service));
+
         boost::asio::signal_set signals(g_io_service, SIGINT, SIGTERM);
-        signals.async_wait( [](const boost::system::error_code& error, int signal)
-                { stop_server(); } );
+        signals.async_wait( [](const boost::system::error_code& error, int signal) { 
+            if (g_Timer)
+                g_Timer->cancel();
+            stop_server(); 
+        } );
+
+        g_Timer.reset(new boost::asio::deadline_timer(std::ref(g_io_service)));
+        g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_REJOIN));
+        g_Timer->async_wait(rejoin);
+
         auto io_service_thr = boost::thread( [&]{ g_io_service.run(); } );
 
         if (FLAGS_service)

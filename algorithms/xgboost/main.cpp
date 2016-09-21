@@ -483,7 +483,7 @@ int main(int argc, char **argv)
             stop_server(); 
         } );
 
-        g_Timer.reset(new boost::asio::deadline_timer(std::ref(g_io_service)));
+        g_Timer.reset(new boost::asio::deadline_timer(std::ref(io_service)));
         g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_REJOIN));
         g_Timer->async_wait(rejoin);
 
