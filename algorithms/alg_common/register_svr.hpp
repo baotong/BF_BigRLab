@@ -3,6 +3,8 @@
 
 typedef BigRLab::ThriftClient< BigRLab::AlgMgrServiceClient >                AlgMgrClient;
 
+static bool  g_bLoginSuccess = false;
+
 static
 void register_svr( AlgMgrClient *pClient, const std::string &algname, BigRLab::AlgSvrInfo *pSvrInfo )
 {
@@ -12,7 +14,8 @@ void register_svr( AlgMgrClient *pClient, const std::string &algname, BigRLab::A
         SLEEP_MILLISECONDS(500);   // let thrift server start first
         if (!pClient->start(50, 300)) {
             cerr << "AlgMgr server unreachable!" << endl;
-            exit(-1);
+            std::raise(SIGTERM);
+            return;
         } // if
         (*pClient)()->rmSvr(algname, *pSvrInfo);
         int ret = (*pClient)()->addSvr(algname, *pSvrInfo);
@@ -34,7 +37,11 @@ void register_svr( AlgMgrClient *pClient, const std::string &algname, BigRLab::A
             } // switch
             cerr << endl;
             std::raise(SIGTERM);
+            return;
         } // if
+
+        g_bLoginSuccess = true;
+
     } catch (const std::exception &ex) {
         cerr << "Unable to connect to algmgr server, " << ex.what() << endl;
         std::raise(SIGTERM);

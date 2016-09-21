@@ -44,6 +44,8 @@
 
 #define SERVICE_LIB_NAME        "xgboost"
 
+#define TIMER_REJOIN            15          // 15s
+
 DEFINE_string(model, "", "Same as model_in of xgboost");
 DEFINE_string(model2, "", "Secondary model for GBDT and RNN");
 DEFINE_bool(standalone, false, "Whether this program run in standalone mode");
@@ -202,6 +204,8 @@ static std::unique_ptr<CLIParam>        g_pCLIParam2;
 SharedQueue<XgBoostLearner::pointer>    g_LearnerPool;
 std::vector<uint32_t>                   g_arrMaxLeafId;
 std::vector<bool>                       g_arrTreeMark;
+
+static std::unique_ptr< boost::asio::deadline_timer >      g_Timer;
 
 static
 void stop_server()
@@ -388,7 +392,8 @@ void service_init()
         g_strThisAddr = get_local_ip(FLAGS_algmgr);
     } catch (const std::exception &ex) {
         LOG(ERROR) << "get_local_ip() fail! " << ex.what();
-        exit(-1);
+        std::raise(SIGTERM);
+        return;
     } // try
 
     cout << "Detected local ip is " << g_strThisAddr << endl;
@@ -398,6 +403,26 @@ void service_init()
     g_pSvrInfo->port = (int16_t)g_nThisPort;
     g_pSvrInfo->maxConcurrency = FLAGS_n_work_threads;
     g_pSvrInfo->serviceName = SERVICE_LIB_NAME;
+}
+
+static
+void rejoin(const boost::system::error_code &ec)
+{
+    // DLOG(INFO) << "rejoin timer called";
+
+    if (g_bLoginSuccess) {
+        try {
+            (*g_pAlgMgrClient)()->addSvr(FLAGS_algname, *g_pSvrInfo);
+        } catch (const std::exception &ex) {
+            LOG(ERROR) << "Connection with apiserver lost, re-connecting...";
+            g_pAlgMgrClient.reset();
+            g_pAlgMgrClient = boost::make_shared< AlgMgrClient >(g_strAlgMgrAddr, g_nAlgMgrPort);
+            g_pAlgMgrClient->start(); 
+        } // try
+    } // if
+
+    g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_REJOIN));
+    g_Timer->async_wait(rejoin);
 }
 
 static
@@ -424,7 +449,8 @@ void start_rpc_service()
         g_pThisServer->start(); //!! NOTE blocking until quit
     } catch (const std::exception &ex) {
         cerr << "Start this alg server fail, " << ex.what() << endl;
-        exit(-1);
+        std::raise(SIGTERM);
+        return;
     } // try
 }
 
@@ -449,9 +475,18 @@ int main(int argc, char **argv)
         // install signal handler
         boost::asio::io_service     io_service;
         auto pIoServiceWork = boost::make_shared< boost::asio::io_service::work >(std::ref(io_service));
+
         boost::asio::signal_set signals(io_service, SIGINT, SIGTERM);
-        signals.async_wait( [](const boost::system::error_code& error, int signal)
-                { stop_server(); } );
+        signals.async_wait( [](const boost::system::error_code& error, int signal) { 
+            if (g_Timer)
+                g_Timer->cancel();
+            stop_server(); 
+        } );
+
+        g_Timer.reset(new boost::asio::deadline_timer(std::ref(g_io_service)));
+        g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_REJOIN));
+        g_Timer->async_wait(rejoin);
+
         auto io_service_thr = boost::thread( [&]{ io_service.run(); } );
 
         if (FLAGS_standalone)

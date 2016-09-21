@@ -383,7 +383,8 @@ void register_svr()
         SLEEP_MILLISECONDS(500);   // let thrift server start first
         if (!g_pAlgMgrClient->start(50, 300)) {
             cerr << "AlgMgr server unreachable!" << endl;
-            exit(-1);
+            std::raise(SIGTERM);
+            return;
         } // if
         (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
         int ret = (*g_pAlgMgrClient)()->addSvr(FLAGS_algname, *g_pSvrInfo);
@@ -449,7 +450,8 @@ void start_rpc_service()
         get_local_ip();
     } catch (const std::exception &ex) {
         LOG(ERROR) << "get_local_ip() fail! " << ex.what();
-        exit(-1);
+        std::raise(SIGTERM);
+        return; //!! 不可以直接exit，还有未join的io_serivice线程
     } // try
 
     cout << "Detected local ip is " << g_strThisAddr << endl;
@@ -479,7 +481,8 @@ void start_rpc_service()
         g_pThisServer->start(); //!! NOTE blocking until quit
     } catch (const std::exception &ex) {
         cerr << "Start this alg server fail, " << ex.what() << endl;
-        exit(-1);
+        std::raise(SIGTERM);
+        return;
     } // try
 }
 
@@ -550,11 +553,10 @@ int main(int argc, char **argv)
         } );
 
         g_Timer.reset(new boost::asio::deadline_timer(std::ref(g_io_service)));
-
-        auto io_service_thr = boost::thread( [&]{ g_io_service.run(); } );
-
         g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_REJOIN));
         g_Timer->async_wait(rejoin);
+
+        auto io_service_thr = boost::thread( [&]{ g_io_service.run(); } );
 
         do_service_routine(); // block on start server, unblock by stop_server
 
