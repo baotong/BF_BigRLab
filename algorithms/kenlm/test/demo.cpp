@@ -423,18 +423,22 @@ void rejoin(const boost::system::error_code &ec)
 {
     // DLOG(INFO) << "rejoin timer called";
 
+    int waitTime = TIMER_REJOIN;
+
     if (g_bLoginSuccess) {
         try {
+            if (!g_pAlgMgrClient->isRunning())
+                g_pAlgMgrClient->start(50, 300);
             (*g_pAlgMgrClient)()->addSvr(FLAGS_algname, *g_pSvrInfo);
         } catch (const std::exception &ex) {
             LOG(ERROR) << "Connection with apiserver lost, re-connecting...";
             g_pAlgMgrClient.reset();
             g_pAlgMgrClient = boost::make_shared< AlgMgrClient >(g_strAlgMgrAddr, g_nAlgMgrPort);
-            g_pAlgMgrClient->start(); 
+            waitTime = 5;
         } // try
     } // if
 
-    g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_REJOIN));
+    g_Timer->expires_from_now(boost::posix_time::seconds(waitTime));
     g_Timer->async_wait(rejoin);
 }
 
