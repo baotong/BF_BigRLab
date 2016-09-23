@@ -134,7 +134,7 @@ void start_alg_mgr()
             g_pAlgMgrHandler = boost::make_shared<AlgMgrServiceHandler>();
             // 1 io threads and 3 work threads
             g_pAlgMgrServer = boost::make_shared<AlgMgrServer>(
-                    boost::static_pointer_cast<AlgMgrServiceIf>(g_pAlgMgrHandler), g_nAlgMgrPort, 1, 3);
+                    boost::static_pointer_cast<AlgMgrServiceIf>(g_pAlgMgrHandler), g_nAlgMgrPort, 2, 3);
             g_pAlgMgrServer->start();
         } catch (const std::exception &ex) {
             LOG(ERROR) << "Start algmgr server fail!";

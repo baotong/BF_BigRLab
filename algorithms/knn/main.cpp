@@ -478,7 +478,8 @@ void start_rpc_service()
     cout << "Launching alogrithm server... " << endl;
     boost::shared_ptr< KNN::KnnServiceIf > pHandler = boost::make_shared< KNN::KnnServiceHandler >();
     // Test::test1(pHandler);
-    g_pThisServer = boost::make_shared< KnnAlgServer >(pHandler, g_nThisPort);
+    g_pThisServer = boost::make_shared< KnnAlgServer >(pHandler, g_nThisPort, 
+            FLAGS_n_io_threads, FLAGS_n_work_threads);
     try {
         g_pThisServer->start(); //!! NOTE blocking until quit
     } catch (const std::exception &ex) {

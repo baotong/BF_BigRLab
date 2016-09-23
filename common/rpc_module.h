@@ -33,7 +33,7 @@ public:
 public:
     explicit ThriftServer( const boost::shared_ptr<Handler> &_Handler,
                            uint16_t _Port,
-                           uint32_t _nIoThread = 5, uint32_t _nWorkThread = 100 )
+                           uint32_t _nIoThread, uint32_t _nWorkThread )
                 : m_nPort(_Port)
                 , m_nIoThread(_nIoThread)
                 , m_nWorkThread(_nWorkThread)
@@ -74,6 +74,11 @@ public:
 
     boost::shared_ptr<ServerType> server() const
     { return m_pServer; }
+
+    uint32_t nIoThreads() const
+    { return m_nIoThread; }
+    uint32_t nWorkThreads() const
+    { return m_nWorkThread; }
 
 private:
     uint16_t                            m_nPort;

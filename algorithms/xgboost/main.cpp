@@ -449,7 +449,8 @@ void start_rpc_service()
     boost::shared_ptr< XgBoostSvr::XgBoostServiceIf > 
             pHandler = boost::make_shared< XgBoostSvr::XgBoostServiceHandler >();
     // Test::test1(pHandler);
-    g_pThisServer = boost::make_shared< XgBoostAlgSvr >(pHandler, g_nThisPort);
+    g_pThisServer = boost::make_shared< XgBoostAlgSvr >(pHandler, g_nThisPort, 
+            FLAGS_n_io_threads, FLAGS_n_work_threads);
     try {
         g_pThisServer->start(); //!! NOTE blocking until quit
     } catch (const std::exception &ex) {
