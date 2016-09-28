@@ -26,6 +26,22 @@ FtrlService_lrPredict_presult::~FtrlService_lrPredict_presult() throw() {
 }
 
 
+FtrlService_correct_args::~FtrlService_correct_args() throw() {
+}
+
+
+FtrlService_correct_pargs::~FtrlService_correct_pargs() throw() {
+}
+
+
+FtrlService_correct_result::~FtrlService_correct_result() throw() {
+}
+
+
+FtrlService_correct_presult::~FtrlService_correct_presult() throw() {
+}
+
+
 FtrlService_handleRequest_args::~FtrlService_handleRequest_args() throw() {
 }
 

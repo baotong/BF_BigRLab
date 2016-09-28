@@ -44,6 +44,7 @@ static boost::shared_ptr<BigRLab::AlgSvrInfo>                                   
 static std::unique_ptr< boost::asio::deadline_timer >                             g_Timer;
 
 std::unique_ptr<FtrlModel>       g_pFtrlModel;
+std::unique_ptr<DB>              g_pDb;
 
 
 namespace {
@@ -209,7 +210,9 @@ void service_init()
     g_pFtrlModel.reset(new FtrlModel);
     g_pFtrlModel->init(FLAGS_model);
 
-    // TODO db
+    g_pDb.reset(new DB);
+    
+    // TODO timer
     
     try {
         g_strThisAddr = get_local_ip(FLAGS_algmgr);
@@ -268,8 +271,8 @@ int main(int argc, char **argv)
 {
     using namespace std;
 
-    Test::test1();
-    return 0;
+    // Test::test1();
+    // return 0;
 
     google::InitGoogleLogging(argv[0]);
     gflags::ParseCommandLineFlags(&argc, &argv, true);
@@ -311,8 +314,6 @@ int main(int argc, char **argv)
 
 
 #if 0
-#include <ctime>
-#include <climits>
 namespace Test {
 using namespace std;
 void test1()
@@ -320,9 +321,12 @@ void test1()
     // time_t start = std::time(0);
     // SLEEP_SECONDS(1);
     // cout << "Wall time passed: " << std::difftime(std::time(0), start) << endl;
-    time_t maxTime = std::numeric_limits<time_t>::max();
-    cout << maxTime << endl;
-    cout << std::numeric_limits<double>::max() << endl;
+    // time_t maxTime = std::numeric_limits<time_t>::max();
+    // cout << maxTime << endl;
+    // cout << std::numeric_limits<double>::max() << endl;
+    cout << sizeof(std::shared_ptr<string>) << endl;
+    cout << sizeof(string::iterator) << endl;
+    cout << sizeof(std::map<string,int>::iterator) << endl;
 }
 } // namespace Test
 
