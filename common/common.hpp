@@ -62,6 +62,16 @@
     std::unique_ptr<type, std::function<void(type*)> > \
         name((ptr), [&](type* pArg) deleter )
 
+#define RUN_COMMAND(x) \
+    do { \
+        std::stringstream __cmd_stream; \
+        __cmd_stream << x; \
+        __cmd_stream.flush(); \
+        std::string __cmd_str = __cmd_stream.str(); \
+        if (system(__cmd_str.c_str())) \
+            THROW_RUNTIME_ERROR("Run command \"" << __cmd_str << "\" fail!"); \
+    } while (0)
+
 template < typename T >
 std::string to_string( const T &value )
 {

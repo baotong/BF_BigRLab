@@ -14,9 +14,6 @@
 #include "AlgMgrService.h"
 #include "register_svr.hpp"
 #include "FtrlServiceHandler.h"
-#include "fast_ftrl_solver.h"
-#include "ftrl_train.h"
-#include "util.h"
 
 #define SERVICE_LIB_NAME        "ftrl"
 
@@ -43,7 +40,10 @@ typedef BigRLab::ThriftServer< FTRL::FtrlServiceIf, FTRL::FtrlServiceProcessor >
 static AlgMgrClient::Pointer                                                      g_pAlgMgrClient;
 static FtrlAlgSvr::Pointer                                                        g_pThisServer;
 static boost::shared_ptr<BigRLab::AlgSvrInfo>                                     g_pSvrInfo;
+
 static std::unique_ptr< boost::asio::deadline_timer >                             g_Timer;
+
+std::unique_ptr<FtrlModel>       g_pFtrlModel;
 
 
 namespace {
@@ -200,8 +200,17 @@ void service_init()
 {
     using namespace std;
 
-    // TODO
+    // check -model
+    {
+        ifstream ifs(FLAGS_model, ios::in);
+        if (!ifs)
+            THROW_RUNTIME_ERROR("Cannot read model file " << FLAGS_model << " specified by -model");
+    }
+    g_pFtrlModel.reset(new FtrlModel);
+    g_pFtrlModel->init(FLAGS_model);
 
+    // TODO db
+    
     try {
         g_strThisAddr = get_local_ip(FLAGS_algmgr);
     } catch (const std::exception &ex) {
@@ -259,6 +268,9 @@ int main(int argc, char **argv)
 {
     using namespace std;
 
+    Test::test1();
+    return 0;
+
     google::InitGoogleLogging(argv[0]);
     gflags::ParseCommandLineFlags(&argc, &argv, true);
 
@@ -296,3 +308,23 @@ int main(int argc, char **argv)
 
     return 0;
 }
+
+
+#if 0
+#include <ctime>
+#include <climits>
+namespace Test {
+using namespace std;
+void test1()
+{
+    // time_t start = std::time(0);
+    // SLEEP_SECONDS(1);
+    // cout << "Wall time passed: " << std::difftime(std::time(0), start) << endl;
+    time_t maxTime = std::numeric_limits<time_t>::max();
+    cout << maxTime << endl;
+    cout << std::numeric_limits<double>::max() << endl;
+}
+} // namespace Test
+
+#endif
+

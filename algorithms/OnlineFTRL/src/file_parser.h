@@ -194,12 +194,12 @@ template<typename T>
 T string_to_real(const char *nptr, char **endptr);
 
 template<>
-float string_to_real<float> (const char *nptr, char **endptr) {
+inline float string_to_real<float> (const char *nptr, char **endptr) {
 	return strtof(nptr, endptr);
 }
 
 template<>
-double string_to_real<double> (const char *nptr, char **endptr) {
+inline double string_to_real<double> (const char *nptr, char **endptr) {
 	return strtod(nptr, endptr);
 }
 
