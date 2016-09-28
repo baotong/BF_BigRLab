@@ -1,30 +1,17 @@
+all: ftrl
 
 CC = g++
-CPPFLAGS = -O3 -fPIC -std=c++11 -march=native
-INCLUDES = -I.
-LDFLAGS = -pthread
 
-all: ftrl_train ftrl_predict
+COMM_DIR = ../../common
+ALG_COMM_DIR = ../alg_common
+API_SERVER_DIR = ../../api_server
+INCLUDE = -I. -I./src/gen-cpp -I$(COMM_DIR) -I$(ALG_COMM_DIR) -I$(API_SERVER_DIR)/gen-cpp
+SRC = $(shell find ./src/ -type f -name '*.cpp')
+SRC += $(shell find $(API_SERVER_DIR)/gen-cpp -type f -name '*.cpp')
+LIBS = -lthriftnb -lthrift -lboost_thread -lboost_system -lboost_chrono -lboost_filesystem -levent -lm -lglog -lgflags -ljsoncpp
+FLAGS = -std=c++11 -pthread -O3 -g
 
-#.cpp.o:
-#	$(CC) -c $^ $(INCLUDES) $(CPPFLAGS)
-src/ftrl_train.o: src/ftrl_train.cpp src/*.h
-	$(CC) -c src/ftrl_train.cpp -o $@ $(INCLUDES) $(CPPFLAGS)
-
-src/ftrl_predict.o: src/ftrl_predict.cpp src/*.h
-	$(CC) -c src/ftrl_predict.cpp -o $@ $(INCLUDES) $(CPPFLAGS)
-
-src/stopwatch.o: src/stopwatch.cpp src/stopwatch.h
-	$(CC) -c src/stopwatch.cpp -o $@ $(INCLUDES) $(CPPFLAGS)
-
-ftrl_train: src/ftrl_train.o src/stopwatch.o
-	$(CC) -o $@ $^ $(INCLUDES) $(CPPFLAGS) $(LDFLAGS)
-
-ftrl_predict: src/ftrl_predict.o src/stopwatch.o
-	$(CC) -o $@ $^ $(INCLUDES) $(CPPFLAGS) $(LDFLAGS)
-
-test: src/stopwatch.o
-	$(CC) -o $@ src/test.cpp $^ $(INCLUDES) $(CPPFLAGS) $(LDFLAGS) -lglog -lgflags -lboost_filesystem -lboost_system -g
-
+ftrl:
+	$(CC) -o $@.bin $(SRC) $(INCLUDE) $(LIBS) $(FLAGS)
 clean:
-	rm -f src/*.o ftrl_train ftrl_predict
+	rm -f *.bin *.bin.*
