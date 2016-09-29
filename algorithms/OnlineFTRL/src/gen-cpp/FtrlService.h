@@ -22,7 +22,7 @@ class FtrlServiceIf {
  public:
   virtual ~FtrlServiceIf() {}
   virtual double lrPredict(const std::string& id, const std::string& data) = 0;
-  virtual void correct(const std::string& id, const double value) = 0;
+  virtual bool setValue(const std::string& id, const double value) = 0;
   virtual void handleRequest(std::string& _return, const std::string& request) = 0;
 };
 
@@ -57,8 +57,9 @@ class FtrlServiceNull : virtual public FtrlServiceIf {
     double _return = (double)0;
     return _return;
   }
-  void correct(const std::string& /* id */, const double /* value */) {
-    return;
+  bool setValue(const std::string& /* id */, const double /* value */) {
+    bool _return = false;
+    return _return;
   }
   void handleRequest(std::string& /* _return */, const std::string& /* request */) {
     return;
@@ -166,27 +167,27 @@ class FtrlService_lrPredict_presult {
 
 };
 
-typedef struct _FtrlService_correct_args__isset {
-  _FtrlService_correct_args__isset() : id(false), value(false) {}
+typedef struct _FtrlService_setValue_args__isset {
+  _FtrlService_setValue_args__isset() : id(false), value(false) {}
   bool id :1;
   bool value :1;
-} _FtrlService_correct_args__isset;
+} _FtrlService_setValue_args__isset;
 
-class FtrlService_correct_args {
+class FtrlService_setValue_args {
  public:
 
-  FtrlService_correct_args(const FtrlService_correct_args&);
-  FtrlService_correct_args(FtrlService_correct_args&&);
-  FtrlService_correct_args& operator=(const FtrlService_correct_args&);
-  FtrlService_correct_args& operator=(FtrlService_correct_args&&);
-  FtrlService_correct_args() : id(), value(0) {
+  FtrlService_setValue_args(const FtrlService_setValue_args&);
+  FtrlService_setValue_args(FtrlService_setValue_args&&);
+  FtrlService_setValue_args& operator=(const FtrlService_setValue_args&);
+  FtrlService_setValue_args& operator=(FtrlService_setValue_args&&);
+  FtrlService_setValue_args() : id(), value(0) {
   }
 
-  virtual ~FtrlService_correct_args() throw();
+  virtual ~FtrlService_setValue_args() throw();
   std::string id;
   double value;
 
-  _FtrlService_correct_args__isset __isset;
+  _FtrlService_setValue_args__isset __isset;
 
   void __set_id(const std::string& val);
 
@@ -200,11 +201,11 @@ class FtrlService_correct_args {
 };
 
 
-class FtrlService_correct_pargs {
+class FtrlService_setValue_pargs {
  public:
 
 
-  virtual ~FtrlService_correct_pargs() throw();
+  virtual ~FtrlService_setValue_pargs() throw();
   const std::string* id;
   const double* value;
 
@@ -213,25 +214,29 @@ class FtrlService_correct_pargs {
 
 };
 
-typedef struct _FtrlService_correct_result__isset {
-  _FtrlService_correct_result__isset() : err(false) {}
+typedef struct _FtrlService_setValue_result__isset {
+  _FtrlService_setValue_result__isset() : success(false), err(false) {}
+  bool success :1;
   bool err :1;
-} _FtrlService_correct_result__isset;
+} _FtrlService_setValue_result__isset;
 
-class FtrlService_correct_result {
+class FtrlService_setValue_result {
  public:
 
-  FtrlService_correct_result(const FtrlService_correct_result&);
-  FtrlService_correct_result(FtrlService_correct_result&&);
-  FtrlService_correct_result& operator=(const FtrlService_correct_result&);
-  FtrlService_correct_result& operator=(FtrlService_correct_result&&);
-  FtrlService_correct_result() {
+  FtrlService_setValue_result(const FtrlService_setValue_result&);
+  FtrlService_setValue_result(FtrlService_setValue_result&&);
+  FtrlService_setValue_result& operator=(const FtrlService_setValue_result&);
+  FtrlService_setValue_result& operator=(FtrlService_setValue_result&&);
+  FtrlService_setValue_result() : success(0) {
   }
 
-  virtual ~FtrlService_correct_result() throw();
+  virtual ~FtrlService_setValue_result() throw();
+  bool success;
   InvalidRequest err;
 
-  _FtrlService_correct_result__isset __isset;
+  _FtrlService_setValue_result__isset __isset;
+
+  void __set_success(const bool val);
 
   void __set_err(const InvalidRequest& val);
 
@@ -242,19 +247,21 @@ class FtrlService_correct_result {
 
 };
 
-typedef struct _FtrlService_correct_presult__isset {
-  _FtrlService_correct_presult__isset() : err(false) {}
+typedef struct _FtrlService_setValue_presult__isset {
+  _FtrlService_setValue_presult__isset() : success(false), err(false) {}
+  bool success :1;
   bool err :1;
-} _FtrlService_correct_presult__isset;
+} _FtrlService_setValue_presult__isset;
 
-class FtrlService_correct_presult {
+class FtrlService_setValue_presult {
  public:
 
 
-  virtual ~FtrlService_correct_presult() throw();
+  virtual ~FtrlService_setValue_presult() throw();
+  bool* success;
   InvalidRequest err;
 
-  _FtrlService_correct_presult__isset __isset;
+  _FtrlService_setValue_presult__isset __isset;
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -386,9 +393,9 @@ class FtrlServiceClientT : virtual public FtrlServiceIf {
   double lrPredict(const std::string& id, const std::string& data);
   void send_lrPredict(const std::string& id, const std::string& data);
   double recv_lrPredict();
-  void correct(const std::string& id, const double value);
-  void send_correct(const std::string& id, const double value);
-  void recv_correct();
+  bool setValue(const std::string& id, const double value);
+  void send_setValue(const std::string& id, const double value);
+  bool recv_setValue();
   void handleRequest(std::string& _return, const std::string& request);
   void send_handleRequest(const std::string& request);
   void recv_handleRequest(std::string& _return);
@@ -422,8 +429,8 @@ class FtrlServiceProcessorT : public ::apache::thrift::TDispatchProcessorT<Proto
   ProcessMap processMap_;
   void process_lrPredict(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_lrPredict(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
-  void process_correct(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_correct(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
+  void process_setValue(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_setValue(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
   void process_handleRequest(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_handleRequest(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
  public:
@@ -432,9 +439,9 @@ class FtrlServiceProcessorT : public ::apache::thrift::TDispatchProcessorT<Proto
     processMap_["lrPredict"] = ProcessFunctions(
       &FtrlServiceProcessorT::process_lrPredict,
       &FtrlServiceProcessorT::process_lrPredict);
-    processMap_["correct"] = ProcessFunctions(
-      &FtrlServiceProcessorT::process_correct,
-      &FtrlServiceProcessorT::process_correct);
+    processMap_["setValue"] = ProcessFunctions(
+      &FtrlServiceProcessorT::process_setValue,
+      &FtrlServiceProcessorT::process_setValue);
     processMap_["handleRequest"] = ProcessFunctions(
       &FtrlServiceProcessorT::process_handleRequest,
       &FtrlServiceProcessorT::process_handleRequest);
@@ -480,13 +487,13 @@ class FtrlServiceMultiface : virtual public FtrlServiceIf {
     return ifaces_[i]->lrPredict(id, data);
   }
 
-  void correct(const std::string& id, const double value) {
+  bool setValue(const std::string& id, const double value) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->correct(id, value);
+      ifaces_[i]->setValue(id, value);
     }
-    ifaces_[i]->correct(id, value);
+    return ifaces_[i]->setValue(id, value);
   }
 
   void handleRequest(std::string& _return, const std::string& request) {
@@ -533,9 +540,9 @@ class FtrlServiceConcurrentClientT : virtual public FtrlServiceIf {
   double lrPredict(const std::string& id, const std::string& data);
   int32_t send_lrPredict(const std::string& id, const std::string& data);
   double recv_lrPredict(const int32_t seqid);
-  void correct(const std::string& id, const double value);
-  int32_t send_correct(const std::string& id, const double value);
-  void recv_correct(const int32_t seqid);
+  bool setValue(const std::string& id, const double value);
+  int32_t send_setValue(const std::string& id, const double value);
+  bool recv_setValue(const int32_t seqid);
   void handleRequest(std::string& _return, const std::string& request);
   int32_t send_handleRequest(const std::string& request);
   void recv_handleRequest(std::string& _return, const int32_t seqid);

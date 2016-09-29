@@ -10,6 +10,6 @@ exception InvalidRequest {
 
 service FtrlService {
     double lrPredict( 1:string id, 2:string data ) throws (1:InvalidRequest err),
-    void   correct( 1:string id, 2:double value ) throws (1:InvalidRequest err),
+    bool   setValue( 1:string id, 2:double value ) throws (1:InvalidRequest err),
     string handleRequest( 1:string request ) throws (1:InvalidRequest err)
 }

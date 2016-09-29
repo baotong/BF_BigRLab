@@ -42,6 +42,7 @@ static FtrlAlgSvr::Pointer                                                      
 static boost::shared_ptr<BigRLab::AlgSvrInfo>                                     g_pSvrInfo;
 
 static std::unique_ptr< boost::asio::deadline_timer >                             g_Timer;
+static std::unique_ptr< boost::asio::deadline_timer >                             g_ClearDbTimer;
 
 std::unique_ptr<FtrlModel>       g_pFtrlModel;
 std::unique_ptr<DB>              g_pDb;
@@ -195,6 +196,15 @@ void rejoin(const boost::system::error_code &ec)
     g_Timer->async_wait(rejoin);
 }
 
+static
+void timer_clear_db(const boost::system::error_code &ec)
+{
+    std::size_t count = g_pDb->clearOutDated();    
+    DLOG(INFO) << "Removed " << count << " outdated items from db.";
+    g_ClearDbTimer->expires_from_now(boost::posix_time::seconds(3600));
+    g_ClearDbTimer->async_wait(timer_clear_db);
+}
+
 
 static
 void service_init()
@@ -210,9 +220,7 @@ void service_init()
     g_pFtrlModel.reset(new FtrlModel);
     g_pFtrlModel->init(FLAGS_model);
 
-    g_pDb.reset(new DB);
-    
-    // TODO timer
+    g_pDb.reset(new DB((size_t)FLAGS_data_life * 3600));
     
     try {
         g_strThisAddr = get_local_ip(FLAGS_algmgr);
@@ -291,6 +299,10 @@ int main(int argc, char **argv)
         g_Timer.reset(new boost::asio::deadline_timer(std::ref(io_service)));
         g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_REJOIN));
         g_Timer->async_wait(rejoin);
+
+        g_ClearDbTimer.reset(new boost::asio::deadline_timer(std::ref(io_service)));
+        g_ClearDbTimer->expires_from_now(boost::posix_time::seconds(3600));
+        g_ClearDbTimer->async_wait(timer_clear_db);
 
         auto io_service_thr = boost::thread( [&]{ io_service.run(); } );
 

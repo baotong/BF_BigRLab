@@ -26,19 +26,19 @@ FtrlService_lrPredict_presult::~FtrlService_lrPredict_presult() throw() {
 }
 
 
-FtrlService_correct_args::~FtrlService_correct_args() throw() {
+FtrlService_setValue_args::~FtrlService_setValue_args() throw() {
 }
 
 
-FtrlService_correct_pargs::~FtrlService_correct_pargs() throw() {
+FtrlService_setValue_pargs::~FtrlService_setValue_pargs() throw() {
 }
 
 
-FtrlService_correct_result::~FtrlService_correct_result() throw() {
+FtrlService_setValue_result::~FtrlService_setValue_result() throw() {
 }
 
 
-FtrlService_correct_presult::~FtrlService_correct_presult() throw() {
+FtrlService_setValue_presult::~FtrlService_setValue_presult() throw() {
 }
 
 

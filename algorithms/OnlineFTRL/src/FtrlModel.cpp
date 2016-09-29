@@ -20,7 +20,6 @@ double FtrlModel::predict(const AttrArray &arr)
     return result;
 }
 
-// TODO take care of exception thrown by it
 void FtrlModel::updateModel(const std::string &oldModel, 
                             const std::string &trainData, int epoch)
 {

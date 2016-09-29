@@ -226,7 +226,7 @@ uint32_t FtrlService_lrPredict_presult::read(Protocol_* iprot) {
 
 
 template <class Protocol_>
-uint32_t FtrlService_correct_args::read(Protocol_* iprot) {
+uint32_t FtrlService_setValue_args::read(Protocol_* iprot) {
 
   apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -276,10 +276,10 @@ uint32_t FtrlService_correct_args::read(Protocol_* iprot) {
 }
 
 template <class Protocol_>
-uint32_t FtrlService_correct_args::write(Protocol_* oprot) const {
+uint32_t FtrlService_setValue_args::write(Protocol_* oprot) const {
   uint32_t xfer = 0;
   apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
-  xfer += oprot->writeStructBegin("FtrlService_correct_args");
+  xfer += oprot->writeStructBegin("FtrlService_setValue_args");
 
   xfer += oprot->writeFieldBegin("id", ::apache::thrift::protocol::T_STRING, 1);
   xfer += oprot->writeString(this->id);
@@ -296,10 +296,10 @@ uint32_t FtrlService_correct_args::write(Protocol_* oprot) const {
 
 
 template <class Protocol_>
-uint32_t FtrlService_correct_pargs::write(Protocol_* oprot) const {
+uint32_t FtrlService_setValue_pargs::write(Protocol_* oprot) const {
   uint32_t xfer = 0;
   apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
-  xfer += oprot->writeStructBegin("FtrlService_correct_pargs");
+  xfer += oprot->writeStructBegin("FtrlService_setValue_pargs");
 
   xfer += oprot->writeFieldBegin("id", ::apache::thrift::protocol::T_STRING, 1);
   xfer += oprot->writeString((*(this->id)));
@@ -316,7 +316,7 @@ uint32_t FtrlService_correct_pargs::write(Protocol_* oprot) const {
 
 
 template <class Protocol_>
-uint32_t FtrlService_correct_result::read(Protocol_* iprot) {
+uint32_t FtrlService_setValue_result::read(Protocol_* iprot) {
 
   apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -337,6 +337,14 @@ uint32_t FtrlService_correct_result::read(Protocol_* iprot) {
     }
     switch (fid)
     {
+      case 0:
+        if (ftype == ::apache::thrift::protocol::T_BOOL) {
+          xfer += iprot->readBool(this->success);
+          this->__isset.success = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
       case 1:
         if (ftype == ::apache::thrift::protocol::T_STRUCT) {
           xfer += this->err.read(iprot);
@@ -358,13 +366,17 @@ uint32_t FtrlService_correct_result::read(Protocol_* iprot) {
 }
 
 template <class Protocol_>
-uint32_t FtrlService_correct_result::write(Protocol_* oprot) const {
+uint32_t FtrlService_setValue_result::write(Protocol_* oprot) const {
 
   uint32_t xfer = 0;
 
-  xfer += oprot->writeStructBegin("FtrlService_correct_result");
+  xfer += oprot->writeStructBegin("FtrlService_setValue_result");
 
-  if (this->__isset.err) {
+  if (this->__isset.success) {
+    xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_BOOL, 0);
+    xfer += oprot->writeBool(this->success);
+    xfer += oprot->writeFieldEnd();
+  } else if (this->__isset.err) {
     xfer += oprot->writeFieldBegin("err", ::apache::thrift::protocol::T_STRUCT, 1);
     xfer += this->err.write(oprot);
     xfer += oprot->writeFieldEnd();
@@ -376,7 +388,7 @@ uint32_t FtrlService_correct_result::write(Protocol_* oprot) const {
 
 
 template <class Protocol_>
-uint32_t FtrlService_correct_presult::read(Protocol_* iprot) {
+uint32_t FtrlService_setValue_presult::read(Protocol_* iprot) {
 
   apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -397,6 +409,14 @@ uint32_t FtrlService_correct_presult::read(Protocol_* iprot) {
     }
     switch (fid)
     {
+      case 0:
+        if (ftype == ::apache::thrift::protocol::T_BOOL) {
+          xfer += iprot->readBool((*(this->success)));
+          this->__isset.success = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
       case 1:
         if (ftype == ::apache::thrift::protocol::T_STRUCT) {
           xfer += this->err.read(iprot);
@@ -680,19 +700,19 @@ double FtrlServiceClientT<Protocol_>::recv_lrPredict()
 }
 
 template <class Protocol_>
-void FtrlServiceClientT<Protocol_>::correct(const std::string& id, const double value)
+bool FtrlServiceClientT<Protocol_>::setValue(const std::string& id, const double value)
 {
-  send_correct(id, value);
-  recv_correct();
+  send_setValue(id, value);
+  return recv_setValue();
 }
 
 template <class Protocol_>
-void FtrlServiceClientT<Protocol_>::send_correct(const std::string& id, const double value)
+void FtrlServiceClientT<Protocol_>::send_setValue(const std::string& id, const double value)
 {
   int32_t cseqid = 0;
-  this->oprot_->writeMessageBegin("correct", ::apache::thrift::protocol::T_CALL, cseqid);
+  this->oprot_->writeMessageBegin("setValue", ::apache::thrift::protocol::T_CALL, cseqid);
 
-  FtrlService_correct_pargs args;
+  FtrlService_setValue_pargs args;
   args.id = &id;
   args.value = &value;
   args.write(this->oprot_);
@@ -703,7 +723,7 @@ void FtrlServiceClientT<Protocol_>::send_correct(const std::string& id, const do
 }
 
 template <class Protocol_>
-void FtrlServiceClientT<Protocol_>::recv_correct()
+bool FtrlServiceClientT<Protocol_>::recv_setValue()
 {
 
   int32_t rseqid = 0;
@@ -723,20 +743,25 @@ void FtrlServiceClientT<Protocol_>::recv_correct()
     this->iprot_->readMessageEnd();
     this->iprot_->getTransport()->readEnd();
   }
-  if (fname.compare("correct") != 0) {
+  if (fname.compare("setValue") != 0) {
     this->iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     this->iprot_->readMessageEnd();
     this->iprot_->getTransport()->readEnd();
   }
-  FtrlService_correct_presult result;
+  bool _return;
+  FtrlService_setValue_presult result;
+  result.success = &_return;
   result.read(this->iprot_);
   this->iprot_->readMessageEnd();
   this->iprot_->getTransport()->readEnd();
 
+  if (result.__isset.success) {
+    return _return;
+  }
   if (result.__isset.err) {
     throw result.err;
   }
-  return;
+  throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "setValue failed: unknown result");
 }
 
 template <class Protocol_>
@@ -960,40 +985,41 @@ void FtrlServiceProcessorT<Protocol_>::process_lrPredict(int32_t seqid, Protocol
 }
 
 template <class Protocol_>
-void FtrlServiceProcessorT<Protocol_>::process_correct(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
+void FtrlServiceProcessorT<Protocol_>::process_setValue(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
   void* ctx = NULL;
   if (this->eventHandler_.get() != NULL) {
-    ctx = this->eventHandler_->getContext("FtrlService.correct", callContext);
+    ctx = this->eventHandler_->getContext("FtrlService.setValue", callContext);
   }
-  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "FtrlService.correct");
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "FtrlService.setValue");
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preRead(ctx, "FtrlService.correct");
+    this->eventHandler_->preRead(ctx, "FtrlService.setValue");
   }
 
-  FtrlService_correct_args args;
+  FtrlService_setValue_args args;
   args.read(iprot);
   iprot->readMessageEnd();
   uint32_t bytes = iprot->getTransport()->readEnd();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postRead(ctx, "FtrlService.correct", bytes);
+    this->eventHandler_->postRead(ctx, "FtrlService.setValue", bytes);
   }
 
-  FtrlService_correct_result result;
+  FtrlService_setValue_result result;
   try {
-    iface_->correct(args.id, args.value);
+    result.success = iface_->setValue(args.id, args.value);
+    result.__isset.success = true;
   } catch (InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
     if (this->eventHandler_.get() != NULL) {
-      this->eventHandler_->handlerError(ctx, "FtrlService.correct");
+      this->eventHandler_->handlerError(ctx, "FtrlService.setValue");
     }
 
     ::apache::thrift::TApplicationException x(e.what());
-    oprot->writeMessageBegin("correct", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    oprot->writeMessageBegin("setValue", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
     oprot->getTransport()->writeEnd();
@@ -1002,55 +1028,56 @@ void FtrlServiceProcessorT<Protocol_>::process_correct(int32_t seqid, ::apache::
   }
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preWrite(ctx, "FtrlService.correct");
+    this->eventHandler_->preWrite(ctx, "FtrlService.setValue");
   }
 
-  oprot->writeMessageBegin("correct", ::apache::thrift::protocol::T_REPLY, seqid);
+  oprot->writeMessageBegin("setValue", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
   bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postWrite(ctx, "FtrlService.correct", bytes);
+    this->eventHandler_->postWrite(ctx, "FtrlService.setValue", bytes);
   }
 }
 
 template <class Protocol_>
-void FtrlServiceProcessorT<Protocol_>::process_correct(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext)
+void FtrlServiceProcessorT<Protocol_>::process_setValue(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext)
 {
   void* ctx = NULL;
   if (this->eventHandler_.get() != NULL) {
-    ctx = this->eventHandler_->getContext("FtrlService.correct", callContext);
+    ctx = this->eventHandler_->getContext("FtrlService.setValue", callContext);
   }
-  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "FtrlService.correct");
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "FtrlService.setValue");
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preRead(ctx, "FtrlService.correct");
+    this->eventHandler_->preRead(ctx, "FtrlService.setValue");
   }
 
-  FtrlService_correct_args args;
+  FtrlService_setValue_args args;
   args.read(iprot);
   iprot->readMessageEnd();
   uint32_t bytes = iprot->getTransport()->readEnd();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postRead(ctx, "FtrlService.correct", bytes);
+    this->eventHandler_->postRead(ctx, "FtrlService.setValue", bytes);
   }
 
-  FtrlService_correct_result result;
+  FtrlService_setValue_result result;
   try {
-    iface_->correct(args.id, args.value);
+    result.success = iface_->setValue(args.id, args.value);
+    result.__isset.success = true;
   } catch (InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
     if (this->eventHandler_.get() != NULL) {
-      this->eventHandler_->handlerError(ctx, "FtrlService.correct");
+      this->eventHandler_->handlerError(ctx, "FtrlService.setValue");
     }
 
     ::apache::thrift::TApplicationException x(e.what());
-    oprot->writeMessageBegin("correct", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    oprot->writeMessageBegin("setValue", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
     oprot->getTransport()->writeEnd();
@@ -1059,17 +1086,17 @@ void FtrlServiceProcessorT<Protocol_>::process_correct(int32_t seqid, Protocol_*
   }
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preWrite(ctx, "FtrlService.correct");
+    this->eventHandler_->preWrite(ctx, "FtrlService.setValue");
   }
 
-  oprot->writeMessageBegin("correct", ::apache::thrift::protocol::T_REPLY, seqid);
+  oprot->writeMessageBegin("setValue", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
   bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postWrite(ctx, "FtrlService.correct", bytes);
+    this->eventHandler_->postWrite(ctx, "FtrlService.setValue", bytes);
   }
 }
 
@@ -1290,20 +1317,20 @@ double FtrlServiceConcurrentClientT<Protocol_>::recv_lrPredict(const int32_t seq
 }
 
 template <class Protocol_>
-void FtrlServiceConcurrentClientT<Protocol_>::correct(const std::string& id, const double value)
+bool FtrlServiceConcurrentClientT<Protocol_>::setValue(const std::string& id, const double value)
 {
-  int32_t seqid = send_correct(id, value);
-  recv_correct(seqid);
+  int32_t seqid = send_setValue(id, value);
+  return recv_setValue(seqid);
 }
 
 template <class Protocol_>
-int32_t FtrlServiceConcurrentClientT<Protocol_>::send_correct(const std::string& id, const double value)
+int32_t FtrlServiceConcurrentClientT<Protocol_>::send_setValue(const std::string& id, const double value)
 {
   int32_t cseqid = this->sync_.generateSeqId();
   ::apache::thrift::async::TConcurrentSendSentry sentry(&this->sync_);
-  this->oprot_->writeMessageBegin("correct", ::apache::thrift::protocol::T_CALL, cseqid);
+  this->oprot_->writeMessageBegin("setValue", ::apache::thrift::protocol::T_CALL, cseqid);
 
-  FtrlService_correct_pargs args;
+  FtrlService_setValue_pargs args;
   args.id = &id;
   args.value = &value;
   args.write(this->oprot_);
@@ -1317,7 +1344,7 @@ int32_t FtrlServiceConcurrentClientT<Protocol_>::send_correct(const std::string&
 }
 
 template <class Protocol_>
-void FtrlServiceConcurrentClientT<Protocol_>::recv_correct(const int32_t seqid)
+bool FtrlServiceConcurrentClientT<Protocol_>::recv_setValue(const int32_t seqid)
 {
 
   int32_t rseqid = 0;
@@ -1346,7 +1373,7 @@ void FtrlServiceConcurrentClientT<Protocol_>::recv_correct(const int32_t seqid)
         this->iprot_->readMessageEnd();
         this->iprot_->getTransport()->readEnd();
       }
-      if (fname.compare("correct") != 0) {
+      if (fname.compare("setValue") != 0) {
         this->iprot_->skip(::apache::thrift::protocol::T_STRUCT);
         this->iprot_->readMessageEnd();
         this->iprot_->getTransport()->readEnd();
@@ -1355,17 +1382,23 @@ void FtrlServiceConcurrentClientT<Protocol_>::recv_correct(const int32_t seqid)
         using ::apache::thrift::protocol::TProtocolException;
         throw TProtocolException(TProtocolException::INVALID_DATA);
       }
-      FtrlService_correct_presult result;
+      bool _return;
+      FtrlService_setValue_presult result;
+      result.success = &_return;
       result.read(this->iprot_);
       this->iprot_->readMessageEnd();
       this->iprot_->getTransport()->readEnd();
 
+      if (result.__isset.success) {
+        sentry.commit();
+        return _return;
+      }
       if (result.__isset.err) {
         sentry.commit();
         throw result.err;
       }
-      sentry.commit();
-      return;
+      // in a bad state, don't commit
+      throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "setValue failed: unknown result");
     }
     // seqid != rseqid
     this->sync_.updatePending(fname, mtype, rseqid);
