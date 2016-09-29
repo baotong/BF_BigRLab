@@ -68,16 +68,18 @@ bool FtrlServiceHandler::setValue(const std::string& id, const double value)
             lock.unlock();
             ofs.close();
 
+            ON_FINISH_CLASS(_pDelFile, {
+                try {
+                    boost::filesystem::remove(updateModelData);
+                } catch (...) {}
+            });
+
             // update model
             try {
                 g_pFtrlModel->updateModel(FLAGS_model, updateModelData, FLAGS_epoch);
             } catch (const std::exception &ex) {
                 THROW_INVALID_REQUEST(ex.what());
             } // try
-
-            try {
-                boost::filesystem::remove(updateModelData);
-            } catch (...) {}
         } // if
     } // if
     return ret;
