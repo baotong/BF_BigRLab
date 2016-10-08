@@ -58,6 +58,7 @@ bool FtrlServiceHandler::setValue(const std::string& id, const double value)
     if (ret) {
         auto& arr = g_pDb->hasValues();
         if (arr.size() >= FLAGS_update_cnt) {
+            LOG(INFO) << "Updating model...";
             ofstream ofs(updateModelData, ios::out);
             if (!ofs)
                 THROW_INVALID_REQUEST("Cannot open " << updateModelData << " for writting!");
@@ -108,7 +109,7 @@ void FtrlServiceHandler::handleRequest(std::string& _return, const std::string& 
         } else if ("update" == req) {
             double value = boost::lexical_cast<double>(data);
             bool ret = setValue(id, value);
-            resp["status"] = (ret ? 0 : 1);
+            resp["status"] = (ret ? 0 : -1);
         } // if
 
         Json::FastWriter writer;  

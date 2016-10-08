@@ -6,6 +6,7 @@
 #include <memory>
 #include <ctime>
 #include <climits>
+#include <atomic>
 #include <deque>
 #include <boost/thread.hpp>
 #include <boost/thread/lockable_adapter.hpp>
@@ -36,7 +37,9 @@ public:
                       , boost::upgrade_lockable_adapter<boost::shared_mutex> {};
 
 public:
-    DB(const std::size_t &_DataLife) : m_nDataLifeTime(_DataLife) {}
+    DB(const std::size_t &_DataLife) 
+                : m_nDataLifeTime(_DataLife) 
+                , m_nSize(0) {}
 
     bool add(const std::string &id, const std::string &data)
     {
@@ -44,23 +47,24 @@ public:
         auto &table = m_mapTable[id[0]][id[1]];
         boost::unique_lock<DbMap> lock(table);
         auto ret = table.insert(std::make_pair(id, pItem));
+        if (ret.second) ++m_nSize;
         return ret.second;
     }
 
     bool setValue(const std::string &id, const double &v)
     {
         auto &table = m_mapTable[id[0]][id[1]];
-        boost::unique_lock<DbMap> lockTable(table, boost::defer_lock);
-        lockTable.try_lock_for(boost::chrono::seconds(LOCK_TIMEOUT));
-        if (lockTable.owns_lock()) {
+        auto deadline = boost::chrono::steady_clock::now() + boost::chrono::seconds(LOCK_TIMEOUT);
+        boost::unique_lock<DbMap>       lockTable(table, boost::defer_lock);
+        boost::unique_lock<ValueArray>  lockArr(m_arrHasValue, boost::defer_lock);
+        if (lockTable.try_lock_until(deadline)) {
             auto it = table.find(id);
             if (it == table.end())
                 return false;
-            boost::unique_lock<ValueArray> lockArr(m_arrHasValue, boost::defer_lock);
-            lockArr.try_lock_for(boost::chrono::seconds(LOCK_TIMEOUT));
-            if (lockArr.owns_lock()) {
+            if (lockArr.try_lock_until(deadline)) {
                 Item::pointer pItem = it->second;
                 table.erase(it);
+                --m_nSize;
                 pItem->setValue(v);
                 m_arrHasValue.push_back(pItem);
                 return true;
@@ -80,6 +84,7 @@ public:
                     double duration = std::difftime(std::time(0), it->second->createTime);
                     if (duration > m_nDataLifeTime || duration < 0) {
                         it = table.erase(it);
+                        --m_nSize;
                         ++count;
                     } else {
                         ++it;
@@ -94,11 +99,14 @@ public:
     ValueArray& hasValues()
     { return m_arrHasValue; }
 
+    std::size_t size() const
+    { return m_nSize; }
+
 private:
     DbMap                m_mapTable[CHAR_MAX+1][CHAR_MAX+1];
     ValueArray           m_arrHasValue;
     const std::size_t    m_nDataLifeTime;
-    // std::atomic_size_t      m_nSize;
+    std::atomic_size_t   m_nSize;
 };
 
 #endif
