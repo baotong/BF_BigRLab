@@ -1,6 +1,7 @@
 /*
  * c++ -o test test.cpp -lcurl -ljsoncpp -lglog -lgflags -std=c++11 -pthread -g
- * cat agaricus.txt.test | ./test -server http://localhost:9000/ftrl
+ * cat agaricus.txt.test | ./test -server http://localhost:9000/ftrl -req predict
+ * cat agaricus.txt.test | ./test -server http://localhost:9000/ftrl -req update
  */
 #include "../service_cli.h"
 #include <iostream>
@@ -83,7 +84,7 @@ void test_update(istream *inFile)
         stream >> value;
         // DLOG(INFO) << "value = " << value << " data = " << data;
         genReqStr(id, value, reqstr);
-        DLOG(INFO) << "reqstr = " << reqstr;
+        // DLOG(INFO) << "reqstr = " << reqstr;
         ret = pSrv->doRequest(reqstr);
         if (ret)
             cerr << "Request error: " << pSrv->errmsg() << endl;
