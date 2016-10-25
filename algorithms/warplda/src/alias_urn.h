@@ -7,6 +7,13 @@
 #include <cassert>
 #include <iostream>
 #include "Types.hpp"
+
+#include <boost/log/trivial.hpp>
+
+#define INFO info
+#define ERROR error
+#define LOG(x) BOOST_LOG_TRIVIAL(x)
+
 using std::vector;
 using std::cout;
 using std::endl;
@@ -24,6 +31,8 @@ class AliasUrn {
 		{
 			if (p.empty()) 
 			{
+                // std::cerr << "DBG p is empty!" << std::endl;
+                // LOG(INFO) << "BuildAlias p is emtpy!";
 				table.resize(0);
 				return;
 			}
@@ -32,7 +41,9 @@ class AliasUrn {
 
 			size = p.size();
 			this->binSize = nMax / size;
-			table.resize(size);
+			table.resize(size);     // valgrind
+            // std::cerr << "DBG table size is " << table.size() << std::endl;
+            // LOG(INFO) << "BuildAlias table size = " << table.size();
 
 			float totalMass = 0;
 			for (size_t i=0; i<p.size(); i++) 
@@ -74,7 +85,7 @@ class AliasUrn {
 				table.back().p += remaining;
 			} else {
 				table.back().p += remaining;
-				assert(table.back().p >= binSize);
+                // assert(table.back().p >= binSize);  // note
 				pHi--;
 			}
 
@@ -84,16 +95,17 @@ class AliasUrn {
 			// while lo is not empty, pick up a lo and a hi
 			// create a table entry
 			// put the remaining of hi back
-			for (int i=0; i<size; i++)
+            for (int i=0; i<size; i++)   //!! orig
+			// for (int i=0; i < size && uHi < size; i++)
 			{
 				//if (i+1 < size)
 				//	assert(i < uHi);
-				assert(i<size);
-				assert(uHi<size);
+                // assert(i<size);  // note
+                // assert(uHi<size); // note
 				auto &loEntry = table[i];
 				auto &hiEntry = table[uHi];
-				loEntry.HiKey = hiEntry.HiKey;
-				hiEntry.p -= (binSize - loEntry.p);
+				loEntry.HiKey = hiEntry.HiKey;      // valgrind
+				hiEntry.p -= (binSize - loEntry.p); // valgrind
 				if (hiEntry.p < binSize) {
 					hiEntry.LoKey = hiEntry.HiKey; uHi++;
 				}
@@ -103,6 +115,7 @@ class AliasUrn {
 			}
 			table.back().LoKey = table.back().HiKey;
 			//cout << "++++++++++++++" << endl;
+            // std::cerr << "At end of BuildAlias, table size = " << table.size() << std::endl;
 		}
 
 		void SetKeys(const vector<unsigned int> &keys)
@@ -116,7 +129,12 @@ class AliasUrn {
 
 		int DrawSample(size_t rSize, float u2)
 		{
-			if (table.empty()) assert(0);
+			// if (table.empty()) assert(0); // orig
+            // std::cerr << "DBG DrawSample table size = " << table.size() << std::endl;
+            // LOG(INFO) << "DrawSample table size = " << table.size();
+            if (table.empty()) {
+                return 0;
+            } // if
 			int bin = rSize % size;
 			auto &entry = table[bin];
 			long long pos = u2 * binSize;
@@ -125,7 +143,7 @@ class AliasUrn {
 		}
 	
 
-  public:
+  private:
 		std::uniform_real_distribution<float> u01;
 		vector<AliasEntry> table;
 

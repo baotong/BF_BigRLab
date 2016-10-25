@@ -125,6 +125,19 @@ common/fast:
 .PHONY : common/fast
 
 #=============================================================================
+# Target rules for targets named demo
+
+# Build rule for target.
+demo: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 demo
+.PHONY : demo
+
+# fast build rule for target.
+demo/fast:
+	$(MAKE) -f src/CMakeFiles/demo.dir/build.make src/CMakeFiles/demo.dir/build
+.PHONY : demo/fast
+
+#=============================================================================
 # Target rules for targets named topics_svr
 
 # Build rule for target.
@@ -136,6 +149,19 @@ topics_svr: cmake_check_build_system
 topics_svr/fast:
 	$(MAKE) -f src/CMakeFiles/topics_svr.dir/build.make src/CMakeFiles/topics_svr.dir/build
 .PHONY : topics_svr/fast
+
+#=============================================================================
+# Target rules for targets named warplda
+
+# Build rule for target.
+warplda: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 warplda
+.PHONY : warplda
+
+# fast build rule for target.
+warplda/fast:
+	$(MAKE) -f src/CMakeFiles/warplda.dir/build.make src/CMakeFiles/warplda.dir/build
+.PHONY : warplda/fast
 
 #=============================================================================
 # Target rules for targets named basic
@@ -160,7 +186,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... test"
 	@echo "... common"
+	@echo "... demo"
 	@echo "... topics_svr"
+	@echo "... warplda"
 	@echo "... basic"
 .PHONY : help
 

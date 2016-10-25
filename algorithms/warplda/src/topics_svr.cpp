@@ -1,3 +1,7 @@
+/*
+ * GLOG_logtostderr=1 ./topics_svr -model train.model -vocab train.vocab -algname topic_eval -algmgr localhost:9001 -port 10080
+ * GLOG_logtostderr=1 ./topics_svr -model train.model -vocab train.vocab -algname topic_eval -algmgr localhost:9001 -port 10080 -n_work_threads 10
+ */
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
@@ -6,7 +10,7 @@
 #include <thread>
 #include <boost/asio.hpp>
 #include <boost/make_shared.hpp>
-#include <glog/logging.h>
+// #include <glog/logging.h>
 #include <gflags/gflags.h>
 
 #include "rpc_module.h"
@@ -250,7 +254,7 @@ void service_init()
         auto pInst = std::make_shared<TopicModule>(FLAGS_vocab, FLAGS_model);
         s_arrTopicModules.emplace_back(pInst);
         g_queTopicModules->push(pInst.get());
-        DLOG(INFO) << "nTopics = " << pInst->nTopics();
+        // DLOG(INFO) << "nTopics = " << pInst->nTopics();
     } // for
 
     try {
@@ -283,7 +287,7 @@ void do_service_routine()
 int main(int argc, char **argv)
 {
     try {
-        google::InitGoogleLogging(argv[0]);
+        // google::InitGoogleLogging(argv[0]);
         gflags::ParseCommandLineFlags(&argc, &argv, true);
 
         // install signal handler

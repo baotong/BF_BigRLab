@@ -1,10 +1,16 @@
 #define STRIP_FLAG_HELP 0
 #include <gflags/gflags.h>
-#include <glog/logging.h>
+// #include <glog/logging.h>
 #include <sstream>
 #include "Bigraph.hpp"
 #include "Utils.hpp"
 #include "warplda.hpp"
+
+#include <boost/log/trivial.hpp>
+
+#define INFO info
+#define ERROR error
+#define LOG(x) BOOST_LOG_TRIVIAL(x)
 
 DEFINE_string(prefix, "./prefix", "prefix of result files");
 DEFINE_int32(niter, 10, "number of iterations");
@@ -63,7 +69,7 @@ int main(int argc, char** argv)
 {
     using namespace std;
 
-    google::InitGoogleLogging(argv[0]);
+    // google::InitGoogleLogging(argv[0]);
     gflags::SetUsageMessage("Usage : ./warplda [ flags... ]");
 	gflags::ParseCommandLineFlags(&argc, &argv, true);
 

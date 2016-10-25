@@ -369,7 +369,7 @@ void WarpLDA<MH>::loadModel(std::string fmodel)
     global_sum = 0;
     for (TTopic k = 0; k < K; k++)
         global_sum += probs[k] = beta / (ck[k] + beta_bar);
-    global_urn.BuildAlias(probs, generator.Rand32());
+    global_urn.BuildAlias(probs, generator.Rand32());       // will lead to crash
     for (TVID v = 0; v < g.NV(); v++)
     {
         kds.clear();
@@ -385,6 +385,9 @@ void WarpLDA<MH>::loadModel(std::string fmodel)
         cwk_urns[v].BuildAlias(probs, generator.Rand32());
         cwk_urns[v].SetKeys(kds);
     }
+
+    // std::cerr << "LoadModel done!" << std::endl;
+    return;
 }
 
 template <unsigned MH>

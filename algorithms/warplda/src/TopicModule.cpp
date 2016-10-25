@@ -1,5 +1,6 @@
 #include <sstream>
 #include <fstream>
+// #include <glog/logging.h>
 #include "common.hpp"
 #include "TopicModule.h"
 
@@ -12,15 +13,25 @@ TopicModule::TopicModule(const std::string &vocabFile, const std::string &modelF
 
     // load model
     {
-        size_t nWords = 0, nTopics = 0, alpha = 0.0, beta = 0.0;
+        // LOG(INFO) << "Loading model " << modelFile;
+        size_t nWords = 0, nTopics = 0;
+        double alpha = 0.0, beta = 0.0;
         ifstream ifs(modelFile, ios::in);
         ifs >> nWords >> nTopics >> alpha >> beta;
+        // LOG(INFO) << "nWords = " << nWords;
+        // LOG(INFO) << "nTopics = " << nTopics;
+        // LOG(INFO) << "alpha = " << alpha;
+        // LOG(INFO) << "beta = " << beta;
+        // LOG(INFO) << "eof = " << ifs.eof();
+        // LOG(INFO) << "fail = " << ifs.fail();
+        // LOG(INFO) << "bad = " << ifs.bad();
         if (!nTopics || ifs.fail() || ifs.bad())
             THROW_RUNTIME_ERROR("Bad model file!");
         m_nTopics = nTopics;
     }
     m_pLda.reset(new WarpLDA<1>());
-    m_pLda->loadModel(modelFile);
+    // m_pLda->loadModel(modelFile);       // hang
+    m_strModel = modelFile;
 }
 
 void TopicModule::predict(const std::string &text, Result &result, 
@@ -35,6 +46,7 @@ void TopicModule::predict(const std::string &text, Result &result,
                  vLnkStream(ios::in | ios::out | ios::binary);
     text_to_bin(text, nSkip, uIdxStream, vIdxStream, uLnkStream, vLnkStream);
     m_pLda->loadBinary(uIdxStream, vIdxStream, uLnkStream, vLnkStream);
+    m_pLda->loadModel(m_strModel);       // test 
     m_pLda->inference(nIter, perplexity);
     m_pLda->storeZ(result);
 }

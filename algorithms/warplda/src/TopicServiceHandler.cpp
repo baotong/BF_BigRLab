@@ -3,7 +3,7 @@
 #include <vector>
 #include <algorithm>
 #include <json/json.h>
-#include <glog/logging.h>
+// #include <glog/logging.h>
 #include "common.hpp"
 #include "alg_common.hpp"
 #include "TopicServiceHandler.h"
@@ -19,7 +19,7 @@ try {
         THROW_INVALID_REQUEST("Input string cannot be empty");
 
     TopicModule *pTopicModule = 0;
-    if (g_queTopicModules->pop(pTopicModule, TIMEOUT) || !pTopicModule)
+    if (!g_queTopicModules->pop(pTopicModule, TIMEOUT) || !pTopicModule)
         THROW_INVALID_REQUEST("No available TopicModule object!");
 
     ON_FINISH(pCleanup, {

@@ -126,6 +126,20 @@ common/fast:
 .PHONY : common/fast
 
 # Convenience name for target.
+src/CMakeFiles/demo.dir/rule:
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f CMakeFiles/Makefile2 src/CMakeFiles/demo.dir/rule
+.PHONY : src/CMakeFiles/demo.dir/rule
+
+# Convenience name for target.
+demo: src/CMakeFiles/demo.dir/rule
+.PHONY : demo
+
+# fast build rule for target.
+demo/fast:
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/demo.dir/build.make src/CMakeFiles/demo.dir/build
+.PHONY : demo/fast
+
+# Convenience name for target.
 src/CMakeFiles/topics_svr.dir/rule:
 	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f CMakeFiles/Makefile2 src/CMakeFiles/topics_svr.dir/rule
 .PHONY : src/CMakeFiles/topics_svr.dir/rule
@@ -138,6 +152,20 @@ topics_svr: src/CMakeFiles/topics_svr.dir/rule
 topics_svr/fast:
 	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/topics_svr.dir/build.make src/CMakeFiles/topics_svr.dir/build
 .PHONY : topics_svr/fast
+
+# Convenience name for target.
+src/CMakeFiles/warplda.dir/rule:
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f CMakeFiles/Makefile2 src/CMakeFiles/warplda.dir/rule
+.PHONY : src/CMakeFiles/warplda.dir/rule
+
+# Convenience name for target.
+warplda: src/CMakeFiles/warplda.dir/rule
+.PHONY : warplda
+
+# fast build rule for target.
+warplda/fast:
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/warplda.dir/build.make src/CMakeFiles/warplda.dir/build
+.PHONY : warplda/fast
 
 AdjList.o: AdjList.cpp.o
 .PHONY : AdjList.o
@@ -211,6 +239,54 @@ NumaArray.cpp.s:
 	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/common.dir/build.make src/CMakeFiles/common.dir/NumaArray.cpp.s
 .PHONY : NumaArray.cpp.s
 
+TopicModule.o: TopicModule.cpp.o
+.PHONY : TopicModule.o
+
+# target to build an object file
+TopicModule.cpp.o:
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/topics_svr.dir/build.make src/CMakeFiles/topics_svr.dir/TopicModule.cpp.o
+.PHONY : TopicModule.cpp.o
+
+TopicModule.i: TopicModule.cpp.i
+.PHONY : TopicModule.i
+
+# target to preprocess a source file
+TopicModule.cpp.i:
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/topics_svr.dir/build.make src/CMakeFiles/topics_svr.dir/TopicModule.cpp.i
+.PHONY : TopicModule.cpp.i
+
+TopicModule.s: TopicModule.cpp.s
+.PHONY : TopicModule.s
+
+# target to generate assembly for a file
+TopicModule.cpp.s:
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/topics_svr.dir/build.make src/CMakeFiles/topics_svr.dir/TopicModule.cpp.s
+.PHONY : TopicModule.cpp.s
+
+TopicServiceHandler.o: TopicServiceHandler.cpp.o
+.PHONY : TopicServiceHandler.o
+
+# target to build an object file
+TopicServiceHandler.cpp.o:
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/topics_svr.dir/build.make src/CMakeFiles/topics_svr.dir/TopicServiceHandler.cpp.o
+.PHONY : TopicServiceHandler.cpp.o
+
+TopicServiceHandler.i: TopicServiceHandler.cpp.i
+.PHONY : TopicServiceHandler.i
+
+# target to preprocess a source file
+TopicServiceHandler.cpp.i:
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/topics_svr.dir/build.make src/CMakeFiles/topics_svr.dir/TopicServiceHandler.cpp.i
+.PHONY : TopicServiceHandler.cpp.i
+
+TopicServiceHandler.s: TopicServiceHandler.cpp.s
+.PHONY : TopicServiceHandler.s
+
+# target to generate assembly for a file
+TopicServiceHandler.cpp.s:
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/topics_svr.dir/build.make src/CMakeFiles/topics_svr.dir/TopicServiceHandler.cpp.s
+.PHONY : TopicServiceHandler.cpp.s
+
 Vocab.o: Vocab.cpp.o
 .PHONY : Vocab.o
 
@@ -258,6 +334,30 @@ clock.s: clock.cpp.s
 clock.cpp.s:
 	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/common.dir/build.make src/CMakeFiles/common.dir/clock.cpp.s
 .PHONY : clock.cpp.s
+
+demo.o: demo.cpp.o
+.PHONY : demo.o
+
+# target to build an object file
+demo.cpp.o:
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/demo.dir/build.make src/CMakeFiles/demo.dir/demo.cpp.o
+.PHONY : demo.cpp.o
+
+demo.i: demo.cpp.i
+.PHONY : demo.i
+
+# target to preprocess a source file
+demo.cpp.i:
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/demo.dir/build.make src/CMakeFiles/demo.dir/demo.cpp.i
+.PHONY : demo.cpp.i
+
+demo.s: demo.cpp.s
+.PHONY : demo.s
+
+# target to generate assembly for a file
+demo.cpp.s:
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/demo.dir/build.make src/CMakeFiles/demo.dir/demo.cpp.s
+.PHONY : demo.cpp.s
 
 gen-cpp/TopicService.o: gen-cpp/TopicService.cpp.o
 .PHONY : gen-cpp/TopicService.o
@@ -336,7 +436,9 @@ lda.o: lda.cpp.o
 
 # target to build an object file
 lda.cpp.o:
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/demo.dir/build.make src/CMakeFiles/demo.dir/lda.cpp.o
 	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/topics_svr.dir/build.make src/CMakeFiles/topics_svr.dir/lda.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/warplda.dir/build.make src/CMakeFiles/warplda.dir/lda.cpp.o
 .PHONY : lda.cpp.o
 
 lda.i: lda.cpp.i
@@ -344,7 +446,9 @@ lda.i: lda.cpp.i
 
 # target to preprocess a source file
 lda.cpp.i:
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/demo.dir/build.make src/CMakeFiles/demo.dir/lda.cpp.i
 	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/topics_svr.dir/build.make src/CMakeFiles/topics_svr.dir/lda.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/warplda.dir/build.make src/CMakeFiles/warplda.dir/lda.cpp.i
 .PHONY : lda.cpp.i
 
 lda.s: lda.cpp.s
@@ -352,8 +456,34 @@ lda.s: lda.cpp.s
 
 # target to generate assembly for a file
 lda.cpp.s:
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/demo.dir/build.make src/CMakeFiles/demo.dir/lda.cpp.s
 	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/topics_svr.dir/build.make src/CMakeFiles/topics_svr.dir/lda.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/warplda.dir/build.make src/CMakeFiles/warplda.dir/lda.cpp.s
 .PHONY : lda.cpp.s
+
+main.o: main.cpp.o
+.PHONY : main.o
+
+# target to build an object file
+main.cpp.o:
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/warplda.dir/build.make src/CMakeFiles/warplda.dir/main.cpp.o
+.PHONY : main.cpp.o
+
+main.i: main.cpp.i
+.PHONY : main.i
+
+# target to preprocess a source file
+main.cpp.i:
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/warplda.dir/build.make src/CMakeFiles/warplda.dir/main.cpp.i
+.PHONY : main.cpp.i
+
+main.s: main.cpp.s
+.PHONY : main.s
+
+# target to generate assembly for a file
+main.cpp.s:
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/warplda.dir/build.make src/CMakeFiles/warplda.dir/main.cpp.s
+.PHONY : main.cpp.s
 
 mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.o: mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.cpp.o
 .PHONY : mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.o
@@ -456,7 +586,9 @@ warplda.o: warplda.cpp.o
 
 # target to build an object file
 warplda.cpp.o:
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/demo.dir/build.make src/CMakeFiles/demo.dir/warplda.cpp.o
 	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/topics_svr.dir/build.make src/CMakeFiles/topics_svr.dir/warplda.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/warplda.dir/build.make src/CMakeFiles/warplda.dir/warplda.cpp.o
 .PHONY : warplda.cpp.o
 
 warplda.i: warplda.cpp.i
@@ -464,7 +596,9 @@ warplda.i: warplda.cpp.i
 
 # target to preprocess a source file
 warplda.cpp.i:
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/demo.dir/build.make src/CMakeFiles/demo.dir/warplda.cpp.i
 	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/topics_svr.dir/build.make src/CMakeFiles/topics_svr.dir/warplda.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/warplda.dir/build.make src/CMakeFiles/warplda.dir/warplda.cpp.i
 .PHONY : warplda.cpp.i
 
 warplda.s: warplda.cpp.s
@@ -472,7 +606,9 @@ warplda.s: warplda.cpp.s
 
 # target to generate assembly for a file
 warplda.cpp.s:
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/demo.dir/build.make src/CMakeFiles/demo.dir/warplda.cpp.s
 	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/topics_svr.dir/build.make src/CMakeFiles/topics_svr.dir/warplda.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/algorithms/warplda/debug && $(MAKE) -f src/CMakeFiles/warplda.dir/build.make src/CMakeFiles/warplda.dir/warplda.cpp.s
 .PHONY : warplda.cpp.s
 
 # Help Target
@@ -482,10 +618,12 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... common"
+	@echo "... demo"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... test"
 	@echo "... topics_svr"
+	@echo "... warplda"
 	@echo "... AdjList.o"
 	@echo "... AdjList.i"
 	@echo "... AdjList.s"
@@ -495,12 +633,21 @@ help:
 	@echo "... NumaArray.o"
 	@echo "... NumaArray.i"
 	@echo "... NumaArray.s"
+	@echo "... TopicModule.o"
+	@echo "... TopicModule.i"
+	@echo "... TopicModule.s"
+	@echo "... TopicServiceHandler.o"
+	@echo "... TopicServiceHandler.i"
+	@echo "... TopicServiceHandler.s"
 	@echo "... Vocab.o"
 	@echo "... Vocab.i"
 	@echo "... Vocab.s"
 	@echo "... clock.o"
 	@echo "... clock.i"
 	@echo "... clock.s"
+	@echo "... demo.o"
+	@echo "... demo.i"
+	@echo "... demo.s"
 	@echo "... gen-cpp/TopicService.o"
 	@echo "... gen-cpp/TopicService.i"
 	@echo "... gen-cpp/TopicService.s"
@@ -513,6 +660,9 @@ help:
 	@echo "... lda.o"
 	@echo "... lda.i"
 	@echo "... lda.s"
+	@echo "... main.o"
+	@echo "... main.i"
+	@echo "... main.s"
 	@echo "... mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.o"
 	@echo "... mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.i"
 	@echo "... mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.s"

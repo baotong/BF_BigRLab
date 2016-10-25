@@ -1,5 +1,10 @@
 /*
  *** Usage:
+* Command format: service $srvName in:$infile out:$outfile [topk:$topk] [iter:$niter] [perplexity:$perplexity] [skip:nskip]
+* service topic_eval in:/tmp/in.txt out:/tmp/out.txt topk:5 iter:1
+*
+* http example:
+* curl -i -X POST -H "Content-Type: BigRLab_Request" -d '{"topk":5,"niter":1,"perplexity":10,"nskip":2,"text":"www.sauritchsurfboards.com/ recreation/sports/aquatic_sports watch out jeremy sherwin is here over the past six months you may have noticed this guy in every surf magazine published jeremy is finally getting his run more.. copyright surfboards 2004 all rights reserved june 6 2004 new launches it s new and improved site you can now order custom surfboards online more improvements to come.. top selling models middot rocket fish middot speed egg middot classic middot squash"}' http://localhost:9000/topic_eval
  */
 #ifndef _TOPIC_SERVICE_H_
 #define _TOPIC_SERVICE_H_

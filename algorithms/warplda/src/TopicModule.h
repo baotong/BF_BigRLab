@@ -9,6 +9,12 @@
 #include "Utils.hpp"
 #include "warplda.hpp"
 
+#include <boost/log/trivial.hpp>
+
+#define INFO info
+#define ERROR error
+#define LOG(x) BOOST_LOG_TRIVIAL(x)
+
 class TopicModule {
 public:
     typedef std::shared_ptr<TopicModule>    pointer;
@@ -35,6 +41,8 @@ private:
     std::shared_ptr<Vocab>   m_pVocab;
     std::shared_ptr<LDA>     m_pLda;
     std::size_t              m_nTopics;
+private:
+    std::string              m_strModel;
 };
 
 

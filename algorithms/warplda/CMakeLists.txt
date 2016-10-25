@@ -5,7 +5,7 @@ project (gridlda)
 # add_subdirectory(gflags)
 
 # set compiling flags
-set (CMAKE_CXX_FLAGS "-march=native -std=c++11 -Wall -g ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "-march=native -std=c++11 -pthread -Wall -O0 -g ${CMAKE_CXX_FLAGS}")
 
 find_package(OpenMP)
 if(OPENMP_FOUND)

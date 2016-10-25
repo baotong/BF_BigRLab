@@ -1,6 +1,5 @@
 #define STRIP_FLAG_HELP 0
 #include <gflags/gflags.h>
-#include <glog/logging.h>
 #include <sstream>
 #include <fstream>
 #include <memory>
@@ -8,6 +7,12 @@
 #include "Bigraph.hpp"
 #include "Utils.hpp"
 #include "warplda.hpp"
+
+#include <boost/log/trivial.hpp>
+
+#define INFO info
+#define ERROR error
+#define LOG(x) BOOST_LOG_TRIVIAL(x)
 
 #define THROW_RUNTIME_ERROR(x) \
     do { \
@@ -132,7 +137,7 @@ int main(int argc, char **argv)
     using namespace std;
 
     try {
-        google::InitGoogleLogging(argv[0]);
+        // google::InitGoogleLogging(argv[0]);
         gflags::ParseCommandLineFlags(&argc, &argv, true);
 
         LOG(INFO) << argv[0] << " started...";
