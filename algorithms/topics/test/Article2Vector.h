@@ -18,6 +18,7 @@ public:
     typedef std::vector<float>                  ResultType;
 
 public:
+    Article2Vector() = default;
     explicit Article2Vector(uint32_t _N_Classes) 
             : m_nClasses(_N_Classes) {}
 
@@ -29,6 +30,27 @@ public:
 
 protected:
     uint32_t    m_nClasses;
+};
+
+
+class Article2VectorByWarplda : public Article2Vector {
+public:
+    // key = word_in_vocab  value = topicid:count ...
+    typedef std::map< std::string, std::vector<std::pair<uint32_t, uint32_t>> >     DictType;
+
+public:
+    Article2VectorByWarplda(const std::string &modelFile,
+                            const std::string &vocabFile)
+    { loadData(modelFile, vocabFile); }
+
+    virtual void convert2Vector( const std::vector<std::string> &article, ResultType &result );
+
+private:
+    void loadData(const std::string &modelFile,
+                  const std::string &vocabFile);
+
+private:
+    DictType        m_dictWordTopic;
 };
 
 

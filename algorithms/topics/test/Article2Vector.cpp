@@ -1,11 +1,13 @@
 #include "Article2Vector.h"
 #include "common.h"
 #include <stdexcept>
+#include <iostream>
 #include <sstream>
 #include <fstream>
 #include <iterator>
 #include <algorithm>
 #include <set>
+#include <boost/algorithm/string.hpp>
 #include <boost/foreach.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/range/combine.hpp>
@@ -161,4 +163,65 @@ void Article2VectorByCluster::convert2Vector( const std::vector<std::string> &ar
 
     BOOST_FOREACH( IterType v, boost::combine(workVec, result) )
         v.get<1>() = (float)(v.get<0>());
+}
+
+
+void Article2VectorByWarplda::loadData(const std::string &modelFile,
+                                       const std::string &vocabFile)
+{
+    using namespace std;
+
+    ifstream fModel(modelFile, ios::in);
+    ifstream fVocab(vocabFile, ios::in);
+
+    string lineModel, word;
+    // read nTopics
+    {
+        uint32_t nWords, nTopics;
+        float    alpha, beta;
+        getline(fModel, lineModel);
+        stringstream stream(lineModel);
+        stream >> nWords >> nTopics >> alpha >> beta;
+        if (stream.fail() || stream.bad())
+            THROW_RUNTIME_ERROR("Bad model file " << modelFile);
+        m_nClasses = nTopics;
+    }
+
+    uint32_t id, count;
+    string item;
+    while (getline(fModel, lineModel) && getline(fVocab, word)) {
+        boost::trim(word);
+        auto ret = m_dictWordTopic.insert(std::make_pair(word, DictType::mapped_type()));
+        auto it = ret.first;
+        
+        stringstream stream(lineModel);
+        stream >> item;     // skip first col
+        if (stream.fail() || stream.bad())
+            continue;
+        while (stream >> item) {
+            if (sscanf(item.c_str(), "%u:%u", &id, &count) != 2)
+               continue; 
+            it->second.push_back(std::make_pair(id, count));
+        } // while
+
+        if (it->second.empty())
+            m_dictWordTopic.erase(it);
+    } // while
+
+    if (getline(fModel, lineModel) || getline(fVocab, word))
+        THROW_RUNTIME_ERROR("Model file and vocab file records mismatch!");
+
+    // test
+    // for (auto &kv : m_dictWordTopic) {
+        // cout << kv.first << "\t";
+        // for (auto &item : kv.second)
+            // cout << item.first << ":" << item.second << " ";
+        // cout << endl;
+    // } // for
+}
+
+
+void Article2VectorByWarplda::convert2Vector( const std::vector<std::string> &article, ResultType &result )
+{
+
 }

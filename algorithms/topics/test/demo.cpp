@@ -1,6 +1,7 @@
 /*
  * https://github.com/yanyiwu/cppjieba
  * GLOG_logtostderr=1 ./demo -algname topic_pred -algmgr localhost:9001 -port 10080 -vec wordvec -vecdict data/train.wordvec -idx data/train.annIdx
+ * GLOG_logtostderr=1 ./demo -algname topic_pred -algmgr localhost:9001 -port 10080 -vec warplda -warpldaModel data/train.model -warpldaVocab data/train.vocab -idx data/train.annIdx
  */
 #include "jieba.hpp"
 #include "Article2Vector.h"
@@ -37,8 +38,10 @@ DEFINE_int32(n_io_threads, 4, "Number of io threads on RPC server");
 
 // DEFINE_string(wordvec_dict, "", "File of word-vector");
 // DEFINE_string(cluster_dict, "", "File of cluster-id");
-DEFINE_string(vec, "", "How article converted to vector, \"wordvec\" or \"clusterid\"");
+DEFINE_string(vec, "", "How article converted to vector, \"wordvec\" or \"clusterid\" or \"warplda\"");
 DEFINE_string(vecdict, "", "File contains word info, word vector or word clusterID");
+DEFINE_string(warpldaModel, "", "warplda model file");
+DEFINE_string(warpldaVocab, "", "warplda vocab file");
 DEFINE_string(idx, "", "File of annoy tree index");
 DEFINE_string(label, "", "Line label of source text");
 DEFINE_string(score, "", "Line regression score of source text");
@@ -172,20 +175,11 @@ bool validate_vec(const char* flagname, const std::string &value)
 {
     if (!FLAGS_service)
         return true;
-    if ("wordvec" == value || "clusterid" == value)
+    if ("wordvec" == value || "clusterid" == value || "warplda" == value)
         return true;
     return false;
 }
 static bool vec_dummy = gflags::RegisterFlagValidator(&FLAGS_vec, &validate_vec);
-
-static
-bool validate_vecdict(const char* flagname, const std::string &value)
-{ 
-    if (!FLAGS_service)
-        return true;
-    return check_not_empty( flagname, value ); 
-}
-static bool vecdict_dummy = gflags::RegisterFlagValidator(&FLAGS_vecdict, &validate_vecdict);
 
 static
 bool validate_idx(const char* flagname, const std::string &value)
@@ -429,6 +423,14 @@ void service_init()
     cout << "Creating article to vector converter..." << endl;
 
     if ("wordvec" == FLAGS_vec) {
+        if (FLAGS_vecdict.empty()) {
+            THROW_RUNTIME_ERROR("You have to specify vecdict file thru -vecdict");
+        } else {
+            ifstream ifs(FLAGS_vecdict, ios::in);
+            if (!ifs)
+                THROW_RUNTIME_ERROR("Cannot open vecdict file " << FLAGS_vecdict);
+        } // if
+
         // get n_class
         stringstream stream;
         stream << "tail -1 " << FLAGS_vecdict << " | awk \'{print NF}\'" << flush;
@@ -450,6 +452,14 @@ void service_init()
         g_pVecConverter = boost::make_shared<Article2VectorByWordVec>( nClasses, FLAGS_vecdict.c_str() );
 
     } else if ("clusterid" == FLAGS_vec) {
+        if (FLAGS_vecdict.empty()) {
+            THROW_RUNTIME_ERROR("You have to specify vecdict file thru -vecdict");
+        } else {
+            ifstream ifs(FLAGS_vecdict, ios::in);
+            if (!ifs)
+                THROW_RUNTIME_ERROR("Cannot open vecdict file " << FLAGS_vecdict);
+        } // if
+
         // get n_class
         stringstream stream;
         stream << "cat " << FLAGS_vecdict << " | awk \'{print $2}\' | sort -nr | head -1" << flush;
@@ -470,6 +480,26 @@ void service_init()
 
         g_pVecConverter = boost::make_shared<Article2VectorByCluster>( nClasses, FLAGS_vecdict.c_str() );
         
+    } else if ("warplda" == FLAGS_vec) {
+        if (FLAGS_warpldaModel.empty()) {
+            THROW_RUNTIME_ERROR("You have to specify model file thru -warpldaModel");
+        } else {
+            ifstream ifs(FLAGS_warpldaModel, ios::in);
+            if (!ifs)
+                THROW_RUNTIME_ERROR("Cannot open model file " << FLAGS_warpldaModel);
+        } // if
+
+        if (FLAGS_warpldaVocab.empty()) {
+            THROW_RUNTIME_ERROR("You have to specify vocab file thru -warpldaVocab");
+        } else {
+            ifstream ifs(FLAGS_warpldaVocab, ios::in);
+            if (!ifs)
+                THROW_RUNTIME_ERROR("Cannot open vocab file " << FLAGS_warpldaVocab);
+        } // if
+
+        g_pVecConverter = boost::make_shared<Article2VectorByWarplda>(FLAGS_warpldaModel, FLAGS_warpldaVocab);
+        // DLOG(INFO) << "Detected " << g_pVecConverter->nClasses() << " classes.";
+
     } else {
         THROW_RUNTIME_ERROR( FLAGS_vec << " is not a valid argument");
     } // if
