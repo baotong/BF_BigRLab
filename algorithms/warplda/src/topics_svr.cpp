@@ -21,7 +21,7 @@
 #include "register_svr.hpp"
 #include "TopicServiceHandler.h"
 
-#define SERVICE_LIB_NAME        "topics"
+#define SERVICE_LIB_NAME        "warplda"
 
 #define TIMER_REJOIN            15          // 15s
 

@@ -4,7 +4,7 @@ CC = c++
 
 COMM_DIR = ../../common
 API_SERVER_DIR = ../../api_server
-ALG_DIR = ../../algorithms/topics/test
+ALG_DIR = ../../algorithms/warplda/src
 
 SRC = $(shell find . -type f -name '*.cpp')
 SRC += $(shell find $(API_SERVER_DIR)/gen-cpp -type f -name '*.cpp')

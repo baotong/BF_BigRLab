@@ -17,7 +17,7 @@ Service* create_instance(const char *name)
 { return new TopicService(name); }
 
 const char* lib_name()
-{ return "topics"; }
+{ return "warplda"; }
 
 TopicService::TopicClientPtr TopicService::IdleClientQueue::getIdleClient()
 {
