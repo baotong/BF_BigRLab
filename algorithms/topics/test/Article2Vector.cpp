@@ -7,6 +7,7 @@
 #include <iterator>
 #include <algorithm>
 #include <set>
+#include <limits>
 #include <boost/algorithm/string.hpp>
 #include <boost/foreach.hpp>
 #include <boost/tuple/tuple.hpp>
@@ -201,6 +202,8 @@ void Article2VectorByWarplda::loadData(const std::string &modelFile,
         while (stream >> item) {
             if (sscanf(item.c_str(), "%u:%u", &id, &count) != 2)
                continue; 
+            if (id >= m_nClasses)
+                THROW_RUNTIME_ERROR("Found invalid topicid when loading model!");
             it->second.push_back(std::make_pair(id, count));
         } // while
 
@@ -223,5 +226,27 @@ void Article2VectorByWarplda::loadData(const std::string &modelFile,
 
 void Article2VectorByWarplda::convert2Vector( const std::vector<std::string> &article, ResultType &result )
 {
+    result.assign(m_nClasses, 0.0);
 
+    for (auto &s : article) {
+        auto it = m_dictWordTopic.find(s);
+        if (it == m_dictWordTopic.end())
+            continue;
+        for (auto &item : it->second)
+            result[item.first] += item.second;
+    } // for
+
+    float min = std::numeric_limits<float>::max();
+    float max = std::numeric_limits<float>::min();
+
+    for (auto &v : result) {
+        if (v < min) min = v;
+        if (v > max) max = v;
+    } // for
+
+    float base = max - min;
+    for (auto &v : result) {
+        v -= min;
+        v /= base;
+    } // for
 }

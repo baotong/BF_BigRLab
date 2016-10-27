@@ -140,6 +140,80 @@ struct TopicTask : BigRLab::WorkItemBase {
 };
 
 
+struct Doc2VecTask : BigRLab::WorkItemBase {
+    Doc2VecTask( std::size_t _Id,
+                 std::string &_Text, 
+                 bool _WordSeg,
+                 ArticleService::IdleClientQueue *_IdleClients, 
+                 std::atomic_size_t *_Counter,
+                 boost::condition_variable *_Cond,
+                 boost::mutex *_Mtx,
+                 std::ofstream *_Ofs, 
+                 const char *_SrvName )
+        : id(_Id)
+        , wordseg(_WordSeg)
+        , idleClients(_IdleClients)
+        , counter(_Counter)
+        , cond(_Cond)
+        , mtx(_Mtx)
+        , ofs(_Ofs)
+        , srvName(_SrvName)
+    { text.swap(_Text); }
+
+    virtual void run()
+    {
+        using namespace std;
+
+        ON_FINISH_CLASS(pCleanup, {++*counter; cond->notify_all();});
+
+        bool done = false;
+
+        do {
+            auto pClient = idleClients->getIdleClient();
+            if (!pClient)
+                THROW_RUNTIME_ERROR("Fail due to no available rpc client object!");
+
+            try {
+                vector<double> result;
+                pClient->client()->toVector( result, text, wordseg );
+                done = true;
+                idleClients->putBack( pClient );
+
+                ostringstream output(ios::out);
+                if (!result.empty()) {
+                    output << id << "\t";
+                    for (auto& v : result)
+                        output << v << " ";
+                    output << flush;
+                } else {
+                    output << id << "\tnull" << flush;
+                } // if
+                boost::unique_lock<boost::mutex> flk( *mtx );
+                *ofs << output.str() << endl;
+
+            } catch (const Article::InvalidRequest &err) {
+                done = true;
+                idleClients->putBack( pClient );
+                LOG(ERROR) << "Service " << srvName << " caught InvalidRequest: "
+                   << err.reason; 
+            } catch (const std::exception &ex) {
+                LOG(ERROR) << "Service " << srvName << " caught system exception: " << ex.what();
+            } // try
+        } while (!done);
+    }
+
+    std::size_t                     id;
+    std::string                     text;
+    bool                            wordseg;
+    ArticleService::IdleClientQueue *idleClients;
+    std::atomic_size_t              *counter;
+    boost::condition_variable       *cond;
+    boost::mutex                    *mtx;
+    std::ofstream                   *ofs;
+    const char                      *srvName;
+};
+
+
 // 在ApiServer主线程中执行
 // service servicename reqtype infile outfile
 void ArticleService::handleCommand( std::stringstream &stream )
@@ -153,7 +227,7 @@ void ArticleService::handleCommand( std::stringstream &stream )
         getWriter()->writeLine(__write_line_stream.str()); \
     } while (0)
 
-    string arg, infile, outfile;
+    string arg, infile, outfile, req;
     int topk = 0;
     int searchK = -1;
     bool wordseg = true;
@@ -176,6 +250,8 @@ void ArticleService::handleCommand( std::stringstream &stream )
             int iWordSeg = 1;
             sscanf(value.c_str(), "%d", &iWordSeg);
             wordseg = iWordSeg ? true : false;
+        } else if ("req" == key) {
+            req.swap(value);
         } else if ("in" == key) {
             infile.swap(value);   
         } else if ("out" == key) {
@@ -207,9 +283,15 @@ void ArticleService::handleCommand( std::stringstream &stream )
 
     while ( getline(ifs, line) ) {
         boost::trim_right( line );
-        WorkItemBasePtr pWork = boost::make_shared<TopicTask>
-            (lineno, line, topk, searchK, wordseg, &m_queIdleClients, 
-             &counter, &cond, &mtx, &ofs, name().c_str());
+        WorkItemBasePtr pWork;
+        if ("doc2vec" == req)
+            pWork = boost::make_shared<Doc2VecTask>
+                (lineno, line, wordseg, &m_queIdleClients, 
+                 &counter, &cond, &mtx, &ofs, name().c_str());
+        else
+            pWork = boost::make_shared<TopicTask>
+                (lineno, line, topk, searchK, wordseg, &m_queIdleClients, 
+                 &counter, &cond, &mtx, &ofs, name().c_str());
         getWorkMgr()->addWork( pWork );
         ++lineno;
     } // while
