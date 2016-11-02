@@ -35,7 +35,7 @@ class ClusterPredictManual : public ClusterPredict {
 public:
     typedef std::vector< std::vector<double> >  Matrix;
 public:   
-    ClusterPredictManual(const std::string &modelFile);
+    explicit ClusterPredictManual(const std::string &modelFile);
     virtual uint32_t predict(const std::vector<double> &vec) override;
 
 private:

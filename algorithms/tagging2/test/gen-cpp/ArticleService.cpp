@@ -26,38 +26,6 @@ ArticleService_setFilter_presult::~ArticleService_setFilter_presult() throw() {
 }
 
 
-ArticleService_wordSegment_args::~ArticleService_wordSegment_args() throw() {
-}
-
-
-ArticleService_wordSegment_pargs::~ArticleService_wordSegment_pargs() throw() {
-}
-
-
-ArticleService_wordSegment_result::~ArticleService_wordSegment_result() throw() {
-}
-
-
-ArticleService_wordSegment_presult::~ArticleService_wordSegment_presult() throw() {
-}
-
-
-ArticleService_keyword_args::~ArticleService_keyword_args() throw() {
-}
-
-
-ArticleService_keyword_pargs::~ArticleService_keyword_pargs() throw() {
-}
-
-
-ArticleService_keyword_result::~ArticleService_keyword_result() throw() {
-}
-
-
-ArticleService_keyword_presult::~ArticleService_keyword_presult() throw() {
-}
-
-
 ArticleService_tagging_args::~ArticleService_tagging_args() throw() {
 }
 

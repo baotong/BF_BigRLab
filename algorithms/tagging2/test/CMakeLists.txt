@@ -12,7 +12,7 @@ INCLUDE_DIRECTORIES(${INCLUDE})
 
 # include_directories(${INCLUDE})
 file(GLOB SRC demo.cpp Article2Vector.cpp ArticleServiceHandler.cpp 
-    ClusterPredict.cpp Article2Vector.cpp
+    ClusterPredict.cpp Article2Vector.cpp WordClusterDB.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/gen-cpp/*.cpp ${API_SERVER_DIR}/gen-cpp/*.cpp)
 
 SET(CMAKE_CXX_FLAGS "-std=c++11 -pthread -fopenmp -O3 -g")

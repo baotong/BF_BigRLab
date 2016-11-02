@@ -29,7 +29,7 @@ void Article2VectorByWordVec::loadDict(const char *filename)
     while (getline(ifs, line)) {
         ++lineno;
         stringstream stream(line);
-        vector<float> vec;
+        vector<double> vec;
         vec.reserve(m_nClasses);
         stream >> word;
         if (bad_stream(stream)) {
@@ -37,7 +37,7 @@ void Article2VectorByWordVec::loadDict(const char *filename)
                     << ": " << line;
             continue;
         } // if
-        copy(istream_iterator<float>(stream), istream_iterator<float>(), 
+        copy(istream_iterator<double>(stream), istream_iterator<double>(), 
                     back_inserter(vec));
         if (vec.size() != m_nClasses) {
             LOG(ERROR) << "Invalid vector len when reading line " << lineno
@@ -89,7 +89,7 @@ void Article2VectorByWordVec::convert2Vector( const std::vector<std::string> &ar
 {
     using namespace std;
 
-    typedef boost::tuple<double&, float&> IterType;
+    typedef boost::tuple<double&, double&> IterType;
 
     result.clear();
     result.resize(m_nClasses, 0.0);
@@ -105,7 +105,7 @@ void Article2VectorByWordVec::convert2Vector( const std::vector<std::string> &ar
             continue;
         } // if
         ++count;
-        vector<float> &wordVec = it->second;
+        vector<double> &wordVec = it->second;
         // Test::print_container(wordVec);
         BOOST_FOREACH( IterType v, boost::combine(sumVec, wordVec) )
             v.get<0>() += v.get<1>();
@@ -117,8 +117,9 @@ void Article2VectorByWordVec::convert2Vector( const std::vector<std::string> &ar
     std::for_each(sumVec.begin(), sumVec.end(), 
             [&](double &v){ v /= (double)count; });
 
-    BOOST_FOREACH( IterType v, boost::combine(sumVec, result) )
-        v.get<1>() = (float)(v.get<0>());
+    result.swap(sumVec);
+    // BOOST_FOREACH( IterType v, boost::combine(sumVec, result) )
+        // v.get<1>() = (float)(v.get<0>());
 }
 
 void Article2VectorByCluster::convert2Vector( const std::vector<std::string> &article, 
@@ -126,7 +127,7 @@ void Article2VectorByCluster::convert2Vector( const std::vector<std::string> &ar
 {
     using namespace std;
 
-    typedef boost::tuple<double&, float&> IterType;
+    // typedef boost::tuple<double&, double&> IterType;
 
     result.clear();
     result.resize(m_nClasses, 0.0);
@@ -162,8 +163,9 @@ void Article2VectorByCluster::convert2Vector( const std::vector<std::string> &ar
     // DLOG(INFO) << "After normalization:";
     // Test::print_non_zero_vector(cout, workVec);
 
-    BOOST_FOREACH( IterType v, boost::combine(workVec, result) )
-        v.get<1>() = (float)(v.get<0>());
+    result.swap(workVec);
+    // BOOST_FOREACH( IterType v, boost::combine(workVec, result) )
+        // v.get<1>() = (float)(v.get<0>());
 }
 
 
@@ -179,7 +181,7 @@ void Article2VectorByWarplda::loadData(const std::string &modelFile,
     // read nTopics
     {
         uint32_t nWords, nTopics;
-        float    alpha, beta;
+        double    alpha, beta;
         getline(fModel, lineModel);
         stringstream stream(lineModel);
         stream >> nWords >> nTopics >> alpha >> beta;
@@ -236,15 +238,15 @@ void Article2VectorByWarplda::convert2Vector( const std::vector<std::string> &ar
             result[item.first] += item.second;
     } // for
 
-    float min = std::numeric_limits<float>::max();
-    float max = std::numeric_limits<float>::min();
+    double min = std::numeric_limits<double>::max();
+    double max = std::numeric_limits<double>::min();
 
     for (auto &v : result) {
         if (v < min) min = v;
         if (v > max) max = v;
     } // for
 
-    float base = max - min;
+    double base = max - min;
     for (auto &v : result) {
         v -= min;
         v /= base;

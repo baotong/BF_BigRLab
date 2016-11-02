@@ -1,7 +1,9 @@
 #include <fstream>
 #include <sstream>
+#include <iostream>
 #include <functional>
 #include <algorithm>
+#include <boost/format.hpp>
 #include "common.hpp"
 #include "ClusterPredict.h"
 
@@ -60,6 +62,14 @@ ClusterPredictManual::ClusterPredictManual(const std::string &modelFile)
 {
     loadModel(modelFile, std::bind(&ClusterPredictManual::parseLine, this,
             std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+
+    // DEBUG
+    // using namespace std;
+    // for (auto &row : m_matClusters) {
+        // for (auto &v : row)
+            // cout << boost::format("%6.2lf") % v;
+        // cout << endl;
+    // } // for
 }
 
 
@@ -80,7 +90,7 @@ void ClusterPredictManual::parseLine(std::string &text, uint32_t cId,
     stringstream ss(text);
     while (ss >> item) {
         if (sscanf(item.c_str(), "%u:%lf", &idx, &val) != 2 || idx < 1 || idx > nFeatures)
-            THROW_RUNTIME_ERROR("Error when reading cluster " << cId);
+            continue;
         vec[idx-1] = val;
     } // while
 }
@@ -98,6 +108,12 @@ uint32_t ClusterPredictManual::predict(const std::vector<double> &vec)
 #pragma omp parallel for
     for (uint32_t i = 0; i < nClusters(); ++i)
         dist[i] = getDist(vec, m_matClusters[i]);
+
+    // DEBUG
+    // cout << "Distances: ";
+    // for (auto &v : dist)
+        // cout << boost::format("%10.5lf") % v;
+    // cout << endl;
 
     auto itMin = std::min_element(dist.begin(), dist.end());
     return (uint32_t)(std::distance(dist.begin(), itMin));

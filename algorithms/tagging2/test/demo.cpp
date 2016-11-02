@@ -40,9 +40,14 @@ DEFINE_string(warpldaVocab, "", "warplda vocab file");
 
 DEFINE_string(concur, "", "File of concur table");
 DEFINE_string(tagset, "", "File of tagset");
-DEFINE_string(wt, "", "File of word table");
-DEFINE_string(idx, "", "File of word annoy tree");
-DEFINE_int32(idxlen, 0, "vector len of annoy vector");
+DEFINE_string(cluster_pred, "", "预测请求文本cluster的方法，manual knn");
+DEFINE_string(cluster_model, "", "由yakmo生成的cluster信息文件");
+DEFINE_string(word_cluster, "", "单词属于每一个cluster的概率");
+DEFINE_double(threshold, 0.5, "tag属于text cluster的阈值");
+
+// DEFINE_string(wt, "", "File of word table");
+// DEFINE_string(idx, "", "File of word annoy tree");
+// DEFINE_int32(idxlen, 0, "vector len of annoy vector");
 
 
 static std::string                  g_strAlgMgrAddr;
@@ -58,7 +63,9 @@ static boost::asio::io_service                g_io_service;
 static boost::shared_ptr<BigRLab::AlgSvrInfo> g_pSvrInfo;
 
 Article2Vector::pointer                 g_pVecConverter;
-boost::shared_ptr<WordAnnDB>            g_pAnnDB;
+ClusterPredict::pointer                 g_pClusterPredict;
+WordClusterDB::pointer                  g_pWordClusterDB;
+// boost::shared_ptr<WordAnnDB>            g_pAnnDB;
 boost::shared_ptr<ConcurTable>          g_pConcurTable;
 std::set<std::string>                   g_TagSet;
 
@@ -160,17 +167,17 @@ static bool validate_tagset(const char* flagname, const std::string &value)
 { return check_not_empty( flagname, value ); }
 static bool tagset_dummy = gflags::RegisterFlagValidator(&FLAGS_tagset, &validate_tagset);
 
-static bool validate_wt(const char* flagname, const std::string &value)
-{ return check_not_empty( flagname, value ); }
-static bool wt_dummy = gflags::RegisterFlagValidator(&FLAGS_wt, &validate_wt);
+// static bool validate_wt(const char* flagname, const std::string &value)
+// { return check_not_empty( flagname, value ); }
+// static bool wt_dummy = gflags::RegisterFlagValidator(&FLAGS_wt, &validate_wt);
 
-static bool validate_idx(const char* flagname, const std::string &value)
-{ return check_not_empty( flagname, value ); }
-static bool idx_dummy = gflags::RegisterFlagValidator(&FLAGS_idx, &validate_idx);
+// static bool validate_idx(const char* flagname, const std::string &value)
+// { return check_not_empty( flagname, value ); }
+// static bool idx_dummy = gflags::RegisterFlagValidator(&FLAGS_idx, &validate_idx);
 
-static bool validate_idxlen(const char* flagname, gflags::int32 value) 
-{ return check_above_zero(flagname, value); }
-static const bool idxlen_dummy = gflags::RegisterFlagValidator(&FLAGS_idxlen, &validate_idxlen);
+// static bool validate_idxlen(const char* flagname, gflags::int32 value) 
+// { return check_above_zero(flagname, value); }
+// static const bool idxlen_dummy = gflags::RegisterFlagValidator(&FLAGS_idxlen, &validate_idxlen);
 
 static
 void get_local_ip()
@@ -252,15 +259,14 @@ void test2()
     cout << "Done!" << endl;
 }
 
-void test_anndb()
-{
-    using namespace std;
-    vector<string> result;
-    vector<float>  distances;
-    g_pAnnDB->kNN_By_Word("你他妈的去死吧", 10, result, distances);
-    for (size_t i = 0; i < result.size(); ++i)
-        cout << result[i] << "\t" << distances[i] << endl;
-}
+// void test_anndb()
+// {
+    // vector<string> result;
+    // vector<float>  distances;
+    // g_pAnnDB->kNN_By_Word("你他妈的去死吧", 10, result, distances);
+    // for (size_t i = 0; i < result.size(); ++i)
+        // cout << result[i] << "\t" << distances[i] << endl;
+// }
 
 void test_concur_table()
 {
@@ -272,6 +278,25 @@ void test_concur_table()
     for (auto &v : cList)
         cout << *(boost::get<ConcurTable::StringPtr>(v.item)) << ":" << v.weight << " ";
     cout << endl;
+}
+
+void test_cluster_predict()
+{
+    ClusterPredict::pointer pClusterPred = 
+            boost::make_shared<ClusterPredictManual>("../data/cluster_model_test");
+    vector<double> vec(5, 0.0);
+    uint32_t cid = pClusterPred->predict(vec);
+    cout << "cid = " << cid << endl;
+}
+
+void test_word_cluster_db()
+{
+    auto pWordCluster = boost::make_shared<WordClusterDB>("../data/word_cluster.txt");
+    auto ret = pWordCluster->query("LOFT", 200);
+    if (ret.second)
+        cout << "cluster probability = " << ret.first << endl;
+    else
+        cout << "Not found!" << endl;
 }
 
 } // namespace Test
@@ -520,13 +545,6 @@ void service_init()
         THROW_RUNTIME_ERROR( FLAGS_vec << " is not a valid argument");
     } // if
 
-    // check idx file
-    {
-        ifstream ifs(FLAGS_idx, ios::in);
-        if (!ifs)
-            THROW_RUNTIME_ERROR("Cannot open annoy index file " << FLAGS_idx << " for reading!");
-    }
-
     // LOG(INFO) << "FLAGS_n_jieba_inst = " << FLAGS_n_jieba_inst;
     
     bool success = true;
@@ -567,22 +585,21 @@ void service_init()
         } // try
     });
 
-    cout << "Loading Annoy tree..." << endl;
-    std::thread thrLoadIdx([&]{
-        try {
-            g_pAnnDB.reset( new WordAnnDB(FLAGS_idxlen) );
-            g_pAnnDB->loadIndex( FLAGS_idx.c_str() );
-            g_pAnnDB->loadWordTable( FLAGS_wt.c_str() );
-        } catch (const std::exception &ex) {
-            cerr << ex.what() << endl;
-            success = false;
-        } // try
-    });
+    cout << "Loading cluster model..." << endl;
+    if (FLAGS_cluster_pred.empty()) {
+        THROW_RUNTIME_ERROR("-cluster_pred not set!");
+    } else if ("manual" == FLAGS_cluster_pred) {
+        g_pClusterPredict = boost::make_shared<ClusterPredictManual>(FLAGS_cluster_model);
+    } else {
+        THROW_RUNTIME_ERROR("Unknown -cluster_pred arg!");
+    } // if
+
+    cout << "Loading word cluster db..." << endl;
+    g_pWordClusterDB = boost::make_shared<WordClusterDB>(FLAGS_word_cluster);
 
     thrCreateJiebaInst.join();
     thrLoadTagSet.join();
     thrLoadConcur.join();
-    thrLoadIdx.join();
 
     if (!success) {
         std::raise(SIGTERM);
@@ -591,7 +608,7 @@ void service_init()
 
     LOG(INFO) << "Totally " << g_TagSet.size() << " tags in tagset.";
     LOG(INFO) << "Totally " << g_pConcurTable->size() << " concur records loaded.";
-    LOG(INFO) << "Totally " << g_pAnnDB->size() << " items loaded from annoy tree.";
+    // LOG(INFO) << "Totally " << g_pAnnDB->size() << " items loaded from annoy tree.";
 
     // Test::test_anndb();
     // Test::test_concur_table();
@@ -619,6 +636,8 @@ int main(int argc, char **argv)
     try {
         // Test::test1();
         // Test::test2();
+        // Test::test_cluster_predict();
+        // Test::test_word_cluster_db();
         // return 0;
         
         // install signal handler

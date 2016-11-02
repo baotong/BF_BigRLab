@@ -9,7 +9,7 @@
 class Article2Vector {
 public:
     typedef boost::shared_ptr<Article2Vector>   pointer;
-    typedef std::vector<float>                  ResultType;
+    typedef std::vector<double>                 ResultType;
 
 public:
     Article2Vector() = default;
@@ -29,7 +29,7 @@ protected:
 
 class Article2VectorByWordVec : public Article2Vector {
 public:
-    typedef std::map< std::string, std::vector<float> >     WordVecTable;
+    typedef std::map< std::string, std::vector<double> >     WordVecTable;
 
 public:
     Article2VectorByWordVec(uint32_t _N_Classes, const char *dictFile)

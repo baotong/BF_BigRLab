@@ -4,6 +4,8 @@
 #include <json/json.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/algorithm/string.hpp>
+#include <limits>
+#include <thread>
 
 #define TIMEOUT     60000   // 1min
 
@@ -22,9 +24,6 @@ void ArticleServiceHandler::setFilter( const std::string &strFilter )
 
 void ArticleServiceHandler::wordSegment(std::vector<std::string> & _return, const std::string& sentence)
 {
-    if (sentence.empty())
-        THROW_INVALID_REQUEST("Input sentence cannot be empty!");
-
     Jieba::pointer pJieba;
     if (!g_JiebaPool.timed_pop(pJieba, TIMEOUT))
         THROW_INVALID_REQUEST("No available Jieba object!");
@@ -42,9 +41,6 @@ void ArticleServiceHandler::wordSegment(std::vector<std::string> & _return, cons
 void ArticleServiceHandler::keyword(std::vector<KeywordResult> & _return, 
             const std::string& sentence, const int32_t k)
 {
-    if (sentence.empty())
-        THROW_INVALID_REQUEST("Input sentence cannot be empty!");
-
     if (k <= 0)
         THROW_INVALID_REQUEST("Invalid k value " << k);
 
@@ -58,10 +54,23 @@ void ArticleServiceHandler::keyword(std::vector<KeywordResult> & _return,
     try {
         pJieba->keywordExtract(sentence, result, k);
         _return.resize(result.size());
+        double min = std::numeric_limits<double>::max();
+        double max = std::numeric_limits<double>::min();
         for (std::size_t i = 0; i < result.size(); ++i) {
             _return[i].word.swap(result[i].word);
             _return[i].weight = result[i].weight;
+            if (_return[i].weight < min)
+                min = _return[i].weight;
+            if (_return[i].weight > max)
+                max = _return[i].weight;
         } // for
+
+        // 归一化
+        double base = max - min;
+        for (auto &v : _return) {
+            v.weight -= min;
+            v.weight /= base;
+        } // for v
 
     } catch (const std::exception &ex) {
         LOG(ERROR) << "Jieba extract keyword error: " << ex.what();
@@ -79,6 +88,9 @@ void ArticleServiceHandler::tagging(std::vector<TagResult> & _return, const std:
     // DLOG(INFO) << "k2: " << k2;
     // DLOG(INFO) << "searchK: " << searchK;
     // DLOG(INFO) << "topk: " << topk;
+
+    if (text.empty())
+        THROW_INVALID_REQUEST("Input sentence cannot be empty!");
 
     if (method == CONCUR)
         do_tagging_concur(_return, text, k1, k2 );
@@ -99,9 +111,33 @@ void ArticleServiceHandler::do_tagging_concur(std::vector<TagResult> & _return, 
     using namespace std;
 
     // DLOG(INFO) << "do_tagging_concur";
+    
+    struct Record {
+        Record(double _W, uint32_t _C) : weight(_W), count(_C) {}
+        double weight;
+        uint32_t count;
+    };
 
-    typedef std::map<std::string, double>   CandidateType;
+    typedef std::map<std::string, Record>   CandidateType;
     CandidateType candidates; // 存储结果 tag:weight
+
+    // toVector and get cluster id
+    uint32_t cid = 0;
+    bool success = true;
+    string errmsg;
+    std::thread thrCluster([&, this]{
+        try {
+            vector<string> segment;
+            wordSegment(segment, text);
+            vector<double> vec;
+            //!! article2vec 维度和 cluster 维度必须一致
+            g_pVecConverter->convert2Vector(segment, vec);
+            cid = g_pClusterPredict->predict(vec);
+        } catch (const std::exception &ex) {
+            success = false;
+            errmsg = std::move(ex.what());
+        } // try
+    });
 
     // 找 keyword
     std::vector<KeywordResult> keywords;
@@ -119,26 +155,45 @@ void ArticleServiceHandler::do_tagging_concur(std::vector<TagResult> & _return, 
             string &cij = *(boost::get<ConcurTable::StringPtr>(cItem.item));
             double &cwij = cItem.weight;
             // DLOG(INFO) << "cij = " << cij << " cwij = " << cwij;
-            auto ret = candidates.insert(std::make_pair(cij, 0.0));
+            auto ret = candidates.insert(std::make_pair(cij, Record(0.0, 0)));
             auto it = ret.first;
+            ++(it->second.count);
             if (cij == kw.word)
-                it->second += kw.weight;
+                it->second.weight += kw.weight;
             else
-                it->second += kw.weight * cwij;
+                it->second.weight += kw.weight * cwij;
         } // for cItem
     } // for kw
+    
+    thrCluster.join();
+    if (!success)
+        THROW_INVALID_REQUEST("Get cluster fail: " << errmsg);
+
+    for (auto it = candidates.begin(); it != candidates.end();) {
+        if (it->second.count <= 1) {
+            it = candidates.erase(it);
+        } else {
+            it->second.weight *= it->second.count - 1;
+            auto ret = g_pWordClusterDB->query(it->first, cid);
+            DLOG(INFO) << "cid = " << cid;
+            if (ret.second)
+                it->second.weight += ret.first >= FLAGS_threshold ? ret.first : 0.0;
+            DLOG_IF(INFO, !ret.second) << "Cannot find word " << it->first << " in cluster " << cid;
+            ++it;
+        } // if
+    } // for it
 
     // sort candidates
     boost::ptr_vector<CandidateType::value_type, boost::view_clone_allocator> 
             ptrArray(candidates.begin(), candidates.end());
     ptrArray.sort([](const CandidateType::value_type &lhs, const CandidateType::value_type &rhs)->bool {
-        return lhs.second > rhs.second;
+        return lhs.second.weight > rhs.second.weight;
     });
 
     _return.resize( ptrArray.size() );
     for (size_t i = 0; i != ptrArray.size(); ++i) {
         _return[i].tag = ptrArray[i].first;
-        _return[i].weight = ptrArray[i].second;
+        _return[i].weight = ptrArray[i].second.weight;
     } // for
 }
 
@@ -147,8 +202,12 @@ void ArticleServiceHandler::do_tagging_knn(std::vector<TagResult> & _return, con
 {
     using namespace std;
 
+    THROW_INVALID_REQUEST("Not implemented!");
+    return;
+
     // DLOG(INFO) << "do_tagging_knn";
-    
+
+#if 0    
     if (k2 <= 0)
         THROW_RUNTIME_ERROR("Invalid k2 value, must be greater than 0");
 
@@ -193,6 +252,7 @@ void ArticleServiceHandler::do_tagging_knn(std::vector<TagResult> & _return, con
         _return[i].tag = ptrArray[i].first;
         _return[i].weight = ptrArray[i].second;
     } // for
+#endif
 }
 
 

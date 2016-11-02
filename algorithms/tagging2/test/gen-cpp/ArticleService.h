@@ -22,8 +22,6 @@ class ArticleServiceIf {
  public:
   virtual ~ArticleServiceIf() {}
   virtual void setFilter(const std::string& filter) = 0;
-  virtual void wordSegment(std::vector<std::string> & _return, const std::string& sentence) = 0;
-  virtual void keyword(std::vector<KeywordResult> & _return, const std::string& sentence, const int32_t k) = 0;
   virtual void tagging(std::vector<TagResult> & _return, const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK, const int32_t topk) = 0;
   virtual void handleRequest(std::string& _return, const std::string& request) = 0;
 };
@@ -56,12 +54,6 @@ class ArticleServiceNull : virtual public ArticleServiceIf {
  public:
   virtual ~ArticleServiceNull() {}
   void setFilter(const std::string& /* filter */) {
-    return;
-  }
-  void wordSegment(std::vector<std::string> & /* _return */, const std::string& /* sentence */) {
-    return;
-  }
-  void keyword(std::vector<KeywordResult> & /* _return */, const std::string& /* sentence */, const int32_t /* k */) {
     return;
   }
   void tagging(std::vector<TagResult> & /* _return */, const std::string& /* text */, const int32_t /* method */, const int32_t /* k1 */, const int32_t /* k2 */, const int32_t /* searchK */, const int32_t /* topk */) {
@@ -140,203 +132,6 @@ class ArticleService_setFilter_presult {
 
 
   virtual ~ArticleService_setFilter_presult() throw();
-
-  template <class Protocol_>
-  uint32_t read(Protocol_* iprot);
-
-};
-
-typedef struct _ArticleService_wordSegment_args__isset {
-  _ArticleService_wordSegment_args__isset() : sentence(false) {}
-  bool sentence :1;
-} _ArticleService_wordSegment_args__isset;
-
-class ArticleService_wordSegment_args {
- public:
-
-  ArticleService_wordSegment_args(const ArticleService_wordSegment_args&);
-  ArticleService_wordSegment_args(ArticleService_wordSegment_args&&);
-  ArticleService_wordSegment_args& operator=(const ArticleService_wordSegment_args&);
-  ArticleService_wordSegment_args& operator=(ArticleService_wordSegment_args&&);
-  ArticleService_wordSegment_args() : sentence() {
-  }
-
-  virtual ~ArticleService_wordSegment_args() throw();
-  std::string sentence;
-
-  _ArticleService_wordSegment_args__isset __isset;
-
-  void __set_sentence(const std::string& val);
-
-  template <class Protocol_>
-  uint32_t read(Protocol_* iprot);
-  template <class Protocol_>
-  uint32_t write(Protocol_* oprot) const;
-
-};
-
-
-class ArticleService_wordSegment_pargs {
- public:
-
-
-  virtual ~ArticleService_wordSegment_pargs() throw();
-  const std::string* sentence;
-
-  template <class Protocol_>
-  uint32_t write(Protocol_* oprot) const;
-
-};
-
-typedef struct _ArticleService_wordSegment_result__isset {
-  _ArticleService_wordSegment_result__isset() : success(false), err(false) {}
-  bool success :1;
-  bool err :1;
-} _ArticleService_wordSegment_result__isset;
-
-class ArticleService_wordSegment_result {
- public:
-
-  ArticleService_wordSegment_result(const ArticleService_wordSegment_result&);
-  ArticleService_wordSegment_result(ArticleService_wordSegment_result&&);
-  ArticleService_wordSegment_result& operator=(const ArticleService_wordSegment_result&);
-  ArticleService_wordSegment_result& operator=(ArticleService_wordSegment_result&&);
-  ArticleService_wordSegment_result() {
-  }
-
-  virtual ~ArticleService_wordSegment_result() throw();
-  std::vector<std::string>  success;
-  InvalidRequest err;
-
-  _ArticleService_wordSegment_result__isset __isset;
-
-  void __set_success(const std::vector<std::string> & val);
-
-  void __set_err(const InvalidRequest& val);
-
-  template <class Protocol_>
-  uint32_t read(Protocol_* iprot);
-  template <class Protocol_>
-  uint32_t write(Protocol_* oprot) const;
-
-};
-
-typedef struct _ArticleService_wordSegment_presult__isset {
-  _ArticleService_wordSegment_presult__isset() : success(false), err(false) {}
-  bool success :1;
-  bool err :1;
-} _ArticleService_wordSegment_presult__isset;
-
-class ArticleService_wordSegment_presult {
- public:
-
-
-  virtual ~ArticleService_wordSegment_presult() throw();
-  std::vector<std::string> * success;
-  InvalidRequest err;
-
-  _ArticleService_wordSegment_presult__isset __isset;
-
-  template <class Protocol_>
-  uint32_t read(Protocol_* iprot);
-
-};
-
-typedef struct _ArticleService_keyword_args__isset {
-  _ArticleService_keyword_args__isset() : sentence(false), k(false) {}
-  bool sentence :1;
-  bool k :1;
-} _ArticleService_keyword_args__isset;
-
-class ArticleService_keyword_args {
- public:
-
-  ArticleService_keyword_args(const ArticleService_keyword_args&);
-  ArticleService_keyword_args(ArticleService_keyword_args&&);
-  ArticleService_keyword_args& operator=(const ArticleService_keyword_args&);
-  ArticleService_keyword_args& operator=(ArticleService_keyword_args&&);
-  ArticleService_keyword_args() : sentence(), k(0) {
-  }
-
-  virtual ~ArticleService_keyword_args() throw();
-  std::string sentence;
-  int32_t k;
-
-  _ArticleService_keyword_args__isset __isset;
-
-  void __set_sentence(const std::string& val);
-
-  void __set_k(const int32_t val);
-
-  template <class Protocol_>
-  uint32_t read(Protocol_* iprot);
-  template <class Protocol_>
-  uint32_t write(Protocol_* oprot) const;
-
-};
-
-
-class ArticleService_keyword_pargs {
- public:
-
-
-  virtual ~ArticleService_keyword_pargs() throw();
-  const std::string* sentence;
-  const int32_t* k;
-
-  template <class Protocol_>
-  uint32_t write(Protocol_* oprot) const;
-
-};
-
-typedef struct _ArticleService_keyword_result__isset {
-  _ArticleService_keyword_result__isset() : success(false), err(false) {}
-  bool success :1;
-  bool err :1;
-} _ArticleService_keyword_result__isset;
-
-class ArticleService_keyword_result {
- public:
-
-  ArticleService_keyword_result(const ArticleService_keyword_result&);
-  ArticleService_keyword_result(ArticleService_keyword_result&&);
-  ArticleService_keyword_result& operator=(const ArticleService_keyword_result&);
-  ArticleService_keyword_result& operator=(ArticleService_keyword_result&&);
-  ArticleService_keyword_result() {
-  }
-
-  virtual ~ArticleService_keyword_result() throw();
-  std::vector<KeywordResult>  success;
-  InvalidRequest err;
-
-  _ArticleService_keyword_result__isset __isset;
-
-  void __set_success(const std::vector<KeywordResult> & val);
-
-  void __set_err(const InvalidRequest& val);
-
-  template <class Protocol_>
-  uint32_t read(Protocol_* iprot);
-  template <class Protocol_>
-  uint32_t write(Protocol_* oprot) const;
-
-};
-
-typedef struct _ArticleService_keyword_presult__isset {
-  _ArticleService_keyword_presult__isset() : success(false), err(false) {}
-  bool success :1;
-  bool err :1;
-} _ArticleService_keyword_presult__isset;
-
-class ArticleService_keyword_presult {
- public:
-
-
-  virtual ~ArticleService_keyword_presult() throw();
-  std::vector<KeywordResult> * success;
-  InvalidRequest err;
-
-  _ArticleService_keyword_presult__isset __isset;
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -589,12 +384,6 @@ class ArticleServiceClientT : virtual public ArticleServiceIf {
   void setFilter(const std::string& filter);
   void send_setFilter(const std::string& filter);
   void recv_setFilter();
-  void wordSegment(std::vector<std::string> & _return, const std::string& sentence);
-  void send_wordSegment(const std::string& sentence);
-  void recv_wordSegment(std::vector<std::string> & _return);
-  void keyword(std::vector<KeywordResult> & _return, const std::string& sentence, const int32_t k);
-  void send_keyword(const std::string& sentence, const int32_t k);
-  void recv_keyword(std::vector<KeywordResult> & _return);
   void tagging(std::vector<TagResult> & _return, const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK, const int32_t topk);
   void send_tagging(const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK, const int32_t topk);
   void recv_tagging(std::vector<TagResult> & _return);
@@ -631,10 +420,6 @@ class ArticleServiceProcessorT : public ::apache::thrift::TDispatchProcessorT<Pr
   ProcessMap processMap_;
   void process_setFilter(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_setFilter(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
-  void process_wordSegment(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_wordSegment(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
-  void process_keyword(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_keyword(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
   void process_tagging(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_tagging(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
   void process_handleRequest(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
@@ -645,12 +430,6 @@ class ArticleServiceProcessorT : public ::apache::thrift::TDispatchProcessorT<Pr
     processMap_["setFilter"] = ProcessFunctions(
       &ArticleServiceProcessorT::process_setFilter,
       &ArticleServiceProcessorT::process_setFilter);
-    processMap_["wordSegment"] = ProcessFunctions(
-      &ArticleServiceProcessorT::process_wordSegment,
-      &ArticleServiceProcessorT::process_wordSegment);
-    processMap_["keyword"] = ProcessFunctions(
-      &ArticleServiceProcessorT::process_keyword,
-      &ArticleServiceProcessorT::process_keyword);
     processMap_["tagging"] = ProcessFunctions(
       &ArticleServiceProcessorT::process_tagging,
       &ArticleServiceProcessorT::process_tagging);
@@ -697,26 +476,6 @@ class ArticleServiceMultiface : virtual public ArticleServiceIf {
       ifaces_[i]->setFilter(filter);
     }
     ifaces_[i]->setFilter(filter);
-  }
-
-  void wordSegment(std::vector<std::string> & _return, const std::string& sentence) {
-    size_t sz = ifaces_.size();
-    size_t i = 0;
-    for (; i < (sz - 1); ++i) {
-      ifaces_[i]->wordSegment(_return, sentence);
-    }
-    ifaces_[i]->wordSegment(_return, sentence);
-    return;
-  }
-
-  void keyword(std::vector<KeywordResult> & _return, const std::string& sentence, const int32_t k) {
-    size_t sz = ifaces_.size();
-    size_t i = 0;
-    for (; i < (sz - 1); ++i) {
-      ifaces_[i]->keyword(_return, sentence, k);
-    }
-    ifaces_[i]->keyword(_return, sentence, k);
-    return;
   }
 
   void tagging(std::vector<TagResult> & _return, const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK, const int32_t topk) {
@@ -773,12 +532,6 @@ class ArticleServiceConcurrentClientT : virtual public ArticleServiceIf {
   void setFilter(const std::string& filter);
   int32_t send_setFilter(const std::string& filter);
   void recv_setFilter(const int32_t seqid);
-  void wordSegment(std::vector<std::string> & _return, const std::string& sentence);
-  int32_t send_wordSegment(const std::string& sentence);
-  void recv_wordSegment(std::vector<std::string> & _return, const int32_t seqid);
-  void keyword(std::vector<KeywordResult> & _return, const std::string& sentence, const int32_t k);
-  int32_t send_keyword(const std::string& sentence, const int32_t k);
-  void recv_keyword(std::vector<KeywordResult> & _return, const int32_t seqid);
   void tagging(std::vector<TagResult> & _return, const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK, const int32_t topk);
   int32_t send_tagging(const std::string& text, const int32_t method, const int32_t k1, const int32_t k2, const int32_t searchK, const int32_t topk);
   void recv_tagging(std::vector<TagResult> & _return, const int32_t seqid);
