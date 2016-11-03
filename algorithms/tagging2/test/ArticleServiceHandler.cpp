@@ -4,6 +4,7 @@
 #include <json/json.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
 #include <limits>
 #include <thread>
 
@@ -157,11 +158,18 @@ void ArticleServiceHandler::do_tagging_concur(std::vector<TagResult> & _return, 
             DLOG(INFO) << "keyword: " << kw << " concur: " << cij;
             auto ret = candidates.insert(std::make_pair(cij, Record(0.0, 0)));
             auto it = ret.first;
+            DLOG_IF(INFO, ret.second) << "Add new candidate tag " << it->first;
             ++(it->second.count);
-            if (cij == kw.word)
+            if (cij == kw.word) {
                 it->second.weight += kw.weight;
-            else
+                DLOG(INFO) << "Add weight of tag " << it->first << " by " << kw.weight
+                    << " current value is " << it->second.weight;
+            } else {
                 it->second.weight += kw.weight * cwij;
+                DLOG(INFO) << "Add weight of tag " << it->first << " by "
+                    << boost::format("%lf * %lf = %lf") % kw.weight % cwij % (kw.weight * cwij)
+                    << " current value is " << it->second.weight;
+            } // if
         } // for cItem
     } // for kw
     

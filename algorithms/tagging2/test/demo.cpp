@@ -1,5 +1,8 @@
 /*
- * GLOG_logtostderr=1 ./demo -algname tagger -algmgr localhost:9001 -port 10080 -concur ../data/wiki_cooccur.out -tagset ../data/tagset.txt -vec warplda -warpldaModel ../data/warplda_train.model -warpldaVocab ../data/warplda.vocab -cluster_pred manual -cluster_model ../data/cluster.model -word_cluster ../data/word_cluster.txt -threshold 0.5
+ * GLOG_logtostderr=1 ./demo -algname tagger -algmgr localhost:9001 -port 10080 -concur ../data/wiki_cooccur.out -tagset ../data/tagset.txt -vec warplda -warpldaModel ../data/warplda_train.model -warpldaVocab ../data/warplda.vocab -cluster_pred manual -cluster_model ../data/cluster.model -word_cluster ../data/word_cluster.txt -threshold 0.1
+ *
+ * -vec wordvec -vecdict filename
+ * -vec clusterid -vecdict filename
  */
 #include <cstdio>
 #include <boost/asio.hpp>
