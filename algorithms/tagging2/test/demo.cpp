@@ -1,6 +1,5 @@
 /*
- * Usage
- * ./demo -algname tagger -algmgr localhost:9001 -port 10080 -concur concur.data -tagset tagset.data -idx idx.ann -idxlen 200 -wt wt.data
+ * GLOG_logtostderr=1 ./demo -algname tagger -algmgr localhost:9001 -port 10080 -concur ../data/wiki_cooccur.out -tagset ../data/tagset.txt -vec warplda -warpldaModel ../data/warplda_train.model -warpldaVocab ../data/warplda.vocab -cluster_pred manual -cluster_model ../data/cluster.model -word_cluster ../data/word_cluster.txt -threshold 0.5
  */
 #include <cstdio>
 #include <boost/asio.hpp>
@@ -13,7 +12,7 @@
 #include "AlgMgrService.h"
 #include "ArticleServiceHandler.h"
 
-#define SERVICE_LIB_NAME        "tagging2"
+#define SERVICE_LIB_NAME        "tagging"
 
 #define TIMER_REJOIN            15          // 15s
 
@@ -33,17 +32,18 @@ DEFINE_int32(port, 0, "listen port of ths algorithm server.");
 DEFINE_int32(n_work_threads, 10, "Number of work threads on RPC server");
 DEFINE_int32(n_io_threads, 4, "Number of io threads on RPC server");
 
+DEFINE_string(concur, "", "File of concur table");
+DEFINE_string(tagset, "", "File of tagset");
+
 DEFINE_string(vec, "", "How article converted to vector, \"wordvec\" or \"clusterid\" or \"warplda\"");
 DEFINE_string(vecdict, "", "File contains word info, word vector or word clusterID");
 DEFINE_string(warpldaModel, "", "warplda model file");
 DEFINE_string(warpldaVocab, "", "warplda vocab file");
 
-DEFINE_string(concur, "", "File of concur table");
-DEFINE_string(tagset, "", "File of tagset");
 DEFINE_string(cluster_pred, "", "预测请求文本cluster的方法，manual knn");
 DEFINE_string(cluster_model, "", "由yakmo生成的cluster信息文件");
 DEFINE_string(word_cluster, "", "单词属于每一个cluster的概率");
-DEFINE_double(threshold, 0.5, "tag属于text cluster的阈值");
+DEFINE_double(threshold, 0.0, "tag属于text cluster的阈值");
 
 // DEFINE_string(wt, "", "File of word table");
 // DEFINE_string(idx, "", "File of word annoy tree");

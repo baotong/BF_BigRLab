@@ -4,6 +4,7 @@
 #include <functional>
 #include <algorithm>
 #include <boost/format.hpp>
+#include <glog/logging.h>
 #include "common.hpp"
 #include "ClusterPredict.h"
 
@@ -99,6 +100,8 @@ void ClusterPredictManual::parseLine(std::string &text, uint32_t cId,
 uint32_t ClusterPredictManual::predict(const std::vector<double> &vec)
 {
     using namespace std;
+
+    // DLOG(INFO) << "vec.size = " << vec.size() << " nFeatures = " << nFeatures();
 
     if (vec.size() != nFeatures())
         THROW_RUNTIME_ERROR("Requested nFeatures not same as model nFeatures!");

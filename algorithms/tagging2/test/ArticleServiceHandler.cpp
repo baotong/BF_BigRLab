@@ -154,7 +154,7 @@ void ArticleServiceHandler::do_tagging_concur(std::vector<TagResult> & _return, 
             auto &cItem = *cit;
             string &cij = *(boost::get<ConcurTable::StringPtr>(cItem.item));
             double &cwij = cItem.weight;
-            // DLOG(INFO) << "cij = " << cij << " cwij = " << cwij;
+            DLOG(INFO) << "keyword: " << kw << " concur: " << cij;
             auto ret = candidates.insert(std::make_pair(cij, Record(0.0, 0)));
             auto it = ret.first;
             ++(it->second.count);
@@ -169,16 +169,37 @@ void ArticleServiceHandler::do_tagging_concur(std::vector<TagResult> & _return, 
     if (!success)
         THROW_INVALID_REQUEST("Get cluster fail: " << errmsg);
 
+    DLOG(INFO) << "cid of request text is " << cid;
     for (auto it = candidates.begin(); it != candidates.end();) {
+        DLOG(INFO) << "Before change, count of " << it->first << " is " << it->second.count
+            << " weight is " << it->second.weight;
+
+        bool count1 = false, lessThreshold = false;
+
         if (it->second.count <= 1) {
-            it = candidates.erase(it);
+            count1 = true;
         } else {
             it->second.weight *= it->second.count - 1;
-            auto ret = g_pWordClusterDB->query(it->first, cid);
-            DLOG(INFO) << "cid = " << cid;
-            if (ret.second)
-                it->second.weight += ret.first >= FLAGS_threshold ? ret.first : 0.0;
-            DLOG_IF(INFO, !ret.second) << "Cannot find word " << it->first << " in cluster " << cid;
+        } // if
+
+        auto ret = g_pWordClusterDB->query(it->first, cid);
+        if (ret.second) {
+            if (ret.first >= FLAGS_threshold) 
+                it->second.weight += ret.first;
+            else
+                lessThreshold = true;
+        } else {
+            DLOG(INFO) << "Cannot find word " << it->first << " in cluster " << cid;
+            lessThreshold = true;
+        } // if
+
+        DLOG(INFO) << "Weight of tag " << it->first << " is " << it->second.weight
+            << " prob in cid " << cid << " is " << ret.first;
+
+        if (count1 && lessThreshold) {
+            DLOG(INFO) << "Removing tag " << it->first;
+            it = candidates.erase(it);
+        } else {
             ++it;
         } // if
     } // for it
