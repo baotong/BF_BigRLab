@@ -232,7 +232,8 @@ private:
 
 } // namespace
 
-SharedQueue<Jieba::pointer>      g_JiebaPool;
+// SharedQueue<Jieba::pointer>      g_JiebaPool;
+Jieba::pointer g_pJieba;
 
 static bool                                                g_bLoginSuccess = false;
 static std::unique_ptr< boost::asio::deadline_timer >      g_Timer;
@@ -555,12 +556,16 @@ void service_init()
     cout << "Creating jieba instances..." << endl;
     std::thread thrCreateJiebaInst([&] {
         try {
-            for (int i = 0; i < FLAGS_n_jieba_inst; ++i) {
-                auto pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, 
+            // for (int i = 0; i < FLAGS_n_jieba_inst; ++i) {
+                // auto pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, 
+                        // FLAGS_user_dict, FLAGS_idf, FLAGS_stop_words);
+                // pJieba->setFilter( FLAGS_filter );
+                // g_JiebaPool.push(pJieba);
+            // } // for
+            g_pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, 
                         FLAGS_user_dict, FLAGS_idf, FLAGS_stop_words);
-                pJieba->setFilter( FLAGS_filter );
-                g_JiebaPool.push(pJieba);
-            } // for
+            g_pJieba->setFilter( FLAGS_filter );
+
         } catch (const std::exception &ex) {
             cerr << ex.what() << endl;
             success = false;

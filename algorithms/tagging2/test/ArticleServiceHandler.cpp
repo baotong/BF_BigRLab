@@ -7,6 +7,7 @@
 #include <boost/format.hpp>
 #include <limits>
 #include <thread>
+#include <chrono>
 
 #define TIMEOUT     60000   // 1min
 
@@ -25,14 +26,15 @@ void ArticleServiceHandler::setFilter( const std::string &strFilter )
 
 void ArticleServiceHandler::wordSegment(std::vector<std::string> & _return, const std::string& sentence)
 {
-    Jieba::pointer pJieba;
-    if (!g_JiebaPool.timed_pop(pJieba, TIMEOUT))
-        THROW_INVALID_REQUEST("No available Jieba object!");
+    // Jieba::pointer pJieba;
+    // if (!g_JiebaPool.timed_pop(pJieba, TIMEOUT))
+        // THROW_INVALID_REQUEST("No available Jieba object!");
 
-    ON_FINISH_CLASS(pCleanup, {g_JiebaPool.push(pJieba);});
+    // ON_FINISH_CLASS(pCleanup, {g_JiebaPool.push(pJieba);});
 
     try {
-        pJieba->wordSegment(sentence, _return);
+        // pJieba->wordSegment(sentence, _return);
+        g_pJieba->wordSegment(sentence, _return);
     } catch (const std::exception &ex) {
         LOG(ERROR) << "Jieba wordSegment error: " << ex.what();
         THROW_INVALID_REQUEST("Jieba wordSegment error: " << ex.what());
@@ -45,16 +47,17 @@ void ArticleServiceHandler::keyword(std::vector<KeywordResult> & _return,
     if (k <= 0)
         THROW_INVALID_REQUEST("Invalid k value " << k);
 
-    Jieba::pointer pJieba;
-    if (!g_JiebaPool.timed_pop(pJieba, TIMEOUT))
-        THROW_INVALID_REQUEST("No available Jieba object!");
+    // Jieba::pointer pJieba;
+    // if (!g_JiebaPool.timed_pop(pJieba, TIMEOUT))
+        // THROW_INVALID_REQUEST("No available Jieba object!");
 
-    ON_FINISH_CLASS(pCleanup, {g_JiebaPool.push(pJieba);});
+    // ON_FINISH_CLASS(pCleanup, {g_JiebaPool.push(pJieba);});
 
     Jieba::KeywordResult result;
     try {
         DLOG(INFO) << "keyword extract sentence = " << sentence;
-        pJieba->keywordExtract(sentence, result, k);
+        // pJieba->keywordExtract(sentence, result, k);
+        g_pJieba->keywordExtract(sentence, result, k);
         _return.resize(result.size());
         double min = std::numeric_limits<double>::max();
         double max = std::numeric_limits<double>::min();
@@ -92,6 +95,8 @@ void ArticleServiceHandler::tagging(std::vector<TagResult> & _return, const std:
     // DLOG(INFO) << "searchK: " << searchK;
     // DLOG(INFO) << "topk: " << topk;
 
+    auto tpStart = std::chrono::high_resolution_clock::now();
+
     if (text.empty())
         THROW_INVALID_REQUEST("Input sentence cannot be empty!");
 
@@ -106,6 +111,8 @@ void ArticleServiceHandler::tagging(std::vector<TagResult> & _return, const std:
         _return.resize(topk);
 
     // DLOG(INFO) << "_return.size() = " << _return.size();
+    auto tpEnd = std::chrono::high_resolution_clock::now();
+    LOG(INFO) << "Time cost of tagging is " << std::chrono::duration_cast<std::chrono::nanoseconds>(tpEnd - tpStart).count();
 }
 
 void ArticleServiceHandler::do_tagging_concur(std::vector<TagResult> & _return, const std::string& text, 
@@ -114,6 +121,7 @@ void ArticleServiceHandler::do_tagging_concur(std::vector<TagResult> & _return, 
     using namespace std;
 
     // DLOG(INFO) << "do_tagging_concur";
+    auto tp1 = std::chrono::high_resolution_clock::now();
     
     struct Record {
         Record(double _W, uint32_t _C) : weight(_W), count(_C) {}
@@ -175,6 +183,9 @@ void ArticleServiceHandler::do_tagging_concur(std::vector<TagResult> & _return, 
         } // for cItem
     } // for kw
     
+    auto tp2 = std::chrono::high_resolution_clock::now();
+    LOG(INFO) << "Tagging step1 costs " << std::chrono::duration_cast<std::chrono::nanoseconds>(tp2 - tp1).count(); 
+
     thrCluster.join();
     if (!success)
         THROW_INVALID_REQUEST("Get cluster fail: " << errmsg);
@@ -226,6 +237,9 @@ void ArticleServiceHandler::do_tagging_concur(std::vector<TagResult> & _return, 
         _return[i].tag = ptrArray[i].first;
         _return[i].weight = ptrArray[i].second.weight;
     } // for
+
+    auto tp3 = std::chrono::high_resolution_clock::now();
+    LOG(INFO) << "Tagging step2 costs " << std::chrono::duration_cast<std::chrono::nanoseconds>(tp3 - tp2).count(); 
 }
 
 void ArticleServiceHandler::do_tagging_knn(std::vector<TagResult> & _return, const std::string& text, 

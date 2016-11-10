@@ -4,6 +4,7 @@
 #include <json/json.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/algorithm/string.hpp>
+#include <chrono>
 
 #define TIMEOUT     60000   // 1min
 
@@ -80,6 +81,8 @@ void ArticleServiceHandler::tagging(std::vector<TagResult> & _return, const std:
     // DLOG(INFO) << "searchK: " << searchK;
     // DLOG(INFO) << "topk: " << topk;
 
+    auto tpStart = std::chrono::high_resolution_clock::now();
+
     if (method == CONCUR)
         do_tagging_concur(_return, text, k1, k2 );
     else if (method == KNN)
@@ -91,6 +94,8 @@ void ArticleServiceHandler::tagging(std::vector<TagResult> & _return, const std:
         _return.resize(topk);
 
     // DLOG(INFO) << "_return.size() = " << _return.size();
+    auto tpEnd = std::chrono::high_resolution_clock::now();
+    LOG(INFO) << "Time cost of tagging is " << std::chrono::duration_cast<std::chrono::nanoseconds>(tpEnd - tpStart).count();
 }
 
 void ArticleServiceHandler::do_tagging_concur(std::vector<TagResult> & _return, const std::string& text, 
