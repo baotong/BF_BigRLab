@@ -1,4 +1,4 @@
-all: tagging_service.so
+all: tagging_service2.so
 
 CC = c++
 
@@ -12,7 +12,7 @@ SRC += $(shell find $(ALG_DIR)/gen-cpp -type f -name '*.cpp')
 INCLUDE = -I$(COMM_DIR) -I$(API_SERVER_DIR) -I$(API_SERVER_DIR)/gen-cpp -I$(ALG_DIR)/gen-cpp
 FLAGS = -std=c++11 -pthread -fPIC -shared -O3 
 
-tagging_service.so:
+tagging_service2.so:
 	$(CC) -o $@ $(SRC) $(INCLUDE) $(LIBS) $(FLAGS)
 
 clean:

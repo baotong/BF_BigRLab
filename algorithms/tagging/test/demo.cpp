@@ -155,17 +155,17 @@ static bool validate_tagset(const char* flagname, const std::string &value)
 { return check_not_empty( flagname, value ); }
 static bool tagset_dummy = gflags::RegisterFlagValidator(&FLAGS_tagset, &validate_tagset);
 
-static bool validate_wt(const char* flagname, const std::string &value)
-{ return check_not_empty( flagname, value ); }
-static bool wt_dummy = gflags::RegisterFlagValidator(&FLAGS_wt, &validate_wt);
+// static bool validate_wt(const char* flagname, const std::string &value)
+// { return check_not_empty( flagname, value ); }
+// static bool wt_dummy = gflags::RegisterFlagValidator(&FLAGS_wt, &validate_wt);
 
-static bool validate_idx(const char* flagname, const std::string &value)
-{ return check_not_empty( flagname, value ); }
-static bool idx_dummy = gflags::RegisterFlagValidator(&FLAGS_idx, &validate_idx);
+// static bool validate_idx(const char* flagname, const std::string &value)
+// { return check_not_empty( flagname, value ); }
+// static bool idx_dummy = gflags::RegisterFlagValidator(&FLAGS_idx, &validate_idx);
 
-static bool validate_idxlen(const char* flagname, gflags::int32 value) 
-{ return check_above_zero(flagname, value); }
-static const bool idxlen_dummy = gflags::RegisterFlagValidator(&FLAGS_idxlen, &validate_idxlen);
+// static bool validate_idxlen(const char* flagname, gflags::int32 value) 
+// { return check_above_zero(flagname, value); }
+// static const bool idxlen_dummy = gflags::RegisterFlagValidator(&FLAGS_idxlen, &validate_idxlen);
 
 static
 void get_local_ip()
@@ -432,11 +432,11 @@ void service_init()
     } // if
 
     // check idx file
-    {
-        ifstream ifs(FLAGS_idx, ios::in);
-        if (!ifs)
-            THROW_RUNTIME_ERROR("Cannot open annoy index file " << FLAGS_idx << " for reading!");
-    }
+    // {
+        // ifstream ifs(FLAGS_idx, ios::in);
+        // if (!ifs)
+            // THROW_RUNTIME_ERROR("Cannot open annoy index file " << FLAGS_idx << " for reading!");
+    // }
 
     // LOG(INFO) << "FLAGS_n_jieba_inst = " << FLAGS_n_jieba_inst;
     
@@ -481,9 +481,9 @@ void service_init()
     cout << "Loading Annoy tree..." << endl;
     std::thread thrLoadIdx([&]{
         try {
-            g_pAnnDB.reset( new WordAnnDB(FLAGS_idxlen) );
-            g_pAnnDB->loadIndex( FLAGS_idx.c_str() );
-            g_pAnnDB->loadWordTable( FLAGS_wt.c_str() );
+            // g_pAnnDB.reset( new WordAnnDB(FLAGS_idxlen) );
+            // g_pAnnDB->loadIndex( FLAGS_idx.c_str() );
+            // g_pAnnDB->loadWordTable( FLAGS_wt.c_str() );
         } catch (const std::exception &ex) {
             cerr << ex.what() << endl;
             success = false;
@@ -502,7 +502,7 @@ void service_init()
 
     LOG(INFO) << "Totally " << g_TagSet.size() << " tags in tagset.";
     LOG(INFO) << "Totally " << g_pConcurTable->size() << " concur records loaded.";
-    LOG(INFO) << "Totally " << g_pAnnDB->size() << " items loaded from annoy tree.";
+    // LOG(INFO) << "Totally " << g_pAnnDB->size() << " items loaded from annoy tree.";
 
     // Test::test_anndb();
     // Test::test_concur_table();
