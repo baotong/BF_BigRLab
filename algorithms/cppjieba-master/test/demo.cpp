@@ -259,6 +259,22 @@ namespace Test {
 
 using namespace std;
 
+void test()
+{
+    auto pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, 
+            FLAGS_user_dict, FLAGS_idf, FLAGS_stop_words);
+    pJieba->setFilter( FLAGS_filter );
+
+    string line;
+    while (getline(cin, line)) {
+        Jieba::KeywordResult result;
+        pJieba->keywordExtract(line, result, 10);
+        for (auto &v : result)
+            cout << v.word << " ";
+        cout << endl;
+    } // while
+}
+
 void test1()
 {
     auto pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, FLAGS_user_dict, FLAGS_idf, FLAGS_stop_words);
@@ -560,9 +576,10 @@ int main(int argc, char **argv)
     gflags::ParseCommandLineFlags(&argc, &argv, true);
 
     try {
+        Test::test();
         // Test::test1();
         // Test::test2();
-        // return 0;
+        return 0;
         
         // install signal handler
         auto pIoServiceWork = boost::make_shared< boost::asio::io_service::work >(std::ref(g_io_service));

@@ -15,7 +15,7 @@
 #include "AlgMgrService.h"
 #include "ArticleServiceHandler.h"
 
-#define SERVICE_LIB_NAME        "tagging"
+#define SERVICE_LIB_NAME        "tagging2"
 
 #define TIMER_REJOIN            15          // 15s
 

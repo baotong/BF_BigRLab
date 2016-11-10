@@ -53,6 +53,7 @@ void ArticleServiceHandler::keyword(std::vector<KeywordResult> & _return,
 
     Jieba::KeywordResult result;
     try {
+        DLOG(INFO) << "keyword extract sentence = " << sentence;
         pJieba->keywordExtract(sentence, result, k);
         _return.resize(result.size());
         double min = std::numeric_limits<double>::max();
@@ -60,6 +61,7 @@ void ArticleServiceHandler::keyword(std::vector<KeywordResult> & _return,
         for (std::size_t i = 0; i < result.size(); ++i) {
             _return[i].word.swap(result[i].word);
             _return[i].weight = result[i].weight;
+            DLOG(INFO) << _return[i];
             if (_return[i].weight < min)
                 min = _return[i].weight;
             if (_return[i].weight > max)
