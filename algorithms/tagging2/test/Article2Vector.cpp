@@ -1,5 +1,3 @@
-#include "Article2Vector.h"
-// #include "common.h"
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
@@ -13,6 +11,8 @@
 #include <boost/tuple/tuple.hpp>
 #include <boost/range/combine.hpp>
 #include <glog/logging.h>
+#include "common.hpp"
+#include "Article2Vector.h"
 
 
 void Article2VectorByWordVec::loadDict(const char *filename)
@@ -32,7 +32,7 @@ void Article2VectorByWordVec::loadDict(const char *filename)
         vector<double> vec;
         vec.reserve(m_nClasses);
         stream >> word;
-        if (bad_stream(stream)) {
+        if (stream.fail() || stream.bad()) {
             LOG(ERROR) << "bad stream error when reading line " << lineno
                     << ": " << line;
             continue;

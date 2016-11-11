@@ -1,6 +1,12 @@
 /*
  * GLOG_logtostderr=1 ./demo -algname tagger -algmgr localhost:9001 -port 10080 -concur ../data/wiki_cooccur.out -tagset ../data/tagset.txt -vec warplda -warpldaModel ../data/warplda_train.model -warpldaVocab ../data/warplda.vocab -cluster_pred manual -cluster_model ../data/cluster.model -word_cluster ../data/word_cluster.txt -threshold 0.1
  *
+ * get cluster id by knn
+ * GLOG_logtostderr=1 ./demo -algname tagger -algmgr localhost:9001 -port 10080 -concur ../data/wiki_cooccur.out -tagset ../data/tagset.txt -vec warplda -warpldaModel ../data/warplda_train.model -warpldaVocab ../data/warplda.vocab -cluster_pred knn -cluster_idx ../data/cluster.idx -nfeatures 100 -word_cluster ../data/word_cluster.txt -threshold 0.1
+ *
+ * test:
+ * curl -i -X POST -H "Content-Type: BigRLab_Request" -d '{"method":"concur","k1":100,"k2":100,"topk":5,"text":"苹果是一家很牛逼的公司"}' http://localhost:9000/tagger
+ *
  * -vec wordvec -vecdict filename
  * -vec clusterid -vecdict filename
  */
@@ -45,6 +51,8 @@ DEFINE_string(warpldaVocab, "", "warplda vocab file");
 
 DEFINE_string(cluster_pred, "", "预测请求文本cluster的方法，manual knn");
 DEFINE_string(cluster_model, "", "由yakmo生成的cluster信息文件");
+DEFINE_string(cluster_idx, "", "cluster annoy tree");
+DEFINE_int32(nfeatures, 0, "cluster feature 个数");
 DEFINE_string(word_cluster, "", "单词属于每一个cluster的概率");
 DEFINE_double(threshold, 0.0, "tag属于text cluster的阈值");
 
@@ -551,53 +559,32 @@ void service_init()
 
     // LOG(INFO) << "FLAGS_n_jieba_inst = " << FLAGS_n_jieba_inst;
     
-    bool success = true;
-
     cout << "Creating jieba instances..." << endl;
-    std::thread thrCreateJiebaInst([&] {
-        try {
-            // for (int i = 0; i < FLAGS_n_jieba_inst; ++i) {
-                // auto pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, 
-                        // FLAGS_user_dict, FLAGS_idf, FLAGS_stop_words);
-                // pJieba->setFilter( FLAGS_filter );
-                // g_JiebaPool.push(pJieba);
-            // } // for
-            g_pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, 
-                        FLAGS_user_dict, FLAGS_idf, FLAGS_stop_words);
-            g_pJieba->setFilter( FLAGS_filter );
-
-        } catch (const std::exception &ex) {
-            cerr << ex.what() << endl;
-            success = false;
-        } // try
-    });
+    // for (int i = 0; i < FLAGS_n_jieba_inst; ++i) {
+        // auto pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, 
+                // FLAGS_user_dict, FLAGS_idf, FLAGS_stop_words);
+        // pJieba->setFilter( FLAGS_filter );
+        // g_JiebaPool.push(pJieba);
+    // } // for
+    g_pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, 
+                FLAGS_user_dict, FLAGS_idf, FLAGS_stop_words);
+    g_pJieba->setFilter( FLAGS_filter );
 
     cout << "Loading tagset..." << endl;
-    std::thread thrLoadTagSet([&]{
-        try {
-            load_tagset(FLAGS_tagset, g_TagSet);
-        } catch (const std::exception &ex) {
-            cerr << ex.what() << endl;
-            success = false;
-        } // try
-    });
+    load_tagset(FLAGS_tagset, g_TagSet);
 
     cout << "Loading concur table..." << endl;
-    std::thread thrLoadConcur([&]{
-        try {
-            g_pConcurTable.reset( new ConcurTable );
-            g_pConcurTable->loadFromFile( FLAGS_concur, g_TagSet );
-        } catch (const std::exception &ex) {
-            cerr << ex.what() << endl;
-            success = false;
-        } // try
-    });
+    g_pConcurTable.reset( new ConcurTable );
+    g_pConcurTable->loadFromFile( FLAGS_concur, g_TagSet );
 
     cout << "Loading cluster model..." << endl;
     if (FLAGS_cluster_pred.empty()) {
         THROW_RUNTIME_ERROR("-cluster_pred not set!");
     } else if ("manual" == FLAGS_cluster_pred) {
         g_pClusterPredict = boost::make_shared<ClusterPredictManual>(FLAGS_cluster_model);
+    } else if ("knn" == FLAGS_cluster_pred) {
+        THROW_RUNTIME_ERROR_IF(FLAGS_nfeatures <= 0, "Invalid -nfeatures arg!");
+        g_pClusterPredict = boost::make_shared<ClusterPredictKnn>(FLAGS_cluster_idx, FLAGS_nfeatures);
     } else {
         THROW_RUNTIME_ERROR("Unknown -cluster_pred arg!");
     } // if
@@ -605,18 +592,8 @@ void service_init()
     cout << "Loading word cluster db..." << endl;
     g_pWordClusterDB = boost::make_shared<WordClusterDB>(FLAGS_word_cluster);
 
-    thrCreateJiebaInst.join();
-    thrLoadTagSet.join();
-    thrLoadConcur.join();
-
-    if (!success) {
-        std::raise(SIGTERM);
-        return;
-    } // if
-
     LOG(INFO) << "Totally " << g_TagSet.size() << " tags in tagset.";
     LOG(INFO) << "Totally " << g_pConcurTable->size() << " concur records loaded.";
-    // LOG(INFO) << "Totally " << g_pAnnDB->size() << " items loaded from annoy tree.";
 
     // Test::test_anndb();
     // Test::test_concur_table();

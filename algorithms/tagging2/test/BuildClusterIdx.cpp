@@ -1,3 +1,7 @@
+ /*
+  * ./BuildClusterIdx -model ../data/cluster.model -idx ../data/cluster.idx [-ntrees xx]
+  * -ntrees 指定树的个数，默认等于cluster的个数, 值越大则生成的idx文件也越大，但查找速度会更快
+  */
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -15,7 +19,7 @@ DEFINE_int32(ntrees, 0, "number of trees");
 
 
 typedef float      FLOAT;
-static std::unique_ptr<AnnDB<uint32_t FLOAT> >     g_pAnnDB
+static std::unique_ptr<AnnDB<uint32_t, FLOAT> >     g_pAnnDB;
 
 
 static
@@ -62,6 +66,7 @@ void build_idx()
             THROW_RUNTIME_ERROR("fail to read nFeatures!");
         nFeatures = nf;
     }
+    cout << "nfeatures = " << nFeatures << endl;
 
     g_pAnnDB.reset(new AnnDB<uint32_t, FLOAT>(nFeatures));
 
@@ -69,7 +74,7 @@ void build_idx()
         FLAGS_ntrees = nClusters;
 
     vector<FLOAT> vec;
-    for (uint32_t i = 0; i != m_nClusters; ++i) {
+    for (uint32_t i = 0; i != nClusters; ++i) {
         if (!getline(ifs, line))
             THROW_RUNTIME_ERROR("error while reading cluster matrix lineno = " << i);
         vec.assign(nFeatures, 0.0);
@@ -78,7 +83,7 @@ void build_idx()
         FLOAT val = 0.0;
         istringstream ss(line);
         while (ss >> item) {
-            if (sscanf(item.c_str(), "%u:%lf", &idx, &val) != 2 || idx < 1 || idx > nFeatures)
+            if (sscanf(item.c_str(), "%u:%f", &idx, &val) != 2 || idx < 1 || idx > nFeatures)
                 continue;
             vec[idx-1] = val;
         } // while
@@ -86,7 +91,14 @@ void build_idx()
     } // for
 
     g_pAnnDB->buildIndex(FLAGS_ntrees);
-    g_pAnnDB->saveIndex(FLAGS_idx);
+    g_pAnnDB->saveIndex(FLAGS_idx.c_str());
+}
+
+
+static
+void test()
+{
+
 }
 
 
@@ -96,6 +108,9 @@ try {
     gflags::ParseCommandLineFlags(&argc, &argv, true);
 
     build_idx();
+
+    // DLOG(INFO) << g_pAnnDB->size() << " clusters in the tree.";
+    // test();
 
 } catch (const std::exception &ex) {
     std::cerr << "Exception caught by main: " << ex.what() << std::endl;

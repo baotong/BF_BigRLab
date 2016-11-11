@@ -6,6 +6,7 @@
 #include <functional>
 #include <boost/shared_ptr.hpp>
 #include <cmath>
+#include "AnnDB.hpp"
 
 
 class ClusterPredict {

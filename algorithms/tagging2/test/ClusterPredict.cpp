@@ -133,7 +133,7 @@ void ClusterPredictKnn::loadAnnDB(const std::string &idxFile)
         THROW_RUNTIME_ERROR_IF(idxFile.empty(), "ClusterPredictKnn idx file not set!");
         ifstream ifs(idxFile, ios::in);
         THROW_RUNTIME_ERROR_IF(!ifs, "ClusterPredictKnn cannot open idx file " 
-                                << idxfile << " for reading!");
+                                << idxFile << " for reading!");
     }
 
     m_AnnDB.loadIndex(idxFile.c_str());
@@ -144,15 +144,21 @@ uint32_t ClusterPredictKnn::predict(const std::vector<double> &vec)
 {
     using namespace std;
 
+    // LOG(INFO) << "ClusterPredictKnn::predict()";
+
     if (vec.size() != nFeatures())
         THROW_RUNTIME_ERROR("Requested nFeatures not same as model nFeatures!");
 
-    uint32_t cid = (uint32_t)-1;
-    float dist = 0.0;
+    // uint32_t cid = (uint32_t)-1;
+    // float dist = 0.0;
     vector<float> v(vec.begin(), vec.end());
+    vector<uint32_t> cid;
+    vector<float> dist;
     m_AnnDB.rawIndex().get_nns_by_vector(&v[0], 1, (size_t)-1, &cid, &dist);
 
-    return cid;
+    THROW_RUNTIME_ERROR_IF(cid.empty(), "knn error!");
+
+    return cid[0];
 }
 
 

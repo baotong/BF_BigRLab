@@ -2,7 +2,7 @@
 #define _JIEBA_HPP_
 
 #include "shared_queue.h"
-// #include "common.h"
+#include "common.hpp"
 #include "cppjieba/Jieba.hpp"
 #include "cppjieba/KeywordExtractor.hpp"
 #include <boost/make_shared.hpp>
