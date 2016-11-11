@@ -1,5 +1,6 @@
 #include "ArticleServiceHandler.h"
 #include "jieba.hpp"
+#include "alg_common.hpp"
 #include <glog/logging.h>
 #include <json/json.h>
 #include <boost/ptr_container/ptr_vector.hpp>
@@ -121,7 +122,6 @@ void ArticleServiceHandler::do_tagging_concur(std::vector<TagResult> & _return, 
     using namespace std;
 
     // DLOG(INFO) << "do_tagging_concur";
-    auto tp1 = std::chrono::high_resolution_clock::now();
     
     struct Record {
         Record(double _W, uint32_t _C) : weight(_W), count(_C) {}
@@ -137,6 +137,7 @@ void ArticleServiceHandler::do_tagging_concur(std::vector<TagResult> & _return, 
     bool success = true;
     string errmsg;
     std::thread thrCluster([&, this]{
+        auto thStart = std::chrono::high_resolution_clock::now();
         try {
             vector<string> segment;
             wordSegment(segment, text);
@@ -148,8 +149,11 @@ void ArticleServiceHandler::do_tagging_concur(std::vector<TagResult> & _return, 
             success = false;
             errmsg = std::move(ex.what());
         } // try
+        auto thEnd = std::chrono::high_resolution_clock::now();
+        LOG(INFO) << "Time cost of finding cid is " << std::chrono::duration_cast<std::chrono::nanoseconds>(thEnd - thStart).count();
     });
 
+    auto tp1 = std::chrono::high_resolution_clock::now();
     // 找 keyword
     std::vector<KeywordResult> keywords;
     keyword( keywords, text, k1 );
@@ -191,6 +195,8 @@ void ArticleServiceHandler::do_tagging_concur(std::vector<TagResult> & _return, 
         THROW_INVALID_REQUEST("Get cluster fail: " << errmsg);
 
     DLOG(INFO) << "cid of request text is " << cid;
+
+    tp2 = std::chrono::high_resolution_clock::now();
     for (auto it = candidates.begin(); it != candidates.end();) {
         DLOG(INFO) << "Before change, count of " << it->first << " is " << it->second.count
             << " weight is " << it->second.weight;

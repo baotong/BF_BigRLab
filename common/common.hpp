@@ -22,6 +22,11 @@
         throw std::runtime_error( __err_stream.str() ); \
     } while (0)
 
+#define THROW_RUNTIME_ERROR_IF(cond, args) \
+    do { \
+        if (cond) THROW_RUNTIME_ERROR(args); \
+    } while (0)
+
 #define RET_MSG(args) \
     do { \
         std::stringstream __err_stream; \

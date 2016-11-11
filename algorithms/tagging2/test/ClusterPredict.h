@@ -31,6 +31,19 @@ protected:
 };
 
 
+class ClusterPredictKnn : public ClusterPredict {
+public:
+    ClusterPredictKnn(const std::string &idxFile, uint32_t _N_Features);
+    virtual uint32_t predict(const std::vector<double> &vec) override;
+
+private:
+    void loadAnnDB(const std::string &idxFile);
+
+private:
+    AnnDB<uint32_t, float>    m_AnnDB;
+};
+
+
 class ClusterPredictManual : public ClusterPredict {
 public:
     typedef std::vector< std::vector<double> >  Matrix;
@@ -51,6 +64,13 @@ private:
             result += diff * diff;
         } // for
         return std::sqrt(result);
+
+// #pragma omp parallel for reduction(+: result) 
+        // for (std::size_t i = 0; i < v1.size(); ++i) {
+            // double diff = v1[i] - v2[i];
+            // result += diff * diff;
+        // } // for
+        // return result;
     }
 
 private:

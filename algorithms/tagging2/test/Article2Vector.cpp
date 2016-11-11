@@ -1,5 +1,5 @@
 #include "Article2Vector.h"
-#include "common.h"
+// #include "common.h"
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
