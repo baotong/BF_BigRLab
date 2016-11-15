@@ -13,5 +13,10 @@
     } while (0)
 
 
+#define THROW_INVALID_REQUEST_IF(cond, args) \
+    do { \
+        if (cond) THROW_INVALID_REQUEST(args); \
+    } while (0)
+
 #endif
 
