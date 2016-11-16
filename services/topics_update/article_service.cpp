@@ -5,7 +5,10 @@
 #include <fstream>
 #include <sstream>
 #include <cstring>
+#include <boost/thread.hpp>
+#include <boost/thread/lockable_adapter.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/format.hpp>
 #include <glog/logging.h>
 #include "common.hpp"
 #include "article_service.h"
@@ -217,7 +220,7 @@ struct TopicTask : BigRLab::WorkItemBase {
 
 struct TopicLabelTask : BigRLab::WorkItemBase {
     TopicLabelTask( std::size_t _Id,
-                 const std::string &_Text, const std::string &_Expected,
+                 const std::string &_Text,
                  int _TopK, int _SearchK, bool _WordSeg,
                  ArticleService::IdleClientQueue *_IdleClients, 
                  std::atomic_size_t *_Counter,
@@ -226,7 +229,7 @@ struct TopicLabelTask : BigRLab::WorkItemBase {
                  std::ofstream *_Ofs, 
                  const char *_SrvName )
         : id(_Id)
-        , text(_Text), expected(_Expected)
+        , text(_Text)
         , topk(_TopK), searchK(_SearchK), wordseg(_WordSeg)
         , idleClients(_IdleClients)
         , counter(_Counter)
@@ -273,8 +276,139 @@ struct TopicLabelTask : BigRLab::WorkItemBase {
 
                     oss << id << "\t";
                     auto it = sorted.begin();
-                    if (!expected.empty())
-                        oss << (it->first == expected ? "1\t" : "0\t");
+                    for (; it != sorted.end(); ++it)
+                        oss << it->first << ":" << it->second << " ";
+                    oss << flush;
+                } else {
+                    oss << id << "\tnull" << flush;
+                } // if
+                boost::unique_lock<boost::mutex> flk( *mtx );
+                *ofs << oss.str() << endl;
+
+            } catch (const Article::InvalidRequest &err) {
+                done = true;
+                idleClients->putBack( pClient );
+                LOG(ERROR) << "Service " << srvName << " caught InvalidRequest: "
+                   << err.reason; 
+            } catch (const std::exception &ex) {
+                LOG(ERROR) << "Service " << srvName << " caught system exception: " << ex.what();
+            } // try
+
+        } while (!done);
+    }
+
+    std::size_t                     id;
+    std::string                     text;
+    int                             topk, searchK;
+    bool                            wordseg;
+    ArticleService::IdleClientQueue *idleClients;
+    std::atomic_size_t              *counter;
+    boost::condition_variable       *cond;
+    boost::mutex                    *mtx;
+    std::ofstream                   *ofs;
+    const char                      *srvName;
+    static constexpr const char* REQTYPE = "label";
+};
+
+
+struct LabelFactor {
+    LabelFactor() : a(0), b(0), c(0)
+                  , p(0.0), r(0.0), f1(0.0) {}
+/*
+ * a: predicted == expected == label
+ * b: predicted == label expected != label
+ * c: predicted != label expected == label
+ * p: a / (a + b)
+ * r: a / (a + c)
+ * f1: 2 * p * r / (p + r)
+ * NOTE!!! 首选判断分母是否为0
+ */
+    uint32_t a, b, c;
+    double p, r, f1;
+};
+
+struct LabelFactorDict : public std::map<std::string, LabelFactor>
+                       , public boost::shared_lockable_adapter<boost::shared_mutex>
+{};
+
+
+struct TopicLabelTestTask : BigRLab::WorkItemBase {
+    TopicLabelTestTask( std::size_t _Id,
+                 const std::string &_Text, const std::string &_Expected,
+                 int _TopK, int _SearchK, bool _WordSeg,
+                 LabelFactorDict *_LfDict,
+                 ArticleService::IdleClientQueue *_IdleClients, 
+                 std::atomic_size_t *_Counter,
+                 boost::condition_variable *_Cond,
+                 boost::mutex *_Mtx,
+                 std::ofstream *_Ofs, 
+                 const char *_SrvName )
+        : id(_Id)
+        , text(_Text), expected(_Expected)
+        , topk(_TopK), searchK(_SearchK), wordseg(_WordSeg)
+        , lfDict(_LfDict)
+        , idleClients(_IdleClients)
+        , counter(_Counter)
+        , cond(_Cond)
+        , mtx(_Mtx)
+        , ofs(_Ofs)
+        , srvName(_SrvName) {}
+
+    virtual void run()
+    {
+        using namespace std;
+
+        ON_FINISH_CLASS(pCleanup, {++*counter; cond->notify_all();});
+
+        bool done = false;
+
+        do {
+            auto pClient = idleClients->getIdleClient();
+            if (!pClient)
+                THROW_RUNTIME_ERROR("Fail due to no available rpc client object!");
+
+            try {
+                vector<Article::KnnResult> result;
+                pClient->client()->knn( result, text, topk, searchK, wordseg, REQTYPE );
+                done = true;
+                idleClients->putBack( pClient );
+
+                // 在这里统计
+                ostringstream oss(ios::out);
+                if (!result.empty()) {
+                    typedef map<string, double> Statistics;
+                    Statistics statistics;
+
+                    for (auto& v : result)
+                        statistics[v.label] += 1.0;
+
+                    for (auto& v : statistics)
+                        v.second /= (double)(result.size());
+
+                    boost::ptr_vector<Statistics::value_type, boost::view_clone_allocator> sorted(statistics.begin(), statistics.end());
+                    sorted.sort([](const Statistics::value_type &lhs, const Statistics::value_type &rhs)->bool {
+                        return (lhs.second > rhs.second);
+                    });
+
+                    oss << id << "\t";
+                    auto it = sorted.begin();
+                    auto& predicted = it->first;
+                    if (predicted == expected) {
+                        oss << "1\t";
+                        boost::unique_lock<LabelFactorDict> lk(*lfDict);
+                        auto ret = lfDict->insert(std::make_pair(expected, LabelFactor()));
+                        auto& lf = ret.first->second;
+                        ++lf.a;
+                    } else {
+                        oss << "0\t";
+                        boost::unique_lock<LabelFactorDict> lk(*lfDict);
+                        auto ret = lfDict->insert(std::make_pair(expected, LabelFactor()));
+                        auto& lfExpected = ret.first->second;
+                        ret = lfDict->insert(std::make_pair(predicted, LabelFactor()));
+                        auto& lfPredicted = ret.first->second;
+                        ++lfPredicted.b;
+                        ++lfExpected.c;
+                    } // if
 
                     for (; it != sorted.end(); ++it)
                         oss << it->first << ":" << it->second << " ";
@@ -301,6 +435,7 @@ struct TopicLabelTask : BigRLab::WorkItemBase {
     std::string                     text, expected;
     int                             topk, searchK;
     bool                            wordseg;
+    LabelFactorDict                 *lfDict;
     ArticleService::IdleClientQueue *idleClients;
     std::atomic_size_t              *counter;
     boost::condition_variable       *cond;
@@ -324,7 +459,7 @@ void ArticleService::handleCommand( std::stringstream &stream )
         getWriter()->writeLine(__write_line_stream.str()); \
     } while (0)
 
-    string arg, infile, outfile, req;
+    string arg, infile, outfile, statfile, req;
     int topk = 0;
     int searchK = -1;
     bool wordseg = true;
@@ -353,6 +488,8 @@ void ArticleService::handleCommand( std::stringstream &stream )
             infile.swap(value);   
         } else if ("out" == key) {
             outfile.swap(value);
+        } else if ("stat" == key) {
+            statfile.swap(value);
         } else {
             THROW_RUNTIME_ERROR("Unrecogonized arg " << key);
         } // if
@@ -378,6 +515,9 @@ void ArticleService::handleCommand( std::stringstream &stream )
 
     counter = 0;
 
+    // for label_test
+    LabelFactorDict              lfDict;
+
     while ( getline(ifs, line) ) {
         boost::trim_right( line );
         WorkItemBasePtr pWork;
@@ -387,7 +527,7 @@ void ArticleService::handleCommand( std::stringstream &stream )
                  &counter, &cond, &mtx, &ofs, name().c_str());
         } else if ("label" == req) {
             pWork = boost::make_shared<TopicLabelTask>
-                (lineno, line, "", topk, searchK, wordseg, &m_queIdleClients, 
+                (lineno, line, topk, searchK, wordseg, &m_queIdleClients, 
                  &counter, &cond, &mtx, &ofs, name().c_str());
         } else if ("label_test" == req) {
             istringstream iss(line, ios::in);
@@ -395,8 +535,8 @@ void ArticleService::handleCommand( std::stringstream &stream )
             iss >> expected;
             getline(iss, text);
             boost::trim(text);
-            pWork = boost::make_shared<TopicLabelTask>
-                (lineno, text, expected, topk, searchK, wordseg, &m_queIdleClients, 
+            pWork = boost::make_shared<TopicLabelTestTask>
+                (lineno, text, expected, topk, searchK, wordseg, &lfDict, &m_queIdleClients, 
                  &counter, &cond, &mtx, &ofs, name().c_str());
         } else {
             pWork = boost::make_shared<TopicTask>
@@ -409,6 +549,49 @@ void ArticleService::handleCommand( std::stringstream &stream )
 
     boost::unique_lock<boost::mutex> lock(mtx);
     cond.wait( lock, [&]()->bool {return counter >= lineno;} );
+
+    // deal with lfDict
+    if (!lfDict.empty()) {
+        double macroP = 0.0, macroR = 0.0, macroF1 = 0.0, micro = 0.0;
+        uint32_t sumA = 0, sumB = 0;
+        for (auto &kv : lfDict) {
+            auto &lf = kv.second;
+            lf.p = lf.a ? (double)lf.a / (double)(lf.a + lf.b) : 0.0;
+            lf.r = lf.a ? (double)lf.a / (double)(lf.a + lf.c) : 0.0;
+            lf.f1 = (lf.p && lf.r) ? 2 * lf.p * lf.r / (lf.p + lf.r) : 0.0;
+            macroP += lf.p;
+            macroR += lf.r;
+            macroF1 += lf.f1;
+            sumA += lf.a;
+            sumB += lf.b;
+        } // for
+        macroP /= (double)(lfDict.size());
+        macroR /= (double)(lfDict.size());
+        macroF1 /= (double)(lfDict.size());
+        micro = sumA ? (double)sumA / (double)(sumA + sumB) : 0.0;
+
+        // output statistics
+        std::shared_ptr<std::ostream> os;
+        if (statfile.empty()) {
+            os.reset(&cout, [](std::ostream*){});
+        } else {
+            os.reset(new ofstream(statfile, ios::out));
+            THROW_RUNTIME_ERROR_IF(!(*os), "Cannot open stat file " << statfile << " for writting!");
+        } // if statfile
+
+        *os << boost::format("%-20s\t%20s\t%20s\t%20s") % "label" % "P" % "R" % "F1" << endl;
+        for (auto &kv : lfDict) {
+            auto& label = kv.first;
+            auto& lf = kv.second;
+            *os << boost::format("%-20s\t%20.15lf\t%20.15lf\t%20.15lf") 
+                    % label.c_str() % lf.p % lf.r % lf.f1 << endl;
+        } // for kv
+        *os << endl;
+        *os << boost::format("%20s\t%20s\t%20s\t%20s") % "MacroP" % "MacroR" % "MacroF1" % "Micro" << endl;
+        *os << boost::format("%20.15lf\t%20.15lf\t%20.15lf\t%20.15lf")
+                % macroP % macroR % macroF1 % micro << endl;
+        *os << endl;
+    } // if lfDict
 
     MY_WRITE_LINE("Job Done!"); // -b 要求必须输出一行文本
 #undef MY_WRITE_LINE

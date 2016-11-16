@@ -2,8 +2,12 @@
  * Command: [wordseg 默认1]
  * service topic_pred in:data/test.data out:data/out.txt topk:5 wordseg:0
  * service topic_pred in:data/test.data out:data/out.txt topk:5
+ * 只预测label
  * service topic_pred in:/tmp/in.txt out:data/out.txt topk:5 req:label
+ * 预测label带标准答案评估
  * service topic_pred in:/tmp/in.txt out:data/out.txt topk:5 req:label_test
+ * 将评测统计输出到文件 stat参数指定
+ * service topic_pred in:/tmp/in.txt out:data/out.txt topk:5 req:label_test stat:/tmp/stat.txt
  * Http [wordseg 不设置默认1]
  * curl -i -X POST -H "Content-Type: BigRLab_Request" -d '{"topk":5,"text":"www.sauritchsurfboards.com/ recreation/sports/aquatic_sports watch out jeremy sherwin is here over the past six months you may have noticed this guy in every surf magazine published jeremy is finally getting his run more.. copyright surfboards 2004 all rights reserved june 6 2004 new launches it s new and improved site you can now order custom surfboards online more improvements to come.. top selling models middot rocket fish middot speed egg middot classic middot squash"}' http://localhost:9000/topic_pred
  * curl -i -X POST -H "Content-Type: BigRLab_Request" -d '{"topk":5,"wordseg":0,"text":"watch out jeremy sherwin is here over the past six months you may have noticed this guy in every surf magazine published jeremy is finally getting his run more.. copyright surfboards 2004 all rights reserved june 6 2004 new launches it s new and improved site you can now order custom surfboards online more improvements to come.. top selling models middot rocket fish middot speed egg middot classic middot squash"}' http://localhost:9000/topic_pred
