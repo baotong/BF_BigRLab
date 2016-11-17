@@ -313,6 +313,182 @@ struct TopicLabelTask : BigRLab::WorkItemBase {
 };
 
 
+struct TopicScoreTask : BigRLab::WorkItemBase {
+    TopicScoreTask( std::size_t _Id,
+                 const std::string &_Text,
+                 int _TopK, int _SearchK, bool _WordSeg,
+                 ArticleService::IdleClientQueue *_IdleClients, 
+                 std::atomic_size_t *_Counter,
+                 boost::condition_variable *_Cond,
+                 boost::mutex *_Mtx,
+                 std::ofstream *_Ofs, 
+                 const char *_SrvName )
+        : id(_Id)
+        , text(_Text)
+        , topk(_TopK), searchK(_SearchK), wordseg(_WordSeg)
+        , idleClients(_IdleClients)
+        , counter(_Counter)
+        , cond(_Cond)
+        , mtx(_Mtx)
+        , ofs(_Ofs)
+        , srvName(_SrvName) {}
+
+    virtual void run()
+    {
+        using namespace std;
+
+        ON_FINISH_CLASS(pCleanup, {++*counter; cond->notify_all();});
+
+        if (text.empty()) return;
+
+        bool done = false;
+
+        do {
+            auto pClient = idleClients->getIdleClient();
+            if (!pClient)
+                THROW_RUNTIME_ERROR("Fail due to no available rpc client object!");
+
+            try {
+                vector<Article::KnnResult> result;
+                pClient->client()->knn( result, text, topk, searchK, wordseg, REQTYPE );
+                done = true;
+                idleClients->putBack( pClient );
+
+                // 在这里统计
+                ostringstream oss(ios::out);
+                if (!result.empty()) {
+                    double avgScore = 0.0;
+                    for (auto& v : result)
+                        avgScore += v.score;
+                    avgScore /= (double)(result.size());
+                    oss << id << "\t" << avgScore << flush;
+                } else {
+                    oss << id << "\tnull" << flush;
+                } // if
+                boost::unique_lock<boost::mutex> flk( *mtx );
+                *ofs << oss.str() << endl;
+
+            } catch (const Article::InvalidRequest &err) {
+                done = true;
+                idleClients->putBack( pClient );
+                LOG(ERROR) << "Service " << srvName << " caught InvalidRequest: "
+                   << err.reason; 
+            } catch (const std::exception &ex) {
+                LOG(ERROR) << "Service " << srvName << " caught system exception: " << ex.what();
+            } // try
+
+        } while (!done);
+    }
+
+    std::size_t                     id;
+    std::string                     text;
+    int                             topk, searchK;
+    bool                            wordseg;
+    ArticleService::IdleClientQueue *idleClients;
+    std::atomic_size_t              *counter;
+    boost::condition_variable       *cond;
+    boost::mutex                    *mtx;
+    std::ofstream                   *ofs;
+    const char                      *srvName;
+    static constexpr const char* REQTYPE = "score";
+};
+
+
+struct RMSE : public boost::shared_lockable_adapter<boost::shared_mutex> {
+    RMSE() : val(0.0), cnt(0) {}
+    double          val;
+    std::size_t     cnt;
+};
+
+struct TopicScoreTestTask : BigRLab::WorkItemBase {
+    TopicScoreTestTask( std::size_t _Id,
+                 const std::string &_Text,
+                 double _Expected,
+                 int _TopK, int _SearchK, bool _WordSeg,
+                 RMSE *_Rmse,
+                 ArticleService::IdleClientQueue *_IdleClients, 
+                 std::atomic_size_t *_Counter,
+                 boost::condition_variable *_Cond,
+                 boost::mutex *_Mtx,
+                 std::ofstream *_Ofs, 
+                 const char *_SrvName )
+        : id(_Id)
+        , text(_Text), expected(_Expected)
+        , topk(_TopK), searchK(_SearchK), wordseg(_WordSeg)
+        , pRMSE(_Rmse)
+        , idleClients(_IdleClients)
+        , counter(_Counter)
+        , cond(_Cond)
+        , mtx(_Mtx)
+        , ofs(_Ofs)
+        , srvName(_SrvName) {}
+
+    virtual void run()
+    {
+        using namespace std;
+
+        ON_FINISH_CLASS(pCleanup, {++*counter; cond->notify_all();});
+
+        if (text.empty()) return;
+
+        bool done = false;
+
+        do {
+            auto pClient = idleClients->getIdleClient();
+            if (!pClient)
+                THROW_RUNTIME_ERROR("Fail due to no available rpc client object!");
+
+            try {
+                vector<Article::KnnResult> result;
+                pClient->client()->knn( result, text, topk, searchK, wordseg, REQTYPE );
+                done = true;
+                idleClients->putBack( pClient );
+
+                // 在这里统计
+                ostringstream oss(ios::out);
+                if (!result.empty()) {
+                    double avgScore = 0.0;
+                    for (auto& v : result)
+                        avgScore += v.score;
+                    avgScore /= (double)(result.size());
+                    oss << id << "\t" << avgScore << flush;
+                    boost::unique_lock<RMSE> lk(*pRMSE);
+                    pRMSE->val += (expected - avgScore) * (expected - avgScore);
+                    ++(pRMSE->cnt);
+                } else {
+                    oss << id << "\tnull" << flush;
+                } // if
+                boost::unique_lock<boost::mutex> flk( *mtx );
+                *ofs << oss.str() << endl;
+
+            } catch (const Article::InvalidRequest &err) {
+                done = true;
+                idleClients->putBack( pClient );
+                LOG(ERROR) << "Service " << srvName << " caught InvalidRequest: "
+                   << err.reason; 
+            } catch (const std::exception &ex) {
+                LOG(ERROR) << "Service " << srvName << " caught system exception: " << ex.what();
+            } // try
+
+        } while (!done);
+    }
+
+    std::size_t                     id;
+    std::string                     text;
+    double                          expected;
+    int                             topk, searchK;
+    bool                            wordseg;
+    RMSE                            *pRMSE;
+    ArticleService::IdleClientQueue *idleClients;
+    std::atomic_size_t              *counter;
+    boost::condition_variable       *cond;
+    boost::mutex                    *mtx;
+    std::ofstream                   *ofs;
+    const char                      *srvName;
+    static constexpr const char* REQTYPE = "score";
+};
+
+
 struct LabelFactor {
     LabelFactor() : a(0), b(0), c(0)
                   , p(0.0), r(0.0), f1(0.0) {}
@@ -522,6 +698,8 @@ void ArticleService::handleCommand( std::stringstream &stream )
 
     // for label_test
     LabelFactorDict              lfDict;
+    // for score_test
+    RMSE                         rmse;
 
     // while ( getline(ifs, line) ) {
     for (; getline(ifs, line); ++lineno) {
@@ -543,6 +721,21 @@ void ArticleService::handleCommand( std::stringstream &stream )
             boost::trim(text);
             pWork = boost::make_shared<TopicLabelTestTask>
                 (lineno, text, expected, topk, searchK, wordseg, &lfDict, &m_queIdleClients, 
+                 &counter, &cond, &mtx, &ofs, name().c_str());
+        } else if ("score" == req) {
+            pWork = boost::make_shared<TopicScoreTask>
+                (lineno, line, topk, searchK, wordseg, &m_queIdleClients, 
+                 &counter, &cond, &mtx, &ofs, name().c_str());
+        } else if ("score_test" == req) {
+            istringstream iss(line, ios::in);
+            double expected = 0.0;
+            string text;
+            iss >> expected;
+            if (!bad_stream(iss))
+                getline(iss, text);
+            boost::trim(text);
+            pWork = boost::make_shared<TopicScoreTestTask>
+                (lineno, text, expected, topk, searchK, wordseg, &rmse, &m_queIdleClients, 
                  &counter, &cond, &mtx, &ofs, name().c_str());
         } else {
             pWork = boost::make_shared<TopicTask>
@@ -598,6 +791,13 @@ void ArticleService::handleCommand( std::stringstream &stream )
             ofs << oss.str() << flush;
         } // if statfile
     } // if lfDict
+
+    // deal with rmse
+    if (rmse.cnt) {
+        double value = rmse.val / (double)(rmse.cnt);
+        value = sqrt(value);
+        MY_WRITE_LINE("RMSE = " << value);
+    } // if rmse
 
     MY_WRITE_LINE("Job Done!"); // -b 要求必须输出一行文本
 #undef MY_WRITE_LINE
