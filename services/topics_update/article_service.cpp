@@ -244,6 +244,8 @@ struct TopicLabelTask : BigRLab::WorkItemBase {
 
         ON_FINISH_CLASS(pCleanup, {++*counter; cond->notify_all();});
 
+        if (text.empty()) return;
+
         bool done = false;
 
         do {
@@ -359,6 +361,9 @@ struct TopicLabelTestTask : BigRLab::WorkItemBase {
         using namespace std;
 
         ON_FINISH_CLASS(pCleanup, {++*counter; cond->notify_all();});
+
+        if (text.empty() || expected.empty())
+            return;
 
         bool done = false;
 
@@ -518,8 +523,9 @@ void ArticleService::handleCommand( std::stringstream &stream )
     // for label_test
     LabelFactorDict              lfDict;
 
-    while ( getline(ifs, line) ) {
-        boost::trim_right( line );
+    // while ( getline(ifs, line) ) {
+    for (; getline(ifs, line); ++lineno) {
+        boost::trim( line );
         WorkItemBasePtr pWork;
         if ("doc2vec" == req) {
             pWork = boost::make_shared<Doc2VecTask>
@@ -544,7 +550,6 @@ void ArticleService::handleCommand( std::stringstream &stream )
                  &counter, &cond, &mtx, &ofs, name().c_str());
         } // if req
         getWorkMgr()->addWork( pWork );
-        ++lineno;
     } // while
 
     boost::unique_lock<boost::mutex> lock(mtx);
@@ -571,26 +576,27 @@ void ArticleService::handleCommand( std::stringstream &stream )
         micro = sumA ? (double)sumA / (double)(sumA + sumB) : 0.0;
 
         // output statistics
-        std::shared_ptr<std::ostream> os;
-        if (statfile.empty()) {
-            os.reset(&cout, [](std::ostream*){});
-        } else {
-            os.reset(new ofstream(statfile, ios::out));
-            THROW_RUNTIME_ERROR_IF(!(*os), "Cannot open stat file " << statfile << " for writting!");
-        } // if statfile
-
-        *os << boost::format("%-20s\t%20s\t%20s\t%20s") % "label" % "P" % "R" % "F1" << endl;
+        ostringstream oss;
+        oss << boost::format("%-20s\t%20s\t%20s\t%20s") % "label" % "P" % "R" % "F1" << endl;
         for (auto &kv : lfDict) {
             auto& label = kv.first;
             auto& lf = kv.second;
-            *os << boost::format("%-20s\t%20.15lf\t%20.15lf\t%20.15lf") 
+            oss << boost::format("%-20s\t%20.7lf\t%20.7lf\t%20.7lf") 
                     % label.c_str() % lf.p % lf.r % lf.f1 << endl;
         } // for kv
-        *os << endl;
-        *os << boost::format("%20s\t%20s\t%20s\t%20s") % "MacroP" % "MacroR" % "MacroF1" % "Micro" << endl;
-        *os << boost::format("%20.15lf\t%20.15lf\t%20.15lf\t%20.15lf")
-                % macroP % macroR % macroF1 % micro << endl;
-        *os << endl;
+        oss << endl;
+        oss << boost::format("%20s\t%20s\t%20s\t%20s") % "MacroP" % "MacroR" % "MacroF1" % "Micro" << endl;
+        oss << boost::format("%20.7lf\t%20.7lf\t%20.7lf\t%20.7lf")
+                    % macroP % macroR % macroF1 % micro << endl;
+        oss << endl << flush;
+
+        if (statfile.empty()) {
+            MY_WRITE_LINE(oss.str());
+        } else {
+            ofstream ofs(statfile, ios::out);
+            THROW_RUNTIME_ERROR_IF(!ofs, "Cannot open stat file " << statfile << " for writting!");
+            ofs << oss.str() << flush;
+        } // if statfile
     } // if lfDict
 
     MY_WRITE_LINE("Job Done!"); // -b 要求必须输出一行文本

@@ -45,12 +45,12 @@
         return val; \
     } while (0)
 
-#define COND_RET_MSG(cond, args) \
+#define RET_MSG_IF(cond, args) \
     do { \
         if (cond) RET_MSG(args); \
     } while (0)
 
-#define COND_RET_MSG_VAL(cond, val, args) \
+#define RET_MSG_VAL_IF(cond, val, args) \
     do { \
         if (cond) RET_MSG_VAL(val, args); \
     } while (0)
@@ -77,17 +77,9 @@
             THROW_RUNTIME_ERROR("Run command \"" << __cmd_str << "\" fail!"); \
     } while (0)
 
-template < typename T >
-std::string to_string( const T &value )
-{
-    std::stringstream os;
-    os << value << std::flush;
-    return os.str();
-}
-
-// template< typename StreamType >
-// bool bad_stream( const StreamType &stream )
-// { return (stream.fail() || stream.bad()); }
+template< typename StreamType >
+bool bad_stream( StreamType &stream )
+{ return (stream.fail() || stream.bad()); }
 
 #endif
 
