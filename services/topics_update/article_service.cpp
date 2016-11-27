@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <cstring>
+#include <cmath>
 #include <boost/thread.hpp>
 #include <boost/thread/lockable_adapter.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>

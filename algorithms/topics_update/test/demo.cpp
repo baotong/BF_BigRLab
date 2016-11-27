@@ -7,9 +7,11 @@
 #include "AlgMgrService.h"
 #include "ArticleServiceHandler.h"
 #include <cstdio>
+#include <set>
 #include <boost/asio.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/filesystem.hpp>
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 
@@ -60,6 +62,7 @@ Article2Vector::pointer                 g_pVecConverter;
 boost::shared_ptr<AnnDbType>            g_pAnnDB;
 std::vector<std::string>                g_arrstrLabel;
 std::vector<double>                     g_arrfScore;
+std::set<std::string>                   g_setArgFiles;
 
 namespace {
 
@@ -240,7 +243,7 @@ private:
 
 SharedQueue<Jieba::pointer>      g_JiebaPool;
 
-static bool                                                g_bLoginSuccess = false;
+static bool                                                TIMER_CHECK = false;
 static std::unique_ptr< boost::asio::deadline_timer >      g_Timer;
 
 
@@ -282,6 +285,7 @@ static
 void stop_client()
 {
     if (g_pAlgMgrClient) {
+        TIMER_CHECK = false;
         (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
         g_pAlgMgrClient->stop();
     } // if
@@ -347,7 +351,7 @@ void start_rpc_service()
                 return;
             } // if
 
-            g_bLoginSuccess = true;
+            TIMER_CHECK = true;
 
         } catch (const std::exception &ex) {
             cerr << "Unable to connect to algmgr server, " << ex.what() << endl;
@@ -376,11 +380,9 @@ void start_rpc_service()
 static
 void rejoin(const boost::system::error_code &ec)
 {
-    // DLOG(INFO) << "rejoin timer called";
-
     int waitTime = TIMER_REJOIN;
 
-    if (g_bLoginSuccess) {
+    if (TIMER_CHECK) {
         try {
             if (!g_pAlgMgrClient->isRunning())
                 g_pAlgMgrClient->start(50, 300);
@@ -448,6 +450,7 @@ void service_init()
         LOG(INFO) << "Detected nClasses = " << nClasses << " from file " << FLAGS_vecdict;
 
         g_pVecConverter = boost::make_shared<Article2VectorByWordVec>( nClasses, FLAGS_vecdict.c_str() );
+        g_setArgFiles.insert(FLAGS_vecdict);
 
     } else if ("clusterid" == FLAGS_vec) {
         if (FLAGS_vecdict.empty()) {
@@ -477,6 +480,7 @@ void service_init()
         LOG(INFO) << "Detected nClasses = " << nClasses << " from file " << FLAGS_vecdict;
 
         g_pVecConverter = boost::make_shared<Article2VectorByCluster>( nClasses, FLAGS_vecdict.c_str() );
+        g_setArgFiles.insert(FLAGS_vecdict);
         
     } else if ("warplda" == FLAGS_vec) {
         if (FLAGS_warpldaModel.empty()) {
@@ -496,6 +500,8 @@ void service_init()
         } // if
 
         g_pVecConverter = boost::make_shared<Article2VectorByWarplda>(FLAGS_warpldaModel, FLAGS_warpldaVocab);
+        g_setArgFiles.insert(FLAGS_warpldaModel);
+        g_setArgFiles.insert(FLAGS_warpldaVocab);
         // DLOG(INFO) << "Detected " << g_pVecConverter->nClasses() << " classes.";
 
     } else {
@@ -512,6 +518,7 @@ void service_init()
 
     g_pAnnDB.reset( new AnnDB<IdType, ValueType>((int)(g_pVecConverter->nClasses())) );
     g_pAnnDB->loadIndex( FLAGS_idx.c_str() );
+    g_setArgFiles.insert(FLAGS_idx);
     cout << "Totally " << g_pAnnDB->size() << " items loaded from annoy tree." << endl;
 
     if (!FLAGS_label.empty()) {
@@ -520,6 +527,7 @@ void service_init()
             THROW_RUNTIME_ERROR("Cannot open label file " << FLAGS_label << " for reading!");
         g_arrstrLabel.reserve(g_pAnnDB->size());
         copy( istream_iterator<string>(ifs), istream_iterator<string>(), back_inserter(g_arrstrLabel) );
+        g_setArgFiles.insert(FLAGS_label);
         DLOG(INFO) << "g_arrstrLabel.size() = " << g_arrstrLabel.size();
     } // if
 
@@ -529,6 +537,7 @@ void service_init()
             THROW_RUNTIME_ERROR("Cannot open score file " << FLAGS_score << " for reading!");
         g_arrfScore.reserve(g_pAnnDB->size());
         copy( istream_iterator<double>(ifs), istream_iterator<double>(), back_inserter(g_arrfScore) );
+        g_setArgFiles.insert(FLAGS_score);
         DLOG(INFO) << "g_arrfScore.size() = " << g_arrfScore.size();
     } // if
 }
@@ -576,6 +585,32 @@ void do_standalone_routine()
     return;
 }
 
+static
+void check_new_file(const boost::system::error_code &ec)
+{
+    using namespace std;
+
+    bool    hasUpdate = false;
+
+    for (auto& name : g_setArgFiles) {
+        LOG(INFO) << "Detected update for " << name;
+        string updateName = name + ".update";
+        if (boost::filesystem::exists(updateName)) {
+            try {
+                boost::filesystem::rename(updateName, name);
+                hasUpdate = true;
+            } catch (...) {}
+        } // if
+    } // for
+
+    if (hasUpdate) {
+        LOG(INFO) << "Restarting service for updating...";
+        stop_client();
+        service_init();
+        start_rpc_service();
+    } // if
+}
+
 
 int main(int argc, char **argv)
 {
@@ -602,6 +637,7 @@ int main(int argc, char **argv)
         g_Timer.reset(new boost::asio::deadline_timer(std::ref(g_io_service)));
         g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_REJOIN));
         g_Timer->async_wait(rejoin);
+        g_Timer->async_wait(check_new_file);
 
         auto io_service_thr = boost::thread( [&]{ g_io_service.run(); } );
 

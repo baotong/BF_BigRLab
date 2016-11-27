@@ -50,7 +50,7 @@ void XgBoostServiceHandler::predict(std::vector<double> & _return,
 void XgBoostServiceHandler::predict_GBDT(std::vector<double> & _return, 
                     const std::string& input, const bool simple)
 {
-    predict(_return, input, true);
+    predict(_return, input, true); // 先得到叶子序号
     
     stringstream stream;
 
