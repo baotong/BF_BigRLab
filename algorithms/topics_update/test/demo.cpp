@@ -17,7 +17,7 @@
 
 #define SERVICE_LIB_NAME        "topics_update"
 
-#define TIMER_REJOIN            15          // 15s
+#define TIMER_CHECK            15          // 15s
 
 using namespace BigRLab;
 
@@ -243,8 +243,10 @@ private:
 
 SharedQueue<Jieba::pointer>      g_JiebaPool;
 
-static bool                                                TIMER_CHECK = false;
+// NOTE!!! 一个定时器只执行一个函数
+static bool                                                g_bLoginSuccess = false;
 static std::unique_ptr< boost::asio::deadline_timer >      g_Timer;
+static std::unique_ptr< boost::asio::deadline_timer >      g_Timer2;
 
 
 namespace Test {
@@ -285,7 +287,7 @@ static
 void stop_client()
 {
     if (g_pAlgMgrClient) {
-        TIMER_CHECK = false;
+        g_bLoginSuccess = false;
         (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
         g_pAlgMgrClient->stop();
     } // if
@@ -351,7 +353,7 @@ void start_rpc_service()
                 return;
             } // if
 
-            TIMER_CHECK = true;
+            g_bLoginSuccess = true;
 
         } catch (const std::exception &ex) {
             cerr << "Unable to connect to algmgr server, " << ex.what() << endl;
@@ -380,9 +382,11 @@ void start_rpc_service()
 static
 void rejoin(const boost::system::error_code &ec)
 {
-    int waitTime = TIMER_REJOIN;
+    DLOG(INFO) << "rejoin()";
 
-    if (TIMER_CHECK) {
+    int waitTime = TIMER_CHECK;
+
+    if (g_bLoginSuccess) {
         try {
             if (!g_pAlgMgrClient->isRunning())
                 g_pAlgMgrClient->start(50, 300);
@@ -586,16 +590,22 @@ void do_standalone_routine()
 }
 
 static
-void check_new_file(const boost::system::error_code &ec)
+void check_update(const boost::system::error_code &ec)
 {
     using namespace std;
+
+    DLOG(INFO) << "check_update()";
+
+    if (!g_bLoginSuccess)
+        return;
 
     bool    hasUpdate = false;
 
     for (auto& name : g_setArgFiles) {
-        LOG(INFO) << "Detected update for " << name;
+        DLOG(INFO) << "name = " << name;
         string updateName = name + ".update";
         if (boost::filesystem::exists(updateName)) {
+            LOG(INFO) << "Detected update for " << name;
             try {
                 boost::filesystem::rename(updateName, name);
                 hasUpdate = true;
@@ -606,9 +616,13 @@ void check_new_file(const boost::system::error_code &ec)
     if (hasUpdate) {
         LOG(INFO) << "Restarting service for updating...";
         stop_client();
+        stop_server();
         service_init();
         start_rpc_service();
     } // if
+
+    g_Timer2->expires_from_now(boost::posix_time::seconds(TIMER_CHECK));
+    g_Timer2->async_wait(check_update);
 }
 
 
@@ -629,15 +643,17 @@ int main(int argc, char **argv)
 
         boost::asio::signal_set signals(g_io_service, SIGINT, SIGTERM);
         signals.async_wait( [](const boost::system::error_code& error, int signal) { 
-            if (g_Timer)
-                g_Timer->cancel();
+            if (g_Timer) g_Timer->cancel();
+            if (g_Timer2) g_Timer2->cancel();
             stop_server(); 
         } );
 
         g_Timer.reset(new boost::asio::deadline_timer(std::ref(g_io_service)));
-        g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_REJOIN));
+        g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_CHECK));
         g_Timer->async_wait(rejoin);
-        g_Timer->async_wait(check_new_file);
+        g_Timer2.reset(new boost::asio::deadline_timer(std::ref(g_io_service)));
+        g_Timer2->expires_from_now(boost::posix_time::seconds(TIMER_CHECK));
+        g_Timer2->async_wait(check_update);
 
         auto io_service_thr = boost::thread( [&]{ g_io_service.run(); } );
 
