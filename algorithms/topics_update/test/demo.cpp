@@ -8,6 +8,8 @@
 #include "ArticleServiceHandler.h"
 #include <cstdio>
 #include <set>
+#include <thread>
+#include <memory>
 #include <boost/asio.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -63,6 +65,7 @@ boost::shared_ptr<AnnDbType>            g_pAnnDB;
 std::vector<std::string>                g_arrstrLabel;
 std::vector<double>                     g_arrfScore;
 std::set<std::string>                   g_setArgFiles;
+std::unique_ptr<std::thread>            g_pSvrThread;
 
 namespace {
 
@@ -617,8 +620,9 @@ void check_update(const boost::system::error_code &ec)
         LOG(INFO) << "Restarting service for updating...";
         stop_client();
         stop_server();
-        service_init();
-        start_rpc_service();
+        if (g_pSvrThread && g_pSvrThread->joinable())
+            g_pSvrThread->join();
+        g_pSvrThread.reset(new std::thread(do_service_routine));
     } // if
 
     g_Timer2->expires_from_now(boost::posix_time::seconds(TIMER_CHECK));
@@ -642,10 +646,15 @@ int main(int argc, char **argv)
         auto pIoServiceWork = boost::make_shared< boost::asio::io_service::work >(std::ref(g_io_service));
 
         boost::asio::signal_set signals(g_io_service, SIGINT, SIGTERM);
-        signals.async_wait( [](const boost::system::error_code& error, int signal) { 
+        signals.async_wait( [&](const boost::system::error_code& error, int signal) { 
             if (g_Timer) g_Timer->cancel();
             if (g_Timer2) g_Timer2->cancel();
+            stop_client();
             stop_server(); 
+            if (g_pSvrThread && g_pSvrThread->joinable())
+                g_pSvrThread->join();
+            pIoServiceWork.reset();
+            g_io_service.stop();
         } );
 
         g_Timer.reset(new boost::asio::deadline_timer(std::ref(g_io_service)));
@@ -655,19 +664,13 @@ int main(int argc, char **argv)
         g_Timer2->expires_from_now(boost::posix_time::seconds(TIMER_CHECK));
         g_Timer2->async_wait(check_update);
 
-        auto io_service_thr = boost::thread( [&]{ g_io_service.run(); } );
-
-        if (FLAGS_service)
-            do_service_routine();
-        else
+        if (FLAGS_service) {
+            g_pSvrThread.reset(new std::thread(do_service_routine));
+        } else {
             do_standalone_routine();
+        } // if
 
-        pIoServiceWork.reset();
-        g_io_service.stop();
-        if (io_service_thr.joinable())
-            io_service_thr.join();
-
-        stop_client();
+        g_io_service.run();
 
         cout << argv[0] << " done!" << endl;
 
