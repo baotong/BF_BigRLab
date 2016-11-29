@@ -165,14 +165,22 @@ void ArticleServiceHandler::handleRequest(std::string& _return, const std::strin
         size_t searchK = (size_t)-1;
         if (root.isMember("search_k"))
             searchK = (size_t)(root["search_k"].asUInt64());
+        string reqtype;
+        if (root.isMember("reqtype"))
+            reqtype = root["reqtype"].asString();
 
         vector<KnnResult> result;
-        knn(result, text, topk, searchK, wordseg, "");
+        knn(result, text, topk, searchK, wordseg, reqtype);
 
         for (auto &v : result ) {
             Json::Value item;
-            item["id"] = (Json::Int64)(v.id);
+            if (reqtype == "label")
+                item["label"] = v.label;
+            else
+                item["id"] = (Json::Int64)(v.id);
             item["distance"] = v.distance;
+            if (reqtype == "score")
+                item["score"] = v.score;
             resp["result"].append(item);
         } // for
 
