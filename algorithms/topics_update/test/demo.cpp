@@ -249,7 +249,6 @@ SharedQueue<Jieba::pointer>      g_JiebaPool;
 // NOTE!!! 一个定时器只执行一个函数
 static bool                                                g_bLoginSuccess = false;
 static std::unique_ptr< boost::asio::deadline_timer >      g_Timer;
-static std::unique_ptr< boost::asio::deadline_timer >      g_Timer2;
 
 
 namespace Test {
@@ -383,11 +382,9 @@ void start_rpc_service()
 }
 
 static
-void rejoin(const boost::system::error_code &ec)
+void rejoin()
 {
-    // DLOG(INFO) << "rejoin()";
-
-    int waitTime = TIMER_CHECK;
+    DLOG(INFO) << "rejoin()";
 
     if (g_bLoginSuccess) {
         try {
@@ -398,12 +395,8 @@ void rejoin(const boost::system::error_code &ec)
             LOG(ERROR) << "Connection with apiserver lost, re-connecting...";
             g_pAlgMgrClient.reset();
             g_pAlgMgrClient = boost::make_shared< AlgMgrClient >(g_strAlgMgrAddr, g_nAlgMgrPort);
-            waitTime = 5;
         } // try
     } // if
-
-    g_Timer->expires_from_now(boost::posix_time::seconds(waitTime));
-    g_Timer->async_wait(rejoin);
 }
 
 static
@@ -593,11 +586,11 @@ void do_standalone_routine()
 }
 
 static
-void check_update(const boost::system::error_code &ec)
+void check_update()
 {
     using namespace std;
 
-    // DLOG(INFO) << "check_update()";
+    DLOG(INFO) << "check_update()";
 
     if (!g_bLoginSuccess)
         return;
@@ -605,7 +598,7 @@ void check_update(const boost::system::error_code &ec)
     bool    hasUpdate = false;
 
     for (auto& name : g_setArgFiles) {
-        // DLOG(INFO) << "name = " << name;
+        DLOG(INFO) << "name = " << name;
         string updateName = name + ".update";
         if (boost::filesystem::exists(updateName)) {
             LOG(INFO) << "Detected update for " << name;
@@ -634,11 +627,16 @@ void check_update(const boost::system::error_code &ec)
             } // try             
         }));
     } // if
-
-    g_Timer2->expires_from_now(boost::posix_time::seconds(TIMER_CHECK));
-    g_Timer2->async_wait(check_update);
 }
 
+static
+void timer_check(const boost::system::error_code &ec)
+{
+    rejoin();
+    check_update();
+    g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_CHECK));
+    g_Timer->async_wait(timer_check);
+}
 
 int main(int argc, char **argv)
 {
@@ -658,7 +656,6 @@ int main(int argc, char **argv)
         boost::asio::signal_set signals(g_io_service, SIGINT, SIGTERM);
         signals.async_wait( [&](const boost::system::error_code& error, int signal) { 
             if (g_Timer) g_Timer->cancel();
-            if (g_Timer2) g_Timer2->cancel();
             stop_client();
             stop_server(); 
             if (g_pSvrThread && g_pSvrThread->joinable())
@@ -669,11 +666,7 @@ int main(int argc, char **argv)
 
         g_Timer.reset(new boost::asio::deadline_timer(std::ref(g_io_service)));
         g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_CHECK));
-        g_Timer->async_wait(rejoin);
-        SLEEP_SECONDS(1);
-        g_Timer2.reset(new boost::asio::deadline_timer(std::ref(g_io_service)));
-        g_Timer2->expires_from_now(boost::posix_time::seconds(TIMER_CHECK));
-        g_Timer2->async_wait(check_update);
+        g_Timer->async_wait(timer_check);
 
         if (FLAGS_service) {
             g_pSvrThread.reset(new std::thread([]{
