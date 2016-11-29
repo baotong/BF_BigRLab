@@ -385,7 +385,7 @@ void start_rpc_service()
 static
 void rejoin(const boost::system::error_code &ec)
 {
-    DLOG(INFO) << "rejoin()";
+    // DLOG(INFO) << "rejoin()";
 
     int waitTime = TIMER_CHECK;
 
@@ -597,7 +597,7 @@ void check_update(const boost::system::error_code &ec)
 {
     using namespace std;
 
-    DLOG(INFO) << "check_update()";
+    // DLOG(INFO) << "check_update()";
 
     if (!g_bLoginSuccess)
         return;
@@ -605,7 +605,7 @@ void check_update(const boost::system::error_code &ec)
     bool    hasUpdate = false;
 
     for (auto& name : g_setArgFiles) {
-        DLOG(INFO) << "name = " << name;
+        // DLOG(INFO) << "name = " << name;
         string updateName = name + ".update";
         if (boost::filesystem::exists(updateName)) {
             LOG(INFO) << "Detected update for " << name;
@@ -622,7 +622,17 @@ void check_update(const boost::system::error_code &ec)
         stop_server();
         if (g_pSvrThread && g_pSvrThread->joinable())
             g_pSvrThread->join();
-        g_pSvrThread.reset(new std::thread(do_service_routine));
+        g_JiebaPool.clear();
+        g_arrstrLabel.clear();
+        g_arrfScore.clear();
+        g_pSvrThread.reset(new std::thread([]{
+            try {
+                do_service_routine();
+            } catch (const std::exception &ex) {
+                LOG(ERROR) << "Start service fail! " << ex.what();
+                std::raise(SIGTERM);
+            } // try             
+        }));
     } // if
 
     g_Timer2->expires_from_now(boost::posix_time::seconds(TIMER_CHECK));
@@ -660,12 +670,20 @@ int main(int argc, char **argv)
         g_Timer.reset(new boost::asio::deadline_timer(std::ref(g_io_service)));
         g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_CHECK));
         g_Timer->async_wait(rejoin);
+        SLEEP_SECONDS(1);
         g_Timer2.reset(new boost::asio::deadline_timer(std::ref(g_io_service)));
         g_Timer2->expires_from_now(boost::posix_time::seconds(TIMER_CHECK));
         g_Timer2->async_wait(check_update);
 
         if (FLAGS_service) {
-            g_pSvrThread.reset(new std::thread(do_service_routine));
+            g_pSvrThread.reset(new std::thread([]{
+                try {
+                    do_service_routine();
+                } catch (const std::exception &ex) {
+                    LOG(ERROR) << "Start service fail! " << ex.what();
+                    std::raise(SIGTERM);
+                } // try             
+            }));
         } else {
             do_standalone_routine();
         } // if
