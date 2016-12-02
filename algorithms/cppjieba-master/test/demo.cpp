@@ -11,15 +11,17 @@
 #include "AlgMgrService.h"
 #include "ArticleServiceHandler.h"
 #include <cstdio>
+#include <thread>
 #include <boost/asio.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/filesystem.hpp>
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 
 #define SERVICE_LIB_NAME        "article"
 
-#define TIMER_REJOIN            15          // 15s
+#define TIMER_CHECK            15          // 15s
 
 using namespace BigRLab;
 
@@ -62,6 +64,8 @@ Article2Vector::pointer                 g_pVecConverter;
 boost::shared_ptr<AnnDbType>            g_pAnnDB;
 std::vector<std::string>                g_arrstrLabel;
 std::vector<double>                     g_arrfScore;
+std::set<std::string>                   g_setArgFiles;
+std::unique_ptr<std::thread>            g_pSvrThread;
 
 namespace {
 
@@ -249,7 +253,8 @@ private:
 
 } // namespace
 
-SharedQueue<Jieba::pointer>      g_JiebaPool;
+// SharedQueue<Jieba::pointer>      g_JiebaPool;
+Jieba::pointer       g_pJieba;
 
 static bool                                                g_bLoginSuccess = false;
 static std::unique_ptr< boost::asio::deadline_timer >      g_Timer;
@@ -309,6 +314,7 @@ static
 void stop_client()
 {
     if (g_pAlgMgrClient) {
+        g_bLoginSuccess = false;
         (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
         g_pAlgMgrClient->stop();
     } // if
@@ -400,12 +406,11 @@ void start_rpc_service()
     } // try
 }
 
-static
-void rejoin(const boost::system::error_code &ec)
-{
-    // DLOG(INFO) << "rejoin timer called";
 
-    int waitTime = TIMER_REJOIN;
+static
+void rejoin()
+{
+    DLOG(INFO) << "rejoin()";
 
     if (g_bLoginSuccess) {
         try {
@@ -416,12 +421,8 @@ void rejoin(const boost::system::error_code &ec)
             LOG(ERROR) << "Connection with apiserver lost, re-connecting...";
             g_pAlgMgrClient.reset();
             g_pAlgMgrClient = boost::make_shared< AlgMgrClient >(g_strAlgMgrAddr, g_nAlgMgrPort);
-            waitTime = 5;
         } // try
     } // if
-
-    g_Timer->expires_from_now(boost::posix_time::seconds(waitTime));
-    g_Timer->async_wait(rejoin);
 }
 
 static
@@ -438,12 +439,20 @@ void service_init()
     // LOG(INFO) << "FLAGS_n_jieba_inst = " << FLAGS_n_jieba_inst;
 
     cout << "Creating jieba instances..." << endl;
-    for (int i = 0; i < FLAGS_n_jieba_inst; ++i) {
-        auto pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, 
-                FLAGS_user_dict, FLAGS_idf, FLAGS_stop_words);
-        pJieba->setFilter( FLAGS_filter );
-        g_JiebaPool.push(pJieba);
-    } // for
+    g_pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, 
+            FLAGS_user_dict, FLAGS_idf, FLAGS_stop_words);
+    g_pJieba->setFilter( FLAGS_filter );
+    g_setArgFiles.insert(FLAGS_dict);
+    g_setArgFiles.insert(FLAGS_hmm);
+    g_setArgFiles.insert(FLAGS_user_dict);
+    g_setArgFiles.insert(FLAGS_idf);
+    g_setArgFiles.insert(FLAGS_stop_words);
+    // for (int i = 0; i < FLAGS_n_jieba_inst; ++i) {
+        // auto pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, 
+                // FLAGS_user_dict, FLAGS_idf, FLAGS_stop_words);
+        // pJieba->setFilter( FLAGS_filter );
+        // g_JiebaPool.push(pJieba);
+    // } // for
 
     cout << "Creating article to vector converter..." << endl;
 
@@ -467,6 +476,7 @@ void service_init()
         LOG(INFO) << "Detected nClasses = " << nClasses << " from file " << FLAGS_vecdict;
 
         g_pVecConverter = boost::make_shared<Article2VectorByWordVec>( nClasses, FLAGS_vecdict.c_str() );
+        g_setArgFiles.insert(FLAGS_vecdict);
 
     } else if ("clusterid" == FLAGS_vec) {
         // get n_class
@@ -488,6 +498,7 @@ void service_init()
         LOG(INFO) << "Detected nClasses = " << nClasses << " from file " << FLAGS_vecdict;
 
         g_pVecConverter = boost::make_shared<Article2VectorByCluster>( nClasses, FLAGS_vecdict.c_str() );
+        g_setArgFiles.insert(FLAGS_vecdict);
         
     } else {
         THROW_RUNTIME_ERROR( FLAGS_vec << " is not a valid argument");
@@ -503,6 +514,7 @@ void service_init()
 
     g_pAnnDB.reset( new AnnDB<IdType, ValueType>((int)(g_pVecConverter->nClasses())) );
     g_pAnnDB->loadIndex( FLAGS_idx.c_str() );
+    g_setArgFiles.insert(FLAGS_idx);
     cout << "Totally " << g_pAnnDB->size() << " items loaded from annoy tree." << endl;
 
     if (!FLAGS_label.empty()) {
@@ -512,6 +524,7 @@ void service_init()
         g_arrstrLabel.reserve(g_pAnnDB->size());
         copy( istream_iterator<string>(ifs), istream_iterator<string>(), back_inserter(g_arrstrLabel) );
         // DLOG(INFO) << "g_arrstrLabel.size() = " << g_arrstrLabel.size();
+        g_setArgFiles.insert(FLAGS_label);
     } // if
 
     if (!FLAGS_score.empty()) {
@@ -521,6 +534,7 @@ void service_init()
         g_arrfScore.reserve(g_pAnnDB->size());
         copy( istream_iterator<double>(ifs), istream_iterator<double>(), back_inserter(g_arrfScore) );
         // DLOG(INFO) << "g_arrfScore.size() = " << g_arrfScore.size();
+        g_setArgFiles.insert(FLAGS_score);
     } // if
 }
 
@@ -567,6 +581,59 @@ void do_standalone_routine()
     return;
 }
 
+static
+void check_update()
+{
+    using namespace std;
+
+    DLOG(INFO) << "check_update()";
+
+    if (!g_bLoginSuccess)
+        return;
+
+    bool    hasUpdate = false;
+
+    for (auto& name : g_setArgFiles) {
+        DLOG(INFO) << "name = " << name;
+        string updateName = name + ".update";
+        if (boost::filesystem::exists(updateName)) {
+            LOG(INFO) << "Detected update for " << name;
+            try {
+                boost::filesystem::rename(updateName, name);
+                hasUpdate = true;
+            } catch (...) {}
+        } // if
+    } // for
+
+    if (hasUpdate) {
+        LOG(INFO) << "Restarting service for updating...";
+        stop_client();
+        stop_server();
+        if (g_pSvrThread && g_pSvrThread->joinable())
+            g_pSvrThread->join();
+        // g_JiebaPool.clear();
+        g_arrstrLabel.clear();
+        g_arrfScore.clear();
+        g_pSvrThread.reset(new std::thread([]{
+            try {
+                do_service_routine();
+            } catch (const std::exception &ex) {
+                LOG(ERROR) << "Start service fail! " << ex.what();
+                std::raise(SIGTERM);
+            } // try             
+        }));
+    } // if
+}
+
+
+static
+void timer_check(const boost::system::error_code &ec)
+{
+    rejoin();
+    check_update();
+    g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_CHECK));
+    g_Timer->async_wait(timer_check);
+}
 
 int main(int argc, char **argv)
 {
@@ -585,29 +652,37 @@ int main(int argc, char **argv)
         auto pIoServiceWork = boost::make_shared< boost::asio::io_service::work >(std::ref(g_io_service));
 
         boost::asio::signal_set signals(g_io_service, SIGINT, SIGTERM);
-        signals.async_wait( [](const boost::system::error_code& error, int signal) { 
+        signals.async_wait( [&](const boost::system::error_code& error, int signal) { 
             if (g_Timer)
                 g_Timer->cancel();
+            stop_client();
             stop_server(); 
+            if (g_pSvrThread && g_pSvrThread->joinable())
+                g_pSvrThread->join();
+            pIoServiceWork.reset();
+            g_io_service.stop();
         } );
 
         g_Timer.reset(new boost::asio::deadline_timer(std::ref(g_io_service)));
-        g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_REJOIN));
-        g_Timer->async_wait(rejoin);
+        g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_CHECK));
+        g_Timer->async_wait(timer_check);
 
         auto io_service_thr = boost::thread( [&]{ g_io_service.run(); } );
 
-        if (FLAGS_service)
-            do_service_routine();
-        else
+        if (FLAGS_service) {
+            g_pSvrThread.reset(new std::thread([]{
+                try {
+                    do_service_routine();
+                } catch (const std::exception &ex) {
+                    LOG(ERROR) << "Start service fail! " << ex.what();
+                    std::raise(SIGTERM);
+                } // try             
+            }));
+        } else {
             do_standalone_routine();
+        } // if
 
-        pIoServiceWork.reset();
-        g_io_service.stop();
-        if (io_service_thr.joinable())
-            io_service_thr.join();
-
-        stop_client();
+        g_io_service.run();
 
         cout << argv[0] << " done!" << endl;
 

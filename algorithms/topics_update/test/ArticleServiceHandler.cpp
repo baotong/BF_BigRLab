@@ -24,16 +24,16 @@ void ArticleServiceHandler::wordSegment(std::vector<std::string> & _return, cons
     if (sentence.empty())
         THROW_INVALID_REQUEST("Input sentence cannot be empty!");
 
-    Jieba::pointer pJieba;
-    if (!g_JiebaPool.timed_pop(pJieba, TIMEOUT))
-        THROW_INVALID_REQUEST("No available Jieba object!");
+    // Jieba::pointer pJieba;
+    // if (!g_JiebaPool.timed_pop(pJieba, TIMEOUT))
+        // THROW_INVALID_REQUEST("No available Jieba object!");
 
-    boost::shared_ptr<void> pCleanup((void*)0, [&](void*){
-        g_JiebaPool.push( pJieba );
-    });
+    // boost::shared_ptr<void> pCleanup((void*)0, [&](void*){
+        // g_JiebaPool.push( pJieba );
+    // });
 
     try {
-        pJieba->wordSegment(sentence, _return);
+        g_pJieba->wordSegment(sentence, _return);
     } catch (const std::exception &ex) {
         LOG(ERROR) << "Jieba wordSegment error: " << ex.what();
         THROW_INVALID_REQUEST("Jieba wordSegment error: " << ex.what());
@@ -49,17 +49,17 @@ void ArticleServiceHandler::keyword(std::vector<KeywordResult> & _return,
     if (k <= 0)
         THROW_INVALID_REQUEST("Invalid k value " << k);
 
-    Jieba::pointer pJieba;
-    if (!g_JiebaPool.timed_pop(pJieba, TIMEOUT))
-        THROW_INVALID_REQUEST("No available Jieba object!");
+    // Jieba::pointer pJieba;
+    // if (!g_JiebaPool.timed_pop(pJieba, TIMEOUT))
+        // THROW_INVALID_REQUEST("No available Jieba object!");
 
-    boost::shared_ptr<void> pCleanup((void*)0, [&](void*){
-        g_JiebaPool.push( pJieba );
-    });
+    // boost::shared_ptr<void> pCleanup((void*)0, [&](void*){
+        // g_JiebaPool.push( pJieba );
+    // });
 
     Jieba::KeywordResult result;
     try {
-        pJieba->keywordExtract(sentence, result, k);
+        g_pJieba->keywordExtract(sentence, result, k);
         _return.resize(result.size());
         for (std::size_t i = 0; i < result.size(); ++i) {
             _return[i].word.swap(result[i].word);

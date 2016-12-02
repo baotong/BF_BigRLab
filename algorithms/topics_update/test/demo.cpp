@@ -244,7 +244,8 @@ private:
 
 } // namespace
 
-SharedQueue<Jieba::pointer>      g_JiebaPool;
+// SharedQueue<Jieba::pointer>      g_JiebaPool;
+Jieba::pointer           g_pJieba;
 
 // NOTE!!! 一个定时器只执行一个函数
 static bool                                                g_bLoginSuccess = false;
@@ -413,12 +414,20 @@ void service_init()
     // LOG(INFO) << "FLAGS_n_jieba_inst = " << FLAGS_n_jieba_inst;
 
     cout << "Creating jieba instances..." << endl;
-    for (int i = 0; i < FLAGS_n_jieba_inst; ++i) {
-        auto pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, 
-                FLAGS_user_dict, FLAGS_idf, FLAGS_stop_words);
-        pJieba->setFilter( FLAGS_filter );
-        g_JiebaPool.push(pJieba);
-    } // for
+    g_pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, 
+            FLAGS_user_dict, FLAGS_idf, FLAGS_stop_words);
+    g_pJieba->setFilter( FLAGS_filter );
+    g_setArgFiles.insert(FLAGS_dict);
+    g_setArgFiles.insert(FLAGS_hmm);
+    g_setArgFiles.insert(FLAGS_user_dict);
+    g_setArgFiles.insert(FLAGS_idf);
+    g_setArgFiles.insert(FLAGS_stop_words);
+    // for (int i = 0; i < FLAGS_n_jieba_inst; ++i) {
+        // auto pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, 
+                // FLAGS_user_dict, FLAGS_idf, FLAGS_stop_words);
+        // pJieba->setFilter( FLAGS_filter );
+        // g_JiebaPool.push(pJieba);
+    // } // for
 
     cout << "Creating article to vector converter..." << endl;
 
@@ -615,7 +624,7 @@ void check_update()
         stop_server();
         if (g_pSvrThread && g_pSvrThread->joinable())
             g_pSvrThread->join();
-        g_JiebaPool.clear();
+        // g_JiebaPool.clear();
         g_arrstrLabel.clear();
         g_arrfScore.clear();
         g_pSvrThread.reset(new std::thread([]{

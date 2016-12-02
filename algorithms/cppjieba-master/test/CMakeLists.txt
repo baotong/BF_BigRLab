@@ -16,6 +16,6 @@ file(GLOB SRC demo.cpp Article2Vector.cpp ArticleServiceHandler.cpp ${CMAKE_CURR
 SET(CMAKE_CXX_FLAGS "-std=c++11 -pthread -O3 -g")
 
 ADD_EXECUTABLE(demo ${SRC})
-target_link_libraries(demo thriftnb thrift boost_chrono boost_thread boost_system event jsoncpp glog gflags)
+target_link_libraries(demo thriftnb thrift boost_chrono boost_thread boost_filesystem boost_system event jsoncpp glog gflags)
 # ADD_EXECUTABLE(load_test load_test.cpp)
 # ADD_SUBDIRECTORY(unittest)

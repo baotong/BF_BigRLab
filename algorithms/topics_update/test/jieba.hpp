@@ -95,7 +95,8 @@ protected:
     boost::shared_ptr<cppjieba::KeywordExtractor> m_pExtractor;
 };
 
-extern BigRLab::SharedQueue<Jieba::pointer>      g_JiebaPool;
+// extern BigRLab::SharedQueue<Jieba::pointer>      g_JiebaPool;
+extern Jieba::pointer           g_pJieba;
 
 #endif
 
