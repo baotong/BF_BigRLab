@@ -11,10 +11,11 @@
  * -vec clusterid -vecdict filename
  */
 #include <cstdio>
+#include <thread>
+#include <boost/filesystem.hpp>
 #include <boost/asio.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
-#include <thread>
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 #include "rpc_module.h"
@@ -23,7 +24,7 @@
 
 #define SERVICE_LIB_NAME        "tagging2"
 
-#define TIMER_REJOIN            15          // 15s
+#define TIMER_CHECK            15          // 15s
 
 using namespace BigRLab;
 
@@ -245,6 +246,8 @@ Jieba::pointer g_pJieba;
 
 static bool                                                g_bLoginSuccess = false;
 static std::unique_ptr< boost::asio::deadline_timer >      g_Timer;
+std::set<std::string>                   g_setArgFiles;
+std::unique_ptr<std::thread>            g_pSvrThread;
 
 
 namespace Test {
@@ -325,6 +328,7 @@ static
 void stop_client()
 {
     if (g_pAlgMgrClient) {
+        g_bLoginSuccess = false;
         (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
         g_pAlgMgrClient->stop();
     } // if
@@ -421,7 +425,7 @@ void rejoin(const boost::system::error_code &ec)
 {
     // DLOG(INFO) << "rejoin timer called";
 
-    int waitTime = TIMER_REJOIN;
+    int waitTime = TIMER_CHECK;
 
     if (g_bLoginSuccess) {
         try {
@@ -503,6 +507,7 @@ void service_init()
         LOG(INFO) << "Detected nClasses = " << nClasses << " from file " << FLAGS_vecdict;
 
         g_pVecConverter = boost::make_shared<Article2VectorByWordVec>( nClasses, FLAGS_vecdict.c_str() );
+        g_setArgFiles.insert(FLAGS_vecdict);
 
     } else if ("clusterid" == FLAGS_vec) {
         if (FLAGS_vecdict.empty()) {
@@ -532,6 +537,7 @@ void service_init()
         LOG(INFO) << "Detected nClasses = " << nClasses << " from file " << FLAGS_vecdict;
 
         g_pVecConverter = boost::make_shared<Article2VectorByCluster>( nClasses, FLAGS_vecdict.c_str() );
+        g_setArgFiles.insert(FLAGS_vecdict);
         
     } else if ("warplda" == FLAGS_vec) {
         if (FLAGS_warpldaModel.empty()) {
@@ -551,6 +557,8 @@ void service_init()
         } // if
 
         g_pVecConverter = boost::make_shared<Article2VectorByWarplda>(FLAGS_warpldaModel, FLAGS_warpldaVocab);
+        g_setArgFiles.insert(FLAGS_warpldaModel);
+        g_setArgFiles.insert(FLAGS_warpldaVocab);
         // DLOG(INFO) << "Detected " << g_pVecConverter->nClasses() << " classes.";
 
     } else {
@@ -569,28 +577,38 @@ void service_init()
     g_pJieba = boost::make_shared<Jieba>(FLAGS_dict, FLAGS_hmm, 
                 FLAGS_user_dict, FLAGS_idf, FLAGS_stop_words);
     g_pJieba->setFilter( FLAGS_filter );
+    g_setArgFiles.insert(FLAGS_dict);
+    g_setArgFiles.insert(FLAGS_hmm);
+    g_setArgFiles.insert(FLAGS_user_dict);
+    g_setArgFiles.insert(FLAGS_idf);
+    g_setArgFiles.insert(FLAGS_stop_words);
 
     cout << "Loading tagset..." << endl;
     load_tagset(FLAGS_tagset, g_TagSet);
+    g_setArgFiles.insert(FLAGS_tagset);
 
     cout << "Loading concur table..." << endl;
     g_pConcurTable.reset( new ConcurTable );
     g_pConcurTable->loadFromFile( FLAGS_concur, g_TagSet );
+    g_setArgFiles.insert(FLAGS_concur);
 
     cout << "Loading cluster model..." << endl;
     if (FLAGS_cluster_pred.empty()) {
         THROW_RUNTIME_ERROR("-cluster_pred not set!");
     } else if ("manual" == FLAGS_cluster_pred) {
         g_pClusterPredict = boost::make_shared<ClusterPredictManual>(FLAGS_cluster_model);
+        g_setArgFiles.insert(FLAGS_cluster_model);
     } else if ("knn" == FLAGS_cluster_pred) {
         THROW_RUNTIME_ERROR_IF(FLAGS_nfeatures <= 0, "Invalid -nfeatures arg!");
         g_pClusterPredict = boost::make_shared<ClusterPredictKnn>(FLAGS_cluster_idx, FLAGS_nfeatures);
+        g_setArgFiles.insert(FLAGS_cluster_idx);
     } else {
         THROW_RUNTIME_ERROR("Unknown -cluster_pred arg!");
     } // if
 
     cout << "Loading word cluster db..." << endl;
     g_pWordClusterDB = boost::make_shared<WordClusterDB>(FLAGS_word_cluster);
+    g_setArgFiles.insert(FLAGS_word_cluster);
 
     LOG(INFO) << "Totally " << g_TagSet.size() << " tags in tagset.";
     LOG(INFO) << "Totally " << g_pConcurTable->size() << " concur records loaded.";
@@ -637,7 +655,7 @@ int main(int argc, char **argv)
 
         g_Timer.reset(new boost::asio::deadline_timer(std::ref(g_io_service)));
 
-        g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_REJOIN));
+        g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_CHECK));
         g_Timer->async_wait(rejoin);
 
         auto io_service_thr = boost::thread( [&]{ g_io_service.run(); } );
