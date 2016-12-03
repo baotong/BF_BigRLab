@@ -420,12 +420,11 @@ void start_rpc_service()
     } // try
 }
 
-static
-void rejoin(const boost::system::error_code &ec)
-{
-    // DLOG(INFO) << "rejoin timer called";
 
-    int waitTime = TIMER_CHECK;
+static
+void rejoin()
+{
+    DLOG(INFO) << "rejoin()";
 
     if (g_bLoginSuccess) {
         try {
@@ -436,14 +435,9 @@ void rejoin(const boost::system::error_code &ec)
             LOG(ERROR) << "Connection with apiserver lost, re-connecting...";
             g_pAlgMgrClient.reset();
             g_pAlgMgrClient = boost::make_shared< AlgMgrClient >(g_strAlgMgrAddr, g_nAlgMgrPort);
-            waitTime = 5;
         } // try
     } // if
-
-    g_Timer->expires_from_now(boost::posix_time::seconds(waitTime));
-    g_Timer->async_wait(rejoin);
 }
-
 
 static
 void load_tagset(const std::string &filename, std::set<std::string> &tagSet)
@@ -628,6 +622,57 @@ void do_service_routine()
     start_rpc_service();
 }
 
+static
+void check_update()
+{
+    using namespace std;
+
+    DLOG(INFO) << "check_update()";
+
+    if (!g_bLoginSuccess)
+        return;
+
+    bool    hasUpdate = false;
+
+    for (auto& name : g_setArgFiles) {
+        DLOG(INFO) << "name = " << name;
+        string updateName = name + ".update";
+        if (boost::filesystem::exists(updateName)) {
+            LOG(INFO) << "Detected update for " << name;
+            try {
+                boost::filesystem::rename(updateName, name);
+                hasUpdate = true;
+            } catch (...) {}
+        } // if
+    } // for
+
+    if (hasUpdate) {
+        LOG(INFO) << "Restarting service for updating...";
+        stop_client();
+        stop_server();
+        if (g_pSvrThread && g_pSvrThread->joinable())
+            g_pSvrThread->join();
+        // g_JiebaPool.clear();
+        g_pSvrThread.reset(new std::thread([]{
+            try {
+                do_service_routine();
+            } catch (const std::exception &ex) {
+                LOG(ERROR) << "Start service fail! " << ex.what();
+                std::raise(SIGTERM);
+            } // try             
+        }));
+    } // if
+}
+
+static
+void timer_check(const boost::system::error_code &ec)
+{
+    rejoin();
+    check_update();
+    g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_CHECK));
+    g_Timer->async_wait(timer_check);
+}
+
 
 int main(int argc, char **argv)
 {
@@ -647,27 +692,30 @@ int main(int argc, char **argv)
         auto pIoServiceWork = boost::make_shared< boost::asio::io_service::work >(std::ref(g_io_service));
 
         boost::asio::signal_set signals(g_io_service, SIGINT, SIGTERM);
-        signals.async_wait( [](const boost::system::error_code& error, int signal) { 
-            if (g_Timer)
-                g_Timer->cancel();
+        signals.async_wait( [&](const boost::system::error_code& error, int signal) { 
+            if (g_Timer) g_Timer->cancel();
+            stop_client();
             stop_server(); 
+            if (g_pSvrThread && g_pSvrThread->joinable())
+                g_pSvrThread->join();
+            pIoServiceWork.reset();
+            g_io_service.stop();
         } );
 
         g_Timer.reset(new boost::asio::deadline_timer(std::ref(g_io_service)));
-
         g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_CHECK));
-        g_Timer->async_wait(rejoin);
+        g_Timer->async_wait(timer_check);
 
-        auto io_service_thr = boost::thread( [&]{ g_io_service.run(); } );
+        g_pSvrThread.reset(new std::thread([]{
+            try {
+                do_service_routine();
+            } catch (const std::exception &ex) {
+                LOG(ERROR) << "Start service fail! " << ex.what();
+                std::raise(SIGTERM);
+            } // try             
+        }));
 
-        do_service_routine();
-
-        pIoServiceWork.reset();
-        g_io_service.stop();
-        if (io_service_thr.joinable())
-            io_service_thr.join();
-
-        stop_client();
+        g_io_service.run();
 
         cout << argv[0] << " done!" << endl;
 
