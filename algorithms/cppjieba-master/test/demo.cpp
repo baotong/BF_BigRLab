@@ -4,6 +4,7 @@
  * ./demo -algname jieba -algmgr localhost:9001 -port 10080 -vec wordvec -vecdict data/weibo_500w.wordvec -idx data/weibo_1w.sumWordVec.annIdx
  * ./demo -algname jieba -algmgr localhost:9001 -port 10080 -vec wordvec -vecdict data/text_class.wordvec -idx data/text_class.annIdx -label data/text_class.index
  * ./demo -algname jieba -algmgr localhost:9001 -port 10080 -vec wordvec -vecdict data/text_class.wordvec -idx data/text_class.annIdx -score data/text_class.index
+ *
  */
 #include "jieba.hpp"
 #include "Article2Vector.h"
