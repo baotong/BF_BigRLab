@@ -26,12 +26,15 @@
 #include <sstream>
 #include <fstream>
 #include <iterator>
+#include <memory>
+#include <thread>
 #include <boost/asio.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/file_descriptor.hpp>
+#include <boost/filesystem.hpp>
 #include <glog/logging.h>
 #include "rpc_module.h"
 #include "common.hpp"
@@ -44,7 +47,7 @@
 
 #define SERVICE_LIB_NAME        "xgboost"
 
-#define TIMER_REJOIN            15          // 15s
+#define TIMER_CHECK            15          // 15s
 
 DEFINE_string(model, "", "Same as model_in of xgboost");
 DEFINE_string(model2, "", "Secondary model for GBDT and RNN");
@@ -204,6 +207,8 @@ static std::unique_ptr<CLIParam>        g_pCLIParam2;
 SharedQueue<XgBoostLearner::pointer>    g_LearnerPool;
 std::vector<uint32_t>                   g_arrMaxLeafId;
 std::vector<bool>                       g_arrTreeMark;
+std::set<std::string>                   g_setArgFiles;
+std::unique_ptr<std::thread>            g_pSvrThread;
 
 static std::unique_ptr< boost::asio::deadline_timer >      g_Timer;
 
@@ -218,6 +223,7 @@ static
 void stop_client()
 {
     if (g_pAlgMgrClient) {
+        g_bLoginSuccess = false;
         (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
         g_pAlgMgrClient->stop();
     } // if
@@ -410,7 +416,7 @@ void rejoin(const boost::system::error_code &ec)
 {
     // DLOG(INFO) << "rejoin timer called";
 
-    int waitTime = TIMER_REJOIN;
+    int waitTime = TIMER_CHECK;
 
     if (g_bLoginSuccess) {
         try {
@@ -490,7 +496,7 @@ int main(int argc, char **argv)
         } );
 
         g_Timer.reset(new boost::asio::deadline_timer(std::ref(io_service)));
-        g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_REJOIN));
+        g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_CHECK));
         g_Timer->async_wait(rejoin);
 
         auto io_service_thr = boost::thread( [&]{ io_service.run(); } );

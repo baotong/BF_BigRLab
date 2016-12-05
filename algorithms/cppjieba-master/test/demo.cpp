@@ -644,10 +644,10 @@ int main(int argc, char **argv)
     gflags::ParseCommandLineFlags(&argc, &argv, true);
 
     try {
-        Test::test();
+        // Test::test();
         // Test::test1();
         // Test::test2();
-        return 0;
+        // return 0;
         
         // install signal handler
         auto pIoServiceWork = boost::make_shared< boost::asio::io_service::work >(std::ref(g_io_service));
