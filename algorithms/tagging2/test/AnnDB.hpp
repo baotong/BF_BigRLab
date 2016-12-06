@@ -98,8 +98,8 @@ public:
     { return m_AnnIndex.get_n_items(); }
 
 protected:
-    AnnIndex            m_AnnIndex;
     int                 m_nFields;
+    AnnIndex            m_AnnIndex;
 };
 
 

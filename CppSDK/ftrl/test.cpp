@@ -1,5 +1,5 @@
 /*
- * c++ -o test test.cpp -lcurl -ljsoncpp -lglog -lgflags -std=c++11 -pthread -g
+ * c++ -o test test.cpp -lcurl -ljsoncpp -lglog -lgflags -std=c++11 -pthread -O3 -Wall -g
  * cat agaricus.txt.test | ./test -server http://localhost:9000/ftrl -req predict
  * cat agaricus.txt.test | ./test -server http://localhost:9000/ftrl -req update
  */
@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <iterator>
 #include <memory>
+#include <chrono>
 #include <algorithm>
 #include <glog/logging.h>
 #include <json/json.h>
@@ -52,11 +53,15 @@ void test_predict(istream *inFile)
         // DLOG(INFO) << "value = " << value << " data = " << data;
         genReqStr(id, data, reqstr);
         // DLOG(INFO) << "reqstr = " << reqstr;
+        auto tp1 = std::chrono::high_resolution_clock::now();
         ret = pSrv->doRequest(reqstr);
-        if (ret)
+        auto tp2 = std::chrono::high_resolution_clock::now();
+        if (ret) {
             cerr << "Request error: " << pSrv->errmsg() << endl;
-        else
+        } else {
+            DLOG(INFO) << std::chrono::duration_cast<std::chrono::milliseconds>(tp2 - tp1).count();
             cout << boost::trim_copy(pSrv->respString()) << endl;
+        } // if
         ++id;
     } // while
 }
