@@ -1,7 +1,6 @@
 /*
  * c++ -o test stress_test.cpp -lcurl -ljsoncpp -lglog -lgflags -lboost_thread -lboost_system -std=c++11 -pthread -O3 -Wall -g
- * cat agaricus.txt.test | ./test -server http://localhost:9000/ftrl -req predict
- * cat agaricus.txt.test | ./test -server http://localhost:9000/ftrl -req update
+ * cat agaricus.txt.test | ./test -server http://localhost:9000/ftrl -thread 16
  */
 #include "../service_cli.h"
 #include <iostream>
