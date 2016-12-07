@@ -74,7 +74,7 @@ void thread_routine()
 }
 
 static
-void thread_routine1()  // new conn each test
+void thread_routine1()  // new cli each test
 {
     auto genReqStr = [](size_t id, const string &data, string &out) {
         out.clear();
@@ -175,7 +175,7 @@ int main( int argc, char **argv )
         boost::thread_group         thrgroup;
         g_bRunning = true;
         for (int i = 0; i < FLAGS_thread; ++i)
-            thrgroup.create_thread(thread_routine1);
+            thrgroup.create_thread(thread_routine);
 
         io_service.run();
 
