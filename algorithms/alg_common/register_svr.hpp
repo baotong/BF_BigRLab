@@ -3,7 +3,7 @@
 
 typedef BigRLab::ThriftClient< BigRLab::AlgMgrServiceClient >                AlgMgrClient;
 
-static bool  g_bLoginSuccess = false;
+static volatile bool  g_bLoginSuccess = false;
 
 static
 void register_svr( AlgMgrClient *pClient, const std::string &algname, BigRLab::AlgSvrInfo *pSvrInfo )

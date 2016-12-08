@@ -236,7 +236,7 @@ private:
 Jieba::pointer                  g_pJieba;
 std::unique_ptr<NGram_Model>    g_pLMmodel;
 
-static bool                                                g_bLoginSuccess = false;
+static volatile bool                                       g_bLoginSuccess = false;
 static std::unique_ptr< boost::asio::deadline_timer >      g_Timer;
 
 

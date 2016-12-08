@@ -19,9 +19,6 @@
 #include <boost/thread.hpp>
 #include <boost/algorithm/string.hpp>
 
-#define THIS_THREAD_ID        std::this_thread::get_id()
-#define SLEEP_SECONDS(x)      std::this_thread::sleep_for(std::chrono::seconds(x))
-#define SLEEP_MILLISECONDS(x) std::this_thread::sleep_for(std::chrono::milliseconds(x))
 
 DEFINE_string(server, "", "APIServer addr in format \"http://ip:port\"");
 DEFINE_int32(thread, 0, "Number of thread.");
@@ -30,7 +27,7 @@ static std::vector<std::string>     g_arrData;
 static std::atomic_size_t           g_nID(0);
 static std::atomic_size_t           g_nFinCnt(0);
 static std::size_t                  g_nLastFinCnt = 0;
-static bool                         g_bRunning = false;
+static volatile bool                g_bRunning = false;
 static std::unique_ptr< boost::asio::deadline_timer >      g_Timer;
 
 using namespace std;
@@ -115,8 +112,10 @@ void on_timer(const boost::system::error_code &ec)
     LOG(WARNING) << (finCnt - g_nLastFinCnt) << " tests done in last second.";
     g_nLastFinCnt = finCnt;
 
-    g_Timer->expires_from_now(boost::posix_time::seconds(1));
-    g_Timer->async_wait(on_timer);
+    if (g_bRunning) {
+        g_Timer->expires_from_now(boost::posix_time::seconds(1));
+        g_Timer->async_wait(on_timer);
+    } // if
 }
 
 

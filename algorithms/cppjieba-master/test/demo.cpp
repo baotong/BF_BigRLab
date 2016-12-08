@@ -257,7 +257,7 @@ private:
 // SharedQueue<Jieba::pointer>      g_JiebaPool;
 Jieba::pointer       g_pJieba;
 
-static bool                                                g_bLoginSuccess = false;
+static volatile bool                                       g_bLoginSuccess = false;
 static std::unique_ptr< boost::asio::deadline_timer >      g_Timer;
 
 
