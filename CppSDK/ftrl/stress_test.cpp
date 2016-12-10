@@ -25,8 +25,8 @@ DEFINE_int32(thread, 0, "Number of thread.");
 
 static std::vector<std::string>     g_arrData;
 static std::atomic_size_t           g_nID(0);
-static std::atomic_size_t           g_nFinCnt(0);
-static std::size_t                  g_nLastFinCnt = 0;
+static volatile std::atomic_size_t  g_nFinCnt(0);
+static volatile std::size_t         g_nLastFinCnt = 0;
 static volatile bool                g_bRunning = false;
 static std::unique_ptr< boost::asio::deadline_timer >      g_Timer;
 
