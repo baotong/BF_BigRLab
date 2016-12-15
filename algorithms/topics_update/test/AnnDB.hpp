@@ -96,8 +96,8 @@ public:
     { return m_AnnIndex.get_n_items(); }
 
 protected:
-    WordAnnIndex        m_AnnIndex;
     int                 m_nFields;
+    WordAnnIndex        m_AnnIndex;
 };
 
 

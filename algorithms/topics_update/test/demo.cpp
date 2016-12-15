@@ -385,7 +385,7 @@ void start_rpc_service()
 static
 void rejoin()
 {
-    DLOG(INFO) << "rejoin()";
+    // DLOG(INFO) << "rejoin()";
 
     if (g_bLoginSuccess) {
         try {
@@ -537,7 +537,7 @@ void service_init()
         g_arrstrLabel.reserve(g_pAnnDB->size());
         copy( istream_iterator<string>(ifs), istream_iterator<string>(), back_inserter(g_arrstrLabel) );
         g_setArgFiles.insert(FLAGS_label);
-        DLOG(INFO) << "g_arrstrLabel.size() = " << g_arrstrLabel.size();
+        // DLOG(INFO) << "g_arrstrLabel.size() = " << g_arrstrLabel.size();
     } // if
 
     if (!FLAGS_score.empty()) {
@@ -547,7 +547,7 @@ void service_init()
         g_arrfScore.reserve(g_pAnnDB->size());
         copy( istream_iterator<double>(ifs), istream_iterator<double>(), back_inserter(g_arrfScore) );
         g_setArgFiles.insert(FLAGS_score);
-        DLOG(INFO) << "g_arrfScore.size() = " << g_arrfScore.size();
+        // DLOG(INFO) << "g_arrfScore.size() = " << g_arrfScore.size();
     } // if
 }
 
@@ -599,7 +599,7 @@ void check_update()
 {
     using namespace std;
 
-    DLOG(INFO) << "check_update()";
+    // DLOG(INFO) << "check_update()";
 
     if (!g_bLoginSuccess)
         return;
@@ -607,7 +607,7 @@ void check_update()
     bool    hasUpdate = false;
 
     for (auto& name : g_setArgFiles) {
-        DLOG(INFO) << "name = " << name;
+        // DLOG(INFO) << "name = " << name;
         string updateName = name + ".update";
         if (boost::filesystem::exists(updateName)) {
             LOG(INFO) << "Detected update for " << name;

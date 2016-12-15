@@ -304,21 +304,26 @@ void test2()
 } // namespace Test
 
 
+// NOTE!!! 下面这两个函数因为要在信号处理函数中调用，所以要自己消化异常。
 static
 void stop_server()
-{
+try {
     if (g_pThisServer)
         g_pThisServer->stop();
+} catch (const std::exception &ex) {
+    LOG(ERROR) << "stop_server error: " << ex.what();
 }
 
 static
 void stop_client()
-{
+try {
     if (g_pAlgMgrClient) {
         g_bLoginSuccess = false;
         (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
         g_pAlgMgrClient->stop();
     } // if
+} catch (const std::exception &ex) {
+    LOG(ERROR) << "stop_client error: " << ex.what();
 }
 
 static
@@ -411,7 +416,7 @@ void start_rpc_service()
 static
 void rejoin()
 {
-    DLOG(INFO) << "rejoin()";
+    // DLOG(INFO) << "rejoin()";
 
     if (g_bLoginSuccess) {
         try {
@@ -587,7 +592,7 @@ void check_update()
 {
     using namespace std;
 
-    DLOG(INFO) << "check_update()";
+    // DLOG(INFO) << "check_update()";
 
     if (!g_bLoginSuccess)
         return;
@@ -595,7 +600,7 @@ void check_update()
     bool    hasUpdate = false;
 
     for (auto& name : g_setArgFiles) {
-        DLOG(INFO) << "name = " << name;
+        // DLOG(INFO) << "name = " << name;
         string updateName = name + ".update";
         if (boost::filesystem::exists(updateName)) {
             LOG(INFO) << "Detected update for " << name;
@@ -653,6 +658,8 @@ int main(int argc, char **argv)
         auto pIoServiceWork = boost::make_shared< boost::asio::io_service::work >(std::ref(g_io_service));
 
         boost::asio::signal_set signals(g_io_service, SIGINT, SIGTERM);
+
+        // NOTE!!! 信号处理函数中不能抛出异常，要自己消化
         signals.async_wait( [&](const boost::system::error_code& error, int signal) { 
             if (g_Timer)
                 g_Timer->cancel();
