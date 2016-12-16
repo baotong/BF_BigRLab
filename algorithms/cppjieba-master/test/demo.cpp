@@ -304,26 +304,21 @@ void test2()
 } // namespace Test
 
 
-// NOTE!!! 下面这两个函数因为要在信号处理函数中调用，所以要自己消化异常。
 static
 void stop_server()
-try {
+{
     if (g_pThisServer)
         g_pThisServer->stop();
-} catch (const std::exception &ex) {
-    LOG(ERROR) << "stop_server error: " << ex.what();
 }
 
 static
 void stop_client()
-try {
+{
     if (g_pAlgMgrClient) {
         g_bLoginSuccess = false;
         (*g_pAlgMgrClient)()->rmSvr(FLAGS_algname, *g_pSvrInfo);
         g_pAlgMgrClient->stop();
     } // if
-} catch (const std::exception &ex) {
-    LOG(ERROR) << "stop_client error: " << ex.what();
 }
 
 static
@@ -613,8 +608,8 @@ void check_update()
 
     if (hasUpdate) {
         LOG(INFO) << "Restarting service for updating...";
-        stop_client();
-        stop_server();
+        try { stop_client(); } catch (...) {} 
+        try { stop_server(); } catch (...) {} 
         if (g_pSvrThread && g_pSvrThread->joinable())
             g_pSvrThread->join();
         // g_JiebaPool.clear();
@@ -661,10 +656,9 @@ int main(int argc, char **argv)
 
         // NOTE!!! 信号处理函数中不能抛出异常，要自己消化
         signals.async_wait( [&](const boost::system::error_code& error, int signal) { 
-            if (g_Timer)
-                g_Timer->cancel();
-            stop_client();
-            stop_server(); 
+            if (g_Timer) g_Timer->cancel();
+            try { stop_client(); } catch (...) {} 
+            try { stop_server(); } catch (...) {} 
             if (g_pSvrThread && g_pSvrThread->joinable())
                 g_pSvrThread->join();
             pIoServiceWork.reset();
