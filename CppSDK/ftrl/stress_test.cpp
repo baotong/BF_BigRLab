@@ -25,9 +25,9 @@ DEFINE_int32(thread, 0, "Number of thread.");
 
 static std::vector<std::string>     g_arrData;
 static std::atomic_size_t           g_nID(0);
-static volatile std::atomic_size_t  g_nFinCnt(0);
-static volatile std::size_t         g_nLastFinCnt = 0;
-static volatile bool                g_bRunning = false;
+static std::atomic_size_t           g_nFinCnt(0);
+static std::size_t                  g_nLastFinCnt = 0;
+static std::atomic_bool             g_bRunning(false);
 static std::unique_ptr< boost::asio::deadline_timer >      g_Timer;
 
 using namespace std;
@@ -69,41 +69,6 @@ void thread_routine()
     } // while
 }
 
-static
-void thread_routine1()  // new cli each test
-{
-    auto genReqStr = [](size_t id, const string &data, string &out) {
-        out.clear();
-        Json::Value     reqJson;
-        reqJson["req"] = "predict";
-        reqJson["id"] = (Json::UInt64)id;
-        reqJson["data"] = data;
-        Json::FastWriter writer;  
-        out = writer.write(reqJson);
-    };
-
-    string reqstr;
-    int ret = 0;
-    while (g_bRunning) {
-        auto pSrv = std::make_shared<ServiceCli>(FLAGS_server);
-        pSrv->setHeader( "Content-Type: BigRLab_Request" );
-
-        size_t id = g_nID++;
-        string& data = g_arrData[id % g_arrData.size()];
-        genReqStr(id, data, reqstr);
-
-        auto tp1 = std::chrono::high_resolution_clock::now();
-        ret = pSrv->doRequest(reqstr);
-        auto tp2 = std::chrono::high_resolution_clock::now();
-        ++g_nFinCnt;
-
-        if (ret) {
-            LOG(ERROR) << "Request error: " << pSrv->errmsg();
-        } else {
-            LOG(INFO) << std::chrono::duration_cast<std::chrono::microseconds>(tp2 - tp1).count();
-        } // if
-    } // while
-}
 
 static
 void on_timer(const boost::system::error_code &ec)

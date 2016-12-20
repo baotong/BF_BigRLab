@@ -181,13 +181,6 @@ void send_response(const ServerType::connection_ptr &conn,
         send_response(conn, ServerType::connection::ok, __response_stream.str()); \
     } while (0)
 
-// #define RESPONSE(conn, status, args) \
-    // do { \
-        // std::stringstream __response_stream; \
-        // __response_stream << args << std::endl << std::flush; \
-        // send_response(conn, status, __response_stream.str()); \
-    // } while (0)
-
 inline
 void response_json_string(const ServerType::connection_ptr &conn,
                     ServerType::connection::status_t connStatus,

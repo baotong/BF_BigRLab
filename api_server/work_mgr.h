@@ -71,9 +71,9 @@ private:
     }
 
 private:
-    SharedQueue<WorkItemBasePtr>    m_WorkQueue;
     boost::thread_group     m_Thrgrp;
     std::size_t             m_nWorkThreads;
+    SharedQueue<WorkItemBasePtr>    m_WorkQueue;
 };
 
 extern boost::shared_ptr< WorkManager >   g_pWorkMgr;

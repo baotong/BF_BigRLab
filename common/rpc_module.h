@@ -11,6 +11,7 @@
 #include <boost/make_shared.hpp>
 #include <boost/thread.hpp>
 #include <boost/chrono.hpp>
+#include <atomic>
 
 namespace BigRLab {
 
@@ -84,7 +85,7 @@ private:
     uint16_t                            m_nPort;
     uint32_t                            m_nIoThread;
     uint32_t                            m_nWorkThread;
-    bool                                m_bRunning;
+    std::atomic_bool                    m_bRunning;
     boost::shared_ptr<ThreadManager>    m_pThrMgr;
     boost::shared_ptr<ServerType>       m_pServer;
 };
@@ -157,7 +158,7 @@ public:
 private:
     std::string                         m_strSvrAddr;
     uint16_t                            m_nSvrPort;
-    bool                                m_bRunning;
+    std::atomic_bool                    m_bRunning;
     boost::shared_ptr<Transport>        m_pTransport;
     boost::shared_ptr<ClientType>       m_pClient;
 };

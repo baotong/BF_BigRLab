@@ -1,9 +1,11 @@
 #ifndef _REGISTER_SVR_HPP_
 #define _REGISTER_SVR_HPP_
 
+#include <atomic>
+
 typedef BigRLab::ThriftClient< BigRLab::AlgMgrServiceClient >                AlgMgrClient;
 
-static volatile bool  g_bLoginSuccess = false;
+static std::atomic_bool     g_bLoginSuccess(false);
 
 static
 void register_svr( AlgMgrClient *pClient, const std::string &algname, BigRLab::AlgSvrInfo *pSvrInfo )
