@@ -1,5 +1,6 @@
 /*
  * thrift --gen cpp:templates,pure_enums,moveable_types,no_default_operators alg_mgr.thrift
+ * thrift --gen py:new_style,utf8strings alg_mgr.thrift
  */
 
 namespace * BigRLab
