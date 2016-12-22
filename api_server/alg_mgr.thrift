@@ -13,10 +13,12 @@ enum ErrCodeType {
     INTERNAL_FAIL
 }
 
-exception InvalidRequest {
-    1: string desc,
-    2: ErrCodeType errCode
-}
+/*
+ * exception InvalidRequest {
+ *     1: string desc,
+ *     2: ErrCodeType errCode
+ * }
+ */
 
 struct AlgSvrInfo {
     1: string addr,
