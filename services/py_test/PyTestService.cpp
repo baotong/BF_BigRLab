@@ -103,7 +103,9 @@ struct PyTestTask : BigRLab::WorkItemBase {
 
             try {
                 vector<PyTest::Result> result;
+                DLOG(INFO) << "Doing RPC request...";
                 pClient->client()->segment( result, text );
+                DLOG(INFO) << "End RPC request...";
                 done = true;
                 idleClients->putBack( pClient );
 

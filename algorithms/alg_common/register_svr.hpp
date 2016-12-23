@@ -2,6 +2,8 @@
 #define _REGISTER_SVR_HPP_
 
 #include <atomic>
+#include <csignal>
+#include "AlgMgrService.h"
 
 typedef BigRLab::ThriftClient< BigRLab::AlgMgrServiceClient >                AlgMgrClient;
 

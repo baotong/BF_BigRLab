@@ -16,8 +16,8 @@ from BigRLab.constants import *
 
 # RegisterSvr.py algmgrIp algmgrPort localIp localPort libname servicename nthreads
 if __name__ == '__main__':
-    for arg in sys.argv:
-        print arg
+    #  for arg in sys.argv:
+        #  print arg
 
     algmgrIp = sys.argv[1]
     algmgrPort = int(sys.argv[2])

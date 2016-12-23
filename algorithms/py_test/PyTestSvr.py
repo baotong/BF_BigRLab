@@ -67,16 +67,22 @@ class RunSvrThread(threading.Thread):
         global server
         server.serve()
 
-#  class RegisterSvrThread(threading.Thread):
-    #  def run(self):
-        #  global algmgrCli
-        #  global serviceName
+class RegisterSvrThread(threading.Thread):
+    def run(self):
+        global algmgrIp
+        global algmgrPort
+        global localIp
+        global localPort
+        global LIB_NAME
+        global serviceName
+        global nthreads
         #  global algSvrInfo
-        #  algmgrCli.rmSvr(serviceName, algSvrInfo)
-        #  ret = algmgrCli.addSvr(serviceName, algSvrInfo)
-        #  if ret != 0:
-            #  raise Exception("Register server fail! retval = %d" % ret)
-        #  print "Register server success!"
+        cmd = "python RegisterSvr.py %s %d %s %d %s %s %d" % (algmgrIp, algmgrPort, localIp, localPort, LIB_NAME, serviceName, nthreads)
+        ret = os.system(cmd)
+        if ret != 0:
+            print "Register server fail ret = %d" % ret
+            sys.exit(-1)
+        print "Register server success!"
 
 
 def get_local_ip():
@@ -124,18 +130,6 @@ def parse_args():
     algmgrPort = int(algmgr[1])
 
 
-#  def start_algmgr_client():
-    #  global algmgrIp
-    #  global algmgrPort
-    #  global algmgrCli
-    #  global algmgrTransport
-    #  algmgrTransport = TSocket.TSocket(algmgrIp, algmgrPort)
-    #  algmgrTransport = TTransport.TFramedTransport(algmgrTransport)
-    #  algmgrProtocol = TBinaryProtocol.TBinaryProtocol(algmgrTransport)
-    #  algmgrCli = AlgMgrService.Client(algmgrProtocol)
-    #  algmgrTransport.open()
-
-
 if __name__ == '__main__':
     for arg in sys.argv[1:]:
         argKV = arg.split(":", 1)
@@ -149,75 +143,49 @@ if __name__ == '__main__':
     #  signal.signal(signal.SIGINT, sig_handler)
 
     get_local_ip()
-    #  print "local ip is %s" % localIp
+    print "local ip is %s" % localIp
 
-    algSvrInfo = AlgSvrInfo()
-    algSvrInfo.addr = localIp
-    algSvrInfo.port = localPort
-    algSvrInfo.maxConcurrency = nthreads
-    algSvrInfo.serviceName = LIB_NAME
-
-    print algSvrInfo
-
-    #  start_algmgr_client()
-    #  print "connect to algmgr success."
+    #  pid = os.fork()
+    #  if pid == 0:
+        #  cmd = "python RegisterSvr.py %s %d %s %d %s %s %d" % (algmgrIp, algmgrPort, localIp, localPort, LIB_NAME, serviceName, nthreads)
+        #  ret = os.system(cmd)
+        #  if ret != 0:
+            #  print "Register server fail ret = %d" % ret
+            #  sys.exit(-1)
+        #  print "Register server success!"
 
     handler = PyTestHandler()
     processor = PyService.Processor(handler)
-    transport = TSocket.TServerSocket(port = 10080)
+    transport = TSocket.TServerSocket(port = localPort)
     tfactory = TTransport.TFramedTransportFactory()
     #  tfactory = TTransport.TBufferedTransportFactory()
     pfactory = TBinaryProtocol.TBinaryProtocolFactory()
 
-    # 最后一个参数是线程数量，不分工作io
     #  server = TNonblockingServer.TNonblockingServer(processor, transport, tfactory, pfactory, nthreads)
     #  server = TServer.TSimpleServer(processor, transport, tfactory, pfactory)
     server = TProcessPoolServer.TProcessPoolServer(processor, transport, tfactory, pfactory)
+    server.setNumWorkers(nthreads)
 
     #  logging.info("Server starts...")
     #  server.serve()
 
-    # start server
-    print "Starting server..."
-    server.serve()
-    #  svrThr = RunSvrThread()
-    #  svrThr.start()
-
-    #  time.sleep(3);
-
-    # register svr
-    #  algmgrTransport = TSocket.TSocket(algmgrIp, algmgrPort)
-    #  algmgrTransport = TTransport.TFramedTransport(algmgrTransport)
-    #  algmgrProtocol = TBinaryProtocol.TBinaryProtocol(algmgrTransport)
-    #  algmgrCli = AlgMgrService.Client(algmgrProtocol)
-    #  algmgrTransport.open()
-    #  algmgrCli.rmSvr(serviceName, algSvrInfo)
-    #  ret = algmgrCli.addSvr(serviceName, algSvrInfo)
-    #  if ret != 0:
-        #  raise Exception("Register server fail! retval = %d" % ret)
-    #  print "Register server success!"
     #  registerSvr = RegisterSvrThread()
     #  registerSvr.start()
-    #  print "AlgSvr %s running..." % serviceName
+
+    # start server
+    print "Starting server..."
     #  server.serve()
-    #  algmgrCli.rmSvr(serviceName, algSvrInfo)
-    #  ret = algmgrCli.addSvr(serviceName, algSvrInfo)
-    #  if ret != 0:
-        #  raise Exception("Register server fail! retval = %d" % ret)
-    #  print "Register server success!"
-    #  svrThr.join()
-    sys.exit(0)
-
-
-    #  while 1:
-        #  cmd = sys.stdin.readline()
-        #  cmd = cmd.strip()
-        #  if cmd == "quit":
-            #  server.stop()
-            #  break
-
-    #  algmgrCli.rmSvr(serviceName, algSvrInfo)
-    #  svrThr.join();
-    #  print "%s done!" % sys.argv[0]
+    svrThr = RunSvrThread()
+    svrThr.start()
+    # register
+    cmd = "./RegisterSvr.bin %s %d %s %d %s %s %d" % (algmgrIp, algmgrPort, localIp, localPort, LIB_NAME, serviceName, nthreads)
+    #  ret = os.system("sleep 3; ls")
+    ret = os.system(cmd)
+    if ret != 0:
+        print "Register server fail ret = %d" % ret
+        sys.exit(-1)
+    print "Register server success!"
+    # end register
+    svrThr.join()
 
 
