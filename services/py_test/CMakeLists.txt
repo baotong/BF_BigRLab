@@ -15,7 +15,7 @@ include_directories(${INCLUDE})
 file(GLOB SRC ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp 
         ${API_SERVER_DIR}/gen-cpp/*.cpp ${ALG_DIR}/gen-cpp/*.cpp)
 
-add_library(topic_service_update SHARED ${SRC})
+add_library(py_test SHARED ${SRC})
 
 # remove "lib" prefix for final .so target
-set_target_properties(topic_service_update PROPERTIES PREFIX "")
+set_target_properties(py_test PROPERTIES PREFIX "")

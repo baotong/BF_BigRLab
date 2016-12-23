@@ -164,7 +164,7 @@ if __name__ == '__main__':
     #  server = TNonblockingServer.TNonblockingServer(processor, transport, tfactory, pfactory, nthreads)
     #  server = TServer.TSimpleServer(processor, transport, tfactory, pfactory)
     server = TProcessPoolServer.TProcessPoolServer(processor, transport, tfactory, pfactory)
-    server.setNumWorkers(nthreads)
+    server.setNumWorkers(2 * nthreads)
 
     #  logging.info("Server starts...")
     #  server.serve()

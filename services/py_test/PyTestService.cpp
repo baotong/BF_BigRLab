@@ -103,9 +103,7 @@ struct PyTestTask : BigRLab::WorkItemBase {
 
             try {
                 vector<PyTest::Result> result;
-                DLOG(INFO) << "Doing RPC request...";
                 pClient->client()->segment( result, text );
-                DLOG(INFO) << "End RPC request...";
                 done = true;
                 idleClients->putBack( pClient );
 
@@ -185,6 +183,9 @@ void PyTestService::handleCommand( std::stringstream &stream )
     ofstream ofs(outfile, ios::out);
     THROW_RUNTIME_ERROR_IF(!ofs, "Cannot open " << outfile << " for writting.");
 
+    // DLOG(INFO) << "infile: " << infile;
+    // DLOG(INFO) << "outfile: " << outfile;
+
     string                       line;
     size_t                       lineno = 0;
     atomic_size_t                counter(0);
@@ -197,6 +198,7 @@ void PyTestService::handleCommand( std::stringstream &stream )
                 (lineno, line, &m_queIdleClients, 
                  &counter, &cond, &mtx, &ofs, name().c_str());
         getWorkMgr()->addWork( pWork );
+        ++lineno;
     } // while
 
     boost::unique_lock<boost::mutex> lock(mtx);
