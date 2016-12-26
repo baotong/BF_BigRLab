@@ -4,6 +4,7 @@
 cd thrift-0.9.2/lib/py
 python setup.py build
 python PyTestSvr.py algmgr:127.0.0.1:9001 port:10080 algname:pytest nworkers:10
+
 """
 
 import sys, glob

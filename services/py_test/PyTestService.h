@@ -1,3 +1,10 @@
+/*
+ * Test
+ * service pytest in:data/in.txt out:data/out.txt
+ * curl -i -X POST -H "Content-Type: BigRLab_Request" -d 'HelloWorld' http://localhost:9000/pytest
+ */
+
+
 #ifndef _PY_TEST_SERVICE_H_
 #define _PY_TEST_SERVICE_H_
 
