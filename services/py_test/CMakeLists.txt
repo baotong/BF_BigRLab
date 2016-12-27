@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 2.8)
 
-project(PyTestClient)
+project(py_test)
 
 # set compiling flags
 set(CMAKE_CXX_FLAGS "-march=native -std=c++11 -pthread -fPIC -shared -Wall -O3 ${CMAKE_CXX_FLAGS}")
@@ -16,6 +16,7 @@ file(GLOB SRC ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
         ${API_SERVER_DIR}/gen-cpp/*.cpp ${ALG_DIR}/gen-cpp/*.cpp)
 
 add_library(py_test SHARED ${SRC})
+# target_link_libraries(py_test boost_thread boost_system)
 
 # remove "lib" prefix for final .so target
 set_target_properties(py_test PROPERTIES PREFIX "")

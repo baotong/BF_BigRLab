@@ -137,7 +137,7 @@ void start_alg_mgr()
                     boost::static_pointer_cast<AlgMgrServiceIf>(g_pAlgMgrHandler), g_nAlgMgrPort, 2, 3);
             g_pAlgMgrServer->start();
         } catch (const std::exception &ex) {
-            LOG(ERROR) << "Start algmgr server fail!";
+            LOG(ERROR) << "Start algmgr server fail! " << ex.what(); 
             stop_alg_mgr();
         } // try
     };
@@ -155,7 +155,7 @@ void stop_alg_mgr()
         if (s_pAlgMgrSvrThread && s_pAlgMgrSvrThread->joinable())
             s_pAlgMgrSvrThread->join();
     } catch (const std::exception &ex) {
-        LOG(ERROR) << "Stop algmgr server fail!";
+        LOG(ERROR) << "Stop algmgr server fail! " << ex.what(); 
     } // try
 }
 

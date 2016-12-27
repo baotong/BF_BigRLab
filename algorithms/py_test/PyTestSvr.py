@@ -12,7 +12,7 @@ import os, threading, signal
 import socket
 
 sys.path.append('gen-py')
-sys.path.append('../../api_server/gen-py')
+#  sys.path.append('../../api_server/gen-py')
 sys.path.insert(0, glob.glob('thrift-0.9.3/lib/py/build/lib.*')[0])
 
 
@@ -27,9 +27,9 @@ from BigRLab.constants import *
 from thrift.transport import TSocket
 from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
-from thrift.server import TNonblockingServer
 from thrift.server import TProcessPoolServer
-from thrift.server import TServer
+#  from thrift.server import TNonblockingServer
+#  from thrift.server import TServer
 
 # global vars
 LIB_NAME = "PyTest"
@@ -192,7 +192,7 @@ if __name__ == '__main__':
     #  server = TNonblockingServer.TNonblockingServer(processor, transport, tfactory, pfactory, nworkers)
     #  server = TServer.TSimpleServer(processor, transport, tfactory, pfactory)
     server = TProcessPoolServer.TProcessPoolServer(processor, transport, tfactory, pfactory)
-    server.setNumWorkers(nworkers + 2)
+    server.setNumWorkers(nworkers)
 
     registerSvr = RegisterSvrThread()
     registerSvr.start()
