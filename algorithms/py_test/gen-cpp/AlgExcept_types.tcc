@@ -4,16 +4,15 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
-#ifndef PyTest_TYPES_TCC
-#define PyTest_TYPES_TCC
+#ifndef AlgExcept_TYPES_TCC
+#define AlgExcept_TYPES_TCC
 
-#include "AlgExcept_types.tcc"
-#include "PyTest_types.h"
+#include "AlgExcept_types.h"
 
-namespace PyTest {
+namespace AlgExcept {
 
 template <class Protocol_>
-uint32_t Result::read(Protocol_* iprot) {
+uint32_t InvalidRequest::read(Protocol_* iprot) {
 
   apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -35,17 +34,9 @@ uint32_t Result::read(Protocol_* iprot) {
     switch (fid)
     {
       case 1:
-        if (ftype == ::apache::thrift::protocol::T_I32) {
-          xfer += iprot->readI32(this->id);
-          this->__isset.id = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
-      case 2:
         if (ftype == ::apache::thrift::protocol::T_STRING) {
-          xfer += iprot->readString(this->word);
-          this->__isset.word = true;
+          xfer += iprot->readString(this->reason);
+          this->__isset.reason = true;
         } else {
           xfer += iprot->skip(ftype);
         }
@@ -63,17 +54,13 @@ uint32_t Result::read(Protocol_* iprot) {
 }
 
 template <class Protocol_>
-uint32_t Result::write(Protocol_* oprot) const {
+uint32_t InvalidRequest::write(Protocol_* oprot) const {
   uint32_t xfer = 0;
   apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
-  xfer += oprot->writeStructBegin("Result");
+  xfer += oprot->writeStructBegin("InvalidRequest");
 
-  xfer += oprot->writeFieldBegin("id", ::apache::thrift::protocol::T_I32, 1);
-  xfer += oprot->writeI32(this->id);
-  xfer += oprot->writeFieldEnd();
-
-  xfer += oprot->writeFieldBegin("word", ::apache::thrift::protocol::T_STRING, 2);
-  xfer += oprot->writeString(this->word);
+  xfer += oprot->writeFieldBegin("reason", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString(this->reason);
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldStop();

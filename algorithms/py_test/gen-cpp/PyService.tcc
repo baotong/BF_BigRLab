@@ -112,14 +112,14 @@ uint32_t PyService_segment_result::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size8;
-            ::apache::thrift::protocol::TType _etype11;
-            xfer += iprot->readListBegin(_etype11, _size8);
-            this->success.resize(_size8);
-            uint32_t _i12;
-            for (_i12 = 0; _i12 < _size8; ++_i12)
+            uint32_t _size4;
+            ::apache::thrift::protocol::TType _etype7;
+            xfer += iprot->readListBegin(_etype7, _size4);
+            this->success.resize(_size4);
+            uint32_t _i8;
+            for (_i8 = 0; _i8 < _size4; ++_i8)
             {
-              xfer += this->success[_i12].read(iprot);
+              xfer += this->success[_i8].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -159,10 +159,10 @@ uint32_t PyService_segment_result::write(Protocol_* oprot) const {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->success.size()));
-      std::vector<Result> ::const_iterator _iter13;
-      for (_iter13 = this->success.begin(); _iter13 != this->success.end(); ++_iter13)
+      std::vector<Result> ::const_iterator _iter9;
+      for (_iter9 = this->success.begin(); _iter9 != this->success.end(); ++_iter9)
       {
-        xfer += (*_iter13).write(oprot);
+        xfer += (*_iter9).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -204,14 +204,14 @@ uint32_t PyService_segment_presult::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size14;
-            ::apache::thrift::protocol::TType _etype17;
-            xfer += iprot->readListBegin(_etype17, _size14);
-            (*(this->success)).resize(_size14);
-            uint32_t _i18;
-            for (_i18 = 0; _i18 < _size14; ++_i18)
+            uint32_t _size10;
+            ::apache::thrift::protocol::TType _etype13;
+            xfer += iprot->readListBegin(_etype13, _size10);
+            (*(this->success)).resize(_size10);
+            uint32_t _i14;
+            for (_i14 = 0; _i14 < _size10; ++_i14)
             {
-              xfer += (*(this->success))[_i18].read(iprot);
+              xfer += (*(this->success))[_i14].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -631,7 +631,7 @@ void PyServiceProcessorT<Protocol_>::process_segment(int32_t seqid, ::apache::th
   try {
     iface_->segment(result.success, args.text);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgExcept::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -689,7 +689,7 @@ void PyServiceProcessorT<Protocol_>::process_segment(int32_t seqid, Protocol_* i
   try {
     iface_->segment(result.success, args.text);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgExcept::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -747,7 +747,7 @@ void PyServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, ::apac
   try {
     iface_->handleRequest(result.success, args.request);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgExcept::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -805,7 +805,7 @@ void PyServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, Protoc
   try {
     iface_->handleRequest(result.success, args.request);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgExcept::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {

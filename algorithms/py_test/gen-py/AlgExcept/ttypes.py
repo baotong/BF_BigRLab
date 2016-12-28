@@ -7,8 +7,6 @@
 #
 
 from thrift.Thrift import TType, TMessageType, TException, TApplicationException
-import AlgExcept.ttypes
-
 
 from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol, TProtocol
@@ -19,22 +17,19 @@ except:
 
 
 
-class Result(object):
+class InvalidRequest(TException):
   """
   Attributes:
-   - id
-   - word
+   - reason
   """
 
   thrift_spec = (
     None, # 0
-    (1, TType.I32, 'id', None, None, ), # 1
-    (2, TType.STRING, 'word', None, None, ), # 2
+    (1, TType.STRING, 'reason', None, None, ), # 1
   )
 
-  def __init__(self, id=None, word=None,):
-    self.id = id
-    self.word = word
+  def __init__(self, reason=None,):
+    self.reason = reason
 
   def read(self, iprot):
     if iprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None and fastbinary is not None:
@@ -46,13 +41,8 @@ class Result(object):
       if ftype == TType.STOP:
         break
       if fid == 1:
-        if ftype == TType.I32:
-          self.id = iprot.readI32()
-        else:
-          iprot.skip(ftype)
-      elif fid == 2:
         if ftype == TType.STRING:
-          self.word = iprot.readString().decode('utf-8')
+          self.reason = iprot.readString().decode('utf-8')
         else:
           iprot.skip(ftype)
       else:
@@ -64,14 +54,10 @@ class Result(object):
     if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
       oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
       return
-    oprot.writeStructBegin('Result')
-    if self.id is not None:
-      oprot.writeFieldBegin('id', TType.I32, 1)
-      oprot.writeI32(self.id)
-      oprot.writeFieldEnd()
-    if self.word is not None:
-      oprot.writeFieldBegin('word', TType.STRING, 2)
-      oprot.writeString(self.word.encode('utf-8'))
+    oprot.writeStructBegin('InvalidRequest')
+    if self.reason is not None:
+      oprot.writeFieldBegin('reason', TType.STRING, 1)
+      oprot.writeString(self.reason.encode('utf-8'))
       oprot.writeFieldEnd()
     oprot.writeFieldStop()
     oprot.writeStructEnd()
@@ -80,10 +66,12 @@ class Result(object):
     return
 
 
+  def __str__(self):
+    return repr(self)
+
   def __hash__(self):
     value = 17
-    value = (value * 31) ^ hash(self.id)
-    value = (value * 31) ^ hash(self.word)
+    value = (value * 31) ^ hash(self.reason)
     return value
 
   def __repr__(self):
