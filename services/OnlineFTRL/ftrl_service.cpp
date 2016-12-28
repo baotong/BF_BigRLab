@@ -240,10 +240,10 @@ std::size_t FtrlService::addServer( const BigRLab::AlgSvrInfo& svrInfo, const Se
 {
     // 要根据实际需求确定连接数量
     int n = svrInfo.maxConcurrency;
-    if (n < 5)
-        n = 5;
-    else if (n > 50)
-        n = 50;
+    // if (n < 5)
+        // n = 5;
+    // else if (n > 50)
+        // n = 50;
 
     DLOG(INFO) << "FtrlService::addServer() " << svrInfo.addr << ":" << svrInfo.port
               << " maxConcurrency = " << svrInfo.maxConcurrency
