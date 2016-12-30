@@ -431,49 +431,44 @@ void start_shell()
 
 
 int main( int argc, char **argv )
-{
-    int retval = 0;
+try {
+    google::InitGoogleLogging(argv[0]);
+    gflags::ParseCommandLineFlags(&argc, &argv, true);
 
-    try {
-        google::InitGoogleLogging(argv[0]);
-        gflags::ParseCommandLineFlags(&argc, &argv, true);
+    // log_dir 是glog定义变量
+    if (FLAGS_log_dir.empty() && FLAGS_b)
+        FLAGS_log_dir = ".";
+    // if (!FLAGS_log_dir.empty()) {
+        // google::SetLogDestination(google::GLOG_INFO, FLAGS_log_dir.c_str());
+        // google::SetLogDestination(google::GLOG_WARNING, FLAGS_log_dir.c_str());
+        // google::SetLogDestination(google::GLOG_ERROR, FLAGS_log_dir.c_str());
+    // } // if
 
-        // log_dir 是glog定义变量
-        if (FLAGS_log_dir.empty() && FLAGS_b)
-            FLAGS_log_dir = ".";
-        // if (!FLAGS_log_dir.empty()) {
-            // google::SetLogDestination(google::GLOG_INFO, FLAGS_log_dir.c_str());
-            // google::SetLogDestination(google::GLOG_WARNING, FLAGS_log_dir.c_str());
-            // google::SetLogDestination(google::GLOG_ERROR, FLAGS_log_dir.c_str());
-        // } // if
+    // Test::test1(argc, argv);
+    // Test::test();
+    
+    init();
 
-        // Test::test1(argc, argv);
-        // Test::test();
-        
-        init();
+    boost::asio::signal_set signals(*g_pIoService, SIGINT, SIGTERM);
+    signals.async_wait( [](const boost::system::error_code& error, int signal)
+            { try {stop_server();} catch (...) {} } );
 
-        boost::asio::signal_set signals(*g_pIoService, SIGINT, SIGTERM);
-        signals.async_wait( [](const boost::system::error_code& error, int signal)
-                { stop_server(); } );
+    start_server();
+    start_shell();
 
-        start_server();
-        start_shell();
+    cout << "Terminating server program..." << endl;
+    SLEEP_SECONDS(1); // wait msg sent to client
+    stop_server();
+    stop_alg_mgr();
+    g_pWork.reset();
+    g_pIoService->stop();
+    g_pIoThrgrp->join_all();
+    g_pWorkMgr->stop();
+    g_pRunServerThread->join();
 
-        cout << "Terminating server program..." << endl;
-        SLEEP_SECONDS(1); // wait msg sent to client
-        stop_server();
-        stop_alg_mgr();
-        g_pWork.reset();
-        g_pIoService->stop();
-        g_pIoThrgrp->join_all();
-        g_pWorkMgr->stop();
-        g_pRunServerThread->join();
+    return 0;
 
-    } catch ( const std::exception &ex ) {
-        cerr << "Exception caught by main: " << ex.what() << endl;
-        retval = -1;
-    } // try
-
-    return retval;
-}
-
+} catch ( const std::exception &ex ) {
+    cerr << "Exception caught by main: " << ex.what() << endl;
+    return -1;
+} // try

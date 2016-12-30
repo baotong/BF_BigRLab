@@ -95,11 +95,11 @@ public:
     // { return m_pAlgMgrClient; }
 
 private:
+    ServerType*         m_pServer;
+    bool                m_bRunning;
     uint16_t            m_nPort;
     uint32_t            m_nIoThreads;
     uint32_t            m_nWorkThreads;
-    bool                m_bRunning;
-    ServerType*         m_pServer;
     ServerType::options m_Options;
 
     IoServicePtr        m_pIoService;

@@ -694,8 +694,8 @@ int main(int argc, char **argv)
         boost::asio::signal_set signals(g_io_service, SIGINT, SIGTERM);
         signals.async_wait( [&](const boost::system::error_code& error, int signal) { 
             if (g_Timer) g_Timer->cancel();
-            stop_client();
-            stop_server(); 
+            try { stop_client(); } catch (...) {}
+            try { stop_server(); } catch (...) {}
             if (g_pSvrThread && g_pSvrThread->joinable())
                 g_pSvrThread->join();
             pIoServiceWork.reset();

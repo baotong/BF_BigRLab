@@ -307,7 +307,7 @@ int main(int argc, char **argv)
         signals.async_wait( [](const boost::system::error_code& error, int signal) { 
             if (g_Timer)
                 g_Timer->cancel();
-            stop_server(); 
+            try { stop_server(); } catch (...) {}
         } );
 
         g_Timer.reset(new boost::asio::deadline_timer(std::ref(io_service)));

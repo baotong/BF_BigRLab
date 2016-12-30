@@ -191,7 +191,7 @@ void WorkItem::handleRead(ServerType::connection::input_range range,
 void WorkItem::run()
 {
     using namespace std;
-    using connection = ServerType::connection;
+    // using connection = ServerType::connection;
 
     // LOG(INFO) << "WorkItem::run()";
 
