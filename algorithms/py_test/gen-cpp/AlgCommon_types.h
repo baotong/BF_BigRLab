@@ -4,8 +4,8 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
-#ifndef AlgExcept_TYPES_H
-#define AlgExcept_TYPES_H
+#ifndef AlgCommon_TYPES_H
+#define AlgCommon_TYPES_H
 
 #include <iosfwd>
 
@@ -17,7 +17,7 @@
 #include <thrift/cxxfunctional.h>
 
 
-namespace AlgExcept {
+namespace AlgCommon {
 
 class InvalidRequest;
 
@@ -63,6 +63,6 @@ inline std::ostream& operator<<(std::ostream& out, const InvalidRequest& obj)
 
 } // namespace
 
-#include "AlgExcept_types.tcc"
+#include "AlgCommon_types.tcc"
 
 #endif

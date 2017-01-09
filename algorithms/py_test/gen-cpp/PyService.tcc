@@ -631,7 +631,7 @@ void PyServiceProcessorT<Protocol_>::process_segment(int32_t seqid, ::apache::th
   try {
     iface_->segment(result.success, args.text);
     result.__isset.success = true;
-  } catch ( ::AlgExcept::InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -689,7 +689,7 @@ void PyServiceProcessorT<Protocol_>::process_segment(int32_t seqid, Protocol_* i
   try {
     iface_->segment(result.success, args.text);
     result.__isset.success = true;
-  } catch ( ::AlgExcept::InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -747,7 +747,7 @@ void PyServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, ::apac
   try {
     iface_->handleRequest(result.success, args.request);
     result.__isset.success = true;
-  } catch ( ::AlgExcept::InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -805,7 +805,7 @@ void PyServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, Protoc
   try {
     iface_->handleRequest(result.success, args.request);
     result.__isset.success = true;
-  } catch ( ::AlgExcept::InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {

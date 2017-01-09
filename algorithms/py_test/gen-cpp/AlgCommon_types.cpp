@@ -4,14 +4,14 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
-#include "AlgExcept_types.h"
+#include "AlgCommon_types.h"
 
 #include <algorithm>
 #include <ostream>
 
 #include <thrift/TToString.h>
 
-namespace AlgExcept {
+namespace AlgCommon {
 
 
 InvalidRequest::~InvalidRequest() throw() {

@@ -4,12 +4,12 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
-#ifndef AlgExcept_TYPES_TCC
-#define AlgExcept_TYPES_TCC
+#ifndef AlgCommon_TYPES_TCC
+#define AlgCommon_TYPES_TCC
 
-#include "AlgExcept_types.h"
+#include "AlgCommon_types.h"
 
-namespace AlgExcept {
+namespace AlgCommon {
 
 template <class Protocol_>
 uint32_t InvalidRequest::read(Protocol_* iprot) {

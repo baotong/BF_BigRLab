@@ -7,7 +7,7 @@
 #
 
 from thrift.Thrift import TType, TMessageType, TException, TApplicationException
-import AlgExcept.ttypes
+import AlgCommon.ttypes
 
 
 from thrift.transport import TTransport

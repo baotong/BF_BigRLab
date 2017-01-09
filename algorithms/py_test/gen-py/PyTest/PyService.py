@@ -140,7 +140,7 @@ class Processor(Iface, TProcessor):
       msg_type = TMessageType.REPLY
     except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
       raise
-    except AlgExcept.ttypes.InvalidRequest as err:
+    except AlgCommon.ttypes.InvalidRequest as err:
       msg_type = TMessageType.REPLY
       result.err = err
     except Exception as ex:
@@ -162,7 +162,7 @@ class Processor(Iface, TProcessor):
       msg_type = TMessageType.REPLY
     except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
       raise
-    except AlgExcept.ttypes.InvalidRequest as err:
+    except AlgCommon.ttypes.InvalidRequest as err:
       msg_type = TMessageType.REPLY
       result.err = err
     except Exception as ex:
@@ -251,7 +251,7 @@ class segment_result(object):
 
   thrift_spec = (
     (0, TType.LIST, 'success', (TType.STRUCT,(Result, Result.thrift_spec)), None, ), # 0
-    (1, TType.STRUCT, 'err', (AlgExcept.ttypes.InvalidRequest, AlgExcept.ttypes.InvalidRequest.thrift_spec), None, ), # 1
+    (1, TType.STRUCT, 'err', (AlgCommon.ttypes.InvalidRequest, AlgCommon.ttypes.InvalidRequest.thrift_spec), None, ), # 1
   )
 
   def __init__(self, success=None, err=None,):
@@ -280,7 +280,7 @@ class segment_result(object):
           iprot.skip(ftype)
       elif fid == 1:
         if ftype == TType.STRUCT:
-          self.err = AlgExcept.ttypes.InvalidRequest()
+          self.err = AlgCommon.ttypes.InvalidRequest()
           self.err.read(iprot)
         else:
           iprot.skip(ftype)
@@ -403,7 +403,7 @@ class handleRequest_result(object):
 
   thrift_spec = (
     (0, TType.STRING, 'success', None, None, ), # 0
-    (1, TType.STRUCT, 'err', (AlgExcept.ttypes.InvalidRequest, AlgExcept.ttypes.InvalidRequest.thrift_spec), None, ), # 1
+    (1, TType.STRUCT, 'err', (AlgCommon.ttypes.InvalidRequest, AlgCommon.ttypes.InvalidRequest.thrift_spec), None, ), # 1
   )
 
   def __init__(self, success=None, err=None,):
@@ -426,7 +426,7 @@ class handleRequest_result(object):
           iprot.skip(ftype)
       elif fid == 1:
         if ftype == TType.STRUCT:
-          self.err = AlgExcept.ttypes.InvalidRequest()
+          self.err = AlgCommon.ttypes.InvalidRequest()
           self.err.read(iprot)
         else:
           iprot.skip(ftype)

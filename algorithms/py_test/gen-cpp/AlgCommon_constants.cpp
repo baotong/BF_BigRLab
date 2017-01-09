@@ -4,13 +4,13 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
-#include "AlgExcept_constants.h"
+#include "AlgCommon_constants.h"
 
-namespace AlgExcept {
+namespace AlgCommon {
 
-const AlgExceptConstants g_AlgExcept_constants;
+const AlgCommonConstants g_AlgCommon_constants;
 
-AlgExceptConstants::AlgExceptConstants() {
+AlgCommonConstants::AlgCommonConstants() {
 }
 
 } // namespace

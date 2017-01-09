@@ -130,7 +130,7 @@ struct PyTestTask : BigRLab::WorkItemBase {
                 boost::unique_lock<boost::mutex> flk( *mtx );
                 *ofs << output.str() << endl;
 
-            } catch (const PyTest::InvalidRequest &err) {
+            } catch (const AlgCommon::InvalidRequest &err) {
                 // 由非法输入导致的调用远程服务失败，因为连接还是好的，
                 // 所以处理上和成功一样，设置标志变量done为完成，再把用过的连接放回空闲连接队列
                 done = true;
@@ -254,7 +254,7 @@ void PyTestService::handleRequest(const BigRLab::WorkItemPtr &pWork)
             m_queIdleClients.putBack( pClient );
             send_response(pWork->conn, BigRLab::ServerType::connection::ok, result);
 
-        } catch (const PyTest::InvalidRequest &err) {
+        } catch (const AlgCommon::InvalidRequest &err) {
             done = true;
             m_queIdleClients.putBack( pClient );
             LOG(ERROR) << "Service " << name() << " caught InvalidRequest: "

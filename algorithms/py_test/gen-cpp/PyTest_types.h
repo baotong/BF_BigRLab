@@ -15,7 +15,7 @@
 #include <thrift/transport/TTransport.h>
 
 #include <thrift/cxxfunctional.h>
-#include "AlgExcept_types.h"
+#include "AlgCommon_types.h"
 
 
 namespace PyTest {

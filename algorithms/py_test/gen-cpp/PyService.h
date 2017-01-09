@@ -120,13 +120,13 @@ class PyService_segment_result {
 
   virtual ~PyService_segment_result() throw();
   std::vector<Result>  success;
-   ::AlgExcept::InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _PyService_segment_result__isset __isset;
 
   void __set_success(const std::vector<Result> & val);
 
-  void __set_err(const  ::AlgExcept::InvalidRequest& val);
+  void __set_err(const  ::AlgCommon::InvalidRequest& val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -147,7 +147,7 @@ class PyService_segment_presult {
 
   virtual ~PyService_segment_presult() throw();
   std::vector<Result> * success;
-   ::AlgExcept::InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _PyService_segment_presult__isset __isset;
 
@@ -216,13 +216,13 @@ class PyService_handleRequest_result {
 
   virtual ~PyService_handleRequest_result() throw();
   std::string success;
-   ::AlgExcept::InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _PyService_handleRequest_result__isset __isset;
 
   void __set_success(const std::string& val);
 
-  void __set_err(const  ::AlgExcept::InvalidRequest& val);
+  void __set_err(const  ::AlgCommon::InvalidRequest& val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -243,7 +243,7 @@ class PyService_handleRequest_presult {
 
   virtual ~PyService_handleRequest_presult() throw();
   std::string* success;
-   ::AlgExcept::InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _PyService_handleRequest_presult__isset __isset;
 

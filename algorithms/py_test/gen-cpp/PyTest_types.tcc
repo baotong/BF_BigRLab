@@ -7,7 +7,7 @@
 #ifndef PyTest_TYPES_TCC
 #define PyTest_TYPES_TCC
 
-#include "AlgExcept_types.tcc"
+#include "AlgCommon_types.tcc"
 #include "PyTest_types.h"
 
 namespace PyTest {
