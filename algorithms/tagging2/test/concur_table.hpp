@@ -81,6 +81,7 @@ void ConcurTable::loadFromFile( const std::string &filename, const std::set<std:
         if (colon == string::npos || colon == 0)
             continue;
         pKey->erase(colon);
+        pKey->shrink_to_fit();
         // DLOG(INFO) << "pKey = " << *pKey;
 
         ConcurItemList cList;
