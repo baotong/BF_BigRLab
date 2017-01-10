@@ -38,7 +38,7 @@ public:
     typedef std::shared_ptr<std::string>            StringPtr;
 
     struct Keyword {
-        Keyword() = default;
+        // Keyword() = default;
         Keyword(const StringPtr &_Word, std::size_t _Freq)
                 : pWord(_Word), freq(_Freq) {}
 
@@ -161,15 +161,19 @@ void ConcurTable::loadFromFileWord( const std::string &filename )
         } // while
     } // while
 
+    // DLOG(INFO) << "m_queTable.size() = " << m_queTable.size();
+
     lineno = 0;
+    auto tableSize = m_queTable.size();
     LOG(INFO) << "Building index ...";
-    for (auto it = m_queTable.begin()+1; it != m_queTable.end(); ++it) {
+    // for (auto it = m_queTable.begin()+1; it != m_queTable.end(); ++it) {
 // #pragma omp parallel for
-    // for (auto it = m_queTable.begin()+1; it < m_queTable.end(); ++it) {
+    for (size_t i = 1; i < tableSize; ++i) {
         DLOG(INFO) << "Building idx for " << ++lineno;
-        auto &lst = it->second;
+        auto &lst = m_queTable[i].second;
         for (auto &v : lst) {
             auto pWord = boost::get<StringPtr>(v.item);
+            // DLOG(INFO) << "Finding idx for " << *pWord;
             auto idx = getIdx(pWord);
             if (idx == (size_t)-1) {
                 m_queTable.emplace_back(std::make_pair(Keyword(pWord, v.freq), ConcurItemList()));
@@ -178,6 +182,8 @@ void ConcurTable::loadFromFileWord( const std::string &filename )
             v.item = idx;
         } // for v
     } // for it
+
+    // DLOG(INFO) << "Building idx done!";
 }
 
 inline
