@@ -1,4 +1,3 @@
-#include "knn_service.h"
 #include <sstream>
 #include <random>
 #include <algorithm>
@@ -6,6 +5,8 @@
 #include <fstream>
 #include <cstring>
 #include <glog/logging.h>
+#include "common.hpp"
+#include "knn_service.h"
 
 using namespace BigRLab;
 using namespace std;
@@ -99,12 +100,14 @@ struct QueryWorkFile : BigRLab::WorkItemBase {
     {
         // DLOG(INFO) << "Service " << srvName << " querying \"" << item << "\"";
 
-        auto on_finish = [this](void*) {
-            ++*counter;
-            condCounter->notify_all();
-        };
+        // auto on_finish = [this](void*) {
+            // ++*counter;
+            // condCounter->notify_all();
+        // };
 
-        boost::shared_ptr<void> pOnFinish((void*)0, on_finish);
+        // boost::shared_ptr<void> pOnFinish((void*)0, on_finish);
+
+        ON_FINISH_CLASS(pCleanup, {++*counter; condCounter->notify_all();});
 
         bool done = false;
 
@@ -122,14 +125,24 @@ struct QueryWorkFile : BigRLab::WorkItemBase {
                 done = true;
                 idleClients->putBack( pClient );
 
-                // write to file
+                ostringstream output(ios::out);
                 if (!result.empty()) {
-                    boost::unique_lock<boost::mutex> flk( *fileMtx );
-                    *ofs << result.size() << " most like items for " << item << endl;
-                    for (const auto &v : result)
-                        *ofs << v.item << "\t\t" << v.weight << endl;
-                    flk.unlock();
+                    output << item << "\t";
+                    for (auto& v : result)
+                        output << v.item << ":" << (2.0 - v.weight) / 2.0 << " ";
+                    output << flush;
                 } // if
+                boost::unique_lock<boost::mutex> flk( *fileMtx );
+                *ofs << output.str() << endl;
+
+                // write to file
+                // if (!result.empty()) {
+                    // boost::unique_lock<boost::mutex> flk( *fileMtx );
+                    // *ofs << result.size() << " most like items for " << item << endl;
+                    // for (const auto &v : result)
+                        // *ofs << v.item << "\t\t" << v.weight << endl;
+                    // flk.unlock();
+                // } // if
 
             } catch (const KNN::InvalidRequest &err) {
                 done = true;

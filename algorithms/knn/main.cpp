@@ -201,7 +201,7 @@ void KnnServiceHandler::queryByItem(std::vector<Result> & _return,
 {
     using namespace std;
 
-    DLOG(INFO) << "Querying item " << item << " n = " << n;
+    // DLOG(INFO) << "Querying item " << item << " n = " << n;
 
     if (n <= 0)
         THROW_INVALID_REQUEST("Invalid n value " << n);
