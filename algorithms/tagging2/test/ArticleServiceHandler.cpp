@@ -150,7 +150,7 @@ void ArticleServiceHandler::do_tagging_concur(std::vector<TagResult> & _return, 
             errmsg = std::move(ex.what());
         } // try
         auto thEnd = std::chrono::high_resolution_clock::now();
-        LOG(INFO) << "Time cost of finding cid is " << std::chrono::duration_cast<std::chrono::nanoseconds>(thEnd - thStart).count();
+        // LOG(INFO) << "Time cost of finding cid is " << std::chrono::duration_cast<std::chrono::nanoseconds>(thEnd - thStart).count();
     });
 
     auto tp1 = std::chrono::high_resolution_clock::now();
@@ -188,7 +188,7 @@ void ArticleServiceHandler::do_tagging_concur(std::vector<TagResult> & _return, 
     } // for kw
     
     auto tp2 = std::chrono::high_resolution_clock::now();
-    LOG(INFO) << "Tagging step1 costs " << std::chrono::duration_cast<std::chrono::nanoseconds>(tp2 - tp1).count(); 
+    // LOG(INFO) << "Tagging step1 costs " << std::chrono::duration_cast<std::chrono::nanoseconds>(tp2 - tp1).count(); 
 
     thrCluster.join();
     if (!success)
@@ -245,7 +245,7 @@ void ArticleServiceHandler::do_tagging_concur(std::vector<TagResult> & _return, 
     } // for
 
     auto tp3 = std::chrono::high_resolution_clock::now();
-    LOG(INFO) << "Tagging step2 costs " << std::chrono::duration_cast<std::chrono::nanoseconds>(tp3 - tp2).count(); 
+    // LOG(INFO) << "Tagging step2 costs " << std::chrono::duration_cast<std::chrono::nanoseconds>(tp3 - tp2).count(); 
 }
 
 void ArticleServiceHandler::do_tagging_knn(std::vector<TagResult> & _return, const std::string& text, 

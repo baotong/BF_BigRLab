@@ -5,6 +5,8 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/algorithm/string.hpp>
 #include <chrono>
+#include <climits>
+#include "WordWeight.h"
 
 #define TIMEOUT     60000   // 1min
 
@@ -56,12 +58,23 @@ void ArticleServiceHandler::keyword(std::vector<KeywordResult> & _return,
     ON_FINISH_CLASS(pCleanup, {g_JiebaPool.push(pJieba);});
 
     Jieba::KeywordResult result;
+    double min = std::numeric_limits<double>::max();
+    double max = std::numeric_limits<double>::min();
     try {
         pJieba->keywordExtract(sentence, result, k);
         _return.resize(result.size());
         for (std::size_t i = 0; i < result.size(); ++i) {
             _return[i].word.swap(result[i].word);
             _return[i].weight = result[i].weight;
+            if (result[i].weight < min) min = result[i].weight;
+            if (result[i].weight > max) max = result[i].weight;
+        } // for
+
+        // 归一化
+        double range = max - min;
+        for (std::size_t i = 0; i < _return.size(); ++i) {
+            _return[i].weight -= min;
+            if (range) _return[i].weight /= range;
         } // for
 
     } catch (const std::exception &ex) {
@@ -113,24 +126,10 @@ void ArticleServiceHandler::do_tagging_concur(std::vector<TagResult> & _return, 
     keyword( keywords, text, k1 );
 
     for (auto &kw : keywords) {
-        // get concur(ki)
-        auto cList = g_pConcurTable->lookup( kw.word );
-        if (cList.empty())
-            continue;
-        // DLOG(INFO) << "keyword: " << kw;
-        auto endIt = (k2 >= cList.size()) ? cList.end() : cList.begin() + k2;
-        for (auto cit = cList.begin(); cit != endIt; ++cit) {
-            auto &cItem = *cit;
-            string &cij = *(boost::get<ConcurTable::StringPtr>(cItem.item));
-            double &cwij = cItem.weight;
-            // DLOG(INFO) << "cij = " << cij << " cwij = " << cwij;
-            auto ret = candidates.insert(std::make_pair(cij, 0.0));
-            auto it = ret.first;
-            if (cij == kw.word)
-                it->second += kw.weight;
-            else
-                it->second += kw.weight * cwij;
-        } // for cItem
+        auto it = g_WordWgtTable.find(kw.word);
+        if (it == g_WordWgtTable.end()) continue;
+        double weight = kw.weight * it->second.weight * it->second.count;
+        candidates.insert(std::make_pair(kw.word, weight));
     } // for kw
 
     // sort candidates

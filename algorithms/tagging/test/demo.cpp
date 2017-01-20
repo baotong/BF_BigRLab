@@ -13,6 +13,7 @@
 #include <thread>
 #include <glog/logging.h>
 #include <gflags/gflags.h>
+#include "WordWeight.h"
 
 #define SERVICE_LIB_NAME        "tagging"
 
@@ -56,6 +57,7 @@ static boost::shared_ptr<BigRLab::AlgSvrInfo> g_pSvrInfo;
 boost::shared_ptr<WordAnnDB>            g_pAnnDB;
 boost::shared_ptr<ConcurTable>          g_pConcurTable;
 std::set<std::string>   g_TagSet;
+WordWeightTable         g_WordWgtTable;
 
 namespace {
 
@@ -424,6 +426,8 @@ static
 void service_init()
 {
     using namespace std;
+
+    g_WordWgtTable.clear();
 
     if (FLAGS_n_jieba_inst <= 0 || FLAGS_n_jieba_inst > FLAGS_n_work_threads) {
         LOG(INFO) << "Adjust -n_jieba_inst from old value " << FLAGS_n_jieba_inst 

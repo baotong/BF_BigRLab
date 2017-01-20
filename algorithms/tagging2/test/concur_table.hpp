@@ -125,17 +125,17 @@ void ConcurTable::loadFromFile( const std::string &filename, const std::set<std:
     // DEBUG
 #if 0
     for (auto &kv : m_mapTable) {
-        // cout << *(kv.first) << "\t";
-        DLOG(INFO) << "keyword = " << *(kv.first);
-        auto &cList = kv.second;
-        if (cList.size() > 1) {
-            for (auto it = cList.begin(); it != cList.end()-1; ++it)
-                if (it->weight < (it+1)->weight)
-                { DLOG(INFO) << "found inconsistent record!"; break; }
-        } // if
-        // for (auto &v : kv.second)
-            // cout << *(boost::get<StringPtr>(v.item)) << ":" << v.weight << " ";
-        // cout << endl;
+        cout << *(kv.first) << "\t";
+        // DLOG(INFO) << "keyword = " << *(kv.first);
+        // auto &cList = kv.second;
+        // if (cList.size() > 1) {
+            // for (auto it = cList.begin(); it != cList.end()-1; ++it)
+                // if (it->weight < (it+1)->weight)
+                // { DLOG(INFO) << "found inconsistent record!"; break; }
+        // } // if
+        for (auto &v : kv.second)
+            cout << *(boost::get<StringPtr>(v.item)) << ":" << v.weight << " ";
+        cout << endl;
     } // for
 #endif
 }
