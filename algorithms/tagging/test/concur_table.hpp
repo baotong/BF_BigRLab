@@ -135,7 +135,7 @@ void ConcurTable::loadFromFile( const std::string &filename, const std::set<std:
                 if (!tagSet.count(word)) {
                     auto cret = g_WordWgtTable.insert(std::make_pair(word, WordWeightTable::mapped_type()));
                     cret.first->second.weight += it->weight;
-                    ++(ret.first->second.count);
+                    ++(cret.first->second.count);
                 } // if
             } // for it
             ++mit;
