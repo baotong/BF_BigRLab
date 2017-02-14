@@ -6,11 +6,11 @@ python setup.py build
 python PyTestSvr.py algmgr:127.0.0.1:9001 port:10080 algname:pytest nworkers:10
 
 """
-
+from jieba import cut
 import sys, glob
 import os, threading, signal 
 import socket
-
+print '|'.join(cut('initialization ..'))
 sys.path.append('gen-py')
 #  sys.path.append('../../api_server/gen-py')
 sys.path.insert(0, glob.glob('thrift-0.9.3/lib/py/build/lib.*')[0])
@@ -43,7 +43,7 @@ nworkers = 10
 algSvrInfo = None
 algmgrTransport = None
 serviceName = ""
-
+#import jieba
 server = None
 
 class PyTestHandler:
@@ -51,20 +51,24 @@ class PyTestHandler:
         pass
 
     def segment(self, text):
-        print text
+        #print text
         ret = []
         id = 0
         for w in text.split():
+	    print w
             res = Result()
             res.id = id
-            res.word = w
+            res.word = '|'.join(cut(w))
             ret.append(res)
             id = id + 1
+            print id
         return ret
 
     def handleRequest(self, request):
-        print request
-        return request
+        #print request
+        test=self.segment(request)
+	print test
+        return test
 
 
 class RegisterSvrThread(threading.Thread):
@@ -148,6 +152,7 @@ def sig_handler(signum, frame):
 
 
 if __name__ == '__main__':
+    #import jieba
     for arg in sys.argv[1:]:
         argKV = arg.split(":", 1)
         if len(argKV) != 2:
