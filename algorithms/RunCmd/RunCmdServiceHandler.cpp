@@ -16,6 +16,8 @@ using namespace std;
 void RunCmdServiceHandler::runCmd(std::string& _return, const std::string& cmd)
 {
     DLOG(INFO) << "Received cmd: " << cmd;
+
+    THROW_INVALID_REQUEST_IF(cmd.empty(), "Cmd cannot be empty!");
     
     Json::Value     resp;
     int         retcode;

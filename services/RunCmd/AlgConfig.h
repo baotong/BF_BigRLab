@@ -9,14 +9,14 @@ public:
     typedef std::shared_ptr<AlgConfig>      pointer;
 public:
     virtual bool parseArg(Json::Value &root, std::string &err) = 0;
-    virtual void run(const RunCmdService::RunCmdClientPtr &pClient) = 0;
+    virtual void run(const RunCmdService::RunCmdClientPtr &pClient, std::string &resp) = 0;
 protected:
     std::string     m_strCmd;
 };
 
 
 class XgBoostConfig : public AlgConfig {
-    constexpr static const char *CONFIG_FILE = "/tmp/xgboost_empty.conf"
+    constexpr static const char *CONFIG_FILE = "/tmp/xgboost_empty.conf";
 public:
     XgBoostConfig() 
     { 
@@ -26,7 +26,7 @@ public:
     // XgBoostConfig() : m_strCmd("xgboost ") {}    //!! ERROR
 
     virtual bool parseArg(Json::Value &root, std::string &err);
-    virtual void run(const RunCmdService::RunCmdClientPtr &pClient);
+    virtual void run(const RunCmdService::RunCmdClientPtr &pClient, std::string &resp);
 };
 
 

@@ -89,6 +89,14 @@ void RunCmdService::handleRequest(const BigRLab::WorkItemPtr &pWork)
             return;
         } // if
 
+        try {
+            pAlgConfig->run(pClient, resp);
+        } catch (const AlgCommon::InvalidRequest &err) {
+            RESPONSE_ERROR(pWork->conn, BigRLab::ServerType::connection::ok, INVALID_REQUEST, 
+                    name() << " InvalidRequest: " << err.reason);
+            return;
+        } // try
+
         send_response(pWork->conn, BigRLab::ServerType::connection::ok, resp);
 
     } catch (const std::exception &ex) {

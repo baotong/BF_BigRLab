@@ -29,8 +29,15 @@ bool XgBoostConfig::parseArg(Json::Value &root, std::string &err)
 }
 
 
-void XgBoostConfig::run(const RunCmdService::RunCmdClientPtr &pClient)
+void XgBoostConfig::run(const RunCmdService::RunCmdClientPtr &pClient, std::string &resp)
 {
+    // DLOG(INFO) << "cmd: " << m_strCmd;
+    using namespace std;
 
+    string cmd = "echo \"\" > ";
+    cmd.append(CONFIG_FILE);
+    pClient->client()->runCmd(resp, cmd);
+
+    pClient->client()->runCmd(resp, m_strCmd);
 }
 
