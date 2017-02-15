@@ -1,14 +1,9 @@
-/*
- * Test
- */
-
-
 #ifndef _RUN_CMD_SERVICE_SO_H_
 #define _RUN_CMD_SERVICE_SO_H_
 
 #include "service.h"
 #include "RunCmdService.h"
-#include "AlgMgrService.h"      // $apiserver/gen-cpp   alg_mgr 由thrift生成的代码
+#include "AlgMgrService.h"
 #include <map>
 #include <vector>
 #include <deque>
@@ -19,7 +14,6 @@
 #include <boost/thread/condition_variable.hpp>
 
 
-// 本lib对外接口，必须用extern "C"声明
 extern "C" {
     extern BigRLab::Service* create_instance(const char *name);
     extern const char* lib_name();
@@ -29,7 +23,6 @@ extern "C" {
 class RunCmdService : public BigRLab::Service {
 public:
 
-    // handleRequest 返回状态码，照抄
     enum StatusCode {
         OK = 0,
         NO_SERVER,
@@ -46,10 +39,7 @@ public:
 
 public:
     RunCmdService( const std::string &name ) : BigRLab::Service(name) 
-    {
-        // std::set<std::string> tmp{"wordseg", "keyword"};
-        // m_setValidReqType.swap(tmp);
-    }
+    {}
 
     virtual void handleRequest(const BigRLab::WorkItemPtr &pWork);
     virtual void handleCommand( std::stringstream &stream );

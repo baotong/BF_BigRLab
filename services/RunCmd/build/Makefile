@@ -114,6 +114,30 @@ runcmd/fast:
 	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/build
 .PHONY : runcmd/fast
 
+AlgConfig.o: AlgConfig.cpp.o
+.PHONY : AlgConfig.o
+
+# target to build an object file
+AlgConfig.cpp.o:
+	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/AlgConfig.cpp.o
+.PHONY : AlgConfig.cpp.o
+
+AlgConfig.i: AlgConfig.cpp.i
+.PHONY : AlgConfig.i
+
+# target to preprocess a source file
+AlgConfig.cpp.i:
+	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/AlgConfig.cpp.i
+.PHONY : AlgConfig.cpp.i
+
+AlgConfig.s: AlgConfig.cpp.s
+.PHONY : AlgConfig.s
+
+# target to generate assembly for a file
+AlgConfig.cpp.s:
+	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/AlgConfig.cpp.s
+.PHONY : AlgConfig.cpp.s
+
 RunCmdServiceSo.o: RunCmdServiceSo.cpp.o
 .PHONY : RunCmdServiceSo.o
 
@@ -339,6 +363,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... runcmd"
+	@echo "... AlgConfig.o"
+	@echo "... AlgConfig.i"
+	@echo "... AlgConfig.s"
 	@echo "... RunCmdServiceSo.o"
 	@echo "... RunCmdServiceSo.i"
 	@echo "... RunCmdServiceSo.s"

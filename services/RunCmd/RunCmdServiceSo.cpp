@@ -12,15 +12,14 @@
 #include <json/json.h>
 #include <glog/logging.h>
 #include "common.hpp"
-#include "RunCmdServiceSo.h"
+#include "AlgConfig.h"
 
 using namespace BigRLab;
 using namespace std;
 
-// lib接口函数实现
 Service* create_instance(const char *name)
 { return new RunCmdService(name); }
-// 返回实际名称，与alg server 中定义的LIB_NAME保持一致
+
 const char* lib_name()
 { return "RunCmd"; }
 
@@ -37,7 +36,7 @@ void RunCmdService::handleRequest(const BigRLab::WorkItemPtr &pWork)
     Json::Value     root;
 
     string      ip;
-    string      cmd, resp;
+    string      alg, resp;
 
     if (!reader.parse(pWork->body, root)) {
         LOG(ERROR) << "json parse fail!";
@@ -48,8 +47,11 @@ void RunCmdService::handleRequest(const BigRLab::WorkItemPtr &pWork)
 
     try {
 
+        // for (Json::ValueIterator itr = root.begin() ; itr != root.end() ; ++itr)
+            // DLOG(INFO) << itr.key() << " = " << *itr;
+
         try { 
-            ip = root["ip"].asString(); 
+            ip = root["_ip_"].asString(); 
         } catch (...) {
             RESPONSE_ERROR(pWork->conn, BigRLab::ServerType::connection::ok, -1, 
                     name() << ": No ip info found in json!");
@@ -57,12 +59,82 @@ void RunCmdService::handleRequest(const BigRLab::WorkItemPtr &pWork)
         } // try ip
 
         try { 
-            cmd = root["cmd"].asString(); 
+            alg = root["_alg_"].asString(); 
         } catch (...) {
             RESPONSE_ERROR(pWork->conn, BigRLab::ServerType::connection::ok, -1, 
-                    name() << ": No cmd info found in json!");
+                    name() << ": No alg info found in json!");
             return;
-        } // try cmd
+        } // try alg
+
+        auto it = m_mapIpClient.find(ip);
+        if (it == m_mapIpClient.end()) {
+            RESPONSE_ERROR(pWork->conn, BigRLab::ServerType::connection::ok, -1, 
+                    name() << ": No server found with ip " << ip);
+            return;
+        } // if
+
+        auto &pClient = it->second;
+
+        AlgConfig::pointer pAlgConfig = AlgConfigMgr::newInst(alg);
+        if (!pAlgConfig) {
+            RESPONSE_ERROR(pWork->conn, BigRLab::ServerType::connection::ok, -1, 
+                    name() << ": Cannot found algconfig whose name is " << alg);
+            return;
+        } // if
+
+        string parseErr;
+        if (!pAlgConfig->parseArg(root, parseErr)) {
+            RESPONSE_ERROR(pWork->conn, BigRLab::ServerType::connection::ok, -1, 
+                    name() << " parse arg error: " << parseErr);
+            return;
+        } // if
+
+        send_response(pWork->conn, BigRLab::ServerType::connection::ok, resp);
+
+    } catch (const std::exception &ex) {
+        LOG(ERROR) << "System exception: " << ex.what() << "\nRemoving server: " << ip;
+        m_mapIpClient.erase(ip);
+    } // try
+}
+
+#if 0
+void RunCmdService::handleRequest(const BigRLab::WorkItemPtr &pWork)
+{
+    using namespace std;
+
+    Json::Reader    reader;
+    Json::Value     root;
+
+    string      ip;
+    string      alg, resp;
+
+    if (!reader.parse(pWork->body, root)) {
+        LOG(ERROR) << "json parse fail!";
+        RESPONSE_ERROR(pWork->conn, BigRLab::ServerType::connection::ok, -1, 
+                name() << ": json parse fail!");
+        return;
+    } // if
+
+    try {
+
+        // for (Json::ValueIterator itr = root.begin() ; itr != root.end() ; ++itr)
+            // DLOG(INFO) << itr.key() << " = " << *itr;
+
+        try { 
+            ip = root["_ip_"].asString(); 
+        } catch (...) {
+            RESPONSE_ERROR(pWork->conn, BigRLab::ServerType::connection::ok, -1, 
+                    name() << ": No ip info found in json!");
+            return;
+        } // try ip
+
+        try { 
+            alg = root["_alg_"].asString(); 
+        } catch (...) {
+            RESPONSE_ERROR(pWork->conn, BigRLab::ServerType::connection::ok, -1, 
+                    name() << ": No alg info found in json!");
+            return;
+        } // try alg
 
         auto it = m_mapIpClient.find(ip);
         if (it == m_mapIpClient.end()) {
@@ -87,6 +159,7 @@ void RunCmdService::handleRequest(const BigRLab::WorkItemPtr &pWork)
         m_mapIpClient.erase(ip);
     } // try
 }
+#endif
 
 
 // 新alg server加入时的处理, 不用改

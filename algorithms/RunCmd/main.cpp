@@ -1,5 +1,6 @@
 /*
  * GLOG_logtostderr=1 ./RunCmdSvr.bin -algname cmdsvr -algmgr localhost:9001 -port 10080
+ * curl -i -X POST -H "Content-Type: BigRLab_Request" -d '{"ip":"127.0.0.1","cmd":"ls -l /root"}' http://localhost:9000/cmdsvr
  */
 #include <cstdio>
 #include <thread>
