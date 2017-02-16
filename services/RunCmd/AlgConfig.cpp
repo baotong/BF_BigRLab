@@ -3,6 +3,8 @@
 #include "AlgConfig.h"
 
 
+using namespace std;
+
 template <typename T>
 inline std::string my_to_string(const T &val)
 {
@@ -13,7 +15,29 @@ inline std::string my_to_string(const T &val)
 
 bool XgBoostConfig::parseArg(Json::Value &root, std::string &err)
 {
-    using namespace std;
+    try {
+        m_strTask = root["_task_"].asString(); 
+    } catch (...) {
+        err = "\"_task_\" not specified!";
+        return false;
+    } // try
+
+    if ("train" == m_strTask) {
+        return parseTrainArg(root, err);
+    } else if ("deploy" == m_strTask) {
+        return parseDeployArg(root, err);
+    } else {
+        err = "Wrong task type!";
+    } // if
+
+    return false;
+}
+
+
+bool XgBoostConfig::parseTrainArg(Json::Value &root, std::string &err)
+{
+    m_strCmd = "xgboost "; 
+    m_strCmd.append(CONFIG_FILE);
 
     for (Json::ValueIterator itr = root.begin() ; itr != root.end() ; ++itr) {
         string key = my_to_string(itr.key());
@@ -24,8 +48,17 @@ bool XgBoostConfig::parseArg(Json::Value &root, std::string &err)
         // DLOG(INFO) << key << " = " << value;
         m_strCmd.append(" ").append(key).append("=").append(value);
     } // for
+
+    m_strCmd.append(" ").append("model_out=").append(MODEL_FILE);
     
     return true;
+}
+
+
+bool XgBoostConfig::parseDeployArg(Json::Value &root, std::string &err)
+{
+    m_strCmd = "xgboost_svr "; 
+    return false;
 }
 
 
@@ -34,10 +67,13 @@ void XgBoostConfig::run(const RunCmdService::RunCmdClientPtr &pClient, std::stri
     // DLOG(INFO) << "cmd: " << m_strCmd;
     using namespace std;
 
-    string cmd = "echo \"\" > ";
-    cmd.append(CONFIG_FILE);
-    pClient->client()->runCmd(resp, cmd);
-
-    pClient->client()->runCmd(resp, m_strCmd);
+    if ("train" == m_strTask) {
+        string cmd = "echo \"\" > ";
+        cmd.append(CONFIG_FILE);
+        pClient->client()->runCmd(resp, cmd);
+        pClient->client()->runCmd(resp, m_strCmd);
+    } else if ("deploy" == m_strTask) {
+        ;
+    } // if
 }
 

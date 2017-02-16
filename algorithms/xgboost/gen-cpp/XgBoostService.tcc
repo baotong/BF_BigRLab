@@ -128,14 +128,14 @@ uint32_t XgBoostService_predict_result::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size4;
-            ::apache::thrift::protocol::TType _etype7;
-            xfer += iprot->readListBegin(_etype7, _size4);
-            this->success.resize(_size4);
-            uint32_t _i8;
-            for (_i8 = 0; _i8 < _size4; ++_i8)
+            uint32_t _size0;
+            ::apache::thrift::protocol::TType _etype3;
+            xfer += iprot->readListBegin(_etype3, _size0);
+            this->success.resize(_size0);
+            uint32_t _i4;
+            for (_i4 = 0; _i4 < _size0; ++_i4)
             {
-              xfer += iprot->readDouble(this->success[_i8]);
+              xfer += iprot->readDouble(this->success[_i4]);
             }
             xfer += iprot->readListEnd();
           }
@@ -175,10 +175,10 @@ uint32_t XgBoostService_predict_result::write(Protocol_* oprot) const {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_DOUBLE, static_cast<uint32_t>(this->success.size()));
-      std::vector<double> ::const_iterator _iter9;
-      for (_iter9 = this->success.begin(); _iter9 != this->success.end(); ++_iter9)
+      std::vector<double> ::const_iterator _iter5;
+      for (_iter5 = this->success.begin(); _iter5 != this->success.end(); ++_iter5)
       {
-        xfer += oprot->writeDouble((*_iter9));
+        xfer += oprot->writeDouble((*_iter5));
       }
       xfer += oprot->writeListEnd();
     }
@@ -220,14 +220,14 @@ uint32_t XgBoostService_predict_presult::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size10;
-            ::apache::thrift::protocol::TType _etype13;
-            xfer += iprot->readListBegin(_etype13, _size10);
-            (*(this->success)).resize(_size10);
-            uint32_t _i14;
-            for (_i14 = 0; _i14 < _size10; ++_i14)
+            uint32_t _size6;
+            ::apache::thrift::protocol::TType _etype9;
+            xfer += iprot->readListBegin(_etype9, _size6);
+            (*(this->success)).resize(_size6);
+            uint32_t _i10;
+            for (_i10 = 0; _i10 < _size6; ++_i10)
             {
-              xfer += iprot->readDouble((*(this->success))[_i14]);
+              xfer += iprot->readDouble((*(this->success))[_i10]);
             }
             xfer += iprot->readListEnd();
           }
@@ -373,14 +373,14 @@ uint32_t XgBoostService_predict_GBDT_result::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size15;
-            ::apache::thrift::protocol::TType _etype18;
-            xfer += iprot->readListBegin(_etype18, _size15);
-            this->success.resize(_size15);
-            uint32_t _i19;
-            for (_i19 = 0; _i19 < _size15; ++_i19)
+            uint32_t _size11;
+            ::apache::thrift::protocol::TType _etype14;
+            xfer += iprot->readListBegin(_etype14, _size11);
+            this->success.resize(_size11);
+            uint32_t _i15;
+            for (_i15 = 0; _i15 < _size11; ++_i15)
             {
-              xfer += iprot->readDouble(this->success[_i19]);
+              xfer += iprot->readDouble(this->success[_i15]);
             }
             xfer += iprot->readListEnd();
           }
@@ -420,10 +420,10 @@ uint32_t XgBoostService_predict_GBDT_result::write(Protocol_* oprot) const {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_DOUBLE, static_cast<uint32_t>(this->success.size()));
-      std::vector<double> ::const_iterator _iter20;
-      for (_iter20 = this->success.begin(); _iter20 != this->success.end(); ++_iter20)
+      std::vector<double> ::const_iterator _iter16;
+      for (_iter16 = this->success.begin(); _iter16 != this->success.end(); ++_iter16)
       {
-        xfer += oprot->writeDouble((*_iter20));
+        xfer += oprot->writeDouble((*_iter16));
       }
       xfer += oprot->writeListEnd();
     }
@@ -465,14 +465,14 @@ uint32_t XgBoostService_predict_GBDT_presult::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size21;
-            ::apache::thrift::protocol::TType _etype24;
-            xfer += iprot->readListBegin(_etype24, _size21);
-            (*(this->success)).resize(_size21);
-            uint32_t _i25;
-            for (_i25 = 0; _i25 < _size21; ++_i25)
+            uint32_t _size17;
+            ::apache::thrift::protocol::TType _etype20;
+            xfer += iprot->readListBegin(_etype20, _size17);
+            (*(this->success)).resize(_size17);
+            uint32_t _i21;
+            for (_i21 = 0; _i21 < _size17; ++_i21)
             {
-              xfer += iprot->readDouble((*(this->success))[_i25]);
+              xfer += iprot->readDouble((*(this->success))[_i21]);
             }
             xfer += iprot->readListEnd();
           }
@@ -958,7 +958,7 @@ void XgBoostServiceProcessorT<Protocol_>::process_predict(int32_t seqid, ::apach
   try {
     iface_->predict(result.success, args.input, args.leaf);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -1016,7 +1016,7 @@ void XgBoostServiceProcessorT<Protocol_>::process_predict(int32_t seqid, Protoco
   try {
     iface_->predict(result.success, args.input, args.leaf);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -1074,7 +1074,7 @@ void XgBoostServiceProcessorT<Protocol_>::process_predict_GBDT(int32_t seqid, ::
   try {
     iface_->predict_GBDT(result.success, args.input, args.simple);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -1132,7 +1132,7 @@ void XgBoostServiceProcessorT<Protocol_>::process_predict_GBDT(int32_t seqid, Pr
   try {
     iface_->predict_GBDT(result.success, args.input, args.simple);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -1190,7 +1190,7 @@ void XgBoostServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, :
   try {
     iface_->handleRequest(result.success, args.request);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -1248,7 +1248,7 @@ void XgBoostServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, P
   try {
     iface_->handleRequest(result.success, args.request);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {

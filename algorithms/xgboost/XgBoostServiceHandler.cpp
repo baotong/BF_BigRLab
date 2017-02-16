@@ -125,7 +125,7 @@ void XgBoostServiceHandler::handleRequest(std::string& _return, const std::strin
         if (result.empty())
             resp["result"] = "null";
 
-    } catch (const InvalidRequest &err) {
+    } catch (const AlgCommon::InvalidRequest &err) {
         throw err;
     } catch (const std::exception &ex) {
         LOG(ERROR) << "handleRequest fail: " << ex.what();

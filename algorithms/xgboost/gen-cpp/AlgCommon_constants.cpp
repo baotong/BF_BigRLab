@@ -4,14 +4,14 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
-#ifndef xgboost_svr_TYPES_TCC
-#define xgboost_svr_TYPES_TCC
+#include "AlgCommon_constants.h"
 
-#include "AlgCommon_types.tcc"
-#include "xgboost_svr_types.h"
+namespace AlgCommon {
 
-namespace XgBoostSvr {
+const AlgCommonConstants g_AlgCommon_constants;
+
+AlgCommonConstants::AlgCommonConstants() {
+}
 
 } // namespace
 
-#endif

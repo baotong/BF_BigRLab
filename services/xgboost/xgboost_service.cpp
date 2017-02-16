@@ -137,7 +137,7 @@ struct XgBoostTask : BigRLab::WorkItemBase {
                     *ofs << id << "\tnull" << endl;
                 } // if
 
-            } catch (const XgBoostSvr::InvalidRequest &err) {
+            } catch (const AlgCommon::InvalidRequest &err) {
                 done = true;
                 idleClients->putBack( pClient );
                 LOG(ERROR) << "Service " << srvName << " caught InvalidRequest: "
@@ -251,7 +251,7 @@ void XgBoostService::handleRequest(const BigRLab::WorkItemPtr &pWork)
             m_queIdleClients.putBack( pClient );
             send_response(pWork->conn, BigRLab::ServerType::connection::ok, result);
 
-        } catch (const XgBoostSvr::InvalidRequest &err) {
+        } catch (const AlgCommon::InvalidRequest &err) {
             done = true;
             m_queIdleClients.putBack( pClient );
             LOG(ERROR) << "Service " << name() << " caught InvalidRequest: "

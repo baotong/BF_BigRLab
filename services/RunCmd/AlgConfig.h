@@ -17,16 +17,19 @@ protected:
 
 class XgBoostConfig : public AlgConfig {
     constexpr static const char *CONFIG_FILE = "/tmp/xgboost_empty.conf";
+    constexpr static const char *MODEL_FILE = "/tmp/xgboost.model";
 public:
-    XgBoostConfig() 
-    { 
-        m_strCmd = "xgboost "; 
-        m_strCmd.append(CONFIG_FILE);
-    }
     // XgBoostConfig() : m_strCmd("xgboost ") {}    //!! ERROR
 
     virtual bool parseArg(Json::Value &root, std::string &err);
     virtual void run(const RunCmdService::RunCmdClientPtr &pClient, std::string &resp);
+
+private:
+    bool parseTrainArg(Json::Value &root, std::string &err);
+    bool parseDeployArg(Json::Value &root, std::string &err);
+
+private:
+    std::string     m_strTask;
 };
 
 

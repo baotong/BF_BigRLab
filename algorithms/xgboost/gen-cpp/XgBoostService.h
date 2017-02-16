@@ -129,13 +129,13 @@ class XgBoostService_predict_result {
 
   virtual ~XgBoostService_predict_result() throw();
   std::vector<double>  success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _XgBoostService_predict_result__isset __isset;
 
   void __set_success(const std::vector<double> & val);
 
-  void __set_err(const InvalidRequest& val);
+  void __set_err(const  ::AlgCommon::InvalidRequest& val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -156,7 +156,7 @@ class XgBoostService_predict_presult {
 
   virtual ~XgBoostService_predict_presult() throw();
   std::vector<double> * success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _XgBoostService_predict_presult__isset __isset;
 
@@ -230,13 +230,13 @@ class XgBoostService_predict_GBDT_result {
 
   virtual ~XgBoostService_predict_GBDT_result() throw();
   std::vector<double>  success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _XgBoostService_predict_GBDT_result__isset __isset;
 
   void __set_success(const std::vector<double> & val);
 
-  void __set_err(const InvalidRequest& val);
+  void __set_err(const  ::AlgCommon::InvalidRequest& val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -257,7 +257,7 @@ class XgBoostService_predict_GBDT_presult {
 
   virtual ~XgBoostService_predict_GBDT_presult() throw();
   std::vector<double> * success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _XgBoostService_predict_GBDT_presult__isset __isset;
 
@@ -326,13 +326,13 @@ class XgBoostService_handleRequest_result {
 
   virtual ~XgBoostService_handleRequest_result() throw();
   std::string success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _XgBoostService_handleRequest_result__isset __isset;
 
   void __set_success(const std::string& val);
 
-  void __set_err(const InvalidRequest& val);
+  void __set_err(const  ::AlgCommon::InvalidRequest& val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -353,7 +353,7 @@ class XgBoostService_handleRequest_presult {
 
   virtual ~XgBoostService_handleRequest_presult() throw();
   std::string* success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _XgBoostService_handleRequest_presult__isset __isset;
 
