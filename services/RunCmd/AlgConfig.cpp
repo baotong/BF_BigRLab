@@ -1,5 +1,6 @@
 #include <sstream>
 #include <boost/algorithm/string.hpp>
+#include <json/json.h>
 #include "AlgConfig.h"
 
 
@@ -13,6 +14,9 @@ inline std::string my_to_string(const T &val)
     return oss.str();
 }
 
+
+std::atomic_int XgBoostConfig::s_nSvrPort(10080);
+
 bool XgBoostConfig::parseArg(Json::Value &root, std::string &err)
 {
     try {
@@ -24,8 +28,10 @@ bool XgBoostConfig::parseArg(Json::Value &root, std::string &err)
 
     if ("train" == m_strTask) {
         return parseTrainArg(root, err);
-    } else if ("deploy" == m_strTask) {
-        return parseDeployArg(root, err);
+    } else if ("online" == m_strTask) {
+        return parseOnlineArg(root, err);
+    } else if ("offline" == m_strTask) {
+        return true;
     } else {
         err = "Wrong task type!";
     } // if
@@ -55,10 +61,29 @@ bool XgBoostConfig::parseTrainArg(Json::Value &root, std::string &err)
 }
 
 
-bool XgBoostConfig::parseDeployArg(Json::Value &root, std::string &err)
+bool XgBoostConfig::parseOnlineArg(Json::Value &root, std::string &err)
 {
-    m_strCmd = "xgboost_svr "; 
-    return false;
+    // if (!m_bTrained) {
+        // err = "You have to train a model first!";
+        // return false;
+    // } // if
+
+    string  serviceName;
+
+    ostringstream oss;
+    oss << "GLOG_log_dir=\".\" nohup xgboost_svr.bin -model " << MODEL_FILE;
+
+    try { 
+        serviceName = root["service"].asString(); 
+    } catch (...) {
+        err = "\"service\" not specified!";
+        return false;
+    } // try alg
+
+    oss << " -algname " << serviceName << flush;
+    m_strCmd = oss.str();
+
+    return true;
 }
 
 
@@ -70,10 +95,42 @@ void XgBoostConfig::run(const RunCmdService::RunCmdClientPtr &pClient, std::stri
     if ("train" == m_strTask) {
         string cmd = "echo \"\" > ";
         cmd.append(CONFIG_FILE);
-        pClient->client()->runCmd(resp, cmd);
-        pClient->client()->runCmd(resp, m_strCmd);
-    } else if ("deploy" == m_strTask) {
-        ;
+        pClient->client()->runCmd(cmd);
+        pClient->client()->readCmd(resp, m_strCmd);
+        m_bTrained = true;
+
+    } else if ("online" == m_strTask) {
+        // get port algmgr
+        // kill old
+        // sleep
+        string strAlgMgr;
+        ostringstream oss;
+        pClient->client()->getAlgMgr(strAlgMgr);
+
+        string cmd = "killall xgboost_svr.bin";
+        pClient->client()->runCmd(cmd);
+        SLEEP_SECONDS(5);
+        cmd = "killall -9 xgboost_svr.bin";
+        pClient->client()->runCmd(cmd);
+
+        if (++s_nSvrPort > 65534) s_nSvrPort = 10080;
+        oss << " -port " << s_nSvrPort << " -algmgr " << strAlgMgr << " &" << flush;
+        m_strCmd.append(oss.str());
+        int retval = pClient->client()->runCmd(m_strCmd);
+
+        Json::Value     jsonResp;
+        jsonResp["status"] = retval;
+        if (retval) jsonResp["output"] = "Start online server fail!";
+        else jsonResp["output"] = "Start online server success.";
+        Json::FastWriter writer;  
+        resp = writer.write(jsonResp);
+
+    } else if ("offline" == m_strTask) {
+        string cmd = "killall xgboost_svr.bin";
+        pClient->client()->runCmd(cmd);
+        SLEEP_SECONDS(5);
+        cmd = "killall -9 xgboost_svr.bin";
+        pClient->client()->runCmd(cmd);
     } // if
 }
 

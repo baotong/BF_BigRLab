@@ -13,12 +13,26 @@ namespace RunCmd {
 
 using namespace std;
 
-void RunCmdServiceHandler::runCmd(std::string& _return, const std::string& cmd)
+
+void RunCmdServiceHandler::getAlgMgr(std::string& _return)
+{
+    ostringstream oss;
+    oss << g_strAlgMgrAddr << ":" << g_nAlgMgrPort << flush;
+    _return = oss.str();
+}
+
+
+int32_t RunCmdServiceHandler::runCmd(const std::string& cmd)
+{
+    DLOG(INFO) << "Received cmd: " << cmd;
+    return system(cmd.c_str());
+}
+
+
+void RunCmdServiceHandler::readCmd(std::string& _return, const std::string& cmd)
 {
     DLOG(INFO) << "Received cmd: " << cmd;
 
-    THROW_INVALID_REQUEST_IF(cmd.empty(), "Cmd cannot be empty!");
-    
     Json::Value     resp;
     int         retcode;
     string      output;

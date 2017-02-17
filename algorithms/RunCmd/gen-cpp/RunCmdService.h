@@ -21,7 +21,9 @@ namespace RunCmd {
 class RunCmdServiceIf {
  public:
   virtual ~RunCmdServiceIf() {}
-  virtual void runCmd(std::string& _return, const std::string& cmd) = 0;
+  virtual void readCmd(std::string& _return, const std::string& cmd) = 0;
+  virtual int32_t runCmd(const std::string& cmd) = 0;
+  virtual void getAlgMgr(std::string& _return) = 0;
 };
 
 class RunCmdServiceIfFactory {
@@ -51,9 +53,112 @@ class RunCmdServiceIfSingletonFactory : virtual public RunCmdServiceIfFactory {
 class RunCmdServiceNull : virtual public RunCmdServiceIf {
  public:
   virtual ~RunCmdServiceNull() {}
-  void runCmd(std::string& /* _return */, const std::string& /* cmd */) {
+  void readCmd(std::string& /* _return */, const std::string& /* cmd */) {
     return;
   }
+  int32_t runCmd(const std::string& /* cmd */) {
+    int32_t _return = 0;
+    return _return;
+  }
+  void getAlgMgr(std::string& /* _return */) {
+    return;
+  }
+};
+
+typedef struct _RunCmdService_readCmd_args__isset {
+  _RunCmdService_readCmd_args__isset() : cmd(false) {}
+  bool cmd :1;
+} _RunCmdService_readCmd_args__isset;
+
+class RunCmdService_readCmd_args {
+ public:
+
+  RunCmdService_readCmd_args(const RunCmdService_readCmd_args&);
+  RunCmdService_readCmd_args(RunCmdService_readCmd_args&&);
+  RunCmdService_readCmd_args& operator=(const RunCmdService_readCmd_args&);
+  RunCmdService_readCmd_args& operator=(RunCmdService_readCmd_args&&);
+  RunCmdService_readCmd_args() : cmd() {
+  }
+
+  virtual ~RunCmdService_readCmd_args() throw();
+  std::string cmd;
+
+  _RunCmdService_readCmd_args__isset __isset;
+
+  void __set_cmd(const std::string& val);
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+};
+
+
+class RunCmdService_readCmd_pargs {
+ public:
+
+
+  virtual ~RunCmdService_readCmd_pargs() throw();
+  const std::string* cmd;
+
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+};
+
+typedef struct _RunCmdService_readCmd_result__isset {
+  _RunCmdService_readCmd_result__isset() : success(false), err(false) {}
+  bool success :1;
+  bool err :1;
+} _RunCmdService_readCmd_result__isset;
+
+class RunCmdService_readCmd_result {
+ public:
+
+  RunCmdService_readCmd_result(const RunCmdService_readCmd_result&);
+  RunCmdService_readCmd_result(RunCmdService_readCmd_result&&);
+  RunCmdService_readCmd_result& operator=(const RunCmdService_readCmd_result&);
+  RunCmdService_readCmd_result& operator=(RunCmdService_readCmd_result&&);
+  RunCmdService_readCmd_result() : success() {
+  }
+
+  virtual ~RunCmdService_readCmd_result() throw();
+  std::string success;
+   ::AlgCommon::InvalidRequest err;
+
+  _RunCmdService_readCmd_result__isset __isset;
+
+  void __set_success(const std::string& val);
+
+  void __set_err(const  ::AlgCommon::InvalidRequest& val);
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+};
+
+typedef struct _RunCmdService_readCmd_presult__isset {
+  _RunCmdService_readCmd_presult__isset() : success(false), err(false) {}
+  bool success :1;
+  bool err :1;
+} _RunCmdService_readCmd_presult__isset;
+
+class RunCmdService_readCmd_presult {
+ public:
+
+
+  virtual ~RunCmdService_readCmd_presult() throw();
+  std::string* success;
+   ::AlgCommon::InvalidRequest err;
+
+  _RunCmdService_readCmd_presult__isset __isset;
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+
 };
 
 typedef struct _RunCmdService_runCmd_args__isset {
@@ -111,16 +216,16 @@ class RunCmdService_runCmd_result {
   RunCmdService_runCmd_result(RunCmdService_runCmd_result&&);
   RunCmdService_runCmd_result& operator=(const RunCmdService_runCmd_result&);
   RunCmdService_runCmd_result& operator=(RunCmdService_runCmd_result&&);
-  RunCmdService_runCmd_result() : success() {
+  RunCmdService_runCmd_result() : success(0) {
   }
 
   virtual ~RunCmdService_runCmd_result() throw();
-  std::string success;
+  int32_t success;
    ::AlgCommon::InvalidRequest err;
 
   _RunCmdService_runCmd_result__isset __isset;
 
-  void __set_success(const std::string& val);
+  void __set_success(const int32_t val);
 
   void __set_err(const  ::AlgCommon::InvalidRequest& val);
 
@@ -142,10 +247,90 @@ class RunCmdService_runCmd_presult {
 
 
   virtual ~RunCmdService_runCmd_presult() throw();
-  std::string* success;
+  int32_t* success;
    ::AlgCommon::InvalidRequest err;
 
   _RunCmdService_runCmd_presult__isset __isset;
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+
+};
+
+
+class RunCmdService_getAlgMgr_args {
+ public:
+
+  RunCmdService_getAlgMgr_args(const RunCmdService_getAlgMgr_args&);
+  RunCmdService_getAlgMgr_args(RunCmdService_getAlgMgr_args&&);
+  RunCmdService_getAlgMgr_args& operator=(const RunCmdService_getAlgMgr_args&);
+  RunCmdService_getAlgMgr_args& operator=(RunCmdService_getAlgMgr_args&&);
+  RunCmdService_getAlgMgr_args() {
+  }
+
+  virtual ~RunCmdService_getAlgMgr_args() throw();
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+};
+
+
+class RunCmdService_getAlgMgr_pargs {
+ public:
+
+
+  virtual ~RunCmdService_getAlgMgr_pargs() throw();
+
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+};
+
+typedef struct _RunCmdService_getAlgMgr_result__isset {
+  _RunCmdService_getAlgMgr_result__isset() : success(false) {}
+  bool success :1;
+} _RunCmdService_getAlgMgr_result__isset;
+
+class RunCmdService_getAlgMgr_result {
+ public:
+
+  RunCmdService_getAlgMgr_result(const RunCmdService_getAlgMgr_result&);
+  RunCmdService_getAlgMgr_result(RunCmdService_getAlgMgr_result&&);
+  RunCmdService_getAlgMgr_result& operator=(const RunCmdService_getAlgMgr_result&);
+  RunCmdService_getAlgMgr_result& operator=(RunCmdService_getAlgMgr_result&&);
+  RunCmdService_getAlgMgr_result() : success() {
+  }
+
+  virtual ~RunCmdService_getAlgMgr_result() throw();
+  std::string success;
+
+  _RunCmdService_getAlgMgr_result__isset __isset;
+
+  void __set_success(const std::string& val);
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+};
+
+typedef struct _RunCmdService_getAlgMgr_presult__isset {
+  _RunCmdService_getAlgMgr_presult__isset() : success(false) {}
+  bool success :1;
+} _RunCmdService_getAlgMgr_presult__isset;
+
+class RunCmdService_getAlgMgr_presult {
+ public:
+
+
+  virtual ~RunCmdService_getAlgMgr_presult() throw();
+  std::string* success;
+
+  _RunCmdService_getAlgMgr_presult__isset __isset;
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -178,9 +363,15 @@ class RunCmdServiceClientT : virtual public RunCmdServiceIf {
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> getOutputProtocol() {
     return this->poprot_;
   }
-  void runCmd(std::string& _return, const std::string& cmd);
+  void readCmd(std::string& _return, const std::string& cmd);
+  void send_readCmd(const std::string& cmd);
+  void recv_readCmd(std::string& _return);
+  int32_t runCmd(const std::string& cmd);
   void send_runCmd(const std::string& cmd);
-  void recv_runCmd(std::string& _return);
+  int32_t recv_runCmd();
+  void getAlgMgr(std::string& _return);
+  void send_getAlgMgr();
+  void recv_getAlgMgr(std::string& _return);
  protected:
   boost::shared_ptr< Protocol_> piprot_;
   boost::shared_ptr< Protocol_> poprot_;
@@ -209,14 +400,24 @@ class RunCmdServiceProcessorT : public ::apache::thrift::TDispatchProcessorT<Pro
   };
   typedef std::map<std::string, ProcessFunctions> ProcessMap;
   ProcessMap processMap_;
+  void process_readCmd(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_readCmd(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
   void process_runCmd(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
   void process_runCmd(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
+  void process_getAlgMgr(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_getAlgMgr(int32_t seqid, Protocol_* iprot, Protocol_* oprot, void* callContext);
  public:
   RunCmdServiceProcessorT(boost::shared_ptr<RunCmdServiceIf> iface) :
     iface_(iface) {
+    processMap_["readCmd"] = ProcessFunctions(
+      &RunCmdServiceProcessorT::process_readCmd,
+      &RunCmdServiceProcessorT::process_readCmd);
     processMap_["runCmd"] = ProcessFunctions(
       &RunCmdServiceProcessorT::process_runCmd,
       &RunCmdServiceProcessorT::process_runCmd);
+    processMap_["getAlgMgr"] = ProcessFunctions(
+      &RunCmdServiceProcessorT::process_getAlgMgr,
+      &RunCmdServiceProcessorT::process_getAlgMgr);
   }
 
   virtual ~RunCmdServiceProcessorT() {}
@@ -250,13 +451,32 @@ class RunCmdServiceMultiface : virtual public RunCmdServiceIf {
     ifaces_.push_back(iface);
   }
  public:
-  void runCmd(std::string& _return, const std::string& cmd) {
+  void readCmd(std::string& _return, const std::string& cmd) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->runCmd(_return, cmd);
+      ifaces_[i]->readCmd(_return, cmd);
     }
-    ifaces_[i]->runCmd(_return, cmd);
+    ifaces_[i]->readCmd(_return, cmd);
+    return;
+  }
+
+  int32_t runCmd(const std::string& cmd) {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->runCmd(cmd);
+    }
+    return ifaces_[i]->runCmd(cmd);
+  }
+
+  void getAlgMgr(std::string& _return) {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->getAlgMgr(_return);
+    }
+    ifaces_[i]->getAlgMgr(_return);
     return;
   }
 
@@ -291,9 +511,15 @@ class RunCmdServiceConcurrentClientT : virtual public RunCmdServiceIf {
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> getOutputProtocol() {
     return this->poprot_;
   }
-  void runCmd(std::string& _return, const std::string& cmd);
+  void readCmd(std::string& _return, const std::string& cmd);
+  int32_t send_readCmd(const std::string& cmd);
+  void recv_readCmd(std::string& _return, const int32_t seqid);
+  int32_t runCmd(const std::string& cmd);
   int32_t send_runCmd(const std::string& cmd);
-  void recv_runCmd(std::string& _return, const int32_t seqid);
+  int32_t recv_runCmd(const int32_t seqid);
+  void getAlgMgr(std::string& _return);
+  int32_t send_getAlgMgr();
+  void recv_getAlgMgr(std::string& _return, const int32_t seqid);
  protected:
   boost::shared_ptr< Protocol_> piprot_;
   boost::shared_ptr< Protocol_> poprot_;

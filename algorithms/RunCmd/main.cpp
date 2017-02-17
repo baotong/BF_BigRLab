@@ -1,6 +1,8 @@
 /*
  * GLOG_logtostderr=1 ./RunCmdSvr.bin -algname cmdsvr -algmgr localhost:9001 -port 10080
- * curl -i -X POST -H "Content-Type: BigRLab_Request" -d '{"_ip_":"127.0.0.1","_alg_":"xgboost","booster":"gbtree","objective":"binary:logistic","data":"/home/charles/smb_share/xgboost/demo/binary_classification/agaricus.txt.train","model_out":"/tmp/test.model"}' http://localhost:9000/cmdsvr
+ * curl -i -X POST -H "Content-Type: BigRLab_Request" -d '{"_ip_":"127.0.0.1","_alg_":"xgboost","_task_":"train","booster":"gbtree","objective":"binary:logistic","data":"/home/charles/smb_share/xgboost/demo/binary_classification/agaricus.txt.train"}' http://localhost:9000/cmdsvr
+ * curl -i -X POST -H "Content-Type: BigRLab_Request" -d '{"_ip_":"127.0.0.1","_alg_":"xgboost","_task_":"online","service":"xgboost_pred"}' http://localhost:9000/cmdsvr
+ * curl -i -X POST -H "Content-Type: BigRLab_Request" -d '{"_ip_":"127.0.0.1","_alg_":"xgboost","_task_":"offline"}' http://localhost:9000/cmdsvr
  */
 #include <cstdio>
 #include <thread>
@@ -30,8 +32,8 @@ DEFINE_int32(n_work_threads, 2, "Number of work threads on RPC server");
 DEFINE_int32(n_io_threads, 2, "Number of io threads on RPC server");
 
 
-static std::string                  g_strAlgMgrAddr;
-static uint16_t                     g_nAlgMgrPort = 0;
+std::string                  g_strAlgMgrAddr;
+uint16_t                     g_nAlgMgrPort = 0;
 static std::string                  g_strThisAddr;
 static uint16_t                     g_nThisPort = 0;
 

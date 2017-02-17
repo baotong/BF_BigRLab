@@ -8,5 +8,7 @@ include "../alg_common/AlgCommon.thrift"
 namespace * RunCmd
 
 service RunCmdService {
-    string runCmd( 1:string cmd ) throws (1:AlgCommon.InvalidRequest err)
+    string readCmd( 1:string cmd ) throws (1:AlgCommon.InvalidRequest err),
+    i32 runCmd( 1:string cmd ) throws (1:AlgCommon.InvalidRequest err),
+    string getAlgMgr()
 }
