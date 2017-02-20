@@ -63,11 +63,6 @@ bool XgBoostConfig::parseTrainArg(Json::Value &root, std::string &err)
 
 bool XgBoostConfig::parseOnlineArg(Json::Value &root, std::string &err)
 {
-    // if (!m_bTrained) {
-        // err = "You have to train a model first!";
-        // return false;
-    // } // if
-
     string  serviceName;
 
     ostringstream oss;
@@ -97,7 +92,6 @@ void XgBoostConfig::run(const RunCmdService::RunCmdClientPtr &pClient, std::stri
         cmd.append(CONFIG_FILE);
         pClient->client()->runCmd(cmd);
         pClient->client()->readCmd(resp, m_strCmd);
-        m_bTrained = true;
 
     } else if ("online" == m_strTask) {
         // get port algmgr
@@ -131,6 +125,12 @@ void XgBoostConfig::run(const RunCmdService::RunCmdClientPtr &pClient, std::stri
         SLEEP_SECONDS(5);
         cmd = "killall -9 xgboost_svr.bin";
         pClient->client()->runCmd(cmd);
+
+        Json::Value     jsonResp;
+        jsonResp["status"] = 0;
+        jsonResp["output"] = "Stop server done.";
+        Json::FastWriter writer;  
+        resp = writer.write(jsonResp);
     } // if
 }
 

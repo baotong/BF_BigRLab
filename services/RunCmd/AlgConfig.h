@@ -22,7 +22,6 @@ class XgBoostConfig : public AlgConfig {
     static std::atomic_int      s_nSvrPort;
 public:
     // XgBoostConfig() : m_strCmd("xgboost ") {}    //!! ERROR
-    XgBoostConfig() : m_bTrained(false) {}
 
     virtual bool parseArg(Json::Value &root, std::string &err);
     virtual void run(const RunCmdService::RunCmdClientPtr &pClient, std::string &resp);
@@ -33,7 +32,6 @@ private:
 
 private:
     std::string     m_strTask;
-    bool            m_bTrained;
 };
 
 
