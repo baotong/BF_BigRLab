@@ -9,6 +9,7 @@
 #include <boost/network/uri.hpp>
 #include <boost/asio.hpp>
 #include <json/json.h>
+#include <glog/logging.h>
 
 namespace BigRLab {
 
@@ -170,8 +171,12 @@ void send_response(const ServerType::connection_ptr &conn,
                    const std::string &content = "")
 {
     conn->set_status(status);
-    if (!content.empty())
-        conn->write(content);
+    std::ostringstream oss;
+    oss << "HTTP/1.1 " << status << "\r\n";     // No reason field like "OK"
+    oss << "Content-Length: " << content.length() << "\r\n";
+    oss << "Content-Type: application/json\r\n\r\n";
+    oss << content << std::flush;
+    conn->write(oss.str());
 }
 
 #define RESPONSE_MSG(conn, args) \
