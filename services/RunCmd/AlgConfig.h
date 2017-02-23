@@ -29,6 +29,9 @@ public:
 private:
     bool parseTrainArg(Json::Value &root, std::string &err);
     bool parseOnlineArg(Json::Value &root, std::string &err);
+    void runTrain(const RunCmdService::RunCmdClientPtr &pClient, std::string &resp);
+    void runOnline(const RunCmdService::RunCmdClientPtr &pClient, std::string &resp);
+    void runOffline(const RunCmdService::RunCmdClientPtr &pClient, std::string &resp);
 
 private:
     std::string     m_strTask;

@@ -21,7 +21,7 @@ namespace RunCmd {
 class RunCmdServiceIf {
  public:
   virtual ~RunCmdServiceIf() {}
-  virtual void readCmd(std::string& _return, const std::string& cmd) = 0;
+  virtual void readCmd(CmdResult& _return, const std::string& cmd) = 0;
   virtual int32_t runCmd(const std::string& cmd) = 0;
   virtual void getAlgMgr(std::string& _return) = 0;
 };
@@ -53,7 +53,7 @@ class RunCmdServiceIfSingletonFactory : virtual public RunCmdServiceIfFactory {
 class RunCmdServiceNull : virtual public RunCmdServiceIf {
  public:
   virtual ~RunCmdServiceNull() {}
-  void readCmd(std::string& /* _return */, const std::string& /* cmd */) {
+  void readCmd(CmdResult& /* _return */, const std::string& /* cmd */) {
     return;
   }
   int32_t runCmd(const std::string& /* cmd */) {
@@ -120,16 +120,16 @@ class RunCmdService_readCmd_result {
   RunCmdService_readCmd_result(RunCmdService_readCmd_result&&);
   RunCmdService_readCmd_result& operator=(const RunCmdService_readCmd_result&);
   RunCmdService_readCmd_result& operator=(RunCmdService_readCmd_result&&);
-  RunCmdService_readCmd_result() : success() {
+  RunCmdService_readCmd_result() {
   }
 
   virtual ~RunCmdService_readCmd_result() throw();
-  std::string success;
+  CmdResult success;
    ::AlgCommon::InvalidRequest err;
 
   _RunCmdService_readCmd_result__isset __isset;
 
-  void __set_success(const std::string& val);
+  void __set_success(const CmdResult& val);
 
   void __set_err(const  ::AlgCommon::InvalidRequest& val);
 
@@ -151,7 +151,7 @@ class RunCmdService_readCmd_presult {
 
 
   virtual ~RunCmdService_readCmd_presult() throw();
-  std::string* success;
+  CmdResult* success;
    ::AlgCommon::InvalidRequest err;
 
   _RunCmdService_readCmd_presult__isset __isset;
@@ -363,9 +363,9 @@ class RunCmdServiceClientT : virtual public RunCmdServiceIf {
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> getOutputProtocol() {
     return this->poprot_;
   }
-  void readCmd(std::string& _return, const std::string& cmd);
+  void readCmd(CmdResult& _return, const std::string& cmd);
   void send_readCmd(const std::string& cmd);
-  void recv_readCmd(std::string& _return);
+  void recv_readCmd(CmdResult& _return);
   int32_t runCmd(const std::string& cmd);
   void send_runCmd(const std::string& cmd);
   int32_t recv_runCmd();
@@ -451,7 +451,7 @@ class RunCmdServiceMultiface : virtual public RunCmdServiceIf {
     ifaces_.push_back(iface);
   }
  public:
-  void readCmd(std::string& _return, const std::string& cmd) {
+  void readCmd(CmdResult& _return, const std::string& cmd) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
@@ -511,9 +511,9 @@ class RunCmdServiceConcurrentClientT : virtual public RunCmdServiceIf {
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> getOutputProtocol() {
     return this->poprot_;
   }
-  void readCmd(std::string& _return, const std::string& cmd);
+  void readCmd(CmdResult& _return, const std::string& cmd);
   int32_t send_readCmd(const std::string& cmd);
-  void recv_readCmd(std::string& _return, const int32_t seqid);
+  void recv_readCmd(CmdResult& _return, const int32_t seqid);
   int32_t runCmd(const std::string& cmd);
   int32_t send_runCmd(const std::string& cmd);
   int32_t recv_runCmd(const int32_t seqid);

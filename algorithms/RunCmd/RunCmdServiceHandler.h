@@ -10,7 +10,7 @@ namespace RunCmd {
 
 class RunCmdServiceHandler : public RunCmdServiceIf {
 public:
-    virtual void readCmd(std::string& _return, const std::string& cmd);
+    virtual void readCmd(CmdResult& _return, const std::string& cmd);
     virtual int32_t runCmd(const std::string& cmd);
     virtual void getAlgMgr(std::string& _return);
 private:

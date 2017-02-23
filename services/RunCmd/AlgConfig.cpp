@@ -118,49 +118,76 @@ void XgBoostConfig::run(const RunCmdService::RunCmdClientPtr &pClient, std::stri
     using namespace std;
 
     if ("train" == m_strTask) {
-        string cmd = "echo \"\" > ";
-        cmd.append(CONFIG_FILE);
-        pClient->client()->runCmd(cmd);
-        pClient->client()->readCmd(resp, m_strCmd);
-
+        runTrain(pClient, resp);
     } else if ("online" == m_strTask) {
-        // get port algmgr
-        // kill old
-        // sleep
-        string strAlgMgr;
-        ostringstream oss;
-        pClient->client()->getAlgMgr(strAlgMgr);
-
-        string cmd = "killall xgboost_svr.bin";
-        pClient->client()->runCmd(cmd);
-        SLEEP_SECONDS(5);
-        cmd = "killall -9 xgboost_svr.bin";
-        pClient->client()->runCmd(cmd);
-
-        if (++s_nSvrPort > 65534) s_nSvrPort = 10080;
-        oss << " -port " << s_nSvrPort << " -algmgr " << strAlgMgr << " &" << flush;
-        m_strCmd.append(oss.str());
-        int retval = pClient->client()->runCmd(m_strCmd);
-
-        Json::Value     jsonResp;
-        jsonResp["status"] = retval;
-        if (retval) jsonResp["output"] = "Start online server fail!";
-        else jsonResp["output"] = "Start online server success.";
-        Json::FastWriter writer;  
-        resp = writer.write(jsonResp);
-
+        runOnline(pClient, resp);
     } else if ("offline" == m_strTask) {
-        string cmd = "killall xgboost_svr.bin";
-        pClient->client()->runCmd(cmd);
-        SLEEP_SECONDS(5);
-        cmd = "killall -9 xgboost_svr.bin";
-        pClient->client()->runCmd(cmd);
-
-        Json::Value     jsonResp;
-        jsonResp["status"] = 0;
-        jsonResp["output"] = "Stop server done.";
-        Json::FastWriter writer;  
-        resp = writer.write(jsonResp);
+        runOffline(pClient, resp);
     } // if
 }
+
+
+void XgBoostConfig::runTrain(const RunCmdService::RunCmdClientPtr &pClient, std::string &resp)
+{
+    string cmd = "echo \"\" > ";
+    cmd.append(CONFIG_FILE);
+    pClient->client()->runCmd(cmd);
+
+    RunCmd::CmdResult result;
+    ostringstream oss;
+    oss << "stdbuf -o0 " << m_strCmd << " 2>&1" << flush;
+    pClient->client()->readCmd(result, oss.str());
+
+    Json::Value     jsonResp;
+    jsonResp["status"] = result.retval;
+    jsonResp["output"] = result.output;
+    Json::FastWriter writer;  
+    resp = writer.write(jsonResp);
+}
+
+
+void XgBoostConfig::runOnline(const RunCmdService::RunCmdClientPtr &pClient, std::string &resp)
+{
+    // get port algmgr
+    // kill old
+    // sleep
+    string strAlgMgr;
+    ostringstream oss;
+    pClient->client()->getAlgMgr(strAlgMgr);
+
+    string cmd = "killall xgboost_svr.bin";
+    pClient->client()->runCmd(cmd);
+    SLEEP_SECONDS(5);
+    cmd = "killall -9 xgboost_svr.bin";
+    pClient->client()->runCmd(cmd);
+
+    if (++s_nSvrPort > 65534) s_nSvrPort = 10080;
+    oss << " -port " << s_nSvrPort << " -algmgr " << strAlgMgr << " &" << flush;
+    m_strCmd.append(oss.str());
+    int retval = pClient->client()->runCmd(m_strCmd);
+
+    Json::Value     jsonResp;
+    jsonResp["status"] = retval;
+    if (retval) jsonResp["output"] = "Start online server fail!";
+    else jsonResp["output"] = "Start online server success.";
+    Json::FastWriter writer;  
+    resp = writer.write(jsonResp);
+}
+
+
+void XgBoostConfig::runOffline(const RunCmdService::RunCmdClientPtr &pClient, std::string &resp)
+{
+    string cmd = "killall xgboost_svr.bin";
+    pClient->client()->runCmd(cmd);
+    SLEEP_SECONDS(5);
+    cmd = "killall -9 xgboost_svr.bin";
+    pClient->client()->runCmd(cmd);
+
+    Json::Value     jsonResp;
+    jsonResp["status"] = 0;
+    jsonResp["output"] = "Stop server done.";
+    Json::FastWriter writer;  
+    resp = writer.write(jsonResp);
+}
+
 

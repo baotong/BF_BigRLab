@@ -16,5 +16,5 @@ file(GLOB SRC ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
 
 add_executable(RunCmdSvr.bin ${SRC})
 target_link_libraries(RunCmdSvr.bin thriftnb thrift boost_chrono boost_thread boost_system 
-                        boost_iostreams event jsoncpp glog gflags)
+                        boost_iostreams event glog gflags)
 

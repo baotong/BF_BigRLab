@@ -109,8 +109,8 @@ uint32_t RunCmdService_readCmd_result::read(Protocol_* iprot) {
     switch (fid)
     {
       case 0:
-        if (ftype == ::apache::thrift::protocol::T_STRING) {
-          xfer += iprot->readString(this->success);
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->success.read(iprot);
           this->__isset.success = true;
         } else {
           xfer += iprot->skip(ftype);
@@ -144,8 +144,8 @@ uint32_t RunCmdService_readCmd_result::write(Protocol_* oprot) const {
   xfer += oprot->writeStructBegin("RunCmdService_readCmd_result");
 
   if (this->__isset.success) {
-    xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_STRING, 0);
-    xfer += oprot->writeString(this->success);
+    xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_STRUCT, 0);
+    xfer += this->success.write(oprot);
     xfer += oprot->writeFieldEnd();
   } else if (this->__isset.err) {
     xfer += oprot->writeFieldBegin("err", ::apache::thrift::protocol::T_STRUCT, 1);
@@ -181,8 +181,8 @@ uint32_t RunCmdService_readCmd_presult::read(Protocol_* iprot) {
     switch (fid)
     {
       case 0:
-        if (ftype == ::apache::thrift::protocol::T_STRING) {
-          xfer += iprot->readString((*(this->success)));
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += (*(this->success)).read(iprot);
           this->__isset.success = true;
         } else {
           xfer += iprot->skip(ftype);
@@ -562,7 +562,7 @@ uint32_t RunCmdService_getAlgMgr_presult::read(Protocol_* iprot) {
 }
 
 template <class Protocol_>
-void RunCmdServiceClientT<Protocol_>::readCmd(std::string& _return, const std::string& cmd)
+void RunCmdServiceClientT<Protocol_>::readCmd(CmdResult& _return, const std::string& cmd)
 {
   send_readCmd(cmd);
   recv_readCmd(_return);
@@ -584,7 +584,7 @@ void RunCmdServiceClientT<Protocol_>::send_readCmd(const std::string& cmd)
 }
 
 template <class Protocol_>
-void RunCmdServiceClientT<Protocol_>::recv_readCmd(std::string& _return)
+void RunCmdServiceClientT<Protocol_>::recv_readCmd(CmdResult& _return)
 {
 
   int32_t rseqid = 0;
@@ -1140,7 +1140,7 @@ template <class Protocol_>
 }
 
 template <class Protocol_>
-void RunCmdServiceConcurrentClientT<Protocol_>::readCmd(std::string& _return, const std::string& cmd)
+void RunCmdServiceConcurrentClientT<Protocol_>::readCmd(CmdResult& _return, const std::string& cmd)
 {
   int32_t seqid = send_readCmd(cmd);
   recv_readCmd(_return, seqid);
@@ -1166,7 +1166,7 @@ int32_t RunCmdServiceConcurrentClientT<Protocol_>::send_readCmd(const std::strin
 }
 
 template <class Protocol_>
-void RunCmdServiceConcurrentClientT<Protocol_>::recv_readCmd(std::string& _return, const int32_t seqid)
+void RunCmdServiceConcurrentClientT<Protocol_>::recv_readCmd(CmdResult& _return, const int32_t seqid)
 {
 
   int32_t rseqid = 0;
