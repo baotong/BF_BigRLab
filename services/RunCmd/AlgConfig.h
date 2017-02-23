@@ -18,7 +18,7 @@ protected:
 
 class XgBoostConfig : public AlgConfig {
     constexpr static const char *CONFIG_FILE = "/tmp/xgboost_empty.conf";
-    constexpr static const char *MODEL_FILE = "/tmp/xgboost.model";
+    // constexpr static const char *MODEL_FILE = "/tmp/xgboost.model";
     static std::atomic_int      s_nSvrPort;
 public:
     // XgBoostConfig() : m_strCmd("xgboost ") {}    //!! ERROR

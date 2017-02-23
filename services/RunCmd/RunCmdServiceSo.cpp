@@ -50,21 +50,29 @@ void RunCmdService::handleRequest(const BigRLab::WorkItemPtr &pWork)
         // for (Json::ValueIterator itr = root.begin() ; itr != root.end() ; ++itr)
             // DLOG(INFO) << itr.key() << " = " << *itr;
 
-        try { 
-            ip = root["_ip_"].asString(); 
-        } catch (...) {
-            RESPONSE_ERROR(pWork->conn, BigRLab::ServerType::connection::ok, -1, 
-                    name() << ": No ip info found in json!");
-            return;
-        } // try ip
+        // get "_ip_"
+        {
+            Json::Value &jv = root["_ip_"];
+            if (!jv) {
+                RESPONSE_ERROR(pWork->conn, BigRLab::ServerType::connection::ok, -1, 
+                        name() << ": No ip info found in json!");
+                return;
+            } else {
+                ip = jv.asString();
+            } // if
+        } // get _ip_
 
-        try { 
-            alg = root["_alg_"].asString(); 
-        } catch (...) {
-            RESPONSE_ERROR(pWork->conn, BigRLab::ServerType::connection::ok, -1, 
-                    name() << ": No alg info found in json!");
-            return;
-        } // try alg
+        // get "_alg_"
+        {
+            Json::Value &jv = root["_alg_"];
+            if (!jv) {
+                RESPONSE_ERROR(pWork->conn, BigRLab::ServerType::connection::ok, -1, 
+                        name() << ": No alg info found in json!");
+                return;
+            } else {
+                alg = jv.asString();
+            } // if
+        } // get _alg_
 
         auto it = m_mapIpClient.find(ip);
         if (it == m_mapIpClient.end()) {

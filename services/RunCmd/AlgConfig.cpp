@@ -19,12 +19,16 @@ std::atomic_int XgBoostConfig::s_nSvrPort(10080);
 
 bool XgBoostConfig::parseArg(Json::Value &root, std::string &err)
 {
-    try {
-        m_strTask = root["_task_"].asString(); 
-    } catch (...) {
-        err = "\"_task_\" not specified!";
-        return false;
-    } // try
+    // get "_task_"
+    {
+        Json::Value &jv = root["_task_"];
+        if (!jv) {
+            err = "You have to specify arg _task_!";
+            return false;
+        } else {
+            m_strTask = jv.asString();
+        } // if
+    } // get _task_
 
     if ("train" == m_strTask) {
         return parseTrainArg(root, err);
@@ -45,6 +49,16 @@ bool XgBoostConfig::parseTrainArg(Json::Value &root, std::string &err)
     m_strCmd = "xgboost "; 
     m_strCmd.append(CONFIG_FILE);
 
+    // if (!root.isMember("model_out")) {
+        // err = "You have to specify arg model_out!";
+        // return false;
+    // } // if
+    
+    if (!root["model_out"]) {
+        err = "You have to specify arg model_out!";
+        return false;
+    } // if
+
     for (Json::ValueIterator itr = root.begin() ; itr != root.end() ; ++itr) {
         string key = my_to_string(itr.key());
         string value = my_to_string(*itr);
@@ -55,7 +69,7 @@ bool XgBoostConfig::parseTrainArg(Json::Value &root, std::string &err)
         m_strCmd.append(" ").append(key).append("=").append(value);
     } // for
 
-    m_strCmd.append(" ").append("model_out=").append(MODEL_FILE);
+    // m_strCmd.append(" ").append("model_out=").append(MODEL_FILE);
     
     return true;
 }
@@ -63,19 +77,35 @@ bool XgBoostConfig::parseTrainArg(Json::Value &root, std::string &err)
 
 bool XgBoostConfig::parseOnlineArg(Json::Value &root, std::string &err)
 {
-    string  serviceName;
+    string  serviceName, modelFile;
 
     ostringstream oss;
-    oss << "GLOG_log_dir=\".\" nohup xgboost_svr.bin -model " << MODEL_FILE;
+    // oss << "GLOG_log_dir=\".\" nohup xgboost_svr.bin -model " << MODEL_FILE;
+    oss << "GLOG_log_dir=\".\" nohup xgboost_svr.bin";
 
-    try { 
-        serviceName = root["service"].asString(); 
-    } catch (...) {
-        err = "\"service\" not specified!";
-        return false;
-    } // try alg
+    // get "model"
+    {
+        Json::Value &jv = root["model"];
+        if (!jv) {
+            err = "You have to specify arg \"model\"!";
+            return false;
+        } else {
+            oss << " -model " << jv.asString();
+        } // if
+    } // get model
 
-    oss << " -algname " << serviceName << flush;
+    // get "service"
+    {
+        Json::Value &jv = root["service"];
+        if (!jv) {
+            err = "You have to specify arg \"service\"!";
+            return false;
+        } else {
+            oss << " -algname " << jv.asString();
+        } // if
+    } // get service
+
+    oss.flush();
     m_strCmd = oss.str();
 
     return true;
