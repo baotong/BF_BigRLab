@@ -6,6 +6,28 @@
 
 using namespace std;
 
+void AlgConfig::killApp(const RunCmdService::RunCmdClientPtr &pClient, const std::string &appName, int checkCnt)
+{
+    string  killCmd = "killall " + appName;
+    string  pidOfCmd = "pidof " + appName;
+    bool    killed = false;
+    RunCmd::CmdResult result;
+
+    pClient->client()->runCmd(killCmd);
+    while (!killed && checkCnt--) {
+        pClient->client()->readCmd(result, pidOfCmd);
+        if (result.retval) killed = true;
+        SLEEP_SECONDS(1);
+    } // while
+
+    if (!killed) {
+        killCmd = "killall -9 " + appName;
+        pClient->client()->runCmd(killCmd);
+    } // if
+}
+
+
+
 template <typename T>
 inline std::string my_to_string(const T &val)
 {
@@ -129,6 +151,8 @@ void XgBoostConfig::run(const RunCmdService::RunCmdClientPtr &pClient, std::stri
 
 void XgBoostConfig::runTrain(const RunCmdService::RunCmdClientPtr &pClient, std::string &resp)
 {
+    killApp(pClient, "xgboost");    // NOTE!!! 本版一次只能运行一个训练过程
+
     string cmd = "echo \"\" > ";
     cmd.append(CONFIG_FILE);
     pClient->client()->runCmd(cmd);
@@ -155,11 +179,7 @@ void XgBoostConfig::runOnline(const RunCmdService::RunCmdClientPtr &pClient, std
     ostringstream oss;
     pClient->client()->getAlgMgr(strAlgMgr);
 
-    string cmd = "killall xgboost_svr.bin";
-    pClient->client()->runCmd(cmd);
-    SLEEP_SECONDS(5);
-    cmd = "killall -9 xgboost_svr.bin";
-    pClient->client()->runCmd(cmd);
+    killApp(pClient, "xgboost_svr.bin");
 
     if (++s_nSvrPort > 65534) s_nSvrPort = 10080;
     oss << " -port " << s_nSvrPort << " -algmgr " << strAlgMgr << " &" << flush;
@@ -177,11 +197,7 @@ void XgBoostConfig::runOnline(const RunCmdService::RunCmdClientPtr &pClient, std
 
 void XgBoostConfig::runOffline(const RunCmdService::RunCmdClientPtr &pClient, std::string &resp)
 {
-    string cmd = "killall xgboost_svr.bin";
-    pClient->client()->runCmd(cmd);
-    SLEEP_SECONDS(5);
-    cmd = "killall -9 xgboost_svr.bin";
-    pClient->client()->runCmd(cmd);
+    killApp(pClient, "xgboost_svr.bin");
 
     Json::Value     jsonResp;
     jsonResp["status"] = 0;

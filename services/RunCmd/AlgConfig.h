@@ -11,6 +11,8 @@ public:
 public:
     virtual bool parseArg(Json::Value &root, std::string &err) = 0;
     virtual void run(const RunCmdService::RunCmdClientPtr &pClient, std::string &resp) = 0;
+    void killApp(const RunCmdService::RunCmdClientPtr &pClient, const std::string &appName, int checkCnt = 10);
+
 protected:
     std::string     m_strCmd;
 };
