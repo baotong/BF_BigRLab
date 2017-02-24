@@ -71,11 +71,6 @@ bool XgBoostConfig::parseTrainArg(Json::Value &root, std::string &err)
     m_strCmd = "xgboost "; 
     m_strCmd.append(CONFIG_FILE);
 
-    // if (!root.isMember("model_out")) {
-        // err = "You have to specify arg model_out!";
-        // return false;
-    // } // if
-    
     if (!root["model_out"]) {
         err = "You have to specify arg model_out!";
         return false;
