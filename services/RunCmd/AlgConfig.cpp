@@ -15,7 +15,10 @@ void AlgConfig::killApp(const RunCmdService::RunCmdClientPtr &pClient, const std
     pClient->client()->runCmd(killCmd);
     while (!killed && checkCnt--) {
         pClient->client()->readCmd(result, pidOfCmd);
-        if (result.retval) killed = true;
+        if (result.retval) {
+            killed = true;
+            break;
+        } // if
         SLEEP_SECONDS(1);
     } // while
 
