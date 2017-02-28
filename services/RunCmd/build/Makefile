@@ -162,6 +162,30 @@ RunCmdServiceSo.cpp.s:
 	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/RunCmdServiceSo.cpp.s
 .PHONY : RunCmdServiceSo.cpp.s
 
+XgBoostConfig.o: XgBoostConfig.cpp.o
+.PHONY : XgBoostConfig.o
+
+# target to build an object file
+XgBoostConfig.cpp.o:
+	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/XgBoostConfig.cpp.o
+.PHONY : XgBoostConfig.cpp.o
+
+XgBoostConfig.i: XgBoostConfig.cpp.i
+.PHONY : XgBoostConfig.i
+
+# target to preprocess a source file
+XgBoostConfig.cpp.i:
+	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/XgBoostConfig.cpp.i
+.PHONY : XgBoostConfig.cpp.i
+
+XgBoostConfig.s: XgBoostConfig.cpp.s
+.PHONY : XgBoostConfig.s
+
+# target to generate assembly for a file
+XgBoostConfig.cpp.s:
+	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/XgBoostConfig.cpp.s
+.PHONY : XgBoostConfig.cpp.s
+
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.o: mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.cpp.o
 .PHONY : mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.o
 
@@ -369,6 +393,9 @@ help:
 	@echo "... RunCmdServiceSo.o"
 	@echo "... RunCmdServiceSo.i"
 	@echo "... RunCmdServiceSo.s"
+	@echo "... XgBoostConfig.o"
+	@echo "... XgBoostConfig.i"
+	@echo "... XgBoostConfig.s"
 	@echo "... mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.o"
 	@echo "... mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.i"
 	@echo "... mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.s"

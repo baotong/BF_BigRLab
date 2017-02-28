@@ -3,6 +3,9 @@
 
 #include <memory>
 #include <atomic>
+#include <map>
+#include <functional>
+// #include <glog/logging.h>
 #include "RunCmdServiceSo.h"
 
 class AlgConfig {
@@ -18,37 +21,27 @@ protected:
 };
 
 
-class XgBoostConfig : public AlgConfig {
-    constexpr static const char *CONFIG_FILE = "/tmp/xgboost_empty.conf";
-    // constexpr static const char *MODEL_FILE = "/tmp/xgboost.model";
-    static std::atomic_int      s_nSvrPort;
-public:
-    // XgBoostConfig() : m_strCmd("xgboost ") {}    //!! ERROR
-
-    virtual bool parseArg(Json::Value &root, std::string &err);
-    virtual void run(const RunCmdService::RunCmdClientPtr &pClient, std::string &resp);
-
-private:
-    bool parseTrainArg(Json::Value &root, std::string &err);
-    bool parseOnlineArg(Json::Value &root, std::string &err);
-    void runTrain(const RunCmdService::RunCmdClientPtr &pClient, std::string &resp);
-    void runOnline(const RunCmdService::RunCmdClientPtr &pClient, std::string &resp);
-    void runOffline(const RunCmdService::RunCmdClientPtr &pClient, std::string &resp);
-
-private:
-    std::string     m_strTask;
-};
-
-
 class AlgConfigMgr {
+    typedef std::function<AlgConfig*(void)>     NewInstFunc;
+
 public:
+    static bool registerNewInst(const std::string &algName, const NewInstFunc &newInstFn)
+    {
+        // DLOG(INFO) << "Registering alg " << algName;
+        auto ret = m_mapAlgNewInst.insert(std::make_pair(algName, newInstFn));
+        return ret.second;
+    }
+
     static AlgConfig::pointer newInst(const std::string &algName)
     {
-        if ("xgboost" == algName)
-            return std::make_shared<XgBoostConfig>();
-
+        auto it = m_mapAlgNewInst.find(algName);
+        if (it != m_mapAlgNewInst.end())
+            return AlgConfig::pointer((it->second)());
         return nullptr;
     }
+
+private:
+    static std::map<std::string, NewInstFunc>   m_mapAlgNewInst;
 };
 
 
