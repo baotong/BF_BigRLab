@@ -137,13 +137,13 @@ class KnnService_queryByItem_result {
 
   virtual ~KnnService_queryByItem_result() throw();
   std::vector<Result>  success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _KnnService_queryByItem_result__isset __isset;
 
   void __set_success(const std::vector<Result> & val);
 
-  void __set_err(const InvalidRequest& val);
+  void __set_err(const  ::AlgCommon::InvalidRequest& val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -164,7 +164,7 @@ class KnnService_queryByItem_presult {
 
   virtual ~KnnService_queryByItem_presult() throw();
   std::vector<Result> * success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _KnnService_queryByItem_presult__isset __isset;
 
@@ -238,13 +238,13 @@ class KnnService_queryByVector_result {
 
   virtual ~KnnService_queryByVector_result() throw();
   std::vector<Result>  success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _KnnService_queryByVector_result__isset __isset;
 
   void __set_success(const std::vector<Result> & val);
 
-  void __set_err(const InvalidRequest& val);
+  void __set_err(const  ::AlgCommon::InvalidRequest& val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -265,7 +265,7 @@ class KnnService_queryByVector_presult {
 
   virtual ~KnnService_queryByVector_presult() throw();
   std::vector<Result> * success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _KnnService_queryByVector_presult__isset __isset;
 
@@ -339,13 +339,13 @@ class KnnService_queryByVectorNoWeight_result {
 
   virtual ~KnnService_queryByVectorNoWeight_result() throw();
   std::vector<std::string>  success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _KnnService_queryByVectorNoWeight_result__isset __isset;
 
   void __set_success(const std::vector<std::string> & val);
 
-  void __set_err(const InvalidRequest& val);
+  void __set_err(const  ::AlgCommon::InvalidRequest& val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -366,7 +366,7 @@ class KnnService_queryByVectorNoWeight_presult {
 
   virtual ~KnnService_queryByVectorNoWeight_presult() throw();
   std::vector<std::string> * success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _KnnService_queryByVectorNoWeight_presult__isset __isset;
 
@@ -440,13 +440,13 @@ class KnnService_queryByItemNoWeight_result {
 
   virtual ~KnnService_queryByItemNoWeight_result() throw();
   std::vector<std::string>  success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _KnnService_queryByItemNoWeight_result__isset __isset;
 
   void __set_success(const std::vector<std::string> & val);
 
-  void __set_err(const InvalidRequest& val);
+  void __set_err(const  ::AlgCommon::InvalidRequest& val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -467,7 +467,7 @@ class KnnService_queryByItemNoWeight_presult {
 
   virtual ~KnnService_queryByItemNoWeight_presult() throw();
   std::vector<std::string> * success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _KnnService_queryByItemNoWeight_presult__isset __isset;
 
@@ -536,13 +536,13 @@ class KnnService_handleRequest_result {
 
   virtual ~KnnService_handleRequest_result() throw();
   std::string success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _KnnService_handleRequest_result__isset __isset;
 
   void __set_success(const std::string& val);
 
-  void __set_err(const InvalidRequest& val);
+  void __set_err(const  ::AlgCommon::InvalidRequest& val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -563,7 +563,7 @@ class KnnService_handleRequest_presult {
 
   virtual ~KnnService_handleRequest_presult() throw();
   std::string* success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _KnnService_handleRequest_presult__isset __isset;
 

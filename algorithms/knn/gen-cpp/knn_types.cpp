@@ -14,57 +14,6 @@
 namespace KNN {
 
 
-InvalidRequest::~InvalidRequest() throw() {
-}
-
-
-void InvalidRequest::__set_reason(const std::string& val) {
-  this->reason = val;
-}
-
-void swap(InvalidRequest &a, InvalidRequest &b) {
-  using ::std::swap;
-  swap(a.reason, b.reason);
-  swap(a.__isset, b.__isset);
-}
-
-InvalidRequest::InvalidRequest(const InvalidRequest& other0) : TException() {
-  reason = other0.reason;
-  __isset = other0.__isset;
-}
-InvalidRequest::InvalidRequest( InvalidRequest&& other1) : TException() {
-  reason = std::move(other1.reason);
-  __isset = std::move(other1.__isset);
-}
-InvalidRequest& InvalidRequest::operator=(const InvalidRequest& other2) {
-  reason = other2.reason;
-  __isset = other2.__isset;
-  return *this;
-}
-InvalidRequest& InvalidRequest::operator=(InvalidRequest&& other3) {
-  reason = std::move(other3.reason);
-  __isset = std::move(other3.__isset);
-  return *this;
-}
-void InvalidRequest::printTo(std::ostream& out) const {
-  using ::apache::thrift::to_string;
-  out << "InvalidRequest(";
-  out << "reason=" << to_string(reason);
-  out << ")";
-}
-
-const char* InvalidRequest::what() const throw() {
-  try {
-    std::stringstream ss;
-    ss << "TException - service has thrown: " << *this;
-    this->thriftTExceptionMessageHolder_ = ss.str();
-    return this->thriftTExceptionMessageHolder_.c_str();
-  } catch (const std::exception&) {
-    return "TException - service has thrown: InvalidRequest";
-  }
-}
-
-
 Result::~Result() throw() {
 }
 
@@ -84,26 +33,26 @@ void swap(Result &a, Result &b) {
   swap(a.__isset, b.__isset);
 }
 
-Result::Result(const Result& other4) {
-  item = other4.item;
-  weight = other4.weight;
-  __isset = other4.__isset;
+Result::Result(const Result& other0) {
+  item = other0.item;
+  weight = other0.weight;
+  __isset = other0.__isset;
 }
-Result::Result( Result&& other5) {
-  item = std::move(other5.item);
-  weight = std::move(other5.weight);
-  __isset = std::move(other5.__isset);
+Result::Result( Result&& other1) {
+  item = std::move(other1.item);
+  weight = std::move(other1.weight);
+  __isset = std::move(other1.__isset);
 }
-Result& Result::operator=(const Result& other6) {
-  item = other6.item;
-  weight = other6.weight;
-  __isset = other6.__isset;
+Result& Result::operator=(const Result& other2) {
+  item = other2.item;
+  weight = other2.weight;
+  __isset = other2.__isset;
   return *this;
 }
-Result& Result::operator=(Result&& other7) {
-  item = std::move(other7.item);
-  weight = std::move(other7.weight);
-  __isset = std::move(other7.__isset);
+Result& Result::operator=(Result&& other3) {
+  item = std::move(other3.item);
+  weight = std::move(other3.weight);
+  __isset = std::move(other3.__isset);
   return *this;
 }
 void Result::printTo(std::ostream& out) const {

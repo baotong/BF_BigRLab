@@ -1,8 +1,6 @@
 #ifndef _WORD_ANN_DB_H_
 #define _WORD_ANN_DB_H_
 
-#include "KnnService.h"
-#include "annoylib.h"
 #include <vector>
 #include <map>
 #include <string>
@@ -11,54 +9,13 @@
 #include <algorithm>
 #include <memory>
 #include <climits>
-#include <exception>
-#include <stdexcept>
-
-#define THROW_RUNTIME_ERROR(x) \
-    do { \
-        std::stringstream __err_stream; \
-        __err_stream << x; \
-        __err_stream.flush(); \
-        throw std::runtime_error( __err_stream.str() ); \
-    } while (0)
-
-#define THROW_INVALID_REQUEST(args) \
-    do { \
-        std::stringstream __err_stream; \
-        __err_stream << args; \
-        __err_stream.flush(); \
-        InvalidRequest __invalid_request_err; \
-        __invalid_request_err.reason = std::move(__err_stream.str()); \
-        throw __invalid_request_err; \
-    } while (0)
-
-#define THROW_ERROR(type, x) \
-    do { \
-        std::stringstream __err_stream; \
-        __err_stream << x; \
-        __err_stream.flush(); \
-        throw type( __err_stream.str() ); \
-    } while (0)
-
-struct InvalidInput : std::runtime_error {
-    typedef std::runtime_error BaseType;
-    InvalidInput(const std::string &msg)
-            : BaseType(msg) {}
-};
+#include "common.hpp"
+#include "alg_common.hpp"
+#include "KnnService.h"
+#include "annoylib.h"
 
 
 typedef std::shared_ptr<std::string> StringPtr;
-
-// struct InvalidInput : std::exception {
-    // explicit InvalidInput( const std::string &what )
-            // : whatString(what) {}
-
-    // virtual const char* what() const throw()
-    // { return whatString.c_str(); }
-
-    // std::string     whatString;
-// };
-
 
 template < typename T >
 std::istream& read_into_container( std::istream &is, T &c )
@@ -240,7 +197,7 @@ public:
                     std::vector<uint32_t> &result, std::vector<float> &distances,
                     size_t search_k = (size_t)-1 )
     {
-        if (v.size() != m_nFields)
+        if (v.size() != (std::size_t)m_nFields)
             THROW_INVALID_REQUEST("WordAnnDB::kNN_By_Vector() input vector size invalid!");
         result.clear(); distances.clear();
         m_AnnIndex.get_nns_by_vector( &v[0], n, search_k, &result, &distances );
@@ -311,8 +268,8 @@ private:
 private:
     WordIdTable         m_mapWord2Id[UCHAR_MAX + 1][UCHAR_MAX + 1];  // 取单词前2个字符做hash
     IdWordTable         m_mapId2Word[ID_WORD_HASH_SIZE];
-    WordAnnIndex        m_AnnIndex;
     int                 m_nFields;
+    WordAnnIndex        m_AnnIndex;
 
     static uint32_t     s_nIdIndex;
 };

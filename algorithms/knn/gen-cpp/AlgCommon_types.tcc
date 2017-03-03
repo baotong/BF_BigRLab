@@ -4,16 +4,15 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
-#ifndef knn_TYPES_TCC
-#define knn_TYPES_TCC
+#ifndef AlgCommon_TYPES_TCC
+#define AlgCommon_TYPES_TCC
 
-#include "AlgCommon_types.tcc"
-#include "knn_types.h"
+#include "AlgCommon_types.h"
 
-namespace KNN {
+namespace AlgCommon {
 
 template <class Protocol_>
-uint32_t Result::read(Protocol_* iprot) {
+uint32_t InvalidRequest::read(Protocol_* iprot) {
 
   apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -36,16 +35,8 @@ uint32_t Result::read(Protocol_* iprot) {
     {
       case 1:
         if (ftype == ::apache::thrift::protocol::T_STRING) {
-          xfer += iprot->readString(this->item);
-          this->__isset.item = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
-      case 2:
-        if (ftype == ::apache::thrift::protocol::T_DOUBLE) {
-          xfer += iprot->readDouble(this->weight);
-          this->__isset.weight = true;
+          xfer += iprot->readString(this->reason);
+          this->__isset.reason = true;
         } else {
           xfer += iprot->skip(ftype);
         }
@@ -63,17 +54,13 @@ uint32_t Result::read(Protocol_* iprot) {
 }
 
 template <class Protocol_>
-uint32_t Result::write(Protocol_* oprot) const {
+uint32_t InvalidRequest::write(Protocol_* oprot) const {
   uint32_t xfer = 0;
   apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
-  xfer += oprot->writeStructBegin("Result");
+  xfer += oprot->writeStructBegin("InvalidRequest");
 
-  xfer += oprot->writeFieldBegin("item", ::apache::thrift::protocol::T_STRING, 1);
-  xfer += oprot->writeString(this->item);
-  xfer += oprot->writeFieldEnd();
-
-  xfer += oprot->writeFieldBegin("weight", ::apache::thrift::protocol::T_DOUBLE, 2);
-  xfer += oprot->writeDouble(this->weight);
+  xfer += oprot->writeFieldBegin("reason", ::apache::thrift::protocol::T_STRING, 1);
+  xfer += oprot->writeString(this->reason);
   xfer += oprot->writeFieldEnd();
 
   xfer += oprot->writeFieldStop();

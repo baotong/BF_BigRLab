@@ -128,14 +128,14 @@ uint32_t KnnService_queryByItem_result::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size8;
-            ::apache::thrift::protocol::TType _etype11;
-            xfer += iprot->readListBegin(_etype11, _size8);
-            this->success.resize(_size8);
-            uint32_t _i12;
-            for (_i12 = 0; _i12 < _size8; ++_i12)
+            uint32_t _size4;
+            ::apache::thrift::protocol::TType _etype7;
+            xfer += iprot->readListBegin(_etype7, _size4);
+            this->success.resize(_size4);
+            uint32_t _i8;
+            for (_i8 = 0; _i8 < _size4; ++_i8)
             {
-              xfer += this->success[_i12].read(iprot);
+              xfer += this->success[_i8].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -175,10 +175,10 @@ uint32_t KnnService_queryByItem_result::write(Protocol_* oprot) const {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->success.size()));
-      std::vector<Result> ::const_iterator _iter13;
-      for (_iter13 = this->success.begin(); _iter13 != this->success.end(); ++_iter13)
+      std::vector<Result> ::const_iterator _iter9;
+      for (_iter9 = this->success.begin(); _iter9 != this->success.end(); ++_iter9)
       {
-        xfer += (*_iter13).write(oprot);
+        xfer += (*_iter9).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -220,14 +220,14 @@ uint32_t KnnService_queryByItem_presult::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size14;
-            ::apache::thrift::protocol::TType _etype17;
-            xfer += iprot->readListBegin(_etype17, _size14);
-            (*(this->success)).resize(_size14);
-            uint32_t _i18;
-            for (_i18 = 0; _i18 < _size14; ++_i18)
+            uint32_t _size10;
+            ::apache::thrift::protocol::TType _etype13;
+            xfer += iprot->readListBegin(_etype13, _size10);
+            (*(this->success)).resize(_size10);
+            uint32_t _i14;
+            for (_i14 = 0; _i14 < _size10; ++_i14)
             {
-              xfer += (*(this->success))[_i18].read(iprot);
+              xfer += (*(this->success))[_i14].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -283,14 +283,14 @@ uint32_t KnnService_queryByVector_args::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->values.clear();
-            uint32_t _size19;
-            ::apache::thrift::protocol::TType _etype22;
-            xfer += iprot->readListBegin(_etype22, _size19);
-            this->values.resize(_size19);
-            uint32_t _i23;
-            for (_i23 = 0; _i23 < _size19; ++_i23)
+            uint32_t _size15;
+            ::apache::thrift::protocol::TType _etype18;
+            xfer += iprot->readListBegin(_etype18, _size15);
+            this->values.resize(_size15);
+            uint32_t _i19;
+            for (_i19 = 0; _i19 < _size15; ++_i19)
             {
-              xfer += iprot->readDouble(this->values[_i23]);
+              xfer += iprot->readDouble(this->values[_i19]);
             }
             xfer += iprot->readListEnd();
           }
@@ -328,10 +328,10 @@ uint32_t KnnService_queryByVector_args::write(Protocol_* oprot) const {
   xfer += oprot->writeFieldBegin("values", ::apache::thrift::protocol::T_LIST, 1);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_DOUBLE, static_cast<uint32_t>(this->values.size()));
-    std::vector<double> ::const_iterator _iter24;
-    for (_iter24 = this->values.begin(); _iter24 != this->values.end(); ++_iter24)
+    std::vector<double> ::const_iterator _iter20;
+    for (_iter20 = this->values.begin(); _iter20 != this->values.end(); ++_iter20)
     {
-      xfer += oprot->writeDouble((*_iter24));
+      xfer += oprot->writeDouble((*_iter20));
     }
     xfer += oprot->writeListEnd();
   }
@@ -356,10 +356,10 @@ uint32_t KnnService_queryByVector_pargs::write(Protocol_* oprot) const {
   xfer += oprot->writeFieldBegin("values", ::apache::thrift::protocol::T_LIST, 1);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_DOUBLE, static_cast<uint32_t>((*(this->values)).size()));
-    std::vector<double> ::const_iterator _iter25;
-    for (_iter25 = (*(this->values)).begin(); _iter25 != (*(this->values)).end(); ++_iter25)
+    std::vector<double> ::const_iterator _iter21;
+    for (_iter21 = (*(this->values)).begin(); _iter21 != (*(this->values)).end(); ++_iter21)
     {
-      xfer += oprot->writeDouble((*_iter25));
+      xfer += oprot->writeDouble((*_iter21));
     }
     xfer += oprot->writeListEnd();
   }
@@ -401,14 +401,14 @@ uint32_t KnnService_queryByVector_result::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size26;
-            ::apache::thrift::protocol::TType _etype29;
-            xfer += iprot->readListBegin(_etype29, _size26);
-            this->success.resize(_size26);
-            uint32_t _i30;
-            for (_i30 = 0; _i30 < _size26; ++_i30)
+            uint32_t _size22;
+            ::apache::thrift::protocol::TType _etype25;
+            xfer += iprot->readListBegin(_etype25, _size22);
+            this->success.resize(_size22);
+            uint32_t _i26;
+            for (_i26 = 0; _i26 < _size22; ++_i26)
             {
-              xfer += this->success[_i30].read(iprot);
+              xfer += this->success[_i26].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -448,10 +448,10 @@ uint32_t KnnService_queryByVector_result::write(Protocol_* oprot) const {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->success.size()));
-      std::vector<Result> ::const_iterator _iter31;
-      for (_iter31 = this->success.begin(); _iter31 != this->success.end(); ++_iter31)
+      std::vector<Result> ::const_iterator _iter27;
+      for (_iter27 = this->success.begin(); _iter27 != this->success.end(); ++_iter27)
       {
-        xfer += (*_iter31).write(oprot);
+        xfer += (*_iter27).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -493,14 +493,14 @@ uint32_t KnnService_queryByVector_presult::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size32;
-            ::apache::thrift::protocol::TType _etype35;
-            xfer += iprot->readListBegin(_etype35, _size32);
-            (*(this->success)).resize(_size32);
-            uint32_t _i36;
-            for (_i36 = 0; _i36 < _size32; ++_i36)
+            uint32_t _size28;
+            ::apache::thrift::protocol::TType _etype31;
+            xfer += iprot->readListBegin(_etype31, _size28);
+            (*(this->success)).resize(_size28);
+            uint32_t _i32;
+            for (_i32 = 0; _i32 < _size28; ++_i32)
             {
-              xfer += (*(this->success))[_i36].read(iprot);
+              xfer += (*(this->success))[_i32].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -556,14 +556,14 @@ uint32_t KnnService_queryByVectorNoWeight_args::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->values.clear();
-            uint32_t _size37;
-            ::apache::thrift::protocol::TType _etype40;
-            xfer += iprot->readListBegin(_etype40, _size37);
-            this->values.resize(_size37);
-            uint32_t _i41;
-            for (_i41 = 0; _i41 < _size37; ++_i41)
+            uint32_t _size33;
+            ::apache::thrift::protocol::TType _etype36;
+            xfer += iprot->readListBegin(_etype36, _size33);
+            this->values.resize(_size33);
+            uint32_t _i37;
+            for (_i37 = 0; _i37 < _size33; ++_i37)
             {
-              xfer += iprot->readDouble(this->values[_i41]);
+              xfer += iprot->readDouble(this->values[_i37]);
             }
             xfer += iprot->readListEnd();
           }
@@ -601,10 +601,10 @@ uint32_t KnnService_queryByVectorNoWeight_args::write(Protocol_* oprot) const {
   xfer += oprot->writeFieldBegin("values", ::apache::thrift::protocol::T_LIST, 1);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_DOUBLE, static_cast<uint32_t>(this->values.size()));
-    std::vector<double> ::const_iterator _iter42;
-    for (_iter42 = this->values.begin(); _iter42 != this->values.end(); ++_iter42)
+    std::vector<double> ::const_iterator _iter38;
+    for (_iter38 = this->values.begin(); _iter38 != this->values.end(); ++_iter38)
     {
-      xfer += oprot->writeDouble((*_iter42));
+      xfer += oprot->writeDouble((*_iter38));
     }
     xfer += oprot->writeListEnd();
   }
@@ -629,10 +629,10 @@ uint32_t KnnService_queryByVectorNoWeight_pargs::write(Protocol_* oprot) const {
   xfer += oprot->writeFieldBegin("values", ::apache::thrift::protocol::T_LIST, 1);
   {
     xfer += oprot->writeListBegin(::apache::thrift::protocol::T_DOUBLE, static_cast<uint32_t>((*(this->values)).size()));
-    std::vector<double> ::const_iterator _iter43;
-    for (_iter43 = (*(this->values)).begin(); _iter43 != (*(this->values)).end(); ++_iter43)
+    std::vector<double> ::const_iterator _iter39;
+    for (_iter39 = (*(this->values)).begin(); _iter39 != (*(this->values)).end(); ++_iter39)
     {
-      xfer += oprot->writeDouble((*_iter43));
+      xfer += oprot->writeDouble((*_iter39));
     }
     xfer += oprot->writeListEnd();
   }
@@ -674,14 +674,14 @@ uint32_t KnnService_queryByVectorNoWeight_result::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size44;
-            ::apache::thrift::protocol::TType _etype47;
-            xfer += iprot->readListBegin(_etype47, _size44);
-            this->success.resize(_size44);
-            uint32_t _i48;
-            for (_i48 = 0; _i48 < _size44; ++_i48)
+            uint32_t _size40;
+            ::apache::thrift::protocol::TType _etype43;
+            xfer += iprot->readListBegin(_etype43, _size40);
+            this->success.resize(_size40);
+            uint32_t _i44;
+            for (_i44 = 0; _i44 < _size40; ++_i44)
             {
-              xfer += iprot->readString(this->success[_i48]);
+              xfer += iprot->readString(this->success[_i44]);
             }
             xfer += iprot->readListEnd();
           }
@@ -721,10 +721,10 @@ uint32_t KnnService_queryByVectorNoWeight_result::write(Protocol_* oprot) const 
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, static_cast<uint32_t>(this->success.size()));
-      std::vector<std::string> ::const_iterator _iter49;
-      for (_iter49 = this->success.begin(); _iter49 != this->success.end(); ++_iter49)
+      std::vector<std::string> ::const_iterator _iter45;
+      for (_iter45 = this->success.begin(); _iter45 != this->success.end(); ++_iter45)
       {
-        xfer += oprot->writeString((*_iter49));
+        xfer += oprot->writeString((*_iter45));
       }
       xfer += oprot->writeListEnd();
     }
@@ -766,14 +766,14 @@ uint32_t KnnService_queryByVectorNoWeight_presult::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size50;
-            ::apache::thrift::protocol::TType _etype53;
-            xfer += iprot->readListBegin(_etype53, _size50);
-            (*(this->success)).resize(_size50);
-            uint32_t _i54;
-            for (_i54 = 0; _i54 < _size50; ++_i54)
+            uint32_t _size46;
+            ::apache::thrift::protocol::TType _etype49;
+            xfer += iprot->readListBegin(_etype49, _size46);
+            (*(this->success)).resize(_size46);
+            uint32_t _i50;
+            for (_i50 = 0; _i50 < _size46; ++_i50)
             {
-              xfer += iprot->readString((*(this->success))[_i54]);
+              xfer += iprot->readString((*(this->success))[_i50]);
             }
             xfer += iprot->readListEnd();
           }
@@ -919,14 +919,14 @@ uint32_t KnnService_queryByItemNoWeight_result::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size55;
-            ::apache::thrift::protocol::TType _etype58;
-            xfer += iprot->readListBegin(_etype58, _size55);
-            this->success.resize(_size55);
-            uint32_t _i59;
-            for (_i59 = 0; _i59 < _size55; ++_i59)
+            uint32_t _size51;
+            ::apache::thrift::protocol::TType _etype54;
+            xfer += iprot->readListBegin(_etype54, _size51);
+            this->success.resize(_size51);
+            uint32_t _i55;
+            for (_i55 = 0; _i55 < _size51; ++_i55)
             {
-              xfer += iprot->readString(this->success[_i59]);
+              xfer += iprot->readString(this->success[_i55]);
             }
             xfer += iprot->readListEnd();
           }
@@ -966,10 +966,10 @@ uint32_t KnnService_queryByItemNoWeight_result::write(Protocol_* oprot) const {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, static_cast<uint32_t>(this->success.size()));
-      std::vector<std::string> ::const_iterator _iter60;
-      for (_iter60 = this->success.begin(); _iter60 != this->success.end(); ++_iter60)
+      std::vector<std::string> ::const_iterator _iter56;
+      for (_iter56 = this->success.begin(); _iter56 != this->success.end(); ++_iter56)
       {
-        xfer += oprot->writeString((*_iter60));
+        xfer += oprot->writeString((*_iter56));
       }
       xfer += oprot->writeListEnd();
     }
@@ -1011,14 +1011,14 @@ uint32_t KnnService_queryByItemNoWeight_presult::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size61;
-            ::apache::thrift::protocol::TType _etype64;
-            xfer += iprot->readListBegin(_etype64, _size61);
-            (*(this->success)).resize(_size61);
-            uint32_t _i65;
-            for (_i65 = 0; _i65 < _size61; ++_i65)
+            uint32_t _size57;
+            ::apache::thrift::protocol::TType _etype60;
+            xfer += iprot->readListBegin(_etype60, _size57);
+            (*(this->success)).resize(_size57);
+            uint32_t _i61;
+            for (_i61 = 0; _i61 < _size57; ++_i61)
             {
-              xfer += iprot->readString((*(this->success))[_i65]);
+              xfer += iprot->readString((*(this->success))[_i61]);
             }
             xfer += iprot->readListEnd();
           }
@@ -1634,7 +1634,7 @@ void KnnServiceProcessorT<Protocol_>::process_queryByItem(int32_t seqid, ::apach
   try {
     iface_->queryByItem(result.success, args.item, args.n);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -1692,7 +1692,7 @@ void KnnServiceProcessorT<Protocol_>::process_queryByItem(int32_t seqid, Protoco
   try {
     iface_->queryByItem(result.success, args.item, args.n);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -1750,7 +1750,7 @@ void KnnServiceProcessorT<Protocol_>::process_queryByVector(int32_t seqid, ::apa
   try {
     iface_->queryByVector(result.success, args.values, args.n);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -1808,7 +1808,7 @@ void KnnServiceProcessorT<Protocol_>::process_queryByVector(int32_t seqid, Proto
   try {
     iface_->queryByVector(result.success, args.values, args.n);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -1866,7 +1866,7 @@ void KnnServiceProcessorT<Protocol_>::process_queryByVectorNoWeight(int32_t seqi
   try {
     iface_->queryByVectorNoWeight(result.success, args.values, args.n);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -1924,7 +1924,7 @@ void KnnServiceProcessorT<Protocol_>::process_queryByVectorNoWeight(int32_t seqi
   try {
     iface_->queryByVectorNoWeight(result.success, args.values, args.n);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -1982,7 +1982,7 @@ void KnnServiceProcessorT<Protocol_>::process_queryByItemNoWeight(int32_t seqid,
   try {
     iface_->queryByItemNoWeight(result.success, args.item, args.n);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -2040,7 +2040,7 @@ void KnnServiceProcessorT<Protocol_>::process_queryByItemNoWeight(int32_t seqid,
   try {
     iface_->queryByItemNoWeight(result.success, args.item, args.n);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -2098,7 +2098,7 @@ void KnnServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, ::apa
   try {
     iface_->handleRequest(result.success, args.request);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -2156,7 +2156,7 @@ void KnnServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, Proto
   try {
     iface_->handleRequest(result.success, args.request);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {

@@ -16,16 +16,16 @@ std::pair<uint32_t, bool> WordAnnDB::addRecord( const std::string &line )
 
     str >> *pWord;
     if (!str)
-        THROW_ERROR(InvalidInput, "Incorrect format for line: " << line );
+        THROW_RUNTIME_ERROR("Incorrect format for line: " << line );
 
     vector<float> values;
     read_into_container( str, values );
 
     if ( !(str.eof() || str.good()) )
-        THROW_ERROR(InvalidInput, "Read stream error!");
+        THROW_RUNTIME_ERROR("Read stream error!");
 
-    if ( values.size() != m_nFields )
-        THROW_ERROR(InvalidInput, "N_Fields not match");
+    if ( values.size() != (size_t)m_nFields )
+        THROW_RUNTIME_ERROR("N_Fields not match");
 
     // insert to tables
     uint32_t                  id = s_nIdIndex;
@@ -48,8 +48,7 @@ void WordAnnDB::saveWordTable( const char *filename )
 
     ofstream ofs( filename, ios::out );
 
-    if (!ofs)
-        THROW_RUNTIME_ERROR("WordAnnDB::saveWordTable() cannot open " << filename << " for writting!");
+    THROW_RUNTIME_ERROR_IF(!ofs, "WordAnnDB::saveWordTable() cannot open " << filename << " for writting!");
 
     // format: word    id
     for (uint32_t i = 0; i < ID_WORD_HASH_SIZE; ++i) {
@@ -65,8 +64,7 @@ void WordAnnDB::loadWordTable( const char *filename )
 
     ifstream ifs( filename, ios::in );
 
-    if (!ifs)
-        THROW_RUNTIME_ERROR("WordAnnDB::saveWordTable() cannot open " << filename << " for reading!");
+    THROW_RUNTIME_ERROR_IF(!ifs, "WordAnnDB::saveWordTable() cannot open " << filename << " for reading!");
 
     string line, word;
     uint32_t id, maxId = 0;

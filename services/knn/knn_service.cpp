@@ -58,7 +58,7 @@ struct QueryWork : BigRLab::WorkItemBase {
                 done = true;
                 idleClients->putBack( pClient );
 
-            } catch (const KNN::InvalidRequest &err) {
+            } catch (const AlgCommon::InvalidRequest &err) {
                 done = true;
                 idleClients->putBack( pClient );
                 LOG(ERROR) << "Service " << srvName << " query \"" 
@@ -70,11 +70,11 @@ struct QueryWork : BigRLab::WorkItemBase {
         } while (!done);
     }
 
+    QuerySet::iterator             iter;
     int                            k;
-    KnnService::IdleClientQueue    *idleClients;
     std::atomic_size_t             *counter;
     boost::condition_variable      *condCounter;
-    QuerySet::iterator             iter;
+    KnnService::IdleClientQueue    *idleClients;
     const char                     *srvName;
 };
 
@@ -144,7 +144,7 @@ struct QueryWorkFile : BigRLab::WorkItemBase {
                     // flk.unlock();
                 // } // if
 
-            } catch (const KNN::InvalidRequest &err) {
+            } catch (const AlgCommon::InvalidRequest &err) {
                 done = true;
                 idleClients->putBack( pClient );
                 LOG(ERROR) << "Service " << srvName << " query \"" 
@@ -376,7 +376,7 @@ void KnnService::handleRequest(const BigRLab::WorkItemPtr &pWork)
             m_queIdleClients.putBack( pClient );
             send_response(pWork->conn, BigRLab::ServerType::connection::ok, result);
 
-        } catch (const KNN::InvalidRequest &err) {
+        } catch (const AlgCommon::InvalidRequest &err) {
             done = true;
             m_queIdleClients.putBack( pClient );
             LOG(ERROR) << "Service " << name() << " caught InvalidRequest: "
