@@ -34,6 +34,7 @@
 #include <iomanip>
 #include <gflags/gflags.h>
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 
 namespace BigRLab {
 
@@ -223,18 +224,26 @@ void start_shell()
 #define readLine(arg)  g_pWriter->readLine(arg)
 
     auto autorun = [] {
-        ifstream ifs("autoload.conf", ios::in);
-        if (!ifs)
-            ERR_RET("No autorun.conf found.");
+        namespace fs = boost::filesystem;
 
-        string path;
-        while (getline(ifs, path)) {
-            try {
-                ServiceManager::getInstance()->loadServiceLib(path);
-            } catch (const std::exception &ex) {
-                cerr << ex.what() << endl;
-            } // try
-        } // while
+        fs::path root("ServiceLibs");
+        if (!fs::exists(root) || !fs::is_directory(root)) {
+            cerr << "Service lib dir \"ServiceLibs\" not found!" << endl;
+            return;
+        } // if
+
+        fs::recursive_directory_iterator it(root);
+        fs::recursive_directory_iterator endit;
+        for (; it != endit; ++it) {
+            if (fs::is_regular_file(*it) && it->path().extension() == ".so") {
+                cout << "Loading service lib " << it->path().filename() << endl;
+                try {
+                    ServiceManager::getInstance()->loadServiceLib(it->path().string());
+                } catch (const std::exception &ex) {
+                    cerr << ex.what() << endl;
+                } // try
+            } // if
+        } // if
     };
 
     //!! 第一种方法编译错误，必须先 typedef
@@ -242,36 +251,6 @@ void start_shell()
     typedef std::function<bool(std::stringstream&)> CmdProcessor;
     typedef std::map< std::string, CmdProcessor > CmdProcessTable;
 
-    auto loadLib = [&](stringstream &stream)->bool {
-        string path;
-        stream >> path;
-        if (bad_stream(stream)) {
-            WRITE_LINE("Usage: loadlib path");
-            return false;
-        } // if
-
-        try {
-            ServiceManager::getInstance()->loadServiceLib(path);
-        } catch (const std::exception &ex) {
-            WRITE_LINE(ex.what());
-        } // try
-
-        WRITE_LINE("loadlib done!");
-
-        return true;
-    };
-
-    // 暂不支持此功能，需要将相关service停止并删除
-    // auto rmLib = [](stringstream &stream)->bool {
-        // string name;
-        // stream >> name;  
-        // if (bad_stream(stream))
-            // return false;
-
-        // ServiceManager::getInstance()->rmServiceLib(name);
-        // return true;
-    // };
-    
     auto greet = [&](stringstream &stream)->bool {
         WRITE_LINE("BigRLab APIServer is running...");
         return true;
@@ -330,28 +309,9 @@ void start_shell()
         return true;
     };
 
-    auto save = [&](stringstream &stream)->bool {
-        ofstream ofs("autoload.conf", ios::out);
-        if (!ofs) {
-            WRITE_LINE("Cannot open autorun.conf for writting!");
-            return false;
-        } // if
-
-        ServiceManager::ServiceLibTable &table = ServiceManager::getInstance()->serviceLibs();
-        boost::shared_lock<ServiceManager::ServiceLibTable> lock(table);
-        for (const auto &v : table)
-            ofs << v.second->path << endl;
-
-        WRITE_LINE("save done!");
-        return true;
-    };
-
     CmdProcessTable cmdTable;
-    cmdTable["loadlib"] = loadLib;
-    // cmdTable["rmlib"] = rmLib;
     cmdTable["lslib"] = lsLib;
     cmdTable["lsservice"] = lsService;
-    cmdTable["save"] = save;
     cmdTable["hello"] = greet;
 
     autorun();
