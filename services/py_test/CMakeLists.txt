@@ -4,6 +4,7 @@ project(py_test)            # 工程名，无特别要求
 
 # set compiling flags   可以照抄
 set(CMAKE_CXX_FLAGS "-march=native -std=c++11 -pthread -fPIC -shared -Wall -O3 ${CMAKE_CXX_FLAGS}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../api_server/ServiceLibs)
 
 # 该lib用到的其他目录
 set(COMM_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../common)

@@ -16,7 +16,7 @@ public:
         typedef const char* (*LibNameFunc)();
 
         ServiceLib( const std::string &_Path )
-                : path(_Path), pHandle(NULL), pNewInstFn(NULL)
+                : path(_Path), pHandle(NULL), pNewInstFn(NULL), pLibName(NULL)
         { loadLib(); }
 
         ~ServiceLib();

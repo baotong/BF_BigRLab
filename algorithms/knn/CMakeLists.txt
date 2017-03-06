@@ -15,6 +15,6 @@ file(GLOB SRC ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/gen-cpp/*.cpp ${API_SERVER_DIR}/gen-cpp/*.cpp)
 
 add_executable(Wordknn.bin ${SRC})
-target_link_libraries(Wordknn.bin thriftnb thrift boost_chrono boost_thread boost_system 
+target_link_libraries(Wordknn.bin thriftnb thrift boost_chrono boost_thread boost_system boost_iostreams
                         event glog gflags jsoncpp)
 

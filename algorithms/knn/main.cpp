@@ -1,8 +1,10 @@
 /*
  * BUILD:
- * GLOG_logtostderr=1 ./wordknn.bin -build -idata vec3.txt -nfields 200 -ntrees 10 -idx index.ann -wt words_table.txt
+ * GLOG_logtostderr=1 ./wordknn.bin -build -idata  knn_test/model.vec -ntrees 10 -idx knn_test/index.ann -wt knn_test/words_table.txt
  * LOAD & Start Server
- * GLOG_logtostderr=1 ./wordknn.bin -nfields 200 -idx index.ann -wt words_table.txt -algname knn_star -algmgr localhost:9001 -port 10080
+ * GLOG_logtostderr=1 ./wordknn.bin -idata  knn_test/model.vec -idx knn_test/index.ann -wt knn_test/words_table.txt -algname knn_test -algmgr localhost:9001 -port 10080
+ * Online test:
+ * curl -i -X POST -H "Content-Type: BigRLab_Request" -d '{"item":"李宇春","n":10}' http://localhost:9000/knn_test
  */
 #include <iostream>
 #include <fstream>
@@ -10,6 +12,10 @@
 #include <csignal>
 #include <thread>
 #include <chrono>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/asio.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
@@ -80,16 +86,12 @@ bool check_not_empty(const char* flagname, const std::string &value)
 }
 
 static bool validate_idata(const char* flagname, const std::string &value) 
-{ 
-    if (!FLAGS_build)
-        return true;
-    return check_not_empty(flagname, value); 
-}
+{ return check_not_empty(flagname, value); }
 static const bool idata_dummy = gflags::RegisterFlagValidator(&FLAGS_idata, &validate_idata);
 
-static bool validate_nfields(const char* flagname, gflags::int32 value) 
-{ return check_above_zero(flagname, value); }
-static const bool nfields_dummy = gflags::RegisterFlagValidator(&FLAGS_nfields, &validate_nfields);
+// static bool validate_nfields(const char* flagname, gflags::int32 value) 
+// { return check_above_zero(flagname, value); }
+// static const bool nfields_dummy = gflags::RegisterFlagValidator(&FLAGS_nfields, &validate_nfields);
 
 static bool validate_ntrees(const char* flagname, gflags::int32 value) 
 { 
@@ -118,8 +120,6 @@ static const bool algname_dummy = gflags::RegisterFlagValidator(&FLAGS_algname, 
 static 
 bool validate_algmgr(const char* flagname, const std::string &value) 
 {
-    using namespace std;
-
     if (FLAGS_build)
         return true;
 
@@ -161,6 +161,8 @@ static const bool algmgr_dummy = gflags::RegisterFlagValidator(&FLAGS_algmgr, &v
 static
 bool validate_port(const char *flagname, gflags::int32 value)
 {
+    if (FLAGS_build) return true;
+
     if (value < 1024 || value > 65535) {
         cerr << "Invalid port number! port number must be in [1025, 65535]" << endl;
         return false;
@@ -256,11 +258,13 @@ void load_data_file( const char *filename )
         THROW_RUNTIME_ERROR("Cannot open file " << filename);
 
     string line;
+    size_t lineno = 0;
     while (getline(ifs, line)) {
+        ++lineno;
         try {
             g_pWordAnnDB->addRecord( line );
         } catch (const exception &errInput) {
-            LOG(ERROR) << errInput.what();
+            LOG(ERROR) << "Skip line " << lineno << " " << errInput.what();
             continue;
         } // try
     } // while
@@ -345,6 +349,8 @@ void do_load_routine()
     cout << "Program working in LOAD mode." << endl;
     cout << "Loading annoy index..." << endl;
     g_pWordAnnDB->loadIndex( FLAGS_idx.c_str() );
+    // FLAGS_nfields = g_pWordAnnDB->size();
+    // DLOG(INFO) << "FLAGS_nfields = " << FLAGS_nfields;
     cout << "Loading word table..." << endl;
     g_pWordAnnDB->loadWordTable( FLAGS_wt.c_str() );
 
@@ -353,6 +359,53 @@ void do_load_routine()
     do_service_routine();
 }
 
+
+static
+void check_nfields()
+{
+    using namespace std;
+
+    if (FLAGS_nfields > 0)
+        return;
+
+    auto readCmd = [](const std::string &cmd, std::string &output)->int {
+        int retval = 0;
+
+        FILE *fp = popen(cmd.c_str(), "r");
+        setvbuf(fp, NULL, _IONBF, 0);
+
+        typedef boost::iostreams::stream< boost::iostreams::file_descriptor_source >
+            FDRdStream;
+        FDRdStream ppStream( fileno(fp), boost::iostreams::never_close_handle );
+
+        stringstream ss;
+        ss << ppStream.rdbuf();
+
+        output = ss.str();
+
+        retval = pclose(fp);
+        retval = WEXITSTATUS(retval);
+
+        return retval;
+    };
+
+    std::ostringstream oss;
+    oss << "tail -1 " << FLAGS_idata << " | awk \'{print NF}\'" << std::flush;
+
+    string output;
+    int retcode = readCmd(oss.str(), output);
+    THROW_RUNTIME_ERROR_IF(retcode, "Read -nfields fail!");
+    // FLAGS_nfields = boost::lexical_cast<int>(output);
+    {
+        std::istringstream iss(output);
+        iss >> FLAGS_nfields;
+        THROW_RUNTIME_ERROR_IF(!iss, "Read -nfields fail!");
+    }
+    --FLAGS_nfields;
+    LOG(WARNING) << "-nfields not set, use auto detected value: " << FLAGS_nfields;
+}
+
+
 int main( int argc, char **argv )
 {
     using namespace std;
@@ -360,6 +413,8 @@ int main( int argc, char **argv )
     try {
         google::InitGoogleLogging(argv[0]);
         gflags::ParseCommandLineFlags(&argc, &argv, true);
+
+        check_nfields();
 
         boost::asio::io_service     io_service;
         auto pIoServiceWork = boost::make_shared< boost::asio::io_service::work >(std::ref(io_service));

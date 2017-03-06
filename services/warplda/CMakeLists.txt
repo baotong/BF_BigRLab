@@ -5,8 +5,8 @@ project (topics)
 # add_subdirectory(gflags)
 
 # set compiling flags
-set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_FLAGS "-march=native -std=c++11 -pthread -fPIC -shared -O3 ${CMAKE_CXX_FLAGS}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../../api_server/ServiceLibs)
 
 set(COMM_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../common)
 set(ALG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../algorithms/warplda/src)
