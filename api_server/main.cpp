@@ -256,6 +256,11 @@ void start_shell()
         return true;
     };
 
+    auto scanlib = [&](stringstream &stream)->bool {
+        autorun();
+        return true;
+    };
+
     auto lsLib = [&](stringstream &stream)->bool {
         stringstream outStream;
         auto &libTable = ServiceManager::getInstance()->serviceLibs();
@@ -310,6 +315,7 @@ void start_shell()
     };
 
     CmdProcessTable cmdTable;
+    cmdTable["scanlib"] = scanlib;
     cmdTable["lslib"] = lsLib;
     cmdTable["lsservice"] = lsService;
     cmdTable["hello"] = greet;

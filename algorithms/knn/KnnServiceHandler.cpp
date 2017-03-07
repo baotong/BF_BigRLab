@@ -111,7 +111,7 @@ void KnnServiceHandler::handleRequest(std::string& _return, const std::string& r
             vector<double> vec;
             vec.reserve(FLAGS_nfields);
             auto& values = root["values"];
-            if (values.size() != FLAGS_nfields)
+            if (values.size() != (size_t)FLAGS_nfields)
                 THROW_INVALID_REQUEST("Request vector size " << values.size()
                         << " not equal to specified size " << FLAGS_nfields);
             for (auto it = values.begin(); it != values.end(); ++it)
