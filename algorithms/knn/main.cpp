@@ -12,6 +12,7 @@
 #include <csignal>
 #include <thread>
 #include <chrono>
+#include <set>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <boost/iostreams/stream.hpp>
@@ -19,6 +20,7 @@
 #include <boost/asio.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 #include "rpc_module.h"
@@ -30,7 +32,7 @@
 #include "KnnServiceHandler.h"
 
 #define SERVICE_LIB_NAME        "knn"
-#define TIMER_REJOIN            15          // 15s
+#define TIMER_CHECK            15          // 15s
 
 // args for ann
 DEFINE_bool(build, false, "work mode build or nobuild");
@@ -50,6 +52,8 @@ static std::string                  g_strAlgMgrAddr;
 static uint16_t                     g_nAlgMgrPort = 0;
 static std::string                  g_strThisAddr;
 static uint16_t                     g_nThisPort = 0;
+std::set<std::string>               g_setArgFiles;
+std::unique_ptr<std::thread>        g_pSvrThread;
 
 typedef BigRLab::ThriftClient< BigRLab::AlgMgrServiceClient >                AlgMgrClient;
 typedef BigRLab::ThriftServer< KNN::KnnServiceIf, KNN::KnnServiceProcessor > KnnAlgServer;
@@ -223,30 +227,6 @@ void stop_client()
     } // if
 }
 
-static
-void rejoin(const boost::system::error_code &ec)
-{
-    // DLOG(INFO) << "rejoin timer called";
-
-    int waitTime = TIMER_REJOIN;
-
-    if (g_bLoginSuccess) {
-        try {
-            if (!g_pAlgMgrClient->isRunning())
-                g_pAlgMgrClient->start(50, 300);
-            (*g_pAlgMgrClient)()->addSvr(FLAGS_algname, *g_pSvrInfo);
-        } catch (const std::exception &ex) {
-            LOG(ERROR) << "Connection with apiserver lost, re-connecting...";
-            g_pAlgMgrClient.reset();
-            g_pAlgMgrClient = boost::make_shared< AlgMgrClient >(g_strAlgMgrAddr, g_nAlgMgrPort);
-            waitTime = 5;
-        } // try
-    } // if
-
-    g_Timer->expires_from_now(boost::posix_time::seconds(waitTime));
-    g_Timer->async_wait(rejoin);
-}
-
 
 static
 void load_data_file( const char *filename )
@@ -316,6 +296,10 @@ void service_init()
 {
     using namespace std;
 
+    g_setArgFiles.insert(FLAGS_idata);
+    g_setArgFiles.insert(FLAGS_idx);
+    g_setArgFiles.insert(FLAGS_wt);
+
     try {
         g_strThisAddr = get_local_ip(FLAGS_algmgr);
     } catch (const std::exception &ex) {
@@ -356,7 +340,15 @@ void do_load_routine()
 
     cout << "Total " << g_pWordAnnDB->size() << " words in database." << endl;
 
-    do_service_routine();
+    // do_service_routine();
+    g_pSvrThread.reset(new std::thread([]{
+        try {
+            do_service_routine();
+        } catch (const std::exception &ex) {
+            LOG(ERROR) << "Start service fail! " << ex.what();
+            std::raise(SIGTERM);
+        } // try             
+    }));
 }
 
 
@@ -405,6 +397,80 @@ void check_nfields()
     LOG(WARNING) << "-nfields not set, use auto detected value: " << FLAGS_nfields;
 }
 
+static
+void rejoin()
+{
+    // DLOG(INFO) << "rejoin()";
+    
+    if (FLAGS_build)
+        return;
+
+    if (g_bLoginSuccess) {
+        try {
+            if (!g_pAlgMgrClient->isRunning())
+                g_pAlgMgrClient->start(50, 300);
+            (*g_pAlgMgrClient)()->addSvr(FLAGS_algname, *g_pSvrInfo);
+        } catch (const std::exception &ex) {
+            LOG(ERROR) << "Connection with apiserver lost, re-connecting...";
+            g_pAlgMgrClient.reset();
+            g_pAlgMgrClient = boost::make_shared< AlgMgrClient >(g_strAlgMgrAddr, g_nAlgMgrPort);
+        } // try
+    } // if
+}
+
+static
+void check_update()
+{
+    using namespace std;
+
+    // DLOG(INFO) << "check_update()";
+    
+    if (FLAGS_build)
+        return;
+
+    if (!g_bLoginSuccess)
+        return;
+
+    bool    hasUpdate = false;
+
+    for (auto& name : g_setArgFiles) {
+        // DLOG(INFO) << "name = " << name;
+        string updateName = name + ".update";
+        if (boost::filesystem::exists(updateName)) {
+            LOG(INFO) << "Detected update for " << name;
+            try {
+                boost::filesystem::rename(updateName, name);
+                hasUpdate = true;
+            } catch (...) {}
+        } // if
+    } // for
+
+    if (hasUpdate) {
+        LOG(INFO) << "Restarting service for updating...";
+        stop_client();
+        stop_server();
+        if (g_pSvrThread && g_pSvrThread->joinable())
+            g_pSvrThread->join();
+        g_pSvrThread.reset(new std::thread([]{
+            try {
+                do_service_routine();
+            } catch (const std::exception &ex) {
+                LOG(ERROR) << "Start service fail! " << ex.what();
+                std::raise(SIGTERM);
+            } // try             
+        }));
+    } // if
+}
+
+static
+void timer_check(const boost::system::error_code &ec)
+{
+    rejoin();
+    check_update();
+    g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_CHECK));
+    g_Timer->async_wait(timer_check);
+}
+
 
 int main( int argc, char **argv )
 {
@@ -420,30 +486,28 @@ int main( int argc, char **argv )
         auto pIoServiceWork = boost::make_shared< boost::asio::io_service::work >(std::ref(io_service));
 
         boost::asio::signal_set signals(io_service, SIGINT, SIGTERM);
-        signals.async_wait( [](const boost::system::error_code& error, int signal) { 
-            if (g_Timer)
-                g_Timer->cancel();
+        signals.async_wait( [&](const boost::system::error_code& error, int signal) { 
+            if (g_Timer) g_Timer->cancel();
+            try { stop_client(); } catch (...) {}
             try { stop_server(); } catch (...) {}
+            if (g_pSvrThread && g_pSvrThread->joinable())
+                g_pSvrThread->join();
+            pIoServiceWork.reset();
+            io_service.stop();
         } );
 
         g_Timer.reset(new boost::asio::deadline_timer(std::ref(io_service)));
-        g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_REJOIN));
-        g_Timer->async_wait(rejoin);
-
-        auto io_service_thr = boost::thread( [&]{ io_service.run(); } );
+        g_Timer->expires_from_now(boost::posix_time::seconds(TIMER_CHECK));
+        g_Timer->async_wait(timer_check);
 
         g_pWordAnnDB.reset( new KNN::WordAnnDB(FLAGS_nfields) );
 
-        if (FLAGS_build)
+        if (FLAGS_build) {
             do_build_routine();
-        else
+        } else {
             do_load_routine();
-
-        pIoServiceWork.reset();
-        io_service.stop();
-        io_service_thr.join();
-
-        stop_client();
+            io_service.run();
+        } // if
 
         cout << argv[0] << " done!" << endl;
 
