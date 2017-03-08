@@ -228,23 +228,23 @@ void start_shell()
     typedef std::function<bool(std::stringstream&)> CmdProcessor;
     typedef std::map< std::string, CmdProcessor > CmdProcessTable;
 
+    // auto autorun = [] {
+        // ifstream ifs("autoload.conf", ios::in);
+        // if (!ifs)
+            // ERR_RET("No autorun.conf found.");
+
+        // string path;
+        // while (getline(ifs, path)) {
+            // try {
+                // cout << "Loading lib " << path << endl;
+                // ServiceManager::getInstance()->loadServiceLib(path);
+            // } catch (const std::exception &ex) {
+                // cerr << ex.what() << endl;
+            // } // try
+        // } // while
+    // };
+
     auto autorun = [] {
-        ifstream ifs("autoload.conf", ios::in);
-        if (!ifs)
-            ERR_RET("No autorun.conf found.");
-
-        string path;
-        while (getline(ifs, path)) {
-            try {
-                cout << "Loading lib " << path << endl;
-                ServiceManager::getInstance()->loadServiceLib(path);
-            } catch (const std::exception &ex) {
-                cerr << ex.what() << endl;
-            } // try
-        } // while
-    };
-
-    auto autorun2 = [] {
         namespace fs = boost::filesystem;
 
         fs::path root("ServiceLibs");
@@ -259,7 +259,8 @@ void start_shell()
             if (fs::is_regular_file(*it) && it->path().extension() == ".so") {
                 cout << "Loading service lib " << it->path().filename() << endl;
                 try {
-                    ServiceManager::getInstance()->loadServiceLib(it->path().string());
+                    // NOTE!!! 不可以用path().string()，会导致double free core dump!
+                    ServiceManager::getInstance()->loadServiceLib(it->path().c_str());
                 } catch (const std::exception &ex) {
                     cerr << ex.what() << endl;
                 } // try
@@ -267,24 +268,24 @@ void start_shell()
         } // if
     };
 
-    auto loadLib = [&](stringstream &stream)->bool {
-        string path;
-        stream >> path;
-        if (bad_stream(stream)) {
-            WRITE_LINE("Usage: loadlib path");
-            return false;
-        } // if
+    // auto loadLib = [&](stringstream &stream)->bool {
+        // string path;
+        // stream >> path;
+        // if (bad_stream(stream)) {
+            // WRITE_LINE("Usage: loadlib path");
+            // return false;
+        // } // if
 
-        try {
-            ServiceManager::getInstance()->loadServiceLib(path);
-        } catch (const std::exception &ex) {
-            WRITE_LINE(ex.what());
-        } // try
+        // try {
+            // ServiceManager::getInstance()->loadServiceLib(path);
+        // } catch (const std::exception &ex) {
+            // WRITE_LINE(ex.what());
+        // } // try
 
-        WRITE_LINE("loadlib done!");
+        // WRITE_LINE("loadlib done!");
 
-        return true;
-    };
+        // return true;
+    // };
 
     auto greet = [&](stringstream &stream)->bool {
         WRITE_LINE("BigRLab APIServer is running...");
@@ -344,39 +345,33 @@ void start_shell()
         return true;
     };
 
-    auto save = [&](stringstream &stream)->bool {
-        ofstream ofs("autoload.conf", ios::out);
-        if (!ofs) {
-            WRITE_LINE("Cannot open autorun.conf for writting!");
-            return false;
-        } // if
+    // auto save = [&](stringstream &stream)->bool {
+        // ofstream ofs("autoload.conf", ios::out);
+        // if (!ofs) {
+            // WRITE_LINE("Cannot open autorun.conf for writting!");
+            // return false;
+        // } // if
 
-        ServiceManager::ServiceLibTable &table = ServiceManager::getInstance()->serviceLibs();
-        boost::shared_lock<ServiceManager::ServiceLibTable> lock(table);
-        for (const auto &v : table)
-            ofs << v.second->path << endl;
+        // ServiceManager::ServiceLibTable &table = ServiceManager::getInstance()->serviceLibs();
+        // boost::shared_lock<ServiceManager::ServiceLibTable> lock(table);
+        // for (const auto &v : table)
+            // ofs << v.second->path << endl;
 
-        WRITE_LINE("save done!");
+        // WRITE_LINE("save done!");
+        // return true;
+    // };
+
+    auto scanlib = [&](stringstream &stream)->bool {
+        autorun();
         return true;
     };
 
-    // auto scanlib1 = [&](stringstream &stream)->bool {
-        // autorun1();
-        // return true;
-    // };
-
-    // auto scanlib2 = [&](stringstream &stream)->bool {
-        // autorun2();
-        // return true;
-    // };
-
     CmdProcessTable cmdTable;
-    cmdTable["loadlib"] = loadLib;
-    // cmdTable["scanlib1"] = scanlib1;
-    // cmdTable["scanlib2"] = scanlib2;
+    // cmdTable["loadlib"] = loadLib;
+    // cmdTable["save"] = save;
+    cmdTable["scanlib"] = scanlib;
     cmdTable["lslib"] = lsLib;
     cmdTable["lsservice"] = lsService;
-    cmdTable["save"] = save;
     cmdTable["hello"] = greet;
 
     autorun();
