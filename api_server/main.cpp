@@ -363,6 +363,7 @@ void start_shell()
 
     auto scanlib = [&](stringstream &stream)->bool {
         autorun();
+        WRITE_LINE("scanlib done!");
         return true;
     };
 
