@@ -2,11 +2,13 @@
 #define _ALG_CONFIG_H_
 
 #include <memory>
+#include <sstream>
 #include <atomic>
 #include <map>
 #include <functional>
 // #include <glog/logging.h>
 #include "RunCmdServiceSo.h"
+
 
 class AlgConfig {
 public:
@@ -15,9 +17,6 @@ public:
     virtual bool parseArg(Json::Value &root, std::string &err) = 0;
     virtual void run(const RunCmdService::RunCmdClientPtr &pClient, std::string &resp) = 0;
     void killApp(const RunCmdService::RunCmdClientPtr &pClient, const std::string &appName, int checkCnt = 10);
-
-protected:
-    std::string     m_strCmd;
 };
 
 
@@ -43,6 +42,15 @@ public:
 private:
     static std::map<std::string, NewInstFunc>   m_mapAlgNewInst;
 };
+
+
+template <typename T>
+inline std::string my_to_string(const T &val)
+{
+    std::ostringstream oss;
+    oss << val << std::flush;
+    return oss.str();
+}
 
 
 #endif

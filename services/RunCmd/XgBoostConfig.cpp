@@ -6,15 +6,6 @@
 using namespace std;
 
 
-template <typename T>
-inline std::string my_to_string(const T &val)
-{
-    std::ostringstream oss;
-    oss << val << std::flush;
-    return oss.str();
-}
-
-
 std::atomic_int XgBoostConfig::s_nSvrPort(10080);
 
 

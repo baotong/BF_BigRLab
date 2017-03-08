@@ -1,16 +1,12 @@
-#ifndef _XGBOOST_CONFIG_H_
-#define _XGBOOST_CONFIG_H_
+#ifndef _KNN_CONFIG_H_
+#define _KNN_CONFIG_H_
 
 #include "AlgConfig.h"
 
 
-class XgBoostConfig : public AlgConfig {
-    constexpr static const char *CONFIG_FILE = "/tmp/xgboost_empty.conf";
-    // constexpr static const char *MODEL_FILE = "/tmp/xgboost.model";
+class KnnConfig : public AlgConfig {
     static std::atomic_int      s_nSvrPort;
 public:
-    // XgBoostConfig() : m_strCmd("xgboost ") {}    //!! ERROR
-
     virtual bool parseArg(Json::Value &root, std::string &err);
     virtual void run(const RunCmdService::RunCmdClientPtr &pClient, std::string &resp);
 
@@ -23,7 +19,11 @@ private:
 
 private:
     std::string     m_strTask;
-    std::string     m_strCmd;
+    std::string     m_strFastTextMethod;
+    std::string     m_strInputFile;
+    std::string     m_strOutputFile;
+    std::string     m_strService;
+    int             m_nTrees;
 };
 
 
