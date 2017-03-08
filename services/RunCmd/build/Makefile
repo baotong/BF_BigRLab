@@ -138,6 +138,30 @@ AlgConfig.cpp.s:
 	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/AlgConfig.cpp.s
 .PHONY : AlgConfig.cpp.s
 
+KnnConfig.o: KnnConfig.cpp.o
+.PHONY : KnnConfig.o
+
+# target to build an object file
+KnnConfig.cpp.o:
+	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/KnnConfig.cpp.o
+.PHONY : KnnConfig.cpp.o
+
+KnnConfig.i: KnnConfig.cpp.i
+.PHONY : KnnConfig.i
+
+# target to preprocess a source file
+KnnConfig.cpp.i:
+	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/KnnConfig.cpp.i
+.PHONY : KnnConfig.cpp.i
+
+KnnConfig.s: KnnConfig.cpp.s
+.PHONY : KnnConfig.s
+
+# target to generate assembly for a file
+KnnConfig.cpp.s:
+	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/KnnConfig.cpp.s
+.PHONY : KnnConfig.cpp.s
+
 RunCmdServiceSo.o: RunCmdServiceSo.cpp.o
 .PHONY : RunCmdServiceSo.o
 
@@ -390,6 +414,9 @@ help:
 	@echo "... AlgConfig.o"
 	@echo "... AlgConfig.i"
 	@echo "... AlgConfig.s"
+	@echo "... KnnConfig.o"
+	@echo "... KnnConfig.i"
+	@echo "... KnnConfig.s"
 	@echo "... RunCmdServiceSo.o"
 	@echo "... RunCmdServiceSo.i"
 	@echo "... RunCmdServiceSo.s"

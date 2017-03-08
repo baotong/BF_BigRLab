@@ -95,10 +95,10 @@ bool KnnConfig::parseTrainArg(Json::Value &root, std::string &err)
         } // if
     }
 
-    DLOG(INFO) << "m_strFastTextMethod = " << m_strFastTextMethod;
-    DLOG(INFO) << "m_strInputFile = " << m_strInputFile;
-    DLOG(INFO) << "m_strOutputFile = " << m_strOutputFile;
-    DLOG(INFO) << "m_nTrees = " << m_nTrees;
+    // DLOG(INFO) << "m_strFastTextMethod = " << m_strFastTextMethod;
+    // DLOG(INFO) << "m_strInputFile = " << m_strInputFile;
+    // DLOG(INFO) << "m_strOutputFile = " << m_strOutputFile;
+    // DLOG(INFO) << "m_nTrees = " << m_nTrees;
 
     return true;
 }
@@ -180,7 +180,7 @@ void KnnConfig::runTrain(const RunCmdService::RunCmdClientPtr &pClient, std::str
         string wtFile = m_strOutputFile + ".wt";
         string idxFile = m_strOutputFile + ".idx";
         ostringstream oss;
-        oss << "GLOG_logtostderr=1 stdbuf -o0 wordknn.bin -build -idata "
+        oss << "GLOG_logtostderr=1 stdbuf -o0 Wordknn.bin -build -idata "
             << vecFile << " -ntrees " << m_nTrees << " -idx " << idxFile
             << " -wt " << wtFile << " 2>&1" << flush;
         pClient->client()->readCmd(result, oss.str());
@@ -198,14 +198,14 @@ void KnnConfig::runOnline(const RunCmdService::RunCmdClientPtr &pClient, std::st
     string strAlgMgr;
     pClient->client()->getAlgMgr(strAlgMgr);
 
-    killApp(pClient, "wordknn.bin");
+    killApp(pClient, "Wordknn.bin");
 
     string vecFile = m_strInputFile + ".vec";
     string wtFile = m_strInputFile + ".wt";
     string idxFile = m_strInputFile + ".idx";
     if (++s_nSvrPort > 65534) s_nSvrPort = 11080;
     ostringstream oss;
-    oss << "GLOG_log_dir=\".\" nohup wordknn.bin -idata " << vecFile
+    oss << "GLOG_log_dir=\".\" nohup Wordknn.bin -idata " << vecFile
         << " -idx " << idxFile << " -wt " << wtFile << " -algname " << m_strService
         << " -algmgr " << strAlgMgr << " -port " << s_nSvrPort << " &" << flush;
     int retval = pClient->client()->runCmd(oss.str());
@@ -221,7 +221,7 @@ void KnnConfig::runOnline(const RunCmdService::RunCmdClientPtr &pClient, std::st
 
 void KnnConfig::runOffline(const RunCmdService::RunCmdClientPtr &pClient, std::string &resp)
 {
-    killApp(pClient, "wordknn.bin");
+    killApp(pClient, "Wordknn.bin");
 
     Json::Value     jsonResp;
     jsonResp["status"] = 0;

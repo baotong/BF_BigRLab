@@ -1,8 +1,13 @@
 /*
  * GLOG_logtostderr=1 ./RunCmdSvr.bin -algname cmdsvr -algmgr localhost:9001 -port 10080
+ * xgboost
  * curl -s -w "%{http_code}\n" -i -X POST -H "Content-Type: BigRLab_Request" -d '{"_ip_":"127.0.0.1","_alg_":"xgboost","_task_":"train","booster":"gbtree","objective":"binary:logistic","data":"/home/charles/smb_share/xgboost/demo/binary_classification/agaricus.txt.train","model_out":"/tmp/model.out"}' http://localhost:9000/cmdsvr
  * curl -i -X POST -H "Content-Type: BigRLab_Request" -d '{"_ip_":"127.0.0.1","_alg_":"xgboost","_task_":"online","service":"xgboost_pred","model":"/tmp/model.out"}' http://localhost:9000/cmdsvr
  * curl -i -X POST -H "Content-Type: BigRLab_Request" -d '{"_ip_":"127.0.0.1","_alg_":"xgboost","_task_":"offline"}' http://localhost:9000/cmdsvr
+ * knn
+ * curl  -i -X POST -H "Content-Type: BigRLab_Request" -d '{"_ip_":"127.0.0.1","_alg_":"knn","_task_":"train","method":"cbow","input":"/home/charles/smb_share/knn_test/text_class.context"}' http://localhost:9000/cmdsvr
+ * curl -i -X POST -H "Content-Type: BigRLab_Request" -d '{"_ip_":"127.0.0.1","_alg_":"knn","_task_":"online","service":"knn_test","input":"/home/charles/smb_share/knn_test/text_class.context"}' http://localhost:9000/cmdsvr
+ * curl -i -X POST -H "Content-Type: BigRLab_Request" -d '{"_ip_":"127.0.0.1","_alg_":"knn","_task_":"offline"}' http://localhost:9000/cmdsvr
  */
 #include <cstdio>
 #include <thread>
