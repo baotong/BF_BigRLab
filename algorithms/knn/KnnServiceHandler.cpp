@@ -2,6 +2,7 @@
 #include <boost/tuple/tuple.hpp>
 #include <boost/range/combine.hpp>
 #include <json/json.h>
+#include <glog/logging.h>
 #include "KnnServiceHandler.h"
 
 
@@ -36,6 +37,8 @@ void KnnServiceHandler::queryByItem(std::vector<Result> & _return,
 void KnnServiceHandler::queryByItemNoWeight(std::vector<std::string> & _return, 
             const std::string& item, const int32_t n)
 {
+    DLOG(INFO) << "Received query item request: " << item;
+
     std::vector<Result> result;
     queryByItem(result, item, n);
     _return.resize( result.size() );

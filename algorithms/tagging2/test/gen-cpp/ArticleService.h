@@ -223,13 +223,13 @@ class ArticleService_tagging_result {
 
   virtual ~ArticleService_tagging_result() throw();
   std::vector<TagResult>  success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _ArticleService_tagging_result__isset __isset;
 
   void __set_success(const std::vector<TagResult> & val);
 
-  void __set_err(const InvalidRequest& val);
+  void __set_err(const  ::AlgCommon::InvalidRequest& val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -250,7 +250,7 @@ class ArticleService_tagging_presult {
 
   virtual ~ArticleService_tagging_presult() throw();
   std::vector<TagResult> * success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _ArticleService_tagging_presult__isset __isset;
 
@@ -319,13 +319,13 @@ class ArticleService_handleRequest_result {
 
   virtual ~ArticleService_handleRequest_result() throw();
   std::string success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _ArticleService_handleRequest_result__isset __isset;
 
   void __set_success(const std::string& val);
 
-  void __set_err(const InvalidRequest& val);
+  void __set_err(const  ::AlgCommon::InvalidRequest& val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -346,7 +346,7 @@ class ArticleService_handleRequest_presult {
 
   virtual ~ArticleService_handleRequest_presult() throw();
   std::string* success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _ArticleService_handleRequest_presult__isset __isset;
 

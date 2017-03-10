@@ -338,14 +338,14 @@ uint32_t ArticleService_tagging_result::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size16;
-            ::apache::thrift::protocol::TType _etype19;
-            xfer += iprot->readListBegin(_etype19, _size16);
-            this->success.resize(_size16);
-            uint32_t _i20;
-            for (_i20 = 0; _i20 < _size16; ++_i20)
+            uint32_t _size12;
+            ::apache::thrift::protocol::TType _etype15;
+            xfer += iprot->readListBegin(_etype15, _size12);
+            this->success.resize(_size12);
+            uint32_t _i16;
+            for (_i16 = 0; _i16 < _size12; ++_i16)
             {
-              xfer += this->success[_i20].read(iprot);
+              xfer += this->success[_i16].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -385,10 +385,10 @@ uint32_t ArticleService_tagging_result::write(Protocol_* oprot) const {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->success.size()));
-      std::vector<TagResult> ::const_iterator _iter21;
-      for (_iter21 = this->success.begin(); _iter21 != this->success.end(); ++_iter21)
+      std::vector<TagResult> ::const_iterator _iter17;
+      for (_iter17 = this->success.begin(); _iter17 != this->success.end(); ++_iter17)
       {
-        xfer += (*_iter21).write(oprot);
+        xfer += (*_iter17).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -430,14 +430,14 @@ uint32_t ArticleService_tagging_presult::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size22;
-            ::apache::thrift::protocol::TType _etype25;
-            xfer += iprot->readListBegin(_etype25, _size22);
-            (*(this->success)).resize(_size22);
-            uint32_t _i26;
-            for (_i26 = 0; _i26 < _size22; ++_i26)
+            uint32_t _size18;
+            ::apache::thrift::protocol::TType _etype21;
+            xfer += iprot->readListBegin(_etype21, _size18);
+            (*(this->success)).resize(_size18);
+            uint32_t _i22;
+            for (_i22 = 0; _i22 < _size18; ++_i22)
             {
-              xfer += (*(this->success))[_i26].read(iprot);
+              xfer += (*(this->success))[_i22].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -1026,7 +1026,7 @@ void ArticleServiceProcessorT<Protocol_>::process_tagging(int32_t seqid, ::apach
   try {
     iface_->tagging(result.success, args.text, args.method, args.k1, args.k2, args.searchK, args.topk);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -1084,7 +1084,7 @@ void ArticleServiceProcessorT<Protocol_>::process_tagging(int32_t seqid, Protoco
   try {
     iface_->tagging(result.success, args.text, args.method, args.k1, args.k2, args.searchK, args.topk);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -1142,7 +1142,7 @@ void ArticleServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, :
   try {
     iface_->handleRequest(result.success, args.request);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -1200,7 +1200,7 @@ void ArticleServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, P
   try {
     iface_->handleRequest(result.success, args.request);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {

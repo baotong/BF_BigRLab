@@ -15,57 +15,16 @@
 #include <thrift/transport/TTransport.h>
 
 #include <thrift/cxxfunctional.h>
+#include "AlgCommon_types.h"
 
 
 namespace Article {
-
-class InvalidRequest;
 
 class KeywordResult;
 
 class KnnResult;
 
 class TagResult;
-
-typedef struct _InvalidRequest__isset {
-  _InvalidRequest__isset() : reason(false) {}
-  bool reason :1;
-} _InvalidRequest__isset;
-
-class InvalidRequest : public ::apache::thrift::TException {
- public:
-
-  InvalidRequest(const InvalidRequest&);
-  InvalidRequest(InvalidRequest&&);
-  InvalidRequest& operator=(const InvalidRequest&);
-  InvalidRequest& operator=(InvalidRequest&&);
-  InvalidRequest() : reason() {
-  }
-
-  virtual ~InvalidRequest() throw();
-  std::string reason;
-
-  _InvalidRequest__isset __isset;
-
-  void __set_reason(const std::string& val);
-
-  template <class Protocol_>
-  uint32_t read(Protocol_* iprot);
-  template <class Protocol_>
-  uint32_t write(Protocol_* oprot) const;
-
-  virtual void printTo(std::ostream& out) const;
-  mutable std::string thriftTExceptionMessageHolder_;
-  const char* what() const throw();
-};
-
-void swap(InvalidRequest &a, InvalidRequest &b);
-
-inline std::ostream& operator<<(std::ostream& out, const InvalidRequest& obj)
-{
-  obj.printTo(out);
-  return out;
-}
 
 typedef struct _KeywordResult__isset {
   _KeywordResult__isset() : word(false), weight(false) {}

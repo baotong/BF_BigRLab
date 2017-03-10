@@ -48,6 +48,8 @@ void ArticleServiceHandler::keyword(std::vector<KeywordResult> & _return,
     if (k <= 0)
         THROW_INVALID_REQUEST("Invalid k value " << k);
 
+    DLOG(INFO) << "Received keyword request: " << sentence;
+
     // Jieba::pointer pJieba;
     // if (!g_JiebaPool.timed_pop(pJieba, TIMEOUT))
         // THROW_INVALID_REQUEST("No available Jieba object!");
