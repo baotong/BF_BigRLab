@@ -20,7 +20,7 @@ sys.path.insert(0, glob.glob('thrift-0.9.3/lib/py/build/lib.*')[0])
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-import kenlm_seg as seg
+#  import kenlm_seg as seg
 
 from PyTest import PyService
 from PyTest.ttypes import *
@@ -52,12 +52,6 @@ serviceName = ""
 server = None
 running = False
 
-
-class MyEncoder(json.JSONEncoder):
-    def default(self, o):
-        return o.__dict__
-
-
 class PyTestHandler:
     def __init__(self):
         pass
@@ -70,19 +64,16 @@ class PyTestHandler:
 	    #print w
             res = Result()
             res.id = id
-            res.word = '|'.join(seg.mycut(w))
+            #  res.word = '|'.join(seg.mycut(w))
             ret.append(res)
             id = id + 1
         return ret
 
     def handleRequest(self, request):
         #print request
-        result = self.segment(request)
-        retDict = {}
-        retDict['result'] = result
-        retDict['status'] = 0
-        retStr = json.dumps(retDict, cls=MyEncoder)
-        return retStr
+        test = self.segment(request)
+	print test
+        return test
 
 
 class RegisterSvrThread(threading.Thread):
@@ -174,7 +165,40 @@ def parse_args():
     algmgrPort = int(algmgr[1])
 
 
+class MyEncoder(json.JSONEncoder):
+    def default(self, o):
+        return o.__dict__
+
+
+def test():
+    ret = {}
+    resList = []
+
+    res = Result()
+    res.id = 1
+    res.word = "Hello"
+    resList.append(res)
+
+    res = Result()
+    res.id = 2
+    res.word = "World"
+    resList.append(res)
+
+    res = Result()
+    res.id = 3
+    res.word = "Fuck"
+    resList.append(res)
+
+    ret['result'] = resList
+    ret['status'] = 0
+
+    jsonStr = json.dumps(ret, cls=MyEncoder)
+    print jsonStr
+
+    sys.exit(0)
+
 if __name__ == '__main__':
+    test()
     #import jieba
     for arg in sys.argv[1:]:
         argKV = arg.split(":", 1)

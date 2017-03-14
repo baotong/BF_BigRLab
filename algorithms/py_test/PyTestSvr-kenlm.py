@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
 
 """
-cd thrift-0.9.3/lib/py
+cd thrift-0.9.2/lib/py
 python setup.py build
 python PyTestSvr.py algmgr:127.0.0.1:9001 port:10080 algname:pytest nworkers:10
 
 """
-#  from jieba import cut
-import sys, glob, time
-import os, threading
-import socket
-import json
-
-#  print '|'.join(cut('initialization ..'))
-sys.path.append('gen-py')
-#  sys.path.append('../../api_server/gen-py')
-sys.path.insert(0, glob.glob('thrift-0.9.3/lib/py/build/lib.*')[0])
+import sys
 
 reload(sys)
 sys.setdefaultencoding('utf8')
-
+from jieba import cut
+import sys, glob
+import os, threading, signal
+import socket
+print '|'.join(cut('initialization ..'))
+sys.path.append('gen-py')
+#  sys.path.append('../../api_server/gen-py')
+sys.path.insert(0, glob.glob('thrift-0.9.3/lib/py/build/lib.*')[0])
 import kenlm_seg as seg
 
 from PyTest import PyService
@@ -49,14 +47,8 @@ nworkers = 10
 algSvrInfo = None
 algmgrTransport = None
 serviceName = ""
+#import jieba
 server = None
-running = False
-
-
-class MyEncoder(json.JSONEncoder):
-    def default(self, o):
-        return o.__dict__
-
 
 class PyTestHandler:
     def __init__(self):
@@ -73,16 +65,13 @@ class PyTestHandler:
             res.word = '|'.join(seg.mycut(w))
             ret.append(res)
             id = id + 1
-        return ret
+        return res.word
 
     def handleRequest(self, request):
         #print request
-        result = self.segment(request)
-        retDict = {}
-        retDict['result'] = result
-        retDict['status'] = 0
-        retStr = json.dumps(retDict, cls=MyEncoder)
-        return retStr
+        test=self.segment(request)
+	#print test
+        return test
 
 
 class RegisterSvrThread(threading.Thread):
@@ -95,27 +84,6 @@ class RegisterSvrThread(threading.Thread):
         if ret != 0:
             raise Exception("Register server fail! retval = %d" % ret)
         print "Register server success!"
-
-class StartSvrThread(threading.Thread):
-    def run(self):
-        global server
-        server.serve()
-
-class RejoinThread(threading.Thread):
-    def run(self):
-        global algmgrCli
-        global serviceName
-        global algSvrInfo
-        while running:
-            time.sleep(5)
-            try:
-                algmgrCli.addSvr(serviceName, algSvrInfo)
-            except:
-                print 'Reconnecting with apiserver...'
-                try:
-                    start_algmgr_client()
-                except:
-                    pass
 
 
 def start_algmgr_client():
@@ -174,6 +142,18 @@ def parse_args():
     algmgrPort = int(algmgr[1])
 
 
+def sig_handler(signum, frame):
+    global server
+    global serviceName
+    global algSvrInfo
+    #  print "Received signal"
+    if signum == signal.SIGINT:
+        #  print "SIGINT"
+        server.stop()
+        algmgrCli.rmSvr(serviceName, algSvrInfo)
+        sys.exit(0)
+
+
 if __name__ == '__main__':
     #import jieba
     for arg in sys.argv[1:]:
@@ -226,46 +206,8 @@ if __name__ == '__main__':
     registerSvr.start()
 
     # start server
-    running = True
-    startSvr = StartSvrThread()
-    startSvr.start()
-    rejoin = RejoinThread()
-    rejoin.start()
-
-    #  startSvr.join()
-
-    time.sleep(1)
-    print 'Server running, input "quit" to exit.'
-    while 1:
-        cmd = sys.stdin.readline().strip()
-        if cmd == "quit":
-            print "Terminating server..."
-            running = False
-            rejoin.join()
-            algmgrCli.rmSvr(serviceName, algSvrInfo)
-            server.stop()
-            break
-        else:
-            print 'Invalid command!'
-            continue
-
-    print '%s done!' % sys.argv[0]
-
-
-
-"""
-def sig_handler(signum, frame):
-    global server
-    global serviceName
-    global algSvrInfo
-    #  print "Received signal"
-    if signum == signal.SIGINT:
-        #  print "SIGINT"
-        server.stop()
-        algmgrCli.rmSvr(serviceName, algSvrInfo)
-        sys.exit(0)
-
-"""
+    print "Starting server..."
+    server.serve()
 
 """
     svrThr = RunSvrThread()
