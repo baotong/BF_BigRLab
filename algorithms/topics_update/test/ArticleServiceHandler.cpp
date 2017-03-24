@@ -78,7 +78,7 @@ void ArticleServiceHandler::toVector(std::vector<double> & _return, const std::s
     if (wordseg)
         wordSegment( wordsegResult, sentence );
     else
-        boost::split(wordsegResult, sentence, boost::is_any_of(SPACES));
+        boost::split(wordsegResult, sentence, boost::is_any_of(SPACES), boost::token_compress_on);
 
     vector<float> fResult;
     g_pVecConverter->convert2Vector( wordsegResult, fResult );

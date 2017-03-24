@@ -11,6 +11,7 @@ set(INCLUDE ${COMM_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/gen-cpp)
 include_directories(${INCLUDE})
 
 file(GLOB SRC ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/gen-cpp/*.cpp)
+# file(GLOB SRC ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
 add_executable(apiserver.bin ${SRC})
 target_link_libraries(apiserver.bin cppnetlib-uri cppnetlib-client-connections 
