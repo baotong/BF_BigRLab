@@ -4,13 +4,14 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
-#include "ftrl_types.h"
+#include "AlgCommon_constants.h"
 
-#include <algorithm>
-#include <ostream>
+namespace AlgCommon {
 
-#include <thrift/TToString.h>
+const AlgCommonConstants g_AlgCommon_constants;
 
-namespace FTRL {
+AlgCommonConstants::AlgCommonConstants() {
+}
 
 } // namespace
+

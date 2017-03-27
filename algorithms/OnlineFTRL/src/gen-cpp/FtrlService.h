@@ -131,13 +131,13 @@ class FtrlService_lrPredict_result {
 
   virtual ~FtrlService_lrPredict_result() throw();
   double success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _FtrlService_lrPredict_result__isset __isset;
 
   void __set_success(const double val);
 
-  void __set_err(const InvalidRequest& val);
+  void __set_err(const  ::AlgCommon::InvalidRequest& val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -158,7 +158,7 @@ class FtrlService_lrPredict_presult {
 
   virtual ~FtrlService_lrPredict_presult() throw();
   double* success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _FtrlService_lrPredict_presult__isset __isset;
 
@@ -232,13 +232,13 @@ class FtrlService_setValue_result {
 
   virtual ~FtrlService_setValue_result() throw();
   bool success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _FtrlService_setValue_result__isset __isset;
 
   void __set_success(const bool val);
 
-  void __set_err(const InvalidRequest& val);
+  void __set_err(const  ::AlgCommon::InvalidRequest& val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -259,7 +259,7 @@ class FtrlService_setValue_presult {
 
   virtual ~FtrlService_setValue_presult() throw();
   bool* success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _FtrlService_setValue_presult__isset __isset;
 
@@ -328,13 +328,13 @@ class FtrlService_handleRequest_result {
 
   virtual ~FtrlService_handleRequest_result() throw();
   std::string success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _FtrlService_handleRequest_result__isset __isset;
 
   void __set_success(const std::string& val);
 
-  void __set_err(const InvalidRequest& val);
+  void __set_err(const  ::AlgCommon::InvalidRequest& val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -355,7 +355,7 @@ class FtrlService_handleRequest_presult {
 
   virtual ~FtrlService_handleRequest_presult() throw();
   std::string* success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _FtrlService_handleRequest_presult__isset __isset;
 

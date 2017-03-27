@@ -106,7 +106,7 @@ struct FtrlTask : BigRLab::WorkItemBase {
                 boost::unique_lock<boost::mutex> flk( *mtx );
                 *ofs << id << "\t" << result << endl;
 
-            } catch (const FTRL::InvalidRequest &err) {
+            } catch (const AlgCommon::InvalidRequest &err) {
                 done = true;
                 idleClients->putBack( pClient );
                 LOG(ERROR) << "Service " << srvName << " caught InvalidRequest: "
@@ -220,7 +220,7 @@ void FtrlService::handleRequest(const BigRLab::WorkItemPtr &pWork)
             m_queIdleClients.putBack( pClient );
             send_response(pWork->conn, BigRLab::ServerType::connection::ok, result);
 
-        } catch (const FTRL::InvalidRequest &err) {
+        } catch (const AlgCommon::InvalidRequest &err) {
             done = true;
             m_queIdleClients.putBack( pClient );
             LOG(ERROR) << "Service " << name() << " caught InvalidRequest: "

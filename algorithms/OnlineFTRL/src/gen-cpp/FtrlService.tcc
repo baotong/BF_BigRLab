@@ -894,7 +894,7 @@ void FtrlServiceProcessorT<Protocol_>::process_lrPredict(int32_t seqid, ::apache
   try {
     result.success = iface_->lrPredict(args.id, args.data);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -952,7 +952,7 @@ void FtrlServiceProcessorT<Protocol_>::process_lrPredict(int32_t seqid, Protocol
   try {
     result.success = iface_->lrPredict(args.id, args.data);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -1010,7 +1010,7 @@ void FtrlServiceProcessorT<Protocol_>::process_setValue(int32_t seqid, ::apache:
   try {
     result.success = iface_->setValue(args.id, args.value);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -1068,7 +1068,7 @@ void FtrlServiceProcessorT<Protocol_>::process_setValue(int32_t seqid, Protocol_
   try {
     result.success = iface_->setValue(args.id, args.value);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -1126,7 +1126,7 @@ void FtrlServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, ::ap
   try {
     iface_->handleRequest(result.success, args.request);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -1184,7 +1184,7 @@ void FtrlServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, Prot
   try {
     iface_->handleRequest(result.success, args.request);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {

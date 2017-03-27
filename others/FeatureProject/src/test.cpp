@@ -1,22 +1,23 @@
 /*
  * c++ -o /tmp/test test.cpp -lglog -ljsoncpp -std=c++11 -g
+ * ./test.bin ../data/adult.data ../data/adult_conf.json
  */
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
-#include <example_types.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 #include <json/json.h>
 #include <glog/logging.h>
+#include "FeatureHandle.hpp"
 #include "FeatureInfo.h"
 
 #define SPACES                " \t\f\r\v\n"
 
 #define THROW_RUNTIME_ERROR(args) \
     do { \
-        std::stringstream __err_stream; \
+        std::ostringstream __err_stream; \
         __err_stream << args << std::flush; \
         throw std::runtime_error( __err_stream.str() ); \
     } while (0)
@@ -28,7 +29,7 @@
 
 #define RET_MSG(args) \
     do { \
-        std::stringstream __err_stream; \
+        std::ostringstream __err_stream; \
         __err_stream << args << std::flush; \
         std::cerr << __err_stream.str() << std::endl; \
         return; \
@@ -41,7 +42,7 @@
 
 #define RET_MSG_VAL(val, args) \
     do { \
-        std::stringstream __err_stream; \
+        std::ostringstream __err_stream; \
         __err_stream << args << std::flush; \
         std::cerr << __err_stream.str() << std::endl; \
         return val; \
@@ -59,22 +60,6 @@
 static std::vector<FeatureInfo::pointer>    g_arrFeatureInfo;
 static std::string                          g_strSep = SPACES;
 
-std::ostream& operator << (std::ostream &os, const FeatureInfo &fi)
-{
-    os << "name = " << fi.name << std::endl;
-    os << "type = " << fi.type << std::endl;
-    os << "multi = " << fi.multi << std::endl;
-    if (!fi.sep.empty())
-        os << "sep = " << fi.sep << std::endl;
-    if (!fi.values.empty()) {
-        os << "values = ";
-        for (auto &v : fi.values)
-            os << v << " ";
-        os << std::endl;
-    } // if
-    return os;
-}
-
 namespace Test {
     using namespace std;
     void print_feature_info()
@@ -84,6 +69,47 @@ namespace Test {
         cout << endl;
         for (auto &pf : g_arrFeatureInfo)
             cout << *pf << endl;
+    }
+
+    void test_feature_op()
+    {
+        FeatureVector fv;
+        FeatureVectorHandle fop(fv);
+        fop.setFeature("name", "Jhonason");
+        fop.setFeature("gender", "Male");
+        fop.setFeature(30.0, "age");
+        fop.addFeature("skill", "Java");
+        fop.addFeature("skill", "Python");
+        fop.addFeature("skill", "Database");
+        cout << fv << endl;
+
+        fop.setFeature("name", "Lucy");
+        fop.setFeature("gender", "female");
+        fop.setFeature(26.0, "age");
+        fop.setFeature(5.0, "score", "Math");
+        fop.setFeature(4.0, "score", "Computer");
+        fop.setFeature(3.5, "score", "Art");
+        fop.setFeature(4.3, "score", "Spanish");
+        cout << fv << endl;
+        fop.setFeature(4.5, "score", "Spanish");
+        cout << fv << endl;
+
+        bool ret = false;
+        string strVal;
+        double fVal = 0.0;
+        ret = fop.getFeatureValue("name", strVal);
+        cout << (ret ? strVal : "Not found!") << endl;
+        ret = fop.getFeatureValue(fVal, "age");
+        if (ret) cout << fVal << endl;
+        else cout << "Not found!" << endl;
+        ret = fop.getFeatureValue(fVal, "score", "Computer");
+        if (ret) cout << fVal << endl;
+        else cout << "Not found!" << endl;
+        ret = fop.getFeatureValue("Location", strVal);
+        cout << (ret ? strVal : "Not found!") << endl;
+        ret = fop.getFeatureValue(fVal, "score", "Chinese");
+        if (ret) cout << fVal << endl;
+        else cout << "Not found!" << endl;
     }
 } // namespace Test
 
@@ -164,6 +190,44 @@ void load_feature_info(const std::string &fname)
     } // read features
 }
 
+static
+void read_feature(FeatureVector &fv, std::string &strField, const FeatureInfo &ftInfo)
+{
+
+}
+
+static
+void load_data(const std::string &fname, Example &exp)
+{
+    using namespace std;
+
+    ifstream ifs(fname, ios::in);
+    THROW_RUNTIME_ERROR_IF(!ifs, "load_data cannot open " << fname << " for reading!");
+
+    const size_t nFeatures = g_arrFeatureInfo.size();
+
+    ExampleHandle hExp(exp);
+    hExp.clearVector();
+
+    string line;
+    size_t lineCnt = 0;
+    while (getline(ifs, line)) {
+        ++lineCnt;
+        boost::trim_if(line, boost::is_any_of(g_strSep + SPACES));  // NOTE!!! 整行trim应该去掉分割符和默认trim空白字符
+        if (line.empty()) continue;
+        vector<string> strValues;
+        boost::split(strValues, line, boost::is_any_of(g_strSep), boost::token_compress_on);
+        THROW_RUNTIME_ERROR_IF(strValues.size() != nFeatures,
+                "Error when processing data file in line " << lineCnt 
+                << ", nFeatures not match! " << nFeatures << " expected but " 
+                << strValues.size() << " detected.");
+        FeatureVector fv;
+        for (size_t i = 0; i < nFeatures; ++i)
+            read_feature(fv, strValues[i], *g_arrFeatureInfo[i]);
+        hExp.addVector(std::move(fv));
+    } // while
+}
+
 
 int main(int argc, char **argv)
 try {
@@ -175,8 +239,10 @@ try {
 
     load_feature_info(confFilename);
     Test::print_feature_info();
+    Test::test_feature_op();
 
-    (void)dataFilename;
+    Example exp;
+    load_data(dataFilename, exp);
 
     return 0;
 
