@@ -114,6 +114,30 @@ test.bin/fast:
 	$(MAKE) -f CMakeFiles/test.bin.dir/build.make CMakeFiles/test.bin.dir/build
 .PHONY : test.bin/fast
 
+src/Feature.o: src/Feature.cpp.o
+.PHONY : src/Feature.o
+
+# target to build an object file
+src/Feature.cpp.o:
+	$(MAKE) -f CMakeFiles/test.bin.dir/build.make CMakeFiles/test.bin.dir/src/Feature.cpp.o
+.PHONY : src/Feature.cpp.o
+
+src/Feature.i: src/Feature.cpp.i
+.PHONY : src/Feature.i
+
+# target to preprocess a source file
+src/Feature.cpp.i:
+	$(MAKE) -f CMakeFiles/test.bin.dir/build.make CMakeFiles/test.bin.dir/src/Feature.cpp.i
+.PHONY : src/Feature.cpp.i
+
+src/Feature.s: src/Feature.cpp.s
+.PHONY : src/Feature.s
+
+# target to generate assembly for a file
+src/Feature.cpp.s:
+	$(MAKE) -f CMakeFiles/test.bin.dir/build.make CMakeFiles/test.bin.dir/src/Feature.cpp.s
+.PHONY : src/Feature.cpp.s
+
 src/gen-cpp/example_constants.o: src/gen-cpp/example_constants.cpp.o
 .PHONY : src/gen-cpp/example_constants.o
 
@@ -195,6 +219,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... test.bin"
+	@echo "... src/Feature.o"
+	@echo "... src/Feature.i"
+	@echo "... src/Feature.s"
 	@echo "... src/gen-cpp/example_constants.o"
 	@echo "... src/gen-cpp/example_constants.i"
 	@echo "... src/gen-cpp/example_constants.s"

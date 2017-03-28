@@ -1,7 +1,48 @@
-#ifndef _FEATURE_HANDLE_HPP_
-#define _FEATURE_HANDLE_HPP_ 
+#ifndef _FEATURE_H_
+#define _FEATURE_H_
 
+#include <iostream>
+#include <memory>
 #include <example_types.h>
+
+
+#define SPACES                " \t\f\r\v\n"
+#define VALID_TYPES     {"string", "double", "list_double"}
+
+
+struct FeatureInfo {
+    typedef std::shared_ptr<FeatureInfo>  pointer;
+
+    FeatureInfo() : multi(false) {}
+    FeatureInfo(const std::string &_Name, const std::string &_Type)
+            : name(_Name), type(_Type), multi(false) {}
+
+    void addValue(const std::string &v)
+    { values.insert(v); }
+
+    std::string                 name;
+    std::string                 type;
+    bool                        multi;
+    std::string                 sep;    // empty means default SPACE
+    std::set<std::string>       values;
+
+    friend std::ostream& operator << (std::ostream &os, const FeatureInfo &fi)
+    {
+        os << "name = " << fi.name << std::endl;
+        os << "type = " << fi.type << std::endl;
+        os << "multi = " << fi.multi << std::endl;
+        if (!fi.sep.empty())
+            os << "sep = " << fi.sep << std::endl;
+        if (!fi.values.empty()) {
+            os << "values = ";
+            for (auto &v : fi.values)
+                os << v << " ";
+            os << std::endl;
+        } // if
+        return os;
+    }
+};
+
 
 // FeatureVector代表一行记录
 class FeatureVectorHandle {
@@ -89,7 +130,7 @@ public:
         m_refFv.__isset.stringFeatures = true;
     }
 
-    // set feature value
+    // set string feature value
     void setFeature(const std::string &name, const std::string &value)
     {
         auto ret = m_refFv.stringFeatures.insert(std::make_pair(name, StringSet()));
@@ -99,7 +140,7 @@ public:
         m_refFv.__isset.stringFeatures = true;
     }
 
-    // set float feature
+    // set/add float feature
     void setFeature(const double &val, const std::string &name, const std::string &subName = "")
     {
         auto ret = m_refFv.floatFeatures.insert(std::make_pair(name, FloatDict()));
@@ -166,5 +207,14 @@ private:
 };
 
 
-#endif /* ifndef _FEATURE_OP_H_ */
+extern std::vector<FeatureInfo::pointer>    g_arrFeatureInfo;
+extern std::string                          g_strSep;
+
+extern void load_feature_info(const std::string &fname);
+extern void load_data(const std::string &fname, Example &exp);
+
+
+#endif /* ifndef _FEATURE_H_ */
+
+
 
