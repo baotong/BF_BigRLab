@@ -1,4 +1,7 @@
 #include <fstream>
+#include <chrono>
+#include <iomanip>
+#include <ctime>
 #include <glog/logging.h>
 #include <json/json.h>
 #include <boost/algorithm/string.hpp>
@@ -9,6 +12,18 @@
 
 std::vector<FeatureInfo::pointer>    g_arrFeatureInfo;
 std::string                          g_strSep = SPACES;
+
+
+inline
+bool str2time(const std::string &s, std::time_t &tt, 
+              const std::string &format = "%Y-%m-%d %H:%M:%S")
+{
+    std::tm tm;
+    char *success = ::strptime(s.c_str(), format.c_str(), &tm);
+    if (!success) return false;
+    tt = std::mktime(&tm);
+    return true;
+}
 
 
 void load_feature_info(const std::string &fname)
@@ -71,6 +86,9 @@ void load_feature_info(const std::string &fname)
                     "Feature " << pf->name << " has invalid type " << pf->type);
             g_arrFeatureInfo.emplace_back(pf);
 
+            auto &jFormat = jf["format"];
+            if (!!jFormat) pf->format = jFormat.asString();
+
             auto &jMulti = jf["multi"];
             if (!!jMulti) pf->multi = jMulti.asBool();
             // DLOG(INFO) << pf->name << " " << pf->multi;
@@ -88,7 +106,7 @@ void load_feature_info(const std::string &fname)
 
 static
 void read_string_feature(FeatureVector &fv, std::string &strField, 
-            const FeatureInfo &ftInfo, const std::size_t lineno)
+            FeatureInfo &ftInfo, const std::size_t lineno)
 {
     using namespace std;
 
@@ -109,6 +127,7 @@ void read_string_feature(FeatureVector &fv, std::string &strField,
                     << ftInfo.name << "\", " << 
                     boost::format("\"%s\" is not a valid value!") % v);
             hFv.addFeature(ftInfo.name, v);
+            ftInfo.index[v] = 0;
         } // for
     } else {
         THROW_RUNTIME_ERROR_IF(!ftInfo.values.empty() && !ftInfo.values.count(strField),
@@ -116,12 +135,13 @@ void read_string_feature(FeatureVector &fv, std::string &strField,
                 << ftInfo.name << "\", " << 
                 boost::format("\"%s\" is not a valid value!") % strField);
         hFv.setFeature(ftInfo.name, strField);
+        ftInfo.index[strField] = 0;
     } // if
 }
 
 static
 void read_double_feature(FeatureVector &fv, std::string &strField, 
-            const FeatureInfo &ftInfo, const std::size_t lineno)
+            FeatureInfo &ftInfo, const std::size_t lineno)
 {
     using namespace std;
 
@@ -153,6 +173,7 @@ void read_double_feature(FeatureVector &fv, std::string &strField,
                     "read_double_feature in line " << lineno << " for feature \""
                     << ftInfo.name << "\" cannot covert \"" << value << "\" to double!");
             hFv.setFeature(val, ftInfo.name, key);
+            ftInfo.index[key] = 0;
         } // for
     } else {
         double val = 0.0;
@@ -160,12 +181,13 @@ void read_double_feature(FeatureVector &fv, std::string &strField,
                 "read_double_feature in line " << lineno << " for feature \""
                 << ftInfo.name << "\" cannot covert \"" << strField << "\" to double!");
         hFv.setFeature(val, ftInfo.name);
+        ftInfo.index[""] = 0;
     } // if
 }
 
 static
 void read_list_double_feature(FeatureVector &fv, std::string &strField, 
-            const FeatureInfo &ftInfo, const std::size_t lineno)
+            FeatureInfo &ftInfo, const std::size_t lineno)
 {
     using namespace std;
 
@@ -187,11 +209,34 @@ void read_list_double_feature(FeatureVector &fv, std::string &strField,
     } // for
 
     hFv.setFeature(ftInfo.name, values);
+    ftInfo.index[""] = 0;
+}
+
+static
+void read_datetime_feature(FeatureVector &fv, std::string &strField, 
+            FeatureInfo &ftInfo, const std::size_t lineno)
+{
+    using namespace std;
+
+    boost::trim(strField);
+    THROW_RUNTIME_ERROR_IF(strField.empty(), "read_datetime_feature in line "
+            << lineno << ", empty field of \"" << ftInfo.name << "\"!");
+    
+    FeatureVectorHandle hFv(fv);
+
+    string fmt = ftInfo.format.empty() ? "%Y-%m-%d %H:%M:%S" : ftInfo.format;
+    time_t tm = 0;
+    THROW_RUNTIME_ERROR_IF(!str2time(strField, tm, fmt),
+            "read_datetime_feature in line " << lineno << " for feature \""
+            << ftInfo.name << "\" cannot covert \"" << strField << "\" to datetime!");
+
+    hFv.setFeature((double)tm, ftInfo.name);
+    ftInfo.index[""] = 0;
 }
 
 static
 void read_feature(FeatureVector &fv, std::string &strField, 
-            const FeatureInfo &ftInfo, const std::size_t lineno)
+            FeatureInfo &ftInfo, const std::size_t lineno)
 {
     if (ftInfo.type == "string") {
         read_string_feature(fv, strField, ftInfo, lineno);
@@ -199,6 +244,8 @@ void read_feature(FeatureVector &fv, std::string &strField,
         read_double_feature(fv, strField, ftInfo, lineno);
     } else if (ftInfo.type == "list_double") {
         read_list_double_feature(fv, strField, ftInfo, lineno);
+    } else if (ftInfo.type == "datetime") {
+        read_datetime_feature(fv, strField, ftInfo, lineno);
     } else {
         THROW_RUNTIME_ERROR("read_feature in line " << lineno << 
                 ", feature type \"" << ftInfo.type << "\" is invalid!");
@@ -237,6 +284,14 @@ void load_data(const std::string &fname, Example &exp)
             read_feature(fv, strValues[i], *g_arrFeatureInfo[i], lineCnt);
         hExp.addVector(std::move(fv));
     } // while
+
+    uint32_t idx = 0;
+    for (auto &pf : g_arrFeatureInfo) {
+        for (auto &kv : pf->index) {
+            kv.second = idx++;
+            DLOG(INFO) << kv.second << "\t" << kv.first;
+        } // for kv
+    } // for
 }
 
 

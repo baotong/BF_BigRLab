@@ -22,6 +22,7 @@ struct FeatureInfo {
 
     std::string                 name;
     std::string                 type;
+    std::string                 format;
     bool                        multi;
     std::string                 sep;    // empty means default SPACE
     std::set<std::string>       values;
@@ -32,6 +33,8 @@ struct FeatureInfo {
         os << "name = " << fi.name << std::endl;
         os << "type = " << fi.type << std::endl;
         os << "multi = " << fi.multi << std::endl;
+        if (!fi.format.empty())
+            os << "format = " << fi.format << std::endl;
         if (!fi.sep.empty())
             os << "sep = " << fi.sep << std::endl;
         if (!fi.values.empty()) {
