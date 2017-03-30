@@ -7,7 +7,7 @@
 
 
 #define SPACES                " \t\f\r\v\n"
-#define VALID_TYPES     {"string", "double", "list_double"}
+#define VALID_TYPES     {"string", "double", "list_double", "datetime"}
 
 
 struct FeatureInfo {
@@ -25,6 +25,7 @@ struct FeatureInfo {
     bool                        multi;
     std::string                 sep;    // empty means default SPACE
     std::set<std::string>       values;
+    std::map<std::string, uint32_t>     index;
 
     friend std::ostream& operator << (std::ostream &os, const FeatureInfo &fi)
     {

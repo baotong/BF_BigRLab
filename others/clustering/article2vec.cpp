@@ -1,6 +1,7 @@
 /*
  * GLOG_log_dir="." ./article2vec.bin -method wordvec -input tagresult.txt -ref vectors.txt -nclasses 500 -output article_vectors.txt
  * GLOG_log_dir="." ./article2vec.bin -method cluster -input tagresult.txt -ref classes.txt -nclasses 500 -output article_vectors.txt
+ * GLOG_log_dir="." ./article2vec.bin -method cluster -input tagresult.txt -ref classes.txt -nclasses 500 -output article_vectors.txt -oformat xgboost
  *
  * For DEBUG cluster
  * GLOG_logtostderr=1 ./article2vec.bin -method cluster -input test.input -ref classes.txt -nclasses 500 -output article_vectors.txt
@@ -67,6 +68,7 @@ DEFINE_int32(nclasses, 0, "number of classes");
 DEFINE_string(method, "", "wordvec, cluster, or tfidf");
 DEFINE_string(input, "", "segmented corpus filename");
 DEFINE_string(ref, "", "ref file contains word vectors or word clusterids or word idf");
+DEFINE_string(oformat, "", "output format like xgboost");
 DEFINE_string(output, "", "file to keep the result");
 
 namespace {
@@ -197,12 +199,38 @@ ostream& print_non_zero_vector( ostream &os, const T &c )
 } // namespace Test
 
 template < typename T >
-std::ostream& print_container( std::ostream &os, const T &c )
+std::ostream& print_container_default( std::ostream &os, const T &c )
 {
     typedef typename T::value_type Type;
     copy( c.begin(), c.end(), ostream_iterator<Type>(os, " ") );
-    os << endl;
+    os << std::endl;
     return os;
+}
+
+template < typename T >
+std::ostream& print_container_xgboost( std::ostream &os, const T &c )
+{
+    bool hasVal = false;
+    for (std::size_t i = 0; i < c.size(); ++i) {
+        if (c[i]) {
+            hasVal = true;
+            os << i << ":" << c[i] << " ";
+        } // if
+    } // for
+    if (!hasVal) os << "NULL";
+    os << std::endl;
+    return os;
+}
+
+template < typename T >
+std::ostream& print_container( std::ostream &os, const T &c, const std::string &format )
+{
+    if (format == "")
+        return print_container_default(os, c);
+    else if (format == "xgboost")
+        return print_container_xgboost(os, c);
+    else
+        THROW_RUNTIME_ERROR("\"" << format << "\" is not a valid format");
 }
 
 
@@ -263,7 +291,7 @@ void do_with_wordvec( WordVecTable &wordVecTable )
     while (getline(*ifs, line)) {
         boost::trim(line);
         processLine(line, result);
-        print_container(*ofs, result);
+        print_container(*ofs, result, FLAGS_oformat);
     } // while
 }
 
@@ -323,7 +351,7 @@ void do_with_cluster(WordClusterTable &clusterTable)
     while (getline(*ifs, line)) {
         boost::trim(line);
         processLine(line, result);
-        print_container(*ofs, result);
+        print_container(*ofs, result, FLAGS_oformat);
     } // while
 }
 
