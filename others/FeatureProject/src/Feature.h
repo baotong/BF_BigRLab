@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <memory>
+#include <limits>
 #include <example_types.h>
 
 
@@ -11,6 +12,12 @@
 
 
 struct FeatureInfo {
+    struct MinMaxVal {
+        MinMaxVal() : minVal(std::numeric_limits<double>::max())
+                    , maxVal(std::numeric_limits<double>::min()) {}
+        double minVal, maxVal;
+    };
+
     typedef std::shared_ptr<FeatureInfo>  pointer;
 
     FeatureInfo() : multi(false) {}
@@ -20,6 +27,14 @@ struct FeatureInfo {
     void addValue(const std::string &v)
     { values.insert(v); }
 
+    void setMinMax(const double &val, const std::string &key = "")
+    {
+        auto ret = minMaxVals.insert(std::make_pair(key, MinMaxVal()));
+        auto &target = ret.first->second;
+        target.minVal = val < target.minVal ? val : target.minVal;
+        target.maxVal = val > target.maxVal ? val : target.maxVal;
+    }
+
     std::string                 name;
     std::string                 type;
     std::string                 format;
@@ -27,6 +42,7 @@ struct FeatureInfo {
     std::string                 sep;    // empty means default SPACE
     std::set<std::string>       values;
     std::map<std::string, uint32_t>     index;
+    std::map<std::string, MinMaxVal>    minMaxVals;
 
     friend std::ostream& operator << (std::ostream &os, const FeatureInfo &fi)
     {
@@ -41,6 +57,12 @@ struct FeatureInfo {
             os << "values = ";
             for (auto &v : fi.values)
                 os << v << " ";
+            os << std::endl;
+        } // if
+        if (fi.type == "double") {
+            os << "MinMaxVals: ";
+            for (auto &kv : fi.minMaxVals)
+                os << kv.first << "={" << kv.second.minVal << "," << kv.second.maxVal << "} ";
             os << std::endl;
         } // if
         return os;

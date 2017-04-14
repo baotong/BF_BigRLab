@@ -174,6 +174,7 @@ void read_double_feature(FeatureVector &fv, std::string &strField,
                     << ftInfo.name << "\" cannot covert \"" << value << "\" to double!");
             hFv.setFeature(val, ftInfo.name, key);
             ftInfo.index[key] = 0;
+            ftInfo.setMinMax(val, key);
         } // for
     } else {
         double val = 0.0;
@@ -182,6 +183,7 @@ void read_double_feature(FeatureVector &fv, std::string &strField,
                 << ftInfo.name << "\" cannot covert \"" << strField << "\" to double!");
         hFv.setFeature(val, ftInfo.name);
         ftInfo.index[""] = 0;
+        ftInfo.setMinMax(val);
     } // if
 }
 
@@ -232,6 +234,7 @@ void read_datetime_feature(FeatureVector &fv, std::string &strField,
 
     hFv.setFeature((double)tm, ftInfo.name);
     ftInfo.index[""] = 0;
+    ftInfo.setMinMax((double)tm);
 }
 
 static
@@ -289,7 +292,7 @@ void load_data(const std::string &fname, Example &exp)
     for (auto &pf : g_arrFeatureInfo) {
         for (auto &kv : pf->index) {
             kv.second = idx++;
-            DLOG(INFO) << kv.second << "\t" << kv.first;
+            // DLOG(INFO) << kv.second << "\t" << kv.first;
         } // for kv
     } // for
 }

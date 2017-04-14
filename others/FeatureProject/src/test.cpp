@@ -6,6 +6,13 @@
  * trim sep+SPACES, split only sep
  */
 #include <fstream>
+#include <boost/smart_ptr.hpp>
+#include <thrift/protocol/TBinaryProtocol.h>
+#include <thrift/protocol/TCompactProtocol.h>
+#include <thrift/transport/TFileTransport.h>
+#include <thrift/transport/TFDTransport.h>
+#include <thrift/transport/TBufferTransports.h>
+#include <thrift/transport/TZlibTransport.h>
 #include <boost/format.hpp>
 #include <glog/logging.h>
 #include "CommDef.h"
@@ -63,6 +70,63 @@ namespace Test {
         if (ret) cout << fVal << endl;
         else cout << "Not found!" << endl;
     }
+
+    // TODO use flatbuffers instead of thrift
+    void test_serial2file(const std::string &fname, const Example &exp)
+    {
+        using namespace apache::thrift;
+        using namespace apache::thrift::protocol;
+        using namespace apache::thrift::transport;
+
+        // open & trunc
+        {
+            ofstream ofs(fname, ios::out | ios::trunc);
+            THROW_RUNTIME_ERROR_IF(!ofs, "Cannot open file \"" << fname << "\" for writting!");
+        }
+
+        // 默认是每次追加，所以要先trunc
+        auto _transport1 = boost::make_shared<TFileTransport>(fname);
+        auto _transport2 = boost::make_shared<TBufferedTransport>(_transport1);
+        auto transport = boost::make_shared<TZlibTransport>(_transport2,
+                128, 1024,
+                128, 1024,
+                Z_BEST_COMPRESSION);
+        auto protocol = boost::make_shared<TBinaryProtocol>(transport);
+
+        for (const auto &f : exp.example)
+            f.write(protocol.get());
+
+        // transport->flush();     // NOTE!!! must do this if using buffered transport
+        transport->finish();
+    }
+
+    void test_read_serial(const std::string &fname, Example &exp)
+    {
+        using namespace apache::thrift;
+        using namespace apache::thrift::protocol;
+        using namespace apache::thrift::transport;
+        
+        auto _transport1 = boost::make_shared<TFileTransport>(fname, true); // true read-only
+        auto _transport2 = boost::make_shared<TBufferedTransport>(_transport1);
+        auto transport = boost::make_shared<TZlibTransport>(_transport2);
+        auto protocol = boost::make_shared<TBinaryProtocol>(transport);
+
+        // transport->open();
+
+        auto &arr = exp.example;
+
+        FeatureVector fv;
+        while (true) {
+            try {
+                fv.read(protocol.get());
+                arr.emplace_back(std::move(fv));
+            } catch (const apache::thrift::transport::TTransportException&) {
+                break;
+            } // try
+        } // while
+
+        DLOG(INFO) << arr.size();
+    }
 } // namespace Test
 
 
@@ -110,7 +174,7 @@ void convert_xgboost(Example &exp, const std::string &fname)
 
 
 int main(int argc, char **argv)
-try {
+{
     using namespace std;
 
     RET_MSG_VAL_IF(argc < 4, -1,
@@ -126,16 +190,18 @@ try {
 
     Example exp;
     load_data(dataFilename, exp);
+    DLOG(INFO) << exp.example.size();
     // cout << exp << endl;
     convert_xgboost(exp, outFilename);
 
+    Test::test_serial2file("test.data", exp);
+    Example exp2;
+    Test::test_read_serial("test.data", exp2);
+    convert_xgboost(exp2, "test.out");
+    Test::print_feature_info();
+
     return 0;
-
-} catch (const std::exception &ex) {
-    std::cerr << "Exception caught in main: " << ex.what() << std::endl;
-    return -1;
 }
-
 
 
 

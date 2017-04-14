@@ -15,7 +15,8 @@
             "Local-gov",
             "State-gov",
             "Without-pay",
-            "Never-worked"
+            "Never-worked",
+            "?"
          ]
       },
       {
@@ -80,7 +81,8 @@
             "Transport-moving",
             "Priv-house-serv",
             "Protective-serv",
-            "Armed-Forces"
+            "Armed-Forces",
+            "?"
          ]
       },
       {
@@ -161,7 +163,8 @@
             "Trinadad&Tobago",
             "Peru",
             "Hong",
-            "Holand-Netherlands"
+            "Holand-Netherlands",
+            "?"
          ]
       },
       {
