@@ -7,10 +7,16 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
+#include <boost/smart_ptr.hpp>
+#include <thrift/protocol/TBinaryProtocol.h>
+#include <thrift/transport/TFileTransport.h>
+#include <thrift/transport/TBufferTransports.h>
+#include <thrift/transport/TZlibTransport.h>
 #include "CommDef.h"
 #include "Feature.h"
 
-std::vector<FeatureInfo::pointer>    g_arrFeatureInfo;
+// std::vector<FeatureInfo::pointer>    g_arrFeatureInfo;
+FeatureInfoSet                       g_ftInfoSet;
 std::string                          g_strSep = SPACES;
 
 
@@ -26,11 +32,11 @@ bool str2time(const std::string &s, std::time_t &tt,
 }
 
 
-void load_feature_info(const std::string &fname)
+void load_feature_info(const std::string &fname, Json::Value &root)
 {
     using namespace std;
 
-    Json::Value     root;
+    root.clear();
 
     // load json file
     {
@@ -47,7 +53,7 @@ void load_feature_info(const std::string &fname)
 
     uint32_t        nFeatures = 0;
 
-    g_arrFeatureInfo.clear();
+    g_ftInfoSet.clear();
 
     // read nFeatures
     {
@@ -56,8 +62,6 @@ void load_feature_info(const std::string &fname)
         nFeatures = jv.asUInt();
         THROW_RUNTIME_ERROR_IF(!nFeatures, "Value of attr \"nFeatures\" " << nFeatures << " is invalid!");
     } // read nFeatures
-
-    g_arrFeatureInfo.reserve(nFeatures);
 
     // split 用 sep, trim 用 SPACES
     // read gSep
@@ -84,7 +88,7 @@ void load_feature_info(const std::string &fname)
             auto pf = std::make_shared<FeatureInfo>(jf["name"].asString(), jf["type"].asString());
             THROW_RUNTIME_ERROR_IF(!validTypes.count(pf->type),
                     "Feature " << pf->name << " has invalid type " << pf->type);
-            g_arrFeatureInfo.emplace_back(pf);
+            g_ftInfoSet.add(pf);
 
             auto &jFormat = jf["format"];
             if (!!jFormat) pf->format = jFormat.asString();
@@ -263,7 +267,7 @@ void load_data(const std::string &fname, Example &exp)
     ifstream ifs(fname, ios::in);
     THROW_RUNTIME_ERROR_IF(!ifs, "load_data cannot open " << fname << " for reading!");
 
-    const size_t nFeatures = g_arrFeatureInfo.size();
+    const size_t nFeatures = g_ftInfoSet.size();
 
     ExampleHandle hExp(exp);
     hExp.clearVector();
@@ -284,12 +288,12 @@ void load_data(const std::string &fname, Example &exp)
                 << strValues.size() << " detected.");
         FeatureVector fv;
         for (size_t i = 0; i < nFeatures; ++i)
-            read_feature(fv, strValues[i], *g_arrFeatureInfo[i], lineCnt);
+            read_feature(fv, strValues[i], *g_ftInfoSet[i], lineCnt);
         hExp.addVector(std::move(fv));
     } // while
 
     uint32_t idx = 0;
-    for (auto &pf : g_arrFeatureInfo) {
+    for (auto &pf : g_ftInfoSet.arrFeature()) {
         for (auto &kv : pf->index) {
             kv.second = idx++;
             // DLOG(INFO) << kv.second << "\t" << kv.first;
@@ -297,4 +301,62 @@ void load_data(const std::string &fname, Example &exp)
     } // for
 }
 
+
+void load_data(const std::string &ifname, const std::string &ofname)
+{
+    using namespace std;
+    using namespace apache::thrift;
+    using namespace apache::thrift::protocol;
+    using namespace apache::thrift::transport;
+
+    ifstream ifs(ifname, ios::in);
+    THROW_RUNTIME_ERROR_IF(!ifs, "load_data cannot open " << ifname << " for reading!");
+
+    // check & trunc out file
+    {
+        ofstream ofs(ofname, ios::out | ios::trunc);
+        THROW_RUNTIME_ERROR_IF(!ofs, "load_data cannot open " << ofname << " for writting!");
+    }
+
+    auto _transport1 = boost::make_shared<TFileTransport>(ofname);
+    auto _transport2 = boost::make_shared<TBufferedTransport>(_transport1);
+    auto transport = boost::make_shared<TZlibTransport>(_transport2,
+            128, 1024,
+            128, 1024,
+            Z_BEST_COMPRESSION);
+    auto protocol = boost::make_shared<TBinaryProtocol>(transport);
+
+    const size_t nFeatures = g_ftInfoSet.size();
+
+    string line;
+    size_t lineCnt = 0;
+    while (getline(ifs, line)) {
+        ++lineCnt;
+        boost::trim_if(line, boost::is_any_of(g_strSep + SPACES));  // NOTE!!! 整行trim应该去掉分割符和默认trim空白字符
+        if (line.empty()) continue;
+        vector<string> strValues;
+        boost::split(strValues, line, boost::is_any_of(g_strSep), boost::token_compress_on);
+        // for (auto &s : strValues)
+            // cout << s << endl;
+        THROW_RUNTIME_ERROR_IF(strValues.size() != nFeatures,
+                "Error when processing data file in line " << lineCnt 
+                << ", nFeatures not match! " << nFeatures << " expected but " 
+                << strValues.size() << " detected.");
+        FeatureVector fv;
+        for (size_t i = 0; i < nFeatures; ++i)
+            read_feature(fv, strValues[i], *g_ftInfoSet[i], lineCnt);
+        fv.write(protocol.get());
+    } // while
+
+    transport->finish();
+
+    // build index
+    uint32_t idx = 0;
+    for (auto &pf : g_ftInfoSet.arrFeature()) {
+        for (auto &kv : pf->index) {
+            kv.second = idx++;
+            // DLOG(INFO) << kv.second << "\t" << kv.first;
+        } // for kv
+    } // for
+}
 

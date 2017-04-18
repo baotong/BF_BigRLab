@@ -35,6 +35,17 @@ struct FeatureInfo {
         target.maxVal = val > target.maxVal ? val : target.maxVal;
     }
 
+    std::pair<double, double> getMinMax(const std::string &key = "")
+    {
+        auto it = minMaxVals.find(key);
+        if (it == minMaxVals.end())
+            return std::make_pair(std::numeric_limits<double>::max(), std::numeric_limits<double>::min());
+        return std::make_pair(it->second.minVal, it->second.maxVal);
+    }
+
+    // bool operator< (const FeatureInfo &rhs) const
+    // { return name < rhs.name; }
+
     std::string                 name;
     std::string                 type;
     std::string                 format;
@@ -67,6 +78,59 @@ struct FeatureInfo {
         } // if
         return os;
     }
+};
+
+
+// struct FeatureInfoPtrCmp {
+    // bool operator() (const FeatureInfo::pointer &lhs, const FeatureInfo::pointer &rhs) const
+    // { return *lhs < *rhs; }  
+// };
+
+
+class FeatureInfoSet {
+public:
+    void clear()
+    {
+        m_arrFeatureInfo.clear();
+        m_mapFeatureInfo.clear();
+    }
+
+    bool add(const FeatureInfo::pointer &pf)
+    {
+        auto ret = m_mapFeatureInfo.insert(std::make_pair(pf->name, pf));
+        if (!ret.second) return false;
+        m_arrFeatureInfo.emplace_back(pf);
+        return true;
+    }
+
+    bool get(const std::string &name, FeatureInfo &fv)
+    {
+        auto it = m_mapFeatureInfo.find(name);
+        if (it == m_mapFeatureInfo.end()) return false;
+        fv = *(it->second);
+        return true;
+    }
+
+    FeatureInfo::pointer get(const std::string &name) const
+    {
+        auto it = m_mapFeatureInfo.find(name);
+        if (it != m_mapFeatureInfo.end())
+            return it->second;
+        return nullptr;
+    }
+
+    FeatureInfo::pointer operator[](std::size_t pos) const
+    { return m_arrFeatureInfo.at(pos); }
+
+    std::vector<FeatureInfo::pointer>& arrFeature()
+    { return m_arrFeatureInfo; }
+
+    std::size_t size() const
+    { return m_arrFeatureInfo.size(); }
+
+private:
+    std::vector<FeatureInfo::pointer>             m_arrFeatureInfo;
+    std::map<std::string, FeatureInfo::pointer>   m_mapFeatureInfo;
 };
 
 
@@ -233,11 +297,13 @@ private:
 };
 
 
-extern std::vector<FeatureInfo::pointer>    g_arrFeatureInfo;
+// extern std::vector<FeatureInfo::pointer>    g_arrFeatureInfo;
+extern FeatureInfoSet                       g_ftInfoSet;
 extern std::string                          g_strSep;
 
-extern void load_feature_info(const std::string &fname);
+extern void load_feature_info(const std::string &fname, Json::Value &root);
 extern void load_data(const std::string &fname, Example &exp);
+extern void load_data(const std::string &ifname, const std::string &ofname);
 
 
 #endif /* ifndef _FEATURE_H_ */

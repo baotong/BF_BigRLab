@@ -1,4 +1,5 @@
 /*
+ * GLOG_logtostderr=1 ./test.bin -op store -raw ../data/adult.data -conf ../data/adult_conf.json -fv ../data/adult.fv
  * ./test.bin ../data/adult.data ../data/adult_conf.json ../data/out.txt
  * ./test.bin ../data/search_no_id.data ../data/search_conf.json ../data/out.txt
  */
@@ -15,18 +16,28 @@
 #include <thrift/transport/TZlibTransport.h>
 #include <boost/format.hpp>
 #include <glog/logging.h>
+#include <gflags/gflags.h>
+#include <json/json.h>
 #include "CommDef.h"
 #include "Feature.h"
+
+
+DEFINE_string(op, "", "Operation to do on data");
+DEFINE_string(raw, "", "Raw data file to input");
+DEFINE_string(conf, "", "Info about raw data in json format");
+DEFINE_string(fv, "", "Serialized feature vector file");
+
+Json::Value         g_jsConf;
 
 
 namespace Test {
     using namespace std;
     void print_feature_info()
     {
-        cout << "Totally " << g_arrFeatureInfo.size() << " features." << endl;
+        cout << "Totally " << g_ftInfoSet.size() << " features." << endl;
         cout << "Global seperator = " << g_strSep << endl;
         cout << endl;
-        for (auto &pf : g_arrFeatureInfo)
+        for (auto &pf : g_ftInfoSet.arrFeature())
             cout << *pf << endl;
     }
 
@@ -165,16 +176,225 @@ void convert_xgboost(Example &exp, const std::string &fname)
 
     for (size_t i = 0; i < exp.example.size(); ++i) {
         FeatureVector &fv = exp.example[i];
-        for (auto &pfi : g_arrFeatureInfo)
+        for (auto &pfi : g_ftInfoSet.arrFeature())
             print_xgboost(ofs, fv, *pfi);
         ofs << endl;
     } // for
 }
 
 
+void do_store(std::istringstream&)
+{
+    THROW_RUNTIME_ERROR_IF(FLAGS_raw.empty(), "No raw data file specified!");
+    THROW_RUNTIME_ERROR_IF(FLAGS_conf.empty(), "No conf file specified!");
+    THROW_RUNTIME_ERROR_IF(FLAGS_fv.empty(), "No fv data file specified!");
+
+    load_feature_info(FLAGS_conf, g_jsConf);
+    load_data(FLAGS_raw, FLAGS_fv);
+}
+
+
+void do_format(std::istringstream &iss)
+{
+    using namespace std;
+    using namespace apache::thrift;
+    using namespace apache::thrift::protocol;
+    using namespace apache::thrift::transport;
+
+    string      fmt, ofname;
+
+    getline(iss, fmt, ':');
+    THROW_RUNTIME_ERROR_IF(iss.fail() || iss.bad() || fmt.empty(),
+            "do_format() cannot read specified format!");
+    getline(iss, ofname, ':');
+    THROW_RUNTIME_ERROR_IF(iss.fail() || iss.bad() || ofname.empty(),
+            "do_format() cannot read specified output file name!");
+    
+    THROW_RUNTIME_ERROR_IF(FLAGS_conf.empty(), "No conf file specified!");
+    THROW_RUNTIME_ERROR_IF(FLAGS_fv.empty(), "No fv data file specified!");
+
+    load_feature_info(FLAGS_conf, g_jsConf);
+
+    ofstream ofs(ofname, ios::out | ios::trunc);
+    THROW_RUNTIME_ERROR_IF(!ofs, "do_format() cannot open " << ofname << " for writtingt!");
+
+    auto _transport1 = boost::make_shared<TFileTransport>(FLAGS_fv, true);
+    auto _transport2 = boost::make_shared<TBufferedTransport>(_transport1);
+    auto transport = boost::make_shared<TZlibTransport>(_transport2);
+    auto protocol = boost::make_shared<TBinaryProtocol>(transport);
+
+    FeatureVector fv;
+    while (true) {
+        try {
+            fv.read(protocol.get());
+            for (auto &pfi : g_ftInfoSet.arrFeature())
+                print_xgboost(ofs, fv, *pfi);           // TODO only support xgboost now
+            ofs << endl;
+        } catch (const apache::thrift::transport::TTransportException&) {
+            break;
+        } // try
+    } // while
+}
+
+
+static
+void load_fv(const std::string &fname)
+{
+    using namespace apache::thrift;
+    using namespace apache::thrift::protocol;
+    using namespace apache::thrift::transport;
+
+    auto _transport1 = boost::make_shared<TFileTransport>(fname, true); // true read-only
+    auto _transport2 = boost::make_shared<TBufferedTransport>(_transport1);
+    auto transport = boost::make_shared<TZlibTransport>(_transport2);
+    auto protocol = boost::make_shared<TBinaryProtocol>(transport);
+
+    FeatureVector fv;
+    while (true) {
+        try {
+            fv.read(protocol.get());
+            for (auto &kv : fv.floatFeatures) {
+                auto pFtInfo = g_ftInfoSet.get(kv.first);
+                THROW_RUNTIME_ERROR_IF(!pFtInfo, 
+                        "load_fv() data inconsistency!, no feature info \"" << kv.first << "\" found!");
+                THROW_RUNTIME_ERROR_IF(kv.second.empty(), "load_fv() invalid data!");
+                if (pFtInfo->multi) {
+                    for (auto &kv2 : kv.second)
+                        pFtInfo->setMinMax(kv2.second, kv2.first);
+                } else {
+                    auto it = kv.second.begin();
+                    pFtInfo->setMinMax(it->second);
+                } // if
+            } // for kv
+        } catch (const apache::thrift::transport::TTransportException&) {
+            break;
+        } // try
+    } // while
+}
+
+
+void do_normalize(std::istringstream &iss)
+{
+    using namespace std;
+    using namespace apache::thrift;
+    using namespace apache::thrift::protocol;
+    using namespace apache::thrift::transport;
+    
+    THROW_RUNTIME_ERROR_IF(FLAGS_conf.empty(), "No conf file specified!");
+    THROW_RUNTIME_ERROR_IF(FLAGS_fv.empty(), "No fv data file specified!");
+
+    load_feature_info(FLAGS_conf, g_jsConf);
+    load_fv(FLAGS_fv);
+
+    string segment;
+    typedef map<string, set<string> >    FtSet;
+    FtSet               ftSet;
+    while (getline(iss, segment, ':')) {
+        string ft, subft;
+        auto pos = segment.find('.');
+        if (pos == string::npos) {
+            ft = segment;
+        } else {
+            ft = segment.substr(0, pos);
+            subft = segment.substr(pos + 1);
+        } // if
+        auto ret = ftSet.insert(std::make_pair(ft, FtSet::mapped_type()));
+        if (!subft.empty()) {
+            auto &ftSetVal = ret.first->second;
+            ftSetVal.insert(subft);
+        } // if
+    } // while
+
+    auto _transport1 = boost::make_shared<TFileTransport>(FLAGS_fv, true);
+    auto _transport2 = boost::make_shared<TBufferedTransport>(_transport1);
+    auto transport = boost::make_shared<TZlibTransport>(_transport2);
+    auto protocol = boost::make_shared<TBinaryProtocol>(transport);
+
+    FeatureVector fv;
+    while (true) {
+        try {
+            fv.read(protocol.get());
+            for (auto &kv : fv.floatFeatures) {
+                auto pFtInfo = g_ftInfoSet.get(kv.first);
+                if (!ftSet.empty() && !ftSet.count(kv.first))
+                    continue;
+                THROW_RUNTIME_ERROR_IF(!pFtInfo, 
+                        "load_fv() data inconsistency!, no feature info \"" << kv.first << "\" found!");
+                THROW_RUNTIME_ERROR_IF(kv.second.empty(), "load_fv() invalid data!");
+                if (pFtInfo->multi) {
+                    for (auto &kv2 : kv.second) {
+                        if (!ftSet.empty() && !ftSet[kv.first].empty() && !ftSet[kv.first].count(kv2.first))
+                            continue;
+                        auto minmax = pFtInfo->getMinMax(kv2.first);
+                        double range = minmax.second - minmax.first;
+                        THROW_RUNTIME_ERROR_IF(range < 0.0, 
+                                "do_normalize() invalid min max value for feature " << kv.first);
+                        double &val = kv2.second;
+                        if (range == 0.0) {
+                            val = 0.0;
+                        } else {
+                            val -= minmax.first;
+                            val /= range;
+                        } // if range
+                    } // for kv2
+                } else {
+                    auto minmax = pFtInfo->getMinMax();
+                    double range = minmax.second - minmax.first;
+                    THROW_RUNTIME_ERROR_IF(range < 0.0, 
+                            "do_normalize() invalid min max value for feature " << kv.first);
+                    auto it = kv.second.begin();
+                    double &val = it->second;
+                    if (range == 0.0) {
+                        val = 0.0;
+                    } else {
+                        val -= minmax.first;
+                        val /= range;
+                    } // if range
+                } // if
+            } // for kv
+        } catch (const apache::thrift::transport::TTransportException&) {
+            break;
+        } // try
+    } // while
+}
+
 
 int main(int argc, char **argv)
-{
+try {
+    using namespace std;
+
+    google::InitGoogleLogging(argv[0]);
+    gflags::ParseCommandLineFlags(&argc, &argv, true);
+
+    typedef std::function<void(istringstream&)>     OpFunc;
+    typedef std::map<std::string, OpFunc>           OpTable;
+    OpTable     opTable;
+    opTable["store"] = do_store;
+    opTable["fmt"] = do_format;
+    opTable["normalize"] = do_normalize;
+
+    RET_MSG_VAL_IF(FLAGS_op.empty(), -1, "Operation must be specified by \"-op\"");
+
+    string opCmd;
+    istringstream iss(FLAGS_op);
+    getline(iss, opCmd, ':');
+    RET_MSG_VAL_IF(iss.fail() || iss.bad(), -1, "Invalid operation format!");
+    auto it = opTable.find(opCmd);
+    RET_MSG_VAL_IF(it == opTable.end(), -1, "Invalid operation cmd!");
+    it->second(iss);
+
+    return 0;
+
+} catch (const std::exception &ex) {
+    std::cerr << "Exception caught by main: " << ex.what() << std::endl;
+    return -1;
+}
+
+
+
+#if 0
+int main(int argc, char **argv)
+try {
     using namespace std;
 
     RET_MSG_VAL_IF(argc < 4, -1,
@@ -198,10 +418,14 @@ int main(int argc, char **argv)
     Example exp2;
     Test::test_read_serial("test.data", exp2);
     convert_xgboost(exp2, "test.out");
-    Test::print_feature_info();
 
     return 0;
+
+} catch (const std::exception &ex) {
+    cerr << "Exception caught by main: " << ex.what() << endl;
+    return -1;
 }
+#endif
 
 
 
