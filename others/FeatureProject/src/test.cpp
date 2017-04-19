@@ -1,10 +1,20 @@
 /*
  * # just storing feature vector data
  * GLOG_logtostderr=1 ./test.bin -op store -raw ../data/adult.data -conf ../data/adult_conf.json -fv ../data/adult.fv
+ *
  * # convert feature vector into xgboost
  * GLOG_logtostderr=1 ./test.bin -op fmt:xgboost:../data/adult.data.xgboost -conf ../data/adult_conf.json -fv ../data/adult.fv
  *
+ * ## normalize
+ * # only one feature
+ * GLOG_logtostderr=1 ./test.bin -op normalize:age -conf ../data/adult_conf.json -fv ../data/adult.fv -o ../data/adult.normalized
+ * # all float features
+ * GLOG_logtostderr=1 ./test.bin -op normalize -conf ../data/adult_conf.json -fv ../data/adult.fv -o ../data/adult.normalized
  *
+ * ## dump fv
+ * GLOG_logtostderr=1 ./test.bin -op dump -fv ../data/adult.normalized -o /tmp/out.txt
+ * # first 100 lines
+ * GLOG_logtostderr=1 ./test.bin -op dump:100 -fv ../data/adult.normalized -o /tmp/out.txt
  *
  * ./test.bin ../data/adult.data ../data/adult_conf.json ../data/out.txt
  * ./test.bin ../data/search_no_id.data ../data/search_conf.json ../data/out.txt
@@ -21,6 +31,7 @@
 #include <thrift/transport/TBufferTransports.h>
 #include <thrift/transport/TZlibTransport.h>
 #include <boost/format.hpp>
+#include <boost/lexical_cast.hpp>
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 #include <json/json.h>
@@ -32,6 +43,7 @@ DEFINE_string(op, "", "Operation to do on data");
 DEFINE_string(raw, "", "Raw data file to input");
 DEFINE_string(conf, "", "Info about raw data in json format");
 DEFINE_string(fv, "", "Serialized feature vector file");
+DEFINE_string(o, "", "output file");
 
 Json::Value         g_jsConf;
 
@@ -88,7 +100,6 @@ namespace Test {
         else cout << "Not found!" << endl;
     }
 
-    // TODO use flatbuffers instead of thrift
     void test_serial2file(const std::string &fname, const Example &exp)
     {
         using namespace apache::thrift;
@@ -312,6 +323,13 @@ void do_normalize(std::istringstream &iss)
 
     THROW_RUNTIME_ERROR_IF(FLAGS_conf.empty(), "No conf file specified!");
     THROW_RUNTIME_ERROR_IF(FLAGS_fv.empty(), "No fv data file specified!");
+    THROW_RUNTIME_ERROR_IF(FLAGS_o.empty(), "No output file specified!");
+
+    // open & trunc
+    {
+        ofstream ofs(FLAGS_o, ios::out | ios::trunc);
+        THROW_RUNTIME_ERROR_IF(!ofs, "Cannot open file \"" << FLAGS_o << "\" for writting!");
+    }
 
     load_feature_info(FLAGS_conf, g_jsConf);
     load_fv(FLAGS_fv);
@@ -335,16 +353,24 @@ void do_normalize(std::istringstream &iss)
         } // if
     } // while
 
-    auto _transport1 = boost::make_shared<TFileTransport>(FLAGS_fv, true);
-    auto _transport2 = boost::make_shared<TBufferedTransport>(_transport1);
-    auto transport = boost::make_shared<TZlibTransport>(_transport2);
-    auto protocol = boost::make_shared<TBinaryProtocol>(transport);
+    auto _rdTransport1 = boost::make_shared<TFileTransport>(FLAGS_fv, true);
+    auto _rdTransport2 = boost::make_shared<TBufferedTransport>(_rdTransport1);
+    auto rdTransport = boost::make_shared<TZlibTransport>(_rdTransport2);
+    auto rdProtocol = boost::make_shared<TBinaryProtocol>(rdTransport);
 
-    // TODO
+    auto _wrTransport1 = boost::make_shared<TFileTransport>(FLAGS_o);
+    auto _wrTransport2 = boost::make_shared<TBufferedTransport>(_wrTransport1);
+    auto wrTransport = boost::make_shared<TZlibTransport>(_wrTransport2,
+            128, 1024,
+            128, 1024,
+            Z_BEST_COMPRESSION);
+    auto wrProtocol = boost::make_shared<TBinaryProtocol>(wrTransport);
+
+    LOG(INFO) << "Processing data...";
     FeatureVector fv;
     while (true) {
         try {
-            fv.read(protocol.get());
+            fv.read(rdProtocol.get());
             for (auto &kv : fv.floatFeatures) {
                 auto pFtInfo = g_ftInfoSet.get(kv.first);
                 if (!ftSet.empty() && !ftSet.count(kv.first))
@@ -383,6 +409,46 @@ void do_normalize(std::istringstream &iss)
                     } // if range
                 } // if
             } // for kv
+            fv.write(wrProtocol.get());
+        } catch (const apache::thrift::transport::TTransportException&) {
+            break;
+        } // try
+    } // while
+
+    wrTransport->finish();
+    LOG(INFO) << "Normalized data kept in " << FLAGS_o;
+}
+
+
+void do_dump(std::istringstream &iss)
+{
+    using namespace std;
+    using namespace apache::thrift;
+    using namespace apache::thrift::protocol;
+    using namespace apache::thrift::transport;
+
+    uint32_t cnt = std::numeric_limits<uint32_t>::max();
+
+    string strCnt;
+    getline(iss, strCnt, ':');
+    if (!strCnt.empty())
+        cnt = boost::lexical_cast<uint32_t>(strCnt);
+
+    THROW_RUNTIME_ERROR_IF(FLAGS_fv.empty(), "No fv data file specified!");
+    THROW_RUNTIME_ERROR_IF(FLAGS_o.empty(), "No output file specified!");
+    ofstream ofs(FLAGS_o, ios::out | ios::trunc);
+    THROW_RUNTIME_ERROR_IF(!ofs, "Cannot open file \"" << FLAGS_o << "\" for writting!");
+
+    auto _transport1 = boost::make_shared<TFileTransport>(FLAGS_fv, true);
+    auto _transport2 = boost::make_shared<TBufferedTransport>(_transport1);
+    auto transport = boost::make_shared<TZlibTransport>(_transport2);
+    auto protocol = boost::make_shared<TBinaryProtocol>(transport);
+
+    FeatureVector fv;
+    for (uint32_t i = 0; i < cnt; ++i) {
+        try {
+            fv.read(protocol.get());
+            ofs << fv << endl;
         } catch (const apache::thrift::transport::TTransportException&) {
             break;
         } // try
@@ -403,6 +469,7 @@ try {
     opTable["store"] = do_store;
     opTable["fmt"] = do_format;
     opTable["normalize"] = do_normalize;
+    opTable["dump"] = do_dump;
 
     RET_MSG_VAL_IF(FLAGS_op.empty(), -1, "Operation must be specified by \"-op\"");
 
