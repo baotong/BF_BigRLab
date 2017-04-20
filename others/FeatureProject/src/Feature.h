@@ -5,86 +5,132 @@
 #include <memory>
 #include <limits>
 #include <example_types.h>
+#include "CommDef.h"
 
 
 #define SPACES                " \t\f\r\v\n"
 #define VALID_TYPES     {"string", "double", "list_double", "datetime"}
 
 
-struct FeatureInfo {
-    struct MinMaxVal {
-        MinMaxVal() : minVal(std::numeric_limits<double>::max())
-                    , maxVal(std::numeric_limits<double>::min()) {}
-        double minVal, maxVal;
-    };
-
+class FeatureInfo {
+public:
     typedef std::shared_ptr<FeatureInfo>  pointer;
 
-    FeatureInfo() : multi(false) {}
-    FeatureInfo(const std::string &_Name, const std::string &_Type)
-            : name(_Name), type(_Type), multi(false) {}
+    struct SubFeatureInfo {
+        SubFeatureInfo(const std::string &_Name)
+                : m_strName(_Name), m_nIdx(0)
+                , m_fMin(std::numeric_limits<double>::max())
+                , m_fMax(std::numeric_limits<double>::min()) {}
 
-    void addValue(const std::string &v)
-    { values.insert(v); }
+        std::string& name() { return m_strName; }
+        const std::string& name() const { return m_strName; }
+        uint32_t index() const { return m_nIdx; }
+        void setIndex(uint32_t _Idx) { m_nIdx = _Idx; } 
+        double minVal() const { return m_fMin; }
+        double maxVal() const { return m_fMax; }
+
+        void setMinMax(const double &val)
+        {
+            m_fMin = val < m_fMin ? val : m_fMin;
+            m_fMax = val > m_fMax ? val : m_fMax;
+        }
+
+        std::string     m_strName;
+        uint32_t        m_nIdx;
+        double          m_fMin, m_fMax;
+    };
+
+    typedef std::map<std::string, SubFeatureInfo>   SubFeatureTable;
+
+public:
+    FeatureInfo() : m_bMulti(false) {}
+    FeatureInfo(const std::string &_Name, const std::string &_Type)
+            : m_strName(_Name), m_strType(_Type), m_bMulti(false) {}
+
+    std::string& name() { return m_strName; }
+    const std::string& name() const { return m_strName; }
+    std::string& type() { return m_strType; }
+    const std::string& type() const { return m_strType; }
+    bool isMulti() const { return m_bMulti; }
+    void setMulti(bool multi = true) { m_bMulti = multi; }
+    std::string& sep() { return m_strSep; }
+    const std::string& sep() const { return m_strSep; }
+
+    void addSubFeature(const SubFeatureInfo &subft)
+    { m_mapSubFeature[subft.name()] = subft; }
+
+    void addSubFeature(const std::string &name)
+    { m_mapSubFeature[name] = SubFeatureInfo(name); }
+
+    void setSubFeature(const std::string &name)
+    { 
+        m_mapSubFeature.clear();
+        m_mapSubFeature[name] = SubFeatureInfo(name); 
+    }
+
+    SubFeatureInfo& subFeature(const std::string &key)
+    {
+        auto it = m_mapSubFeature.find(key);
+        THROW_RUNTIME_ERROR_IF(it == m_mapSubFeature.end(),
+                "No sub feature " << key << " in feature " << name());
+        return it->second;
+    }
+
+    SubFeatureTable& subFeatures() { return m_mapSubFeature; }
+    const SubFeatureTable& subFeatures() const { return m_mapSubFeature; }
 
     void setMinMax(const double &val, const std::string &key = "")
     {
-        auto ret = minMaxVals.insert(std::make_pair(key, MinMaxVal()));
-        auto &target = ret.first->second;
-        target.minVal = val < target.minVal ? val : target.minVal;
-        target.maxVal = val > target.maxVal ? val : target.maxVal;
+        auto ret = m_mapSubFeature.insert(std::make_pair(key, SubFeatureInfo(key)));
+        ret.first->second.setMinMax(val);
     }
 
-    std::pair<double, double> getMinMax(const std::string &key = "")
+    std::pair<double, double> minMax(const std::string &key = "")
     {
-        auto it = minMaxVals.find(key);
-        if (it == minMaxVals.end())
+        auto it = m_mapSubFeature.find(key);
+        if (it == m_mapSubFeature.end())
             return std::make_pair(std::numeric_limits<double>::max(), std::numeric_limits<double>::min());
-        return std::make_pair(it->second.minVal, it->second.maxVal);
+        return std::make_pair(it->second.minVal(), it->second.maxVal());
     }
 
-    // bool operator< (const FeatureInfo &rhs) const
-    // { return name < rhs.name; }
+    void setIndex(uint32_t idx, const std::string &key = "")
+    { 
+        auto ret = m_mapSubFeature.insert(std::make_pair(key, SubFeatureInfo(key)));
+        ret.first->second.setIndex(idx);
+    }
 
-    std::string                 name;
-    std::string                 type;
-    std::string                 format;
-    bool                        multi;
-    std::string                 sep;    // empty means default SPACE
-    std::set<std::string>       values;
-    std::map<std::string, uint32_t>     index;
-    std::map<std::string, MinMaxVal>    minMaxVals;
+    uint32_t index(const std::string &key = "")
+    {
+        auto it = m_mapSubFeature.find(key);
+        THROW_RUNTIME_ERROR_IF(it == m_mapSubFeature.end(),
+                "No sub feature " << key << " in feature " << name());
+        return it->second.index();
+    }
 
+private:
+    std::string                 m_strName;
+    std::string                 m_strType;
+    bool                        m_bMulti;
+    std::string                 m_strSep;    // empty means default SPACE
+    SubFeatureTable             m_mapSubFeature;
+
+public:
     friend std::ostream& operator << (std::ostream &os, const FeatureInfo &fi)
     {
-        os << "name = " << fi.name << std::endl;
-        os << "type = " << fi.type << std::endl;
-        os << "multi = " << fi.multi << std::endl;
-        if (!fi.format.empty())
-            os << "format = " << fi.format << std::endl;
-        if (!fi.sep.empty())
-            os << "sep = " << fi.sep << std::endl;
-        if (!fi.values.empty()) {
-            os << "values = ";
-            for (auto &v : fi.values)
-                os << v << " ";
-            os << std::endl;
-        } // if
-        if (fi.type == "double") {
-            os << "MinMaxVals: ";
-            for (auto &kv : fi.minMaxVals)
-                os << kv.first << "={" << kv.second.minVal << "," << kv.second.maxVal << "} ";
-            os << std::endl;
-        } // if
+        os << "name = " << fi.name() << std::endl;
+        os << "type = " << fi.type() << std::endl;
+        os << "multi = " << fi.isMulti() << std::endl;
+        if (!fi.sep().empty())
+            os << "sep = " << fi.sep() << std::endl;
+        for (const auto &kv : fi.subFeatures()) {
+            os << kv.second.name() << "{" << "index=" << kv.second.index();
+            if (fi.type() != "string")
+                os << ",min=" << kv.second.minVal() << ",max=" << kv.second.maxVal(); 
+        } // for
+        os << "}" << std::endl;
         return os;
     }
 };
-
-
-// struct FeatureInfoPtrCmp {
-    // bool operator() (const FeatureInfo::pointer &lhs, const FeatureInfo::pointer &rhs) const
-    // { return *lhs < *rhs; }  
-// };
 
 
 class FeatureInfoSet {
@@ -97,17 +143,17 @@ public:
 
     bool add(const FeatureInfo::pointer &pf)
     {
-        auto ret = m_mapFeatureInfo.insert(std::make_pair(pf->name, pf));
+        auto ret = m_mapFeatureInfo.insert(std::make_pair(pf->name(), pf));
         if (!ret.second) return false;
         m_arrFeatureInfo.emplace_back(pf);
         return true;
     }
 
-    bool get(const std::string &name, FeatureInfo &fv)
+    bool get(const std::string &name, FeatureInfo &fi)
     {
         auto it = m_mapFeatureInfo.find(name);
         if (it == m_mapFeatureInfo.end()) return false;
-        fv = *(it->second);
+        fi = *(it->second);
         return true;
     }
 
@@ -142,7 +188,8 @@ public:
     typedef std::map<std::string, double>   FloatDict;
 
 public:
-    FeatureVectorHandle(FeatureVector &fv) : m_refFv(fv) {}
+    FeatureVectorHandle(FeatureVector &fv, FeatureInfoSet &fiSet) 
+            : m_refFv(fv), m_refFiSet(fiSet) {}
 
     operator FeatureVector& () { return m_refFv; }
 
@@ -214,42 +261,55 @@ public:
     // add string feature value
     void addFeature(const std::string &name, const std::string &value)
     {
+        auto pfi = m_refFiSet.get(name);
+        THROW_RUNTIME_ERROR_IF(!pfi, "No feature info for " << name << " found!");
         auto ret = m_refFv.stringFeatures.insert(std::make_pair(name, StringSet()));
         auto &strSet = ret.first->second;
         strSet.insert(value);
+        pfi->addSubFeature(value);
         m_refFv.__isset.stringFeatures = true;
     }
 
     // set string feature value
     void setFeature(const std::string &name, const std::string &value)
     {
+        auto pfi = m_refFiSet.get(name);
+        THROW_RUNTIME_ERROR_IF(!pfi, "No feature info for " << name << " found!");
         auto ret = m_refFv.stringFeatures.insert(std::make_pair(name, StringSet()));
         auto &strSet = ret.first->second;
         strSet.clear();
         strSet.insert(value);
+        pfi->setSubFeature(value);
         m_refFv.__isset.stringFeatures = true;
     }
 
     // set/add float feature
     void setFeature(const double &val, const std::string &name, const std::string &subName = "")
     {
+        auto pfi = m_refFiSet.get(name);
+        THROW_RUNTIME_ERROR_IF(!pfi, "No feature info for " << name << " found!");
         auto ret = m_refFv.floatFeatures.insert(std::make_pair(name, FloatDict()));
         auto &fDict = ret.first->second;
         fDict[subName] = val;
+        pfi->setMinMax(val, subName);
         m_refFv.__isset.floatFeatures = true;
     }
 
     // set list double feature
     void setFeature(const std::string &name, ListDouble &val)
     {
+        auto pfi = m_refFiSet.get(name);
+        THROW_RUNTIME_ERROR_IF(!pfi, "No feature info for " << name << " found!");
         auto ret = m_refFv.denseFeatures.insert(std::make_pair(name, ListDouble()));
         auto &arr = ret.first->second;
         arr.swap(val);
+        pfi->setSubFeature("");
         m_refFv.__isset.denseFeatures = true;
     }
 
 private:
     FeatureVector&      m_refFv;
+    FeatureInfoSet&     m_refFiSet;
 };
 
 
@@ -301,9 +361,9 @@ private:
 extern FeatureInfoSet                       g_ftInfoSet;
 extern std::string                          g_strSep;
 
-extern void load_feature_info(const std::string &fname, Json::Value &root);
+extern void load_feature_info(const std::string &fname, Json::Value &root, FeatureInfoSet &fiSet);
 extern void load_data(const std::string &fname, Example &exp);
-extern void load_data(const std::string &ifname, const std::string &ofname);
+extern void load_data(const std::string &ifname, const std::string &ofname, FeatureInfoSet &fiSet);
 
 
 #endif /* ifndef _FEATURE_H_ */

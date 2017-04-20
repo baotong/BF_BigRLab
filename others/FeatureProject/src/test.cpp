@@ -35,7 +35,6 @@
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 #include <json/json.h>
-#include "CommDef.h"
 #include "Feature.h"
 
 
@@ -57,47 +56,6 @@ namespace Test {
         cout << endl;
         for (auto &pf : g_ftInfoSet.arrFeature())
             cout << *pf << endl;
-    }
-
-    void test_feature_op()
-    {
-        FeatureVector fv;
-        FeatureVectorHandle fop(fv);
-        fop.setFeature("name", "Jhonason");
-        fop.setFeature("gender", "Male");
-        fop.setFeature(30.0, "age");
-        fop.addFeature("skill", "Java");
-        fop.addFeature("skill", "Python");
-        fop.addFeature("skill", "Database");
-        cout << fv << endl;
-
-        fop.setFeature("name", "Lucy");
-        fop.setFeature("gender", "female");
-        fop.setFeature(26.0, "age");
-        fop.setFeature(5.0, "score", "Math");
-        fop.setFeature(4.0, "score", "Computer");
-        fop.setFeature(3.5, "score", "Art");
-        fop.setFeature(4.3, "score", "Spanish");
-        cout << fv << endl;
-        fop.setFeature(4.5, "score", "Spanish");
-        cout << fv << endl;
-
-        bool ret = false;
-        string strVal;
-        double fVal = 0.0;
-        ret = fop.getFeatureValue("name", strVal);
-        cout << (ret ? strVal : "Not found!") << endl;
-        ret = fop.getFeatureValue(fVal, "age");
-        if (ret) cout << fVal << endl;
-        else cout << "Not found!" << endl;
-        ret = fop.getFeatureValue(fVal, "score", "Computer");
-        if (ret) cout << fVal << endl;
-        else cout << "Not found!" << endl;
-        ret = fop.getFeatureValue("Location", strVal);
-        cout << (ret ? strVal : "Not found!") << endl;
-        ret = fop.getFeatureValue(fVal, "score", "Chinese");
-        if (ret) cout << fVal << endl;
-        else cout << "Not found!" << endl;
     }
 
     void test_serial2file(const std::string &fname, const Example &exp)
@@ -162,7 +120,7 @@ namespace Test {
 static
 void print_xgboost(std::ostream &os, FeatureVector &fv, FeatureInfo &fi)
 {
-    if (fi.type == "string") {
+    if (fi.type() == "string") {
         for (auto &s : fv.stringFeatures[fi.name]) {
             auto it = fi.index.find(s);
             THROW_RUNTIME_ERROR_IF(it == fi.index.end(),
@@ -170,7 +128,7 @@ void print_xgboost(std::ostream &os, FeatureVector &fv, FeatureInfo &fi)
             auto idx = it->second;
             os << idx << ":1 ";
         } // for
-    } else if (fi.type == "double" || fi.type == "datetime") {
+    } else if (fi.type() == "double" || fi.type() == "datetime") {
         for (auto &kv : fv.floatFeatures[fi.name]) {
             auto it = fi.index.find(kv.first);
             THROW_RUNTIME_ERROR_IF(it == fi.index.end(),
@@ -191,8 +149,8 @@ void do_store(std::istringstream&)
     THROW_RUNTIME_ERROR_IF(FLAGS_fv.empty(), "No fv data file specified!");
 
     LOG(INFO) << "Loading data...";
-    load_feature_info(FLAGS_conf, g_jsConf);
-    load_data(FLAGS_raw, FLAGS_fv);
+    load_feature_info(FLAGS_conf, g_jsConf, g_ftInfoSet);
+    load_data(FLAGS_raw, FLAGS_fv, g_ftInfoSet);
     LOG(INFO) << "Feature vectors stored in " << FLAGS_fv;
     // Test::print_feature_info();
 }
@@ -285,7 +243,7 @@ void do_format(std::istringstream &iss)
     THROW_RUNTIME_ERROR_IF(FLAGS_fv.empty(), "No fv data file specified!");
 
     LOG(INFO) << "Loading data...";
-    load_feature_info(FLAGS_conf, g_jsConf);
+    load_feature_info(FLAGS_conf, g_jsConf, g_ftInfoSet);
     load_fv(FLAGS_fv);
 
     ofstream ofs(ofname, ios::out | ios::trunc);
@@ -331,7 +289,7 @@ void do_normalize(std::istringstream &iss)
         THROW_RUNTIME_ERROR_IF(!ofs, "Cannot open file \"" << FLAGS_o << "\" for writting!");
     }
 
-    load_feature_info(FLAGS_conf, g_jsConf);
+    load_feature_info(FLAGS_conf, g_jsConf, g_ftInfoSet);
     load_fv(FLAGS_fv);
 
     string segment;

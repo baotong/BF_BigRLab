@@ -12,7 +12,6 @@
 #include <thrift/transport/TFileTransport.h>
 #include <thrift/transport/TBufferTransports.h>
 #include <thrift/transport/TZlibTransport.h>
-#include "CommDef.h"
 #include "Feature.h"
 
 // std::vector<FeatureInfo::pointer>    g_arrFeatureInfo;
@@ -32,7 +31,7 @@ bool str2time(const std::string &s, std::time_t &tt,
 }
 
 
-void load_feature_info(const std::string &fname, Json::Value &root)
+void load_feature_info(const std::string &fname, Json::Value &root, FeatureInfoSet &fiSet)
 {
     using namespace std;
 
@@ -53,7 +52,7 @@ void load_feature_info(const std::string &fname, Json::Value &root)
 
     uint32_t        nFeatures = 0;
 
-    g_ftInfoSet.clear();
+    fiSet.clear();
 
     // read nFeatures
     {
@@ -88,29 +87,19 @@ void load_feature_info(const std::string &fname, Json::Value &root)
             auto pf = std::make_shared<FeatureInfo>(jf["name"].asString(), jf["type"].asString());
             THROW_RUNTIME_ERROR_IF(!validTypes.count(pf->type),
                     "Feature " << pf->name << " has invalid type " << pf->type);
-            g_ftInfoSet.add(pf);
-
-            auto &jFormat = jf["format"];
-            if (!!jFormat) pf->format = jFormat.asString();
+            fiSet.add(pf);
 
             auto &jMulti = jf["multi"];
-            if (!!jMulti) pf->multi = jMulti.asBool();
-            // DLOG(INFO) << pf->name << " " << pf->multi;
+            if (!!jMulti) pf->setMulti(jMulti.asBool());
             auto &jSep = jf["sep"];
-            if (!!jSep) pf->sep = jSep.asString();
-
-            auto &jValues = jf["values"];
-            if (!!jValues) {
-                for (auto &jv : jValues)
-                    pf->addValue(jv.asString());
-            } // if
+            if (!!jSep) pf->sep() = jSep.asString();
         } // for jf
     } // read features
 }
 
 static
 void read_string_feature(FeatureVector &fv, std::string &strField, 
-            FeatureInfo &ftInfo, const std::size_t lineno)
+            FeatureInfo &ftInfo, const std::size_t lineno, FeatureInfoSet &fiSet)
 {
     using namespace std;
 
@@ -118,7 +107,7 @@ void read_string_feature(FeatureVector &fv, std::string &strField,
     LOG_IF(WARNING, strField.empty()) << "read_string_feature in line " << lineno
             << " empty feature " << ftInfo.name;
 
-    FeatureVectorHandle hFv(fv);
+    FeatureVectorHandle hFv(fv, fiSet);
 
     if (ftInfo.multi) {
         vector<string> strValues;
@@ -126,18 +115,10 @@ void read_string_feature(FeatureVector &fv, std::string &strField,
         boost::split(strValues, strField, boost::is_any_of(sep), boost::token_compress_on);
         for (auto &v : strValues) {
             boost::trim(v);
-            THROW_RUNTIME_ERROR_IF(!ftInfo.values.empty() && !ftInfo.values.count(v),
-                    "read_string_feature in line " << lineno << " for feature \""
-                    << ftInfo.name << "\", " << 
-                    boost::format("\"%s\" is not a valid value!") % v);
             hFv.addFeature(ftInfo.name, v);
             ftInfo.index[v] = 0;
         } // for
     } else {
-        THROW_RUNTIME_ERROR_IF(!ftInfo.values.empty() && !ftInfo.values.count(strField),
-                "read_string_feature in line " << lineno << " for feature \""
-                << ftInfo.name << "\", " << 
-                boost::format("\"%s\" is not a valid value!") % strField);
         hFv.setFeature(ftInfo.name, strField);
         ftInfo.index[strField] = 0;
     } // if
@@ -145,7 +126,7 @@ void read_string_feature(FeatureVector &fv, std::string &strField,
 
 static
 void read_double_feature(FeatureVector &fv, std::string &strField, 
-            FeatureInfo &ftInfo, const std::size_t lineno)
+            FeatureInfo &ftInfo, const std::size_t lineno, FeatureInfoSet &fiSet)
 {
     using namespace std;
 
@@ -153,7 +134,7 @@ void read_double_feature(FeatureVector &fv, std::string &strField,
     THROW_RUNTIME_ERROR_IF(strField.empty(), "read_double_feature in line "
             << lineno << ", empty field of \"" << ftInfo.name << "\"!");
     
-    FeatureVectorHandle hFv(fv);
+    FeatureVectorHandle hFv(fv, fiSet);
 
     if (ftInfo.multi) {
         vector<string> strValues;
@@ -193,7 +174,7 @@ void read_double_feature(FeatureVector &fv, std::string &strField,
 
 static
 void read_list_double_feature(FeatureVector &fv, std::string &strField, 
-            FeatureInfo &ftInfo, const std::size_t lineno)
+            FeatureInfo &ftInfo, const std::size_t lineno, FeatureInfoSet &fiSet)
 {
     using namespace std;
 
@@ -201,7 +182,7 @@ void read_list_double_feature(FeatureVector &fv, std::string &strField,
     THROW_RUNTIME_ERROR_IF(strField.empty(), "read_list_double_feature in line "
             << lineno << ", empty field of \"" << ftInfo.name << "\"!");
 
-    FeatureVectorHandle hFv(fv);
+    FeatureVectorHandle hFv(fv, fiSet);
 
     vector<string> strValues;
     const string sep = (ftInfo.sep.empty() ? SPACES : ftInfo.sep);
@@ -220,7 +201,7 @@ void read_list_double_feature(FeatureVector &fv, std::string &strField,
 
 static
 void read_datetime_feature(FeatureVector &fv, std::string &strField, 
-            FeatureInfo &ftInfo, const std::size_t lineno)
+            FeatureInfo &ftInfo, const std::size_t lineno, FeatureInfoSet &fiSet)
 {
     using namespace std;
 
@@ -228,7 +209,7 @@ void read_datetime_feature(FeatureVector &fv, std::string &strField,
     THROW_RUNTIME_ERROR_IF(strField.empty(), "read_datetime_feature in line "
             << lineno << ", empty field of \"" << ftInfo.name << "\"!");
     
-    FeatureVectorHandle hFv(fv);
+    FeatureVectorHandle hFv(fv, fiSet);
 
     string fmt = ftInfo.format.empty() ? "%Y-%m-%d %H:%M:%S" : ftInfo.format;
     time_t tm = 0;
@@ -243,19 +224,19 @@ void read_datetime_feature(FeatureVector &fv, std::string &strField,
 
 static
 void read_feature(FeatureVector &fv, std::string &strField, 
-            FeatureInfo &ftInfo, const std::size_t lineno)
+            FeatureInfo &ftInfo, const std::size_t lineno, FeatureInfoSet &fiSet)
 {
-    if (ftInfo.type == "string") {
-        read_string_feature(fv, strField, ftInfo, lineno);
-    } else if (ftInfo.type == "double") {
-        read_double_feature(fv, strField, ftInfo, lineno);
-    } else if (ftInfo.type == "list_double") {
-        read_list_double_feature(fv, strField, ftInfo, lineno);
-    } else if (ftInfo.type == "datetime") {
-        read_datetime_feature(fv, strField, ftInfo, lineno);
+    if (ftInfo.type() == "string") {
+        read_string_feature(fv, strField, ftInfo, lineno, fiSet);
+    } else if (ftInfo.type() == "double") {
+        read_double_feature(fv, strField, ftInfo, lineno, fiSet);
+    } else if (ftInfo.type() == "list_double") {
+        read_list_double_feature(fv, strField, ftInfo, lineno, fiSet);
+    } else if (ftInfo.type() == "datetime") {
+        read_datetime_feature(fv, strField, ftInfo, lineno, fiSet);
     } else {
         THROW_RUNTIME_ERROR("read_feature in line " << lineno << 
-                ", feature type \"" << ftInfo.type << "\" is invalid!");
+                ", feature type \"" << ftInfo.type() << "\" is invalid!");
     } // if
 }
 
@@ -302,7 +283,7 @@ void load_data(const std::string &fname, Example &exp)
 }
 
 
-void load_data(const std::string &ifname, const std::string &ofname)
+void load_data(const std::string &ifname, const std::string &ofname, FeatureInfoSet &fiSet)
 {
     using namespace std;
     using namespace apache::thrift;
@@ -326,7 +307,7 @@ void load_data(const std::string &ifname, const std::string &ofname)
             Z_BEST_COMPRESSION);
     auto protocol = boost::make_shared<TBinaryProtocol>(transport);
 
-    const size_t nFeatures = g_ftInfoSet.size();
+    const size_t nFeatures = fiSet.size();
 
     string line;
     size_t lineCnt = 0;
@@ -344,7 +325,7 @@ void load_data(const std::string &ifname, const std::string &ofname)
                 << strValues.size() << " detected.");
         FeatureVector fv;
         for (size_t i = 0; i < nFeatures; ++i)
-            read_feature(fv, strValues[i], *g_ftInfoSet[i], lineCnt);
+            read_feature(fv, strValues[i], *fiSet[i], lineCnt, fiSet);
         fv.write(protocol.get());
     } // while
 
@@ -352,11 +333,9 @@ void load_data(const std::string &ifname, const std::string &ofname)
 
     // build index
     uint32_t idx = 0;
-    for (auto &pf : g_ftInfoSet.arrFeature()) {
-        for (auto &kv : pf->index) {
-            kv.second = idx++;
-            // DLOG(INFO) << kv.second << "\t" << kv.first;
-        } // for kv
+    for (auto &pf : fiSet.arrFeature()) {
+        for (auto &subft : pf->subFeatures())
+            subft.setIndex(idx++);
     } // for
 }
 
