@@ -34,7 +34,6 @@
 #include <boost/lexical_cast.hpp>
 #include <glog/logging.h>
 #include <gflags/gflags.h>
-#include <json/json.h>
 #include "Feature.h"
 
 
@@ -144,6 +143,29 @@ void print_xgboost(std::ostream &os, const FeatureVector &fv, const FeatureInfo 
 }
 
 
+static
+void update_conf(const std::string &fname)
+{
+    using namespace std;
+
+    ofstream ofs(fname, ios::out | ios::trunc);
+    THROW_RUNTIME_ERROR_IF(!ofs, "update_conf() cannot open " << fname << " for writting!");
+
+    Json::Value root;
+    root["nFeatures"] = Json::Value::UInt64(g_ftInfoSet.size());
+    if (!g_strSep.empty()) root["sep"] = g_strSep;
+
+    for (const auto &pfi : g_ftInfoSet.arrFeature()) {
+        auto &back = root["features"].append(Json::Value());
+        pfi->toJson(back);
+    } // for
+
+    Json::StyledWriter writer;  
+    string outStr = writer.write(root);
+    ofs << outStr << flush;
+}
+
+
 void do_store(std::istringstream&)
 {
     THROW_RUNTIME_ERROR_IF(FLAGS_raw.empty(), "No raw data file specified!");
@@ -155,6 +177,7 @@ void do_store(std::istringstream&)
     load_data(FLAGS_raw, FLAGS_fv, g_ftInfoSet);
     LOG(INFO) << "Feature vectors stored in " << FLAGS_fv;
     Test::print_feature_info();
+    update_conf(FLAGS_conf);
 }
 
 

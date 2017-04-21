@@ -4,6 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <limits>
+#include <json/json.h>
 #include <example_types.h>
 #include "CommDef.h"
 
@@ -35,6 +36,17 @@ public:
             m_fMax = val > m_fMax ? val : m_fMax;
         }
 
+        void toJson(Json::Value &jv, const std::string &type) const
+        {
+            jv.clear();
+            jv["name"] = name();
+            jv["index"] = index();
+            if (type != "string") {
+                jv["min"] = minVal();
+                jv["max"] = maxVal();
+            } // if
+        }
+
         std::string     m_strName;
         uint32_t        m_nIdx;
         double          m_fMin, m_fMax;
@@ -61,12 +73,6 @@ public:
         auto ret = m_mapSubFeature.insert(std::make_pair(name, SubFeatureInfo(name)));
         return ret.second;
     }
-
-    // void setSubFeature(const std::string &name)
-    // { 
-        // m_mapSubFeature.clear();
-        // addSubFeature(name);
-    // }
 
     SubFeatureInfo& subFeature(const std::string &key)
     {
@@ -113,6 +119,19 @@ public:
         THROW_RUNTIME_ERROR_IF(it == m_mapSubFeature.end(),
                 "No sub feature " << key << " in feature " << name());
         return it->second.index();
+    }
+
+    void toJson(Json::Value &jv) const
+    {
+        jv.clear();
+        jv["name"] = name();
+        jv["type"] = type();
+        if (isMulti()) jv["multi"] = true;
+        if (!sep().empty()) jv["sep"] = sep();
+        for (const auto &kv : subFeatures()) {
+            auto &back = jv["subfeatures"].append(Json::Value());
+            kv.second.toJson(back, type());
+        } // for
     }
 
 private:
