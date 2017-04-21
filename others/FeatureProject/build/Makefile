@@ -102,24 +102,24 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named test.bin
+# Target rules for targets named feature.bin
 
 # Build rule for target.
-test.bin: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 test.bin
-.PHONY : test.bin
+feature.bin: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 feature.bin
+.PHONY : feature.bin
 
 # fast build rule for target.
-test.bin/fast:
-	$(MAKE) -f CMakeFiles/test.bin.dir/build.make CMakeFiles/test.bin.dir/build
-.PHONY : test.bin/fast
+feature.bin/fast:
+	$(MAKE) -f CMakeFiles/feature.bin.dir/build.make CMakeFiles/feature.bin.dir/build
+.PHONY : feature.bin/fast
 
 src/Feature.o: src/Feature.cpp.o
 .PHONY : src/Feature.o
 
 # target to build an object file
 src/Feature.cpp.o:
-	$(MAKE) -f CMakeFiles/test.bin.dir/build.make CMakeFiles/test.bin.dir/src/Feature.cpp.o
+	$(MAKE) -f CMakeFiles/feature.bin.dir/build.make CMakeFiles/feature.bin.dir/src/Feature.cpp.o
 .PHONY : src/Feature.cpp.o
 
 src/Feature.i: src/Feature.cpp.i
@@ -127,7 +127,7 @@ src/Feature.i: src/Feature.cpp.i
 
 # target to preprocess a source file
 src/Feature.cpp.i:
-	$(MAKE) -f CMakeFiles/test.bin.dir/build.make CMakeFiles/test.bin.dir/src/Feature.cpp.i
+	$(MAKE) -f CMakeFiles/feature.bin.dir/build.make CMakeFiles/feature.bin.dir/src/Feature.cpp.i
 .PHONY : src/Feature.cpp.i
 
 src/Feature.s: src/Feature.cpp.s
@@ -135,7 +135,7 @@ src/Feature.s: src/Feature.cpp.s
 
 # target to generate assembly for a file
 src/Feature.cpp.s:
-	$(MAKE) -f CMakeFiles/test.bin.dir/build.make CMakeFiles/test.bin.dir/src/Feature.cpp.s
+	$(MAKE) -f CMakeFiles/feature.bin.dir/build.make CMakeFiles/feature.bin.dir/src/Feature.cpp.s
 .PHONY : src/Feature.cpp.s
 
 src/gen-cpp/example_constants.o: src/gen-cpp/example_constants.cpp.o
@@ -143,7 +143,7 @@ src/gen-cpp/example_constants.o: src/gen-cpp/example_constants.cpp.o
 
 # target to build an object file
 src/gen-cpp/example_constants.cpp.o:
-	$(MAKE) -f CMakeFiles/test.bin.dir/build.make CMakeFiles/test.bin.dir/src/gen-cpp/example_constants.cpp.o
+	$(MAKE) -f CMakeFiles/feature.bin.dir/build.make CMakeFiles/feature.bin.dir/src/gen-cpp/example_constants.cpp.o
 .PHONY : src/gen-cpp/example_constants.cpp.o
 
 src/gen-cpp/example_constants.i: src/gen-cpp/example_constants.cpp.i
@@ -151,7 +151,7 @@ src/gen-cpp/example_constants.i: src/gen-cpp/example_constants.cpp.i
 
 # target to preprocess a source file
 src/gen-cpp/example_constants.cpp.i:
-	$(MAKE) -f CMakeFiles/test.bin.dir/build.make CMakeFiles/test.bin.dir/src/gen-cpp/example_constants.cpp.i
+	$(MAKE) -f CMakeFiles/feature.bin.dir/build.make CMakeFiles/feature.bin.dir/src/gen-cpp/example_constants.cpp.i
 .PHONY : src/gen-cpp/example_constants.cpp.i
 
 src/gen-cpp/example_constants.s: src/gen-cpp/example_constants.cpp.s
@@ -159,7 +159,7 @@ src/gen-cpp/example_constants.s: src/gen-cpp/example_constants.cpp.s
 
 # target to generate assembly for a file
 src/gen-cpp/example_constants.cpp.s:
-	$(MAKE) -f CMakeFiles/test.bin.dir/build.make CMakeFiles/test.bin.dir/src/gen-cpp/example_constants.cpp.s
+	$(MAKE) -f CMakeFiles/feature.bin.dir/build.make CMakeFiles/feature.bin.dir/src/gen-cpp/example_constants.cpp.s
 .PHONY : src/gen-cpp/example_constants.cpp.s
 
 src/gen-cpp/example_types.o: src/gen-cpp/example_types.cpp.o
@@ -167,7 +167,7 @@ src/gen-cpp/example_types.o: src/gen-cpp/example_types.cpp.o
 
 # target to build an object file
 src/gen-cpp/example_types.cpp.o:
-	$(MAKE) -f CMakeFiles/test.bin.dir/build.make CMakeFiles/test.bin.dir/src/gen-cpp/example_types.cpp.o
+	$(MAKE) -f CMakeFiles/feature.bin.dir/build.make CMakeFiles/feature.bin.dir/src/gen-cpp/example_types.cpp.o
 .PHONY : src/gen-cpp/example_types.cpp.o
 
 src/gen-cpp/example_types.i: src/gen-cpp/example_types.cpp.i
@@ -175,7 +175,7 @@ src/gen-cpp/example_types.i: src/gen-cpp/example_types.cpp.i
 
 # target to preprocess a source file
 src/gen-cpp/example_types.cpp.i:
-	$(MAKE) -f CMakeFiles/test.bin.dir/build.make CMakeFiles/test.bin.dir/src/gen-cpp/example_types.cpp.i
+	$(MAKE) -f CMakeFiles/feature.bin.dir/build.make CMakeFiles/feature.bin.dir/src/gen-cpp/example_types.cpp.i
 .PHONY : src/gen-cpp/example_types.cpp.i
 
 src/gen-cpp/example_types.s: src/gen-cpp/example_types.cpp.s
@@ -183,32 +183,32 @@ src/gen-cpp/example_types.s: src/gen-cpp/example_types.cpp.s
 
 # target to generate assembly for a file
 src/gen-cpp/example_types.cpp.s:
-	$(MAKE) -f CMakeFiles/test.bin.dir/build.make CMakeFiles/test.bin.dir/src/gen-cpp/example_types.cpp.s
+	$(MAKE) -f CMakeFiles/feature.bin.dir/build.make CMakeFiles/feature.bin.dir/src/gen-cpp/example_types.cpp.s
 .PHONY : src/gen-cpp/example_types.cpp.s
 
-src/test.o: src/test.cpp.o
-.PHONY : src/test.o
+src/main.o: src/main.cpp.o
+.PHONY : src/main.o
 
 # target to build an object file
-src/test.cpp.o:
-	$(MAKE) -f CMakeFiles/test.bin.dir/build.make CMakeFiles/test.bin.dir/src/test.cpp.o
-.PHONY : src/test.cpp.o
+src/main.cpp.o:
+	$(MAKE) -f CMakeFiles/feature.bin.dir/build.make CMakeFiles/feature.bin.dir/src/main.cpp.o
+.PHONY : src/main.cpp.o
 
-src/test.i: src/test.cpp.i
-.PHONY : src/test.i
+src/main.i: src/main.cpp.i
+.PHONY : src/main.i
 
 # target to preprocess a source file
-src/test.cpp.i:
-	$(MAKE) -f CMakeFiles/test.bin.dir/build.make CMakeFiles/test.bin.dir/src/test.cpp.i
-.PHONY : src/test.cpp.i
+src/main.cpp.i:
+	$(MAKE) -f CMakeFiles/feature.bin.dir/build.make CMakeFiles/feature.bin.dir/src/main.cpp.i
+.PHONY : src/main.cpp.i
 
-src/test.s: src/test.cpp.s
-.PHONY : src/test.s
+src/main.s: src/main.cpp.s
+.PHONY : src/main.s
 
 # target to generate assembly for a file
-src/test.cpp.s:
-	$(MAKE) -f CMakeFiles/test.bin.dir/build.make CMakeFiles/test.bin.dir/src/test.cpp.s
-.PHONY : src/test.cpp.s
+src/main.cpp.s:
+	$(MAKE) -f CMakeFiles/feature.bin.dir/build.make CMakeFiles/feature.bin.dir/src/main.cpp.s
+.PHONY : src/main.cpp.s
 
 # Help Target
 help:
@@ -217,8 +217,8 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... edit_cache"
+	@echo "... feature.bin"
 	@echo "... rebuild_cache"
-	@echo "... test.bin"
 	@echo "... src/Feature.o"
 	@echo "... src/Feature.i"
 	@echo "... src/Feature.s"
@@ -228,9 +228,9 @@ help:
 	@echo "... src/gen-cpp/example_types.o"
 	@echo "... src/gen-cpp/example_types.i"
 	@echo "... src/gen-cpp/example_types.s"
-	@echo "... src/test.o"
-	@echo "... src/test.i"
-	@echo "... src/test.s"
+	@echo "... src/main.o"
+	@echo "... src/main.i"
+	@echo "... src/main.s"
 .PHONY : help
 
 

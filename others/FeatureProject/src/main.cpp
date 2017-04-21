@@ -1,23 +1,23 @@
 /*
  * # just storing feature vector data
- * GLOG_logtostderr=1 ./test.bin -op store -raw ../data/adult.data -conf ../data/adult_conf.json -fv ../data/adult.fv
+ * GLOG_logtostderr=1 ./feature.bin -op store -raw ../data/adult.data -conf ../data/adult_conf.json -fv ../data/adult.fv
  *
  * # convert feature vector into xgboost
- * GLOG_logtostderr=1 ./test.bin -op fmt:xgboost:../data/adult.data.xgboost -conf ../data/adult_conf.json -fv ../data/adult.fv
+ * GLOG_logtostderr=1 ./feature.bin -op fmt:xgboost:../data/adult.data.xgboost -conf ../data/adult_conf.json -fv ../data/adult.fv
  *
  * ## normalize
  * # only one feature
- * GLOG_logtostderr=1 ./test.bin -op normalize:age -conf ../data/adult_conf.json -fv ../data/adult.fv -o ../data/adult.normalized
+ * GLOG_logtostderr=1 ./feature.bin -op normalize:age -conf ../data/adult_conf.json -fv ../data/adult.fv -o ../data/adult.normalized
  * # all float features
- * GLOG_logtostderr=1 ./test.bin -op normalize -conf ../data/adult_conf.json -fv ../data/adult.fv -o ../data/adult.normalized
+ * GLOG_logtostderr=1 ./feature.bin -op normalize -conf ../data/adult_conf.json -fv ../data/adult.fv -o ../data/adult.normalized
  *
  * ## dump fv
- * GLOG_logtostderr=1 ./test.bin -op dump -fv ../data/adult.normalized -o /tmp/out.txt
+ * GLOG_logtostderr=1 ./feature.bin -op dump -fv ../data/adult.normalized -o /tmp/out.txt
  * # first 100 lines
- * GLOG_logtostderr=1 ./test.bin -op dump:100 -fv ../data/adult.normalized -o /tmp/out.txt
+ * GLOG_logtostderr=1 ./feature.bin -op dump:100 -fv ../data/adult.normalized -o /tmp/out.txt
  *
- * ./test.bin ../data/adult.data ../data/adult_conf.json ../data/out.txt
- * ./test.bin ../data/search_no_id.data ../data/search_conf.json ../data/out.txt
+ * ./Feature.bin ../data/adult.data ../data/adult_conf.json ../data/out.txt
+ * ./Feature.bin ../data/search_no_id.data ../data/search_conf.json ../data/out.txt
  */
 /*
  * trim sep+SPACES, split only sep
@@ -118,22 +118,24 @@ namespace Test {
 
 // print one cell
 static
-void print_xgboost(std::ostream &os, FeatureVector &fv, FeatureInfo &fi)
+void print_xgboost(std::ostream &os, const FeatureVector &fv, const FeatureInfo &fi)
 {
     if (fi.type() == "string") {
-        for (auto &s : fv.stringFeatures[fi.name]) {
-            auto it = fi.index.find(s);
-            THROW_RUNTIME_ERROR_IF(it == fi.index.end(),
-                    "string value \"" << s << "\" is invalid!");
-            auto idx = it->second;
+        const auto it = fv.stringFeatures.find(fi.name());
+        THROW_RUNTIME_ERROR_IF(it == fv.stringFeatures.end(),
+                "No feature " << fi.name() << " found in feature vector");
+        for (const auto &s : it->second) {
+            const auto& subFt = fi.subFeature(s);
+            auto idx = subFt.index();
             os << idx << ":1 ";
         } // for
     } else if (fi.type() == "double" || fi.type() == "datetime") {
-        for (auto &kv : fv.floatFeatures[fi.name]) {
-            auto it = fi.index.find(kv.first);
-            THROW_RUNTIME_ERROR_IF(it == fi.index.end(),
-                    "float value \"" << kv.first << "\" is invalid! " << fi.index.size());
-            auto idx = it->second;
+        const auto it = fv.floatFeatures.find(fi.name());
+        THROW_RUNTIME_ERROR_IF(it == fv.floatFeatures.end(),
+                "No feature " << fi.name() << " found in feature vector");
+        for (const auto &kv : it->second) {
+            const auto& subFt = fi.subFeature(kv.first);
+            auto idx = subFt.index();
             os << idx << ":" << kv.second << " ";
         } // for
     } else {
@@ -152,7 +154,7 @@ void do_store(std::istringstream&)
     load_feature_info(FLAGS_conf, g_jsConf, g_ftInfoSet);
     load_data(FLAGS_raw, FLAGS_fv, g_ftInfoSet);
     LOG(INFO) << "Feature vectors stored in " << FLAGS_fv;
-    // Test::print_feature_info();
+    Test::print_feature_info();
 }
 
 
@@ -168,6 +170,7 @@ void load_fv(const std::string &fname)
     auto transport = boost::make_shared<TZlibTransport>(_transport2);
     auto protocol = boost::make_shared<TBinaryProtocol>(transport);
 
+#if 0
     FeatureVector fv;
     while (true) {
         try {
@@ -178,7 +181,7 @@ void load_fv(const std::string &fname)
                 THROW_RUNTIME_ERROR_IF(!pFtInfo,
                         "load_fv() data inconsistency!, no feature info \"" << kv.first << "\" found!");
                 THROW_RUNTIME_ERROR_IF(kv.second.empty(), "load_fv() invalid data!");
-                if (pFtInfo->multi) {
+                if (pFtInfo->isMulti()) {
                     for (auto &kv2 : kv.second)
                         pFtInfo->setMinMax(kv2.second, kv2.first);
                 } else {
@@ -188,22 +191,22 @@ void load_fv(const std::string &fname)
             } // for kv
             // build index
             for (auto &pfi : g_ftInfoSet.arrFeature()) {
-                if (pfi->type == "string") {
-                    auto it = fv.stringFeatures.find(pfi->name);
+                if (pfi->type() == "string") {
+                    auto it = fv.stringFeatures.find(pfi->name());
                     THROW_RUNTIME_ERROR_IF(it == fv.stringFeatures.end(),
-                            "load_fv() build index fail! data mismatch, cannot find feature " << pfi->name << " in data");
+                            "load_fv() build index fail! data mismatch, cannot find feature " << pfi->name() << " in data");
                     for (auto &s : it->second)
                         pfi->index[s] = 0;
-                } else if (pfi->type == "double" || pfi->type == "datetime") {
-                    auto it = fv.floatFeatures.find(pfi->name);
+                } else if (pfi->type() == "double" || pfi->type() == "datetime") {
+                    auto it = fv.floatFeatures.find(pfi->name());
                     THROW_RUNTIME_ERROR_IF(it == fv.floatFeatures.end(),
-                            "load_fv() build index fail! data mismatch, cannot find feature " << pfi->name << " in data");
+                            "load_fv() build index fail! data mismatch, cannot find feature " << pfi->name() << " in data");
                     for (auto &kv : it->second)
                         pfi->index[kv.first] = 0;
-                } else if (pfi->type == "list_double") {
-                    auto it = fv.denseFeatures.find(pfi->name);
+                } else if (pfi->type() == "list_double") {
+                    auto it = fv.denseFeatures.find(pfi->name());
                     THROW_RUNTIME_ERROR_IF(it == fv.denseFeatures.end(),
-                            "load_fv() build index fail! data mismatch, cannot find feature " << pfi->name << " in data");
+                            "load_fv() build index fail! data mismatch, cannot find feature " << pfi->name() << " in data");
                     pfi->index[""] = 0;
                 } // if
             } // for pfi
@@ -220,6 +223,7 @@ void load_fv(const std::string &fname)
             // DLOG(INFO) << kv.second << "\t" << kv.first;
         } // for kv
     } // for
+#endif
 }
 
 
@@ -336,11 +340,11 @@ void do_normalize(std::istringstream &iss)
                 THROW_RUNTIME_ERROR_IF(!pFtInfo,
                         "load_fv() data inconsistency!, no feature info \"" << kv.first << "\" found!");
                 THROW_RUNTIME_ERROR_IF(kv.second.empty(), "load_fv() invalid data!");
-                if (pFtInfo->multi) {
+                if (pFtInfo->isMulti()) {
                     for (auto &kv2 : kv.second) {
                         if (!ftSet.empty() && !ftSet[kv.first].empty() && !ftSet[kv.first].count(kv2.first))
                             continue;
-                        auto minmax = pFtInfo->getMinMax(kv2.first);
+                        auto minmax = pFtInfo->minMax(kv2.first);
                         double range = minmax.second - minmax.first;
                         THROW_RUNTIME_ERROR_IF(range < 0.0,
                                 "do_normalize() invalid min max value for feature " << kv.first);
@@ -353,7 +357,7 @@ void do_normalize(std::istringstream &iss)
                         } // if range
                     } // for kv2
                 } else {
-                    auto minmax = pFtInfo->getMinMax();
+                    auto minmax = pFtInfo->minMax();
                     double range = minmax.second - minmax.first;
                     THROW_RUNTIME_ERROR_IF(range < 0.0,
                             "do_normalize() invalid min max value for feature " << kv.first);

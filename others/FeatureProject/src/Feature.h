@@ -56,19 +56,27 @@ public:
     std::string& sep() { return m_strSep; }
     const std::string& sep() const { return m_strSep; }
 
-    void addSubFeature(const SubFeatureInfo &subft)
-    { m_mapSubFeature[subft.name()] = subft; }
-
-    void addSubFeature(const std::string &name)
-    { m_mapSubFeature[name] = SubFeatureInfo(name); }
-
-    void setSubFeature(const std::string &name)
+    bool addSubFeature(const std::string &name)
     { 
-        m_mapSubFeature.clear();
-        m_mapSubFeature[name] = SubFeatureInfo(name); 
+        auto ret = m_mapSubFeature.insert(std::make_pair(name, SubFeatureInfo(name)));
+        return ret.second;
     }
 
+    // void setSubFeature(const std::string &name)
+    // { 
+        // m_mapSubFeature.clear();
+        // addSubFeature(name);
+    // }
+
     SubFeatureInfo& subFeature(const std::string &key)
+    {
+        auto it = m_mapSubFeature.find(key);
+        THROW_RUNTIME_ERROR_IF(it == m_mapSubFeature.end(),
+                "No sub feature " << key << " in feature " << name());
+        return it->second;
+    }
+
+    const SubFeatureInfo& subFeature(const std::string &key) const
     {
         auto it = m_mapSubFeature.find(key);
         THROW_RUNTIME_ERROR_IF(it == m_mapSubFeature.end(),
@@ -126,8 +134,9 @@ public:
             os << kv.second.name() << "{" << "index=" << kv.second.index();
             if (fi.type() != "string")
                 os << ",min=" << kv.second.minVal() << ",max=" << kv.second.maxVal(); 
+            os << "} ";
         } // for
-        os << "}" << std::endl;
+        os << std::endl;
         return os;
     }
 };
@@ -279,7 +288,7 @@ public:
         auto &strSet = ret.first->second;
         strSet.clear();
         strSet.insert(value);
-        pfi->setSubFeature(value);
+        pfi->addSubFeature(value);
         m_refFv.__isset.stringFeatures = true;
     }
 
@@ -303,7 +312,7 @@ public:
         auto ret = m_refFv.denseFeatures.insert(std::make_pair(name, ListDouble()));
         auto &arr = ret.first->second;
         arr.swap(val);
-        pfi->setSubFeature("");
+        pfi->addSubFeature("");
         m_refFv.__isset.denseFeatures = true;
     }
 
@@ -362,7 +371,6 @@ extern FeatureInfoSet                       g_ftInfoSet;
 extern std::string                          g_strSep;
 
 extern void load_feature_info(const std::string &fname, Json::Value &root, FeatureInfoSet &fiSet);
-extern void load_data(const std::string &fname, Example &exp);
 extern void load_data(const std::string &ifname, const std::string &ofname, FeatureInfoSet &fiSet);
 
 
