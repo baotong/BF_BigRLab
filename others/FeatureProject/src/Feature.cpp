@@ -85,8 +85,8 @@ void load_feature_info(const std::string &fname, FeatureInfoSet &fiSet)
         for (auto &jf : jsFeatures) {
             auto pf = std::make_shared<FeatureInfo>();
             pf->fromJson(jf);
-            THROW_RUNTIME_ERROR_IF(pf->name().empty(), "Feature name cannot be empty!");
-            THROW_RUNTIME_ERROR_IF(!validTypes.count(pf->type()),
+            THROW_RUNTIME_ERROR_IF(pf->isKeep() && pf->name().empty(), "Feature name cannot be empty!");
+            THROW_RUNTIME_ERROR_IF(pf->isKeep() && !validTypes.count(pf->type()),
                     "Feature " << pf->name() << " has invalid type " << pf->type());
             fiSet.add(pf);
         } // for
@@ -223,6 +223,7 @@ static
 void read_feature(FeatureVector &fv, std::string &strField, 
             FeatureInfo &ftInfo, const std::size_t lineno, FeatureInfoSet &fiSet)
 {
+    if (!ftInfo.isKeep()) return;
     if (ftInfo.type() == "string") {
         read_string_feature(fv, strField, ftInfo, lineno, fiSet);
     } else if (ftInfo.type() == "double") {
@@ -289,6 +290,7 @@ void load_data(const std::string &ifname, const std::string &ofname, FeatureInfo
     // build index
     uint32_t idx = 0;
     for (auto &pf : fiSet.arrFeature()) {
+        if (!pf->isKeep()) continue;
         for (auto &subftKv : pf->subFeatures())
             subftKv.second.setIndex(idx++);
     } // for

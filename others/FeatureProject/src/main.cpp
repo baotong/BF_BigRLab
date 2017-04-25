@@ -1,15 +1,12 @@
 /*
  * # just storing feature vector data
- * GLOG_logtostderr=1 ./feature.bin -op store -raw ../data/adult.data -conf ../data/adult_conf.json -fv ../data/adult.fv
+ * GLOG_logtostderr=1 ./feature.bin -op store -raw ../data/adult.data -conf ../data/adult_conf.json -newconf ../data/adult_conf_updated.json -fv ../data/adult.fv
+ *
+ * # normalize
+ * GLOG_logtostderr=1 ./feature.bin -op normalize -conf ../data/adult_conf_updated.json -fv ../data/adult.fv -o ../data/adult.normalized
  *
  * # convert feature vector into xgboost
- * GLOG_logtostderr=1 ./feature.bin -op fmt:xgboost -conf ../data/adult_conf.json -fv ../data/adult.normalized -o ../data/adult.xgboost
- *
- * ## normalize
- * # only one feature
- * GLOG_logtostderr=1 ./feature.bin -op normalize:age -conf ../data/adult_conf.json -fv ../data/adult.fv -o ../data/adult.normalized
- * # all float features
- * GLOG_logtostderr=1 ./feature.bin -op normalize -conf ../data/adult_conf.json -fv ../data/adult.fv -o ../data/adult.normalized
+ * GLOG_logtostderr=1 ./feature.bin -op fmt:xgboost -conf ../data/adult_conf_updated.json -fv ../data/adult.normalized -o ../data/adult.xgboost
  *
  * ## dump fv
  * GLOG_logtostderr=1 ./feature.bin -op dump -fv ../data/adult.normalized -o /tmp/out.txt
@@ -40,6 +37,7 @@
 DEFINE_string(op, "", "Operation to do on data");
 DEFINE_string(raw, "", "Raw data file to input");
 DEFINE_string(conf, "", "Info about raw data in json format");
+DEFINE_string(newconf, "", "Updated conf file");
 DEFINE_string(fv, "", "Serialized feature vector file");
 DEFINE_string(o, "", "output file");
 
@@ -153,7 +151,8 @@ void do_store(std::istringstream&)
     load_data(FLAGS_raw, FLAGS_fv, g_ftInfoSet);
     LOG(INFO) << "Feature vectors stored in " << FLAGS_fv;
     // Test::print_feature_info();
-    update_feature_info(FLAGS_conf, g_ftInfoSet);
+    if (FLAGS_newconf.empty()) FLAGS_newconf = FLAGS_conf;
+    update_feature_info(FLAGS_newconf, g_ftInfoSet);
 }
 
 
@@ -161,6 +160,7 @@ void do_store(std::istringstream&)
 static
 void print_xgboost(std::ostream &os, const FeatureVector &fv, const FeatureInfo &fi)
 {
+    if (!fi.isKeep()) return;
     if (fi.type() == "string") {
         const auto it = fv.stringFeatures.find(fi.name());
         if (it == fv.stringFeatures.end())

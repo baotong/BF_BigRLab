@@ -2,546 +2,66 @@
    "features" : [
       {
          "name" : "age",
-         "subfeatures" : [
-            {
-               "index" : 0,
-               "max" : 90,
-               "min" : 17,
-               "name" : ""
-            }
-         ],
-         "type" : "double"
+         "type" : "double",
+         "keep" : false
       },
       {
          "name" : "workclass",
-         "subfeatures" : [
-            {
-               "index" : 1,
-               "name" : "?"
-            },
-            {
-               "index" : 2,
-               "name" : "Federal-gov"
-            },
-            {
-               "index" : 3,
-               "name" : "Local-gov"
-            },
-            {
-               "index" : 4,
-               "name" : "Never-worked"
-            },
-            {
-               "index" : 5,
-               "name" : "Private"
-            },
-            {
-               "index" : 6,
-               "name" : "Self-emp-inc"
-            },
-            {
-               "index" : 7,
-               "name" : "Self-emp-not-inc"
-            },
-            {
-               "index" : 8,
-               "name" : "State-gov"
-            },
-            {
-               "index" : 9,
-               "name" : "Without-pay"
-            }
-         ],
          "type" : "string"
       },
       {
          "name" : "fnlwgt",
-         "subfeatures" : [
-            {
-               "index" : 10,
-               "max" : 1484705,
-               "min" : 12285,
-               "name" : ""
-            }
-         ],
-         "type" : "double"
+         "type" : "double",
+         "keep" : false
       },
       {
          "name" : "education",
-         "subfeatures" : [
-            {
-               "index" : 11,
-               "name" : "10th"
-            },
-            {
-               "index" : 12,
-               "name" : "11th"
-            },
-            {
-               "index" : 13,
-               "name" : "12th"
-            },
-            {
-               "index" : 14,
-               "name" : "1st-4th"
-            },
-            {
-               "index" : 15,
-               "name" : "5th-6th"
-            },
-            {
-               "index" : 16,
-               "name" : "7th-8th"
-            },
-            {
-               "index" : 17,
-               "name" : "9th"
-            },
-            {
-               "index" : 18,
-               "name" : "Assoc-acdm"
-            },
-            {
-               "index" : 19,
-               "name" : "Assoc-voc"
-            },
-            {
-               "index" : 20,
-               "name" : "Bachelors"
-            },
-            {
-               "index" : 21,
-               "name" : "Doctorate"
-            },
-            {
-               "index" : 22,
-               "name" : "HS-grad"
-            },
-            {
-               "index" : 23,
-               "name" : "Masters"
-            },
-            {
-               "index" : 24,
-               "name" : "Preschool"
-            },
-            {
-               "index" : 25,
-               "name" : "Prof-school"
-            },
-            {
-               "index" : 26,
-               "name" : "Some-college"
-            }
-         ],
          "type" : "string"
       },
       {
          "name" : "education-num",
-         "subfeatures" : [
-            {
-               "index" : 27,
-               "max" : 16,
-               "min" : 1,
-               "name" : ""
-            }
-         ],
          "type" : "double"
       },
       {
          "name" : "marital-status",
-         "subfeatures" : [
-            {
-               "index" : 28,
-               "name" : "Divorced"
-            },
-            {
-               "index" : 29,
-               "name" : "Married-AF-spouse"
-            },
-            {
-               "index" : 30,
-               "name" : "Married-civ-spouse"
-            },
-            {
-               "index" : 31,
-               "name" : "Married-spouse-absent"
-            },
-            {
-               "index" : 32,
-               "name" : "Never-married"
-            },
-            {
-               "index" : 33,
-               "name" : "Separated"
-            },
-            {
-               "index" : 34,
-               "name" : "Widowed"
-            }
-         ],
          "type" : "string"
       },
       {
-         "multi" : true,
          "name" : "occupation",
-         "sep" : ":",
-         "subfeatures" : [
-            {
-               "index" : 35,
-               "name" : "?"
-            },
-            {
-               "index" : 36,
-               "name" : "Adm-clerical"
-            },
-            {
-               "index" : 37,
-               "name" : "Armed-Forces"
-            },
-            {
-               "index" : 38,
-               "name" : "Craft-repair"
-            },
-            {
-               "index" : 39,
-               "name" : "Exec-managerial"
-            },
-            {
-               "index" : 40,
-               "name" : "Farming-fishing"
-            },
-            {
-               "index" : 41,
-               "name" : "Handlers-cleaners"
-            },
-            {
-               "index" : 42,
-               "name" : "Machine-op-inspct"
-            },
-            {
-               "index" : 43,
-               "name" : "Other-service"
-            },
-            {
-               "index" : 44,
-               "name" : "Priv-house-serv"
-            },
-            {
-               "index" : 45,
-               "name" : "Prof-specialty"
-            },
-            {
-               "index" : 46,
-               "name" : "Protective-serv"
-            },
-            {
-               "index" : 47,
-               "name" : "Sales"
-            },
-            {
-               "index" : 48,
-               "name" : "Tech-support"
-            },
-            {
-               "index" : 49,
-               "name" : "Transport-moving"
-            }
-         ],
-         "type" : "string"
+         "type" : "string",
+         "multi" : true,
+         "sep" : ":"
       },
       {
          "name" : "relationship",
-         "subfeatures" : [
-            {
-               "index" : 50,
-               "name" : "Husband"
-            },
-            {
-               "index" : 51,
-               "name" : "Not-in-family"
-            },
-            {
-               "index" : 52,
-               "name" : "Other-relative"
-            },
-            {
-               "index" : 53,
-               "name" : "Own-child"
-            },
-            {
-               "index" : 54,
-               "name" : "Unmarried"
-            },
-            {
-               "index" : 55,
-               "name" : "Wife"
-            }
-         ],
          "type" : "string"
       },
       {
          "name" : "race",
-         "subfeatures" : [
-            {
-               "index" : 56,
-               "name" : "Amer-Indian-Eskimo"
-            },
-            {
-               "index" : 57,
-               "name" : "Asian-Pac-Islander"
-            },
-            {
-               "index" : 58,
-               "name" : "Black"
-            },
-            {
-               "index" : 59,
-               "name" : "Other"
-            },
-            {
-               "index" : 60,
-               "name" : "White"
-            }
-         ],
          "type" : "string"
       },
       {
          "name" : "sex",
-         "subfeatures" : [
-            {
-               "index" : 61,
-               "name" : "Female"
-            },
-            {
-               "index" : 62,
-               "name" : "Male"
-            }
-         ],
          "type" : "string"
       },
       {
          "name" : "capital-gain",
-         "subfeatures" : [
-            {
-               "index" : 63,
-               "max" : 99999,
-               "min" : 0,
-               "name" : ""
-            }
-         ],
          "type" : "double"
       },
       {
          "name" : "capital-loss",
-         "subfeatures" : [
-            {
-               "index" : 64,
-               "max" : 4356,
-               "min" : 0,
-               "name" : ""
-            }
-         ],
          "type" : "double"
       },
       {
          "name" : "hours-per-week",
-         "subfeatures" : [
-            {
-               "index" : 65,
-               "max" : 99,
-               "min" : 1,
-               "name" : ""
-            }
-         ],
          "type" : "double"
       },
       {
          "name" : "native-country",
-         "subfeatures" : [
-            {
-               "index" : 66,
-               "name" : "?"
-            },
-            {
-               "index" : 67,
-               "name" : "Cambodia"
-            },
-            {
-               "index" : 68,
-               "name" : "Canada"
-            },
-            {
-               "index" : 69,
-               "name" : "China"
-            },
-            {
-               "index" : 70,
-               "name" : "Columbia"
-            },
-            {
-               "index" : 71,
-               "name" : "Cuba"
-            },
-            {
-               "index" : 72,
-               "name" : "Dominican-Republic"
-            },
-            {
-               "index" : 73,
-               "name" : "Ecuador"
-            },
-            {
-               "index" : 74,
-               "name" : "El-Salvador"
-            },
-            {
-               "index" : 75,
-               "name" : "England"
-            },
-            {
-               "index" : 76,
-               "name" : "France"
-            },
-            {
-               "index" : 77,
-               "name" : "Germany"
-            },
-            {
-               "index" : 78,
-               "name" : "Greece"
-            },
-            {
-               "index" : 79,
-               "name" : "Guatemala"
-            },
-            {
-               "index" : 80,
-               "name" : "Haiti"
-            },
-            {
-               "index" : 81,
-               "name" : "Holand-Netherlands"
-            },
-            {
-               "index" : 82,
-               "name" : "Honduras"
-            },
-            {
-               "index" : 83,
-               "name" : "Hong"
-            },
-            {
-               "index" : 84,
-               "name" : "Hungary"
-            },
-            {
-               "index" : 85,
-               "name" : "India"
-            },
-            {
-               "index" : 86,
-               "name" : "Iran"
-            },
-            {
-               "index" : 87,
-               "name" : "Ireland"
-            },
-            {
-               "index" : 88,
-               "name" : "Italy"
-            },
-            {
-               "index" : 89,
-               "name" : "Jamaica"
-            },
-            {
-               "index" : 90,
-               "name" : "Japan"
-            },
-            {
-               "index" : 91,
-               "name" : "Laos"
-            },
-            {
-               "index" : 92,
-               "name" : "Mexico"
-            },
-            {
-               "index" : 93,
-               "name" : "Nicaragua"
-            },
-            {
-               "index" : 94,
-               "name" : "Outlying-US(Guam-USVI-etc)"
-            },
-            {
-               "index" : 95,
-               "name" : "Peru"
-            },
-            {
-               "index" : 96,
-               "name" : "Philippines"
-            },
-            {
-               "index" : 97,
-               "name" : "Poland"
-            },
-            {
-               "index" : 98,
-               "name" : "Portugal"
-            },
-            {
-               "index" : 99,
-               "name" : "Puerto-Rico"
-            },
-            {
-               "index" : 100,
-               "name" : "Scotland"
-            },
-            {
-               "index" : 101,
-               "name" : "South"
-            },
-            {
-               "index" : 102,
-               "name" : "Taiwan"
-            },
-            {
-               "index" : 103,
-               "name" : "Thailand"
-            },
-            {
-               "index" : 104,
-               "name" : "Trinadad&Tobago"
-            },
-            {
-               "index" : 105,
-               "name" : "United-States"
-            },
-            {
-               "index" : 106,
-               "name" : "Vietnam"
-            },
-            {
-               "index" : 107,
-               "name" : "Yugoslavia"
-            }
-         ],
          "type" : "string"
       },
       {
          "name" : "income",
-         "subfeatures" : [
-            {
-               "index" : 108,
-               "name" : "<=50K"
-            },
-            {
-               "index" : 109,
-               "name" : ">50K"
-            }
-         ],
          "type" : "string"
       }
    ],

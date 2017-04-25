@@ -1,0 +1,536 @@
+{
+   "features" : [
+      {
+         "keep" : false,
+         "name" : "age",
+         "type" : "double"
+      },
+      {
+         "name" : "workclass",
+         "subfeatures" : [
+            {
+               "index" : 0,
+               "name" : "?"
+            },
+            {
+               "index" : 1,
+               "name" : "Federal-gov"
+            },
+            {
+               "index" : 2,
+               "name" : "Local-gov"
+            },
+            {
+               "index" : 3,
+               "name" : "Never-worked"
+            },
+            {
+               "index" : 4,
+               "name" : "Private"
+            },
+            {
+               "index" : 5,
+               "name" : "Self-emp-inc"
+            },
+            {
+               "index" : 6,
+               "name" : "Self-emp-not-inc"
+            },
+            {
+               "index" : 7,
+               "name" : "State-gov"
+            },
+            {
+               "index" : 8,
+               "name" : "Without-pay"
+            }
+         ],
+         "type" : "string"
+      },
+      {
+         "keep" : false,
+         "name" : "fnlwgt",
+         "type" : "double"
+      },
+      {
+         "name" : "education",
+         "subfeatures" : [
+            {
+               "index" : 9,
+               "name" : "10th"
+            },
+            {
+               "index" : 10,
+               "name" : "11th"
+            },
+            {
+               "index" : 11,
+               "name" : "12th"
+            },
+            {
+               "index" : 12,
+               "name" : "1st-4th"
+            },
+            {
+               "index" : 13,
+               "name" : "5th-6th"
+            },
+            {
+               "index" : 14,
+               "name" : "7th-8th"
+            },
+            {
+               "index" : 15,
+               "name" : "9th"
+            },
+            {
+               "index" : 16,
+               "name" : "Assoc-acdm"
+            },
+            {
+               "index" : 17,
+               "name" : "Assoc-voc"
+            },
+            {
+               "index" : 18,
+               "name" : "Bachelors"
+            },
+            {
+               "index" : 19,
+               "name" : "Doctorate"
+            },
+            {
+               "index" : 20,
+               "name" : "HS-grad"
+            },
+            {
+               "index" : 21,
+               "name" : "Masters"
+            },
+            {
+               "index" : 22,
+               "name" : "Preschool"
+            },
+            {
+               "index" : 23,
+               "name" : "Prof-school"
+            },
+            {
+               "index" : 24,
+               "name" : "Some-college"
+            }
+         ],
+         "type" : "string"
+      },
+      {
+         "name" : "education-num",
+         "subfeatures" : [
+            {
+               "index" : 25,
+               "max" : 16,
+               "min" : 1,
+               "name" : ""
+            }
+         ],
+         "type" : "double"
+      },
+      {
+         "name" : "marital-status",
+         "subfeatures" : [
+            {
+               "index" : 26,
+               "name" : "Divorced"
+            },
+            {
+               "index" : 27,
+               "name" : "Married-AF-spouse"
+            },
+            {
+               "index" : 28,
+               "name" : "Married-civ-spouse"
+            },
+            {
+               "index" : 29,
+               "name" : "Married-spouse-absent"
+            },
+            {
+               "index" : 30,
+               "name" : "Never-married"
+            },
+            {
+               "index" : 31,
+               "name" : "Separated"
+            },
+            {
+               "index" : 32,
+               "name" : "Widowed"
+            }
+         ],
+         "type" : "string"
+      },
+      {
+         "multi" : true,
+         "name" : "occupation",
+         "sep" : ":",
+         "subfeatures" : [
+            {
+               "index" : 33,
+               "name" : "?"
+            },
+            {
+               "index" : 34,
+               "name" : "Adm-clerical"
+            },
+            {
+               "index" : 35,
+               "name" : "Armed-Forces"
+            },
+            {
+               "index" : 36,
+               "name" : "Craft-repair"
+            },
+            {
+               "index" : 37,
+               "name" : "Exec-managerial"
+            },
+            {
+               "index" : 38,
+               "name" : "Farming-fishing"
+            },
+            {
+               "index" : 39,
+               "name" : "Handlers-cleaners"
+            },
+            {
+               "index" : 40,
+               "name" : "Machine-op-inspct"
+            },
+            {
+               "index" : 41,
+               "name" : "Other-service"
+            },
+            {
+               "index" : 42,
+               "name" : "Priv-house-serv"
+            },
+            {
+               "index" : 43,
+               "name" : "Prof-specialty"
+            },
+            {
+               "index" : 44,
+               "name" : "Protective-serv"
+            },
+            {
+               "index" : 45,
+               "name" : "Sales"
+            },
+            {
+               "index" : 46,
+               "name" : "Tech-support"
+            },
+            {
+               "index" : 47,
+               "name" : "Transport-moving"
+            }
+         ],
+         "type" : "string"
+      },
+      {
+         "name" : "relationship",
+         "subfeatures" : [
+            {
+               "index" : 48,
+               "name" : "Husband"
+            },
+            {
+               "index" : 49,
+               "name" : "Not-in-family"
+            },
+            {
+               "index" : 50,
+               "name" : "Other-relative"
+            },
+            {
+               "index" : 51,
+               "name" : "Own-child"
+            },
+            {
+               "index" : 52,
+               "name" : "Unmarried"
+            },
+            {
+               "index" : 53,
+               "name" : "Wife"
+            }
+         ],
+         "type" : "string"
+      },
+      {
+         "name" : "race",
+         "subfeatures" : [
+            {
+               "index" : 54,
+               "name" : "Amer-Indian-Eskimo"
+            },
+            {
+               "index" : 55,
+               "name" : "Asian-Pac-Islander"
+            },
+            {
+               "index" : 56,
+               "name" : "Black"
+            },
+            {
+               "index" : 57,
+               "name" : "Other"
+            },
+            {
+               "index" : 58,
+               "name" : "White"
+            }
+         ],
+         "type" : "string"
+      },
+      {
+         "name" : "sex",
+         "subfeatures" : [
+            {
+               "index" : 59,
+               "name" : "Female"
+            },
+            {
+               "index" : 60,
+               "name" : "Male"
+            }
+         ],
+         "type" : "string"
+      },
+      {
+         "name" : "capital-gain",
+         "subfeatures" : [
+            {
+               "index" : 61,
+               "max" : 99999,
+               "min" : 0,
+               "name" : ""
+            }
+         ],
+         "type" : "double"
+      },
+      {
+         "name" : "capital-loss",
+         "subfeatures" : [
+            {
+               "index" : 62,
+               "max" : 4356,
+               "min" : 0,
+               "name" : ""
+            }
+         ],
+         "type" : "double"
+      },
+      {
+         "name" : "hours-per-week",
+         "subfeatures" : [
+            {
+               "index" : 63,
+               "max" : 99,
+               "min" : 1,
+               "name" : ""
+            }
+         ],
+         "type" : "double"
+      },
+      {
+         "name" : "native-country",
+         "subfeatures" : [
+            {
+               "index" : 64,
+               "name" : "?"
+            },
+            {
+               "index" : 65,
+               "name" : "Cambodia"
+            },
+            {
+               "index" : 66,
+               "name" : "Canada"
+            },
+            {
+               "index" : 67,
+               "name" : "China"
+            },
+            {
+               "index" : 68,
+               "name" : "Columbia"
+            },
+            {
+               "index" : 69,
+               "name" : "Cuba"
+            },
+            {
+               "index" : 70,
+               "name" : "Dominican-Republic"
+            },
+            {
+               "index" : 71,
+               "name" : "Ecuador"
+            },
+            {
+               "index" : 72,
+               "name" : "El-Salvador"
+            },
+            {
+               "index" : 73,
+               "name" : "England"
+            },
+            {
+               "index" : 74,
+               "name" : "France"
+            },
+            {
+               "index" : 75,
+               "name" : "Germany"
+            },
+            {
+               "index" : 76,
+               "name" : "Greece"
+            },
+            {
+               "index" : 77,
+               "name" : "Guatemala"
+            },
+            {
+               "index" : 78,
+               "name" : "Haiti"
+            },
+            {
+               "index" : 79,
+               "name" : "Holand-Netherlands"
+            },
+            {
+               "index" : 80,
+               "name" : "Honduras"
+            },
+            {
+               "index" : 81,
+               "name" : "Hong"
+            },
+            {
+               "index" : 82,
+               "name" : "Hungary"
+            },
+            {
+               "index" : 83,
+               "name" : "India"
+            },
+            {
+               "index" : 84,
+               "name" : "Iran"
+            },
+            {
+               "index" : 85,
+               "name" : "Ireland"
+            },
+            {
+               "index" : 86,
+               "name" : "Italy"
+            },
+            {
+               "index" : 87,
+               "name" : "Jamaica"
+            },
+            {
+               "index" : 88,
+               "name" : "Japan"
+            },
+            {
+               "index" : 89,
+               "name" : "Laos"
+            },
+            {
+               "index" : 90,
+               "name" : "Mexico"
+            },
+            {
+               "index" : 91,
+               "name" : "Nicaragua"
+            },
+            {
+               "index" : 92,
+               "name" : "Outlying-US(Guam-USVI-etc)"
+            },
+            {
+               "index" : 93,
+               "name" : "Peru"
+            },
+            {
+               "index" : 94,
+               "name" : "Philippines"
+            },
+            {
+               "index" : 95,
+               "name" : "Poland"
+            },
+            {
+               "index" : 96,
+               "name" : "Portugal"
+            },
+            {
+               "index" : 97,
+               "name" : "Puerto-Rico"
+            },
+            {
+               "index" : 98,
+               "name" : "Scotland"
+            },
+            {
+               "index" : 99,
+               "name" : "South"
+            },
+            {
+               "index" : 100,
+               "name" : "Taiwan"
+            },
+            {
+               "index" : 101,
+               "name" : "Thailand"
+            },
+            {
+               "index" : 102,
+               "name" : "Trinadad&Tobago"
+            },
+            {
+               "index" : 103,
+               "name" : "United-States"
+            },
+            {
+               "index" : 104,
+               "name" : "Vietnam"
+            },
+            {
+               "index" : 105,
+               "name" : "Yugoslavia"
+            }
+         ],
+         "type" : "string"
+      },
+      {
+         "name" : "income",
+         "subfeatures" : [
+            {
+               "index" : 106,
+               "name" : "<=50K"
+            },
+            {
+               "index" : 107,
+               "name" : ">50K"
+            }
+         ],
+         "type" : "string"
+      }
+   ],
+   "nfeatures" : 15,
+   "sep" : ","
+}

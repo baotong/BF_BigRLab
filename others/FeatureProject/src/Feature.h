@@ -71,9 +71,9 @@ public:
     typedef std::map<std::string, SubFeatureInfo>   SubFeatureTable;
 
 public:
-    FeatureInfo() : m_bMulti(false) {}
+    FeatureInfo() : m_bMulti(false), m_bKeep(true) {}
     FeatureInfo(const std::string &_Name, const std::string &_Type)
-            : m_strName(_Name), m_strType(_Type), m_bMulti(false) {}
+            : m_strName(_Name), m_strType(_Type), m_bMulti(false), m_bKeep(true) {}
 
     std::string& name() { return m_strName; }
     const std::string& name() const { return m_strName; }
@@ -81,6 +81,8 @@ public:
     const std::string& type() const { return m_strType; }
     bool isMulti() const { return m_bMulti; }
     void setMulti(bool multi = true) { m_bMulti = multi; }
+    bool isKeep() const { return m_bKeep; }
+    void setKeep(bool keep = true) { m_bKeep = keep; }
     std::string& sep() { return m_strSep; }
     const std::string& sep() const { return m_strSep; }
 
@@ -97,22 +99,6 @@ public:
         if (!ret.second && overwrite)
             ret.first->second = subFt;
     }
-
-    // SubFeatureInfo& subFeature(const std::string &key)
-    // {
-        // auto it = m_mapSubFeature.find(key);
-        // THROW_RUNTIME_ERROR_IF(it == m_mapSubFeature.end(),
-                // "No sub feature " << key << " in feature " << name());
-        // return it->second;
-    // }
-
-    // const SubFeatureInfo& subFeature(const std::string &key) const
-    // {
-        // auto it = m_mapSubFeature.find(key);
-        // THROW_RUNTIME_ERROR_IF(it == m_mapSubFeature.end(),
-                // "No sub feature " << key << " in feature " << name());
-        // return it->second;
-    // }
 
     SubFeatureInfo* subFeature(const std::string &key)
     {
@@ -167,6 +153,7 @@ public:
         jv["name"] = name();
         jv["type"] = type();
         if (isMulti()) jv["multi"] = true;
+        if (!isKeep()) jv["keep"] = false;
         if (!sep().empty()) jv["sep"] = sep();
         for (const auto &kv : subFeatures()) {
             auto &back = jv["subfeatures"].append(Json::Value());
@@ -180,6 +167,8 @@ public:
         type() = jv["type"].asString();
         auto &jMulti = jv["multi"];
         if (!!jMulti) setMulti(jMulti.asBool());
+        auto &jKeep = jv["keep"];
+        if (!!jKeep) setKeep(jKeep.asBool());
         auto &jSep = jv["sep"];
         if (!!jSep) sep() = jSep.asString();
 
@@ -195,6 +184,7 @@ private:
     std::string                 m_strName;
     std::string                 m_strType;
     bool                        m_bMulti;
+    bool                        m_bKeep;
     std::string                 m_strSep;    // empty means default SPACE
     SubFeatureTable             m_mapSubFeature;
 
