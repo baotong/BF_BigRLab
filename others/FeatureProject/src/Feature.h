@@ -18,6 +18,10 @@ public:
     typedef std::shared_ptr<FeatureInfo>  pointer;
 
     struct SubFeatureInfo {
+        SubFeatureInfo() : m_nIdx(0)
+                , m_fMin(std::numeric_limits<double>::max())
+                , m_fMax(std::numeric_limits<double>::min()) {}
+
         SubFeatureInfo(const std::string &_Name)
                 : m_strName(_Name), m_nIdx(0)
                 , m_fMin(std::numeric_limits<double>::max())
@@ -41,9 +45,21 @@ public:
             jv.clear();
             jv["name"] = name();
             jv["index"] = index();
-            if (type != "string") {
+            if (type != "string" && type != "list_double") {
                 jv["min"] = minVal();
                 jv["max"] = maxVal();
+            } // if
+        }
+
+        void fromJson(const Json::Value &jv, const std::string &type)
+        {
+            name() = jv["name"].asString();
+            setIndex(jv["index"].asUInt());
+            if (type != "string" && type != "list_double") {
+                auto &jMin = jv["min"];
+                m_fMin = (!jMin ? std::numeric_limits<double>::max() : jMin.asDouble());
+                auto &jMax = jv["max"];
+                m_fMax = (!jMax ? std::numeric_limits<double>::min() : jMax.asDouble());
             } // if
         }
 
@@ -68,26 +84,50 @@ public:
     std::string& sep() { return m_strSep; }
     const std::string& sep() const { return m_strSep; }
 
-    bool addSubFeature(const std::string &name)
+    void addSubFeature(const std::string &name, bool overwrite = false)
     { 
         auto ret = m_mapSubFeature.insert(std::make_pair(name, SubFeatureInfo(name)));
-        return ret.second;
+        if (!ret.second && overwrite)
+            ret.first->second = SubFeatureInfo(name);
     }
 
-    SubFeatureInfo& subFeature(const std::string &key)
-    {
-        auto it = m_mapSubFeature.find(key);
-        THROW_RUNTIME_ERROR_IF(it == m_mapSubFeature.end(),
-                "No sub feature " << key << " in feature " << name());
-        return it->second;
+    void addSubFeature(const SubFeatureInfo &subFt, bool overwrite = false)
+    { 
+        auto ret = m_mapSubFeature.insert(std::make_pair(subFt.name(), subFt));
+        if (!ret.second && overwrite)
+            ret.first->second = subFt;
     }
 
-    const SubFeatureInfo& subFeature(const std::string &key) const
+    // SubFeatureInfo& subFeature(const std::string &key)
+    // {
+        // auto it = m_mapSubFeature.find(key);
+        // THROW_RUNTIME_ERROR_IF(it == m_mapSubFeature.end(),
+                // "No sub feature " << key << " in feature " << name());
+        // return it->second;
+    // }
+
+    // const SubFeatureInfo& subFeature(const std::string &key) const
+    // {
+        // auto it = m_mapSubFeature.find(key);
+        // THROW_RUNTIME_ERROR_IF(it == m_mapSubFeature.end(),
+                // "No sub feature " << key << " in feature " << name());
+        // return it->second;
+    // }
+
+    SubFeatureInfo* subFeature(const std::string &key)
     {
         auto it = m_mapSubFeature.find(key);
-        THROW_RUNTIME_ERROR_IF(it == m_mapSubFeature.end(),
-                "No sub feature " << key << " in feature " << name());
-        return it->second;
+        if (it == m_mapSubFeature.end()) 
+            return nullptr;
+        return &(it->second);
+    }
+
+    const SubFeatureInfo* subFeature(const std::string &key) const
+    {
+        auto it = m_mapSubFeature.find(key);
+        if (it == m_mapSubFeature.end()) 
+            return nullptr;
+        return &(it->second);
     }
 
     SubFeatureTable& subFeatures() { return m_mapSubFeature; }
@@ -131,6 +171,23 @@ public:
         for (const auto &kv : subFeatures()) {
             auto &back = jv["subfeatures"].append(Json::Value());
             kv.second.toJson(back, type());
+        } // for
+    }
+
+    void fromJson(const Json::Value &jv)
+    {
+        name() = jv["name"].asString();
+        type() = jv["type"].asString();
+        auto &jMulti = jv["multi"];
+        if (!!jMulti) setMulti(jMulti.asBool());
+        auto &jSep = jv["sep"];
+        if (!!jSep) sep() = jSep.asString();
+
+        // sub features
+        for (const auto &jSubFt : jv["subfeatures"]) {
+            SubFeatureInfo subFt;
+            subFt.fromJson(jSubFt, type());
+            addSubFeature(subFt, true);
         } // for
     }
 
@@ -197,6 +254,8 @@ public:
     { return m_arrFeatureInfo.at(pos); }
 
     std::vector<FeatureInfo::pointer>& arrFeature()
+    { return m_arrFeatureInfo; }
+    const std::vector<FeatureInfo::pointer>& arrFeature() const
     { return m_arrFeatureInfo; }
 
     std::size_t size() const
@@ -385,11 +444,11 @@ private:
 };
 
 
-// extern std::vector<FeatureInfo::pointer>    g_arrFeatureInfo;
 extern FeatureInfoSet                       g_ftInfoSet;
 extern std::string                          g_strSep;
 
-extern void load_feature_info(const std::string &fname, Json::Value &root, FeatureInfoSet &fiSet);
+extern void load_feature_info(const std::string &fname, FeatureInfoSet &fiSet);
+extern void update_feature_info(const std::string &fname, const FeatureInfoSet &fiSet);
 extern void load_data(const std::string &ifname, const std::string &ofname, FeatureInfoSet &fiSet);
 
 

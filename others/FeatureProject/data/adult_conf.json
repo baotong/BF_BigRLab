@@ -545,6 +545,6 @@
          "type" : "string"
       }
    ],
-   "nFeatures" : 15,
+   "nfeatures" : 15,
    "sep" : ","
 }

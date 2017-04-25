@@ -3,7 +3,7 @@
  * GLOG_logtostderr=1 ./feature.bin -op store -raw ../data/adult.data -conf ../data/adult_conf.json -fv ../data/adult.fv
  *
  * # convert feature vector into xgboost
- * GLOG_logtostderr=1 ./feature.bin -op fmt:xgboost:../data/adult.data.xgboost -conf ../data/adult_conf.json -fv ../data/adult.fv
+ * GLOG_logtostderr=1 ./feature.bin -op fmt:xgboost -conf ../data/adult_conf.json -fv ../data/adult.normalized -o ../data/adult.xgboost
  *
  * ## normalize
  * # only one feature
@@ -42,8 +42,6 @@ DEFINE_string(raw, "", "Raw data file to input");
 DEFINE_string(conf, "", "Info about raw data in json format");
 DEFINE_string(fv, "", "Serialized feature vector file");
 DEFINE_string(o, "", "output file");
-
-Json::Value         g_jsConf;
 
 
 namespace Test {
@@ -112,7 +110,51 @@ namespace Test {
 
         DLOG(INFO) << arr.size();
     }
+
+    void test_load_feature_info(const std::string &fname)
+    {
+        load_feature_info(fname, g_ftInfoSet);
+        update_feature_info("test.json", g_ftInfoSet);
+    }
 } // namespace Test
+
+
+void update_feature_info(const std::string &fname, const FeatureInfoSet &fiSet)
+{
+    using namespace std;
+
+    ofstream ofs(fname, ios::out | ios::trunc);
+    THROW_RUNTIME_ERROR_IF(!ofs, "update_feature_info() cannot open " << fname << " for writting!");
+
+    Json::Value root;
+    root["nfeatures"] = Json::Value::UInt64(fiSet.size());
+    if (!g_strSep.empty()) root["sep"] = g_strSep;
+
+    for (const auto &pfi : fiSet.arrFeature()) {
+        auto &back = root["features"].append(Json::Value());
+        pfi->toJson(back);
+    } // for
+
+    Json::StyledWriter writer;
+    string outStr = writer.write(root);
+    ofs << outStr << flush;
+}
+
+
+static
+void do_store(std::istringstream&)
+{
+    THROW_RUNTIME_ERROR_IF(FLAGS_raw.empty(), "No raw data file specified!");
+    THROW_RUNTIME_ERROR_IF(FLAGS_conf.empty(), "No conf file specified!");
+    THROW_RUNTIME_ERROR_IF(FLAGS_fv.empty(), "No fv data file specified!");
+
+    LOG(INFO) << "Loading data...";
+    load_feature_info(FLAGS_conf, g_ftInfoSet);
+    load_data(FLAGS_raw, FLAGS_fv, g_ftInfoSet);
+    LOG(INFO) << "Feature vectors stored in " << FLAGS_fv;
+    // Test::print_feature_info();
+    update_feature_info(FLAGS_conf, g_ftInfoSet);
+}
 
 
 // print one cell
@@ -121,135 +163,29 @@ void print_xgboost(std::ostream &os, const FeatureVector &fv, const FeatureInfo 
 {
     if (fi.type() == "string") {
         const auto it = fv.stringFeatures.find(fi.name());
-        THROW_RUNTIME_ERROR_IF(it == fv.stringFeatures.end(),
-                "No feature " << fi.name() << " found in feature vector");
+        if (it == fv.stringFeatures.end())
+            return;
         for (const auto &s : it->second) {
-            const auto& subFt = fi.subFeature(s);
-            auto idx = subFt.index();
+            const auto pSubFt = fi.subFeature(s);
+            if (!pSubFt) continue;
+            auto idx = pSubFt->index();
             os << idx << ":1 ";
         } // for
     } else if (fi.type() == "double" || fi.type() == "datetime") {
         const auto it = fv.floatFeatures.find(fi.name());
-        THROW_RUNTIME_ERROR_IF(it == fv.floatFeatures.end(),
-                "No feature " << fi.name() << " found in feature vector");
+        if (it == fv.floatFeatures.end())
+            return;
         for (const auto &kv : it->second) {
-            const auto& subFt = fi.subFeature(kv.first);
-            auto idx = subFt.index();
+            const auto pSubFt = fi.subFeature(kv.first);
+            if (!pSubFt) continue;
+            auto idx = pSubFt->index();
             os << idx << ":" << kv.second << " ";
         } // for
-    } else {
-        THROW_RUNTIME_ERROR("print_xgboost Invalid type!");
     } // if
 }
 
 
 static
-void update_conf(const std::string &fname)
-{
-    using namespace std;
-
-    ofstream ofs(fname, ios::out | ios::trunc);
-    THROW_RUNTIME_ERROR_IF(!ofs, "update_conf() cannot open " << fname << " for writting!");
-
-    Json::Value root;
-    root["nFeatures"] = Json::Value::UInt64(g_ftInfoSet.size());
-    if (!g_strSep.empty()) root["sep"] = g_strSep;
-
-    for (const auto &pfi : g_ftInfoSet.arrFeature()) {
-        auto &back = root["features"].append(Json::Value());
-        pfi->toJson(back);
-    } // for
-
-    Json::StyledWriter writer;  
-    string outStr = writer.write(root);
-    ofs << outStr << flush;
-}
-
-
-void do_store(std::istringstream&)
-{
-    THROW_RUNTIME_ERROR_IF(FLAGS_raw.empty(), "No raw data file specified!");
-    THROW_RUNTIME_ERROR_IF(FLAGS_conf.empty(), "No conf file specified!");
-    THROW_RUNTIME_ERROR_IF(FLAGS_fv.empty(), "No fv data file specified!");
-
-    LOG(INFO) << "Loading data...";
-    load_feature_info(FLAGS_conf, g_jsConf, g_ftInfoSet);
-    load_data(FLAGS_raw, FLAGS_fv, g_ftInfoSet);
-    LOG(INFO) << "Feature vectors stored in " << FLAGS_fv;
-    Test::print_feature_info();
-    update_conf(FLAGS_conf);
-}
-
-
-static
-void load_fv(const std::string &fname)
-{
-    using namespace apache::thrift;
-    using namespace apache::thrift::protocol;
-    using namespace apache::thrift::transport;
-
-    auto _transport1 = boost::make_shared<TFileTransport>(fname, true); // true read-only
-    auto _transport2 = boost::make_shared<TBufferedTransport>(_transport1);
-    auto transport = boost::make_shared<TZlibTransport>(_transport2);
-    auto protocol = boost::make_shared<TBinaryProtocol>(transport);
-
-#if 0
-    FeatureVector fv;
-    while (true) {
-        try {
-            fv.read(protocol.get());
-            // find min max values only for floatfeatures
-            for (auto &kv : fv.floatFeatures) {
-                auto pFtInfo = g_ftInfoSet.get(kv.first);
-                THROW_RUNTIME_ERROR_IF(!pFtInfo,
-                        "load_fv() data inconsistency!, no feature info \"" << kv.first << "\" found!");
-                THROW_RUNTIME_ERROR_IF(kv.second.empty(), "load_fv() invalid data!");
-                if (pFtInfo->isMulti()) {
-                    for (auto &kv2 : kv.second)
-                        pFtInfo->setMinMax(kv2.second, kv2.first);
-                } else {
-                    auto it = kv.second.begin();
-                    pFtInfo->setMinMax(it->second);
-                } // if
-            } // for kv
-            // build index
-            for (auto &pfi : g_ftInfoSet.arrFeature()) {
-                if (pfi->type() == "string") {
-                    auto it = fv.stringFeatures.find(pfi->name());
-                    THROW_RUNTIME_ERROR_IF(it == fv.stringFeatures.end(),
-                            "load_fv() build index fail! data mismatch, cannot find feature " << pfi->name() << " in data");
-                    for (auto &s : it->second)
-                        pfi->index[s] = 0;
-                } else if (pfi->type() == "double" || pfi->type() == "datetime") {
-                    auto it = fv.floatFeatures.find(pfi->name());
-                    THROW_RUNTIME_ERROR_IF(it == fv.floatFeatures.end(),
-                            "load_fv() build index fail! data mismatch, cannot find feature " << pfi->name() << " in data");
-                    for (auto &kv : it->second)
-                        pfi->index[kv.first] = 0;
-                } else if (pfi->type() == "list_double") {
-                    auto it = fv.denseFeatures.find(pfi->name());
-                    THROW_RUNTIME_ERROR_IF(it == fv.denseFeatures.end(),
-                            "load_fv() build index fail! data mismatch, cannot find feature " << pfi->name() << " in data");
-                    pfi->index[""] = 0;
-                } // if
-            } // for pfi
-        } catch (const apache::thrift::transport::TTransportException&) {
-            break;
-        } // try
-    } // while
-
-    // build index
-    uint32_t idx = 0;
-    for (auto &pf : g_ftInfoSet.arrFeature()) {
-        for (auto &kv : pf->index) {
-            kv.second = idx++;
-            // DLOG(INFO) << kv.second << "\t" << kv.first;
-        } // for kv
-    } // for
-#endif
-}
-
-
 void do_format(std::istringstream &iss)
 {
     using namespace std;
@@ -257,24 +193,22 @@ void do_format(std::istringstream &iss)
     using namespace apache::thrift::protocol;
     using namespace apache::thrift::transport;
 
-    string      fmt, ofname;
+    string      fmt;
 
     getline(iss, fmt, ':');
     THROW_RUNTIME_ERROR_IF(iss.fail() || iss.bad() || fmt.empty(),
             "do_format() cannot read specified format!");
-    getline(iss, ofname, ':');
-    THROW_RUNTIME_ERROR_IF(iss.fail() || iss.bad() || ofname.empty(),
-            "do_format() cannot read specified output file name!");
 
     THROW_RUNTIME_ERROR_IF(FLAGS_conf.empty(), "No conf file specified!");
     THROW_RUNTIME_ERROR_IF(FLAGS_fv.empty(), "No fv data file specified!");
+    THROW_RUNTIME_ERROR_IF(FLAGS_o.empty(), "No output data file specified!");
 
     LOG(INFO) << "Loading data...";
-    load_feature_info(FLAGS_conf, g_jsConf, g_ftInfoSet);
-    load_fv(FLAGS_fv);
+    load_feature_info(FLAGS_conf, g_ftInfoSet);
+    // load_fv(FLAGS_fv);
 
-    ofstream ofs(ofname, ios::out | ios::trunc);
-    THROW_RUNTIME_ERROR_IF(!ofs, "do_format() cannot open " << ofname << " for writtingt!");
+    ofstream ofs(FLAGS_o, ios::out | ios::trunc);
+    THROW_RUNTIME_ERROR_IF(!ofs, "do_format() cannot open " << FLAGS_o << " for writtingt!");
 
     auto _transport1 = boost::make_shared<TFileTransport>(FLAGS_fv, true);
     auto _transport2 = boost::make_shared<TBufferedTransport>(_transport1);
@@ -295,10 +229,11 @@ void do_format(std::istringstream &iss)
         } // try
     } // while
 
-    LOG(INFO) << "Formatted data stored in " << ofname;
+    LOG(INFO) << "Formatted data stored in " << FLAGS_o;
 }
 
 
+static
 void do_normalize(std::istringstream &iss)
 {
     using namespace std;
@@ -316,27 +251,7 @@ void do_normalize(std::istringstream &iss)
         THROW_RUNTIME_ERROR_IF(!ofs, "Cannot open file \"" << FLAGS_o << "\" for writting!");
     }
 
-    load_feature_info(FLAGS_conf, g_jsConf, g_ftInfoSet);
-    load_fv(FLAGS_fv);
-
-    string segment;
-    typedef map<string, set<string> >    FtSet;
-    FtSet               ftSet;
-    while (getline(iss, segment, ':')) {
-        string ft, subft;
-        auto pos = segment.find('.');
-        if (pos == string::npos) {
-            ft = segment;
-        } else {
-            ft = segment.substr(0, pos);
-            subft = segment.substr(pos + 1);
-        } // if
-        auto ret = ftSet.insert(std::make_pair(ft, FtSet::mapped_type()));
-        if (!subft.empty()) {
-            auto &ftSetVal = ret.first->second;
-            ftSetVal.insert(subft);
-        } // if
-    } // while
+    load_feature_info(FLAGS_conf, g_ftInfoSet);
 
     auto _rdTransport1 = boost::make_shared<TFileTransport>(FLAGS_fv, true);
     auto _rdTransport2 = boost::make_shared<TBufferedTransport>(_rdTransport1);
@@ -356,43 +271,27 @@ void do_normalize(std::istringstream &iss)
     while (true) {
         try {
             fv.read(rdProtocol.get());
+            // k:string; v:map<string, double>
             for (auto &kv : fv.floatFeatures) {
-                auto pFtInfo = g_ftInfoSet.get(kv.first);
-                if (!ftSet.empty() && !ftSet.count(kv.first))
-                    continue;
+                const string &ftName = kv.first;
+                auto pFtInfo = g_ftInfoSet.get(ftName);
                 THROW_RUNTIME_ERROR_IF(!pFtInfo,
-                        "load_fv() data inconsistency!, no feature info \"" << kv.first << "\" found!");
-                THROW_RUNTIME_ERROR_IF(kv.second.empty(), "load_fv() invalid data!");
-                if (pFtInfo->isMulti()) {
-                    for (auto &kv2 : kv.second) {
-                        if (!ftSet.empty() && !ftSet[kv.first].empty() && !ftSet[kv.first].count(kv2.first))
-                            continue;
-                        auto minmax = pFtInfo->minMax(kv2.first);
-                        double range = minmax.second - minmax.first;
-                        THROW_RUNTIME_ERROR_IF(range < 0.0,
-                                "do_normalize() invalid min max value for feature " << kv.first);
-                        double &val = kv2.second;
-                        if (range == 0.0) {
-                            val = 0.0;
-                        } else {
-                            val -= minmax.first;
-                            val /= range;
-                        } // if range
-                    } // for kv2
-                } else {
-                    auto minmax = pFtInfo->minMax();
+                        "do_normalize() data inconsistency!, no feature info \"" << ftName << "\" found!");
+                THROW_RUNTIME_ERROR_IF(kv.second.empty(), "do_normalize() invalid data!");
+                for (auto &subkv : kv.second) {
+                    const string &subFtName = subkv.first;
+                    auto minmax = pFtInfo->minMax(subFtName);
                     double range = minmax.second - minmax.first;
-                    THROW_RUNTIME_ERROR_IF(range < 0.0,
-                            "do_normalize() invalid min max value for feature " << kv.first);
-                    auto it = kv.second.begin();
-                    double &val = it->second;
+                    double &val = subkv.second;
                     if (range == 0.0) {
                         val = 0.0;
                     } else {
                         val -= minmax.first;
                         val /= range;
+                        if (val < 0.0) val = 0.0;
+                        else if (val > 1.0) val = 1.0;
                     } // if range
-                } // if
+                } // for subkv
             } // for kv
             fv.write(wrProtocol.get());
         } catch (const apache::thrift::transport::TTransportException&) {
@@ -405,6 +304,7 @@ void do_normalize(std::istringstream &iss)
 }
 
 
+static
 void do_dump(std::istringstream &iss)
 {
     using namespace std;
@@ -444,6 +344,9 @@ void do_dump(std::istringstream &iss)
 int main(int argc, char **argv)
 try {
     using namespace std;
+
+    // Test::test_load_feature_info("../data/adult_conf.json");
+    // exit(0);
 
     google::InitGoogleLogging(argv[0]);
     gflags::ParseCommandLineFlags(&argc, &argv, true);
@@ -527,4 +430,187 @@ try {
 #endif
 
 
+#if 0
+// set min max and build index
+static
+void load_fv(const std::string &fname)
+{
+    using namespace apache::thrift;
+    using namespace apache::thrift::protocol;
+    using namespace apache::thrift::transport;
+
+    auto _transport1 = boost::make_shared<TFileTransport>(fname, true); // true read-only
+    auto _transport2 = boost::make_shared<TBufferedTransport>(_transport1);
+    auto transport = boost::make_shared<TZlibTransport>(_transport2);
+    auto protocol = boost::make_shared<TBinaryProtocol>(transport);
+
+    FeatureVector fv;
+    while (true) {
+        try {
+            fv.read(protocol.get());
+            // find min max values only for floatfeatures
+            for (auto &kv : fv.floatFeatures) {
+                auto pFtInfo = g_ftInfoSet.get(kv.first);
+                THROW_RUNTIME_ERROR_IF(!pFtInfo,
+                        "load_fv() data inconsistency!, no feature info \"" << kv.first << "\" found!");
+                THROW_RUNTIME_ERROR_IF(kv.second.empty(), "load_fv() invalid data!");
+                if (pFtInfo->isMulti()) {
+                    for (auto &kv2 : kv.second)
+                        pFtInfo->setMinMax(kv2.second, kv2.first);
+                } else {
+                    auto it = kv.second.begin();
+                    pFtInfo->setMinMax(it->second);
+                } // if
+            } // for kv
+            // build index
+            for (auto &pfi : g_ftInfoSet.arrFeature()) {
+                if (pfi->type() == "string") {
+                    auto it = fv.stringFeatures.find(pfi->name());
+                    THROW_RUNTIME_ERROR_IF(it == fv.stringFeatures.end(),
+                            "load_fv() build index fail! data mismatch, cannot find feature " << pfi->name() << " in data");
+                    for (auto &s : it->second)
+                        pfi->index[s] = 0;
+                } else if (pfi->type() == "double" || pfi->type() == "datetime") {
+                    auto it = fv.floatFeatures.find(pfi->name());
+                    THROW_RUNTIME_ERROR_IF(it == fv.floatFeatures.end(),
+                            "load_fv() build index fail! data mismatch, cannot find feature " << pfi->name() << " in data");
+                    for (auto &kv : it->second)
+                        pfi->index[kv.first] = 0;
+                } else if (pfi->type() == "list_double") {
+                    auto it = fv.denseFeatures.find(pfi->name());
+                    THROW_RUNTIME_ERROR_IF(it == fv.denseFeatures.end(),
+                            "load_fv() build index fail! data mismatch, cannot find feature " << pfi->name() << " in data");
+                    pfi->index[""] = 0;
+                } // if
+            } // for pfi
+        } catch (const apache::thrift::transport::TTransportException&) {
+            break;
+        } // try
+    } // while
+
+    // build index
+    uint32_t idx = 0;
+    for (auto &pf : g_ftInfoSet.arrFeature()) {
+        for (auto &kv : pf->index) {
+            kv.second = idx++;
+            // DLOG(INFO) << kv.second << "\t" << kv.first;
+        } // for kv
+    } // for
+}
+#endif
+
+
+#if 0
+static
+void do_normalize(std::istringstream &iss)
+{
+    using namespace std;
+    using namespace apache::thrift;
+    using namespace apache::thrift::protocol;
+    using namespace apache::thrift::transport;
+
+    THROW_RUNTIME_ERROR_IF(FLAGS_conf.empty(), "No conf file specified!");
+    THROW_RUNTIME_ERROR_IF(FLAGS_fv.empty(), "No fv data file specified!");
+    THROW_RUNTIME_ERROR_IF(FLAGS_o.empty(), "No output file specified!");
+
+    // open & trunc
+    {
+        ofstream ofs(FLAGS_o, ios::out | ios::trunc);
+        THROW_RUNTIME_ERROR_IF(!ofs, "Cannot open file \"" << FLAGS_o << "\" for writting!");
+    }
+
+    load_feature_info(FLAGS_conf, g_ftInfoSet);
+    // load_fv(FLAGS_fv);
+
+    string segment;
+    typedef map<string, set<string> >    FtSet; // 要操作的feature以及subfeature, subft为空，表示操作整个feature
+    FtSet               ftSet;
+    while (getline(iss, segment, ':')) {
+        string ft, subft;
+        auto pos = segment.find('.');
+        if (pos == string::npos) {
+            ft = segment;
+        } else {
+            ft = segment.substr(0, pos);
+            subft = segment.substr(pos + 1);
+        } // if
+        auto ret = ftSet.insert(std::make_pair(ft, FtSet::mapped_type()));
+        if (!subft.empty()) {
+            auto &ftSetVal = ret.first->second;
+            ftSetVal.insert(subft);
+        } // if
+    } // while
+
+    auto _rdTransport1 = boost::make_shared<TFileTransport>(FLAGS_fv, true);
+    auto _rdTransport2 = boost::make_shared<TBufferedTransport>(_rdTransport1);
+    auto rdTransport = boost::make_shared<TZlibTransport>(_rdTransport2);
+    auto rdProtocol = boost::make_shared<TBinaryProtocol>(rdTransport);
+
+    auto _wrTransport1 = boost::make_shared<TFileTransport>(FLAGS_o);
+    auto _wrTransport2 = boost::make_shared<TBufferedTransport>(_wrTransport1);
+    auto wrTransport = boost::make_shared<TZlibTransport>(_wrTransport2,
+            128, 1024,
+            128, 1024,
+            Z_BEST_COMPRESSION);
+    auto wrProtocol = boost::make_shared<TBinaryProtocol>(wrTransport);
+
+    LOG(INFO) << "Processing data...";
+    FeatureVector fv;
+    while (true) {
+        try {
+            fv.read(rdProtocol.get());
+            // k:string; v:map<string, double>
+            for (auto &kv : fv.floatFeatures) {
+                if (!ftSet.empty() && !ftSet.count(kv.first)) // 不是要操作的feature
+                    continue;
+                auto pFtInfo = g_ftInfoSet.get(kv.first);
+                THROW_RUNTIME_ERROR_IF(!pFtInfo,
+                        "do_normalize() data inconsistency!, no feature info \"" << kv.first << "\" found!");
+                THROW_RUNTIME_ERROR_IF(kv.second.empty(), "do_normalize() invalid data!");
+                if (pFtInfo->isMulti()) {
+                    // kv2: string,double   // TODO
+                    for (auto &kv2 : kv.second) {
+                        if (!ftSet.empty() && !ftSet[kv.first].empty() && !ftSet[kv.first].count(kv2.first))
+                            continue;
+                        auto minmax = pFtInfo->minMax(kv2.first);
+                        double range = minmax.second - minmax.first;
+                        THROW_RUNTIME_ERROR_IF(range < 0.0,
+                                "do_normalize() invalid min max value for feature " << kv.first);
+                        double &val = kv2.second;
+                        if (range == 0.0) {
+                            val = 0.0;
+                        } else {
+                            val -= minmax.first;
+                            val /= range;
+                            if (val < 0.0) val = 0.0;
+                            else if (val > 1.0) val = 1.0;
+                        } // if range
+                    } // for kv2
+                } else {
+                    auto minmax = pFtInfo->minMax();
+                    double range = minmax.second - minmax.first;
+                    THROW_RUNTIME_ERROR_IF(range < 0.0,
+                            "do_normalize() invalid min max value for feature " << kv.first);
+                    auto it = kv.second.begin();
+                    double &val = it->second;
+                    if (range == 0.0) {
+                        val = 0.0;
+                    } else {
+                        val -= minmax.first;
+                        val /= range;
+                        if (val < 0.0) val = 0.0;
+                        else if (val > 1.0) val = 1.0;
+                    } // if range
+                } // if
+            } // for kv
+            fv.write(wrProtocol.get());
+        } catch (const apache::thrift::transport::TTransportException&) {
+            break;
+        } // try
+    } // while
+
+    wrTransport->finish();
+    LOG(INFO) << "Normalized data kept in " << FLAGS_o;
+}
+#endif
 

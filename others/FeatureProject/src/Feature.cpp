@@ -14,7 +14,6 @@
 #include <thrift/transport/TZlibTransport.h>
 #include "Feature.h"
 
-// std::vector<FeatureInfo::pointer>    g_arrFeatureInfo;
 FeatureInfoSet                       g_ftInfoSet;
 std::string                          g_strSep = SPACES;
 
@@ -31,11 +30,11 @@ bool str2time(const std::string &s, std::time_t &tt,
 }
 
 
-void load_feature_info(const std::string &fname, Json::Value &root, FeatureInfoSet &fiSet)
+void load_feature_info(const std::string &fname, FeatureInfoSet &fiSet)
 {
     using namespace std;
 
-    root.clear();
+    Json::Value     root;
 
     // load json file
     {
@@ -84,16 +83,24 @@ void load_feature_info(const std::string &fname, Json::Value &root, FeatureInfoS
                 "Num of feature info detected " << jsFeatures.size()
                 << " not equal to value set in attr \"nFeatures\" " << nFeatures);
         for (auto &jf : jsFeatures) {
-            auto pf = std::make_shared<FeatureInfo>(jf["name"].asString(), jf["type"].asString());
+            auto pf = std::make_shared<FeatureInfo>();
+            pf->fromJson(jf);
+            THROW_RUNTIME_ERROR_IF(pf->name().empty(), "Feature name cannot be empty!");
             THROW_RUNTIME_ERROR_IF(!validTypes.count(pf->type()),
                     "Feature " << pf->name() << " has invalid type " << pf->type());
             fiSet.add(pf);
+        } // for
+        // for (auto &jf : jsFeatures) {
+            // auto pf = std::make_shared<FeatureInfo>(jf["name"].asString(), jf["type"].asString());
+            // THROW_RUNTIME_ERROR_IF(!validTypes.count(pf->type()),
+                    // "Feature " << pf->name() << " has invalid type " << pf->type());
+            // fiSet.add(pf);
 
-            auto &jMulti = jf["multi"];
-            if (!!jMulti) pf->setMulti(jMulti.asBool());
-            auto &jSep = jf["sep"];
-            if (!!jSep) pf->sep() = jSep.asString();
-        } // for jf
+            // auto &jMulti = jf["multi"];
+            // if (!!jMulti) pf->setMulti(jMulti.asBool());
+            // auto &jSep = jf["sep"];
+            // if (!!jSep) pf->sep() = jSep.asString();
+        // } // for jf
     } // read features
 }
 
