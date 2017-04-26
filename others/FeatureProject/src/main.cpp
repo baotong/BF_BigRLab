@@ -30,7 +30,6 @@
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <glog/logging.h>
-#include <gflags/gflags.h>
 #include "Feature.h"
 
 
@@ -181,6 +180,15 @@ void print_xgboost(std::ostream &os, const FeatureVector &fv, const FeatureInfo 
             auto idx = pSubFt->index();
             os << idx << ":" << kv.second << " ";
         } // for
+    } else if (fi.type() == "list_double") {
+        const auto it = fv.denseFeatures.find(fi.name());
+        if (it == fv.denseFeatures.end())
+            return;
+        const auto &arr = it->second;
+        for (std::size_t i = 0; i < arr.size(); ++i) {
+            if (arr[i])
+                os << i + fi.startIdx() << ":" << arr[i] << " ";
+        } // for i
     } // if
 }
 

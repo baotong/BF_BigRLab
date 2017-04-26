@@ -2,12 +2,16 @@
 #include <chrono>
 #include <iomanip>
 #include <ctime>
+#include <cstdio>
+#include <iterator>
 #include <glog/logging.h>
 #include <json/json.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 #include <boost/smart_ptr.hpp>
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/device/file_descriptor.hpp>
 #include <thrift/protocol/TBinaryProtocol.h>
 #include <thrift/transport/TFileTransport.h>
 #include <thrift/transport/TBufferTransports.h>
@@ -16,6 +20,81 @@
 
 FeatureInfoSet                       g_ftInfoSet;
 std::string                          g_strSep = SPACES;
+
+static
+int read_cmd(const std::string &cmd, std::string &output)
+{
+    int retval = 0;
+
+    FILE *fp = popen(cmd.c_str(), "r");
+    setvbuf(fp, NULL, _IONBF, 0);
+
+    typedef boost::iostreams::stream< boost::iostreams::file_descriptor_source >
+        FDRdStream;
+    FDRdStream ppStream( fileno(fp), boost::iostreams::never_close_handle );
+
+    std::ostringstream ss;
+    ss << ppStream.rdbuf();
+
+    output = ss.str();
+
+    retval = pclose(fp);
+    retval = WEXITSTATUS(retval);
+
+    return retval;
+}
+
+void FeatureInfo::parseDense()
+{
+    namespace fs = boost::filesystem;
+    using namespace std;
+
+    fs::path filePath(FLAGS_conf);
+    filePath = filePath.parent_path();
+    filePath /= densePath();
+    m_pathDense.swap(filePath);
+
+    DLOG(INFO) << "Parsing dense file: " << m_pathDense;
+
+    std::ostringstream oss;
+    oss << "tail -1 " << m_pathDense << " | awk \'{print NF}\'" << std::flush;
+
+    string output;
+    int retcode = read_cmd(oss.str(), output);
+    THROW_RUNTIME_ERROR_IF(retcode, "Parse dense file fail!");
+
+    std::istringstream iss(output);
+    iss >> denseLen();
+    THROW_RUNTIME_ERROR_IF(!iss, "Read dense len fail!");
+
+    DLOG(INFO) << "Dense length is: " << denseLen();
+}
+
+
+void FeatureInfo::readDense(std::vector<double> &vec)
+{
+    using namespace std;
+
+    if (!m_pDenseFile) {
+        m_pDenseFile.reset(new ifstream(m_pathDense.c_str(), ios::in));
+        THROW_RUNTIME_ERROR_IF(!m_pDenseFile, "readDense() cannot open " << m_pathDense << " for reading!");
+    } // if
+
+    istream& ifs = *m_pDenseFile;
+    
+    vec.clear();
+    vec.reserve(denseLen());
+
+    string line;
+    getline(ifs, line);
+    THROW_RUNTIME_ERROR_IF(ifs.fail() || ifs.bad(), "readDense() fail to read!");
+
+    istringstream iss(line);
+    std::copy(istream_iterator<double>(iss), istream_iterator<double>(),
+            std::back_inserter(vec));
+
+    LOG_IF(WARNING, vec.size() != denseLen()) << "read vector size " << vec.size() << " not equal to parsed size " << denseLen();
+}
 
 
 inline
@@ -90,17 +169,6 @@ void load_feature_info(const std::string &fname, FeatureInfoSet &fiSet)
                     "Feature " << pf->name() << " has invalid type " << pf->type());
             fiSet.add(pf);
         } // for
-        // for (auto &jf : jsFeatures) {
-            // auto pf = std::make_shared<FeatureInfo>(jf["name"].asString(), jf["type"].asString());
-            // THROW_RUNTIME_ERROR_IF(!validTypes.count(pf->type()),
-                    // "Feature " << pf->name() << " has invalid type " << pf->type());
-            // fiSet.add(pf);
-
-            // auto &jMulti = jf["multi"];
-            // if (!!jMulti) pf->setMulti(jMulti.asBool());
-            // auto &jSep = jf["sep"];
-            // if (!!jSep) pf->sep() = jSep.asString();
-        // } // for jf
     } // read features
 }
 
@@ -172,29 +240,16 @@ void read_double_feature(FeatureVector &fv, std::string &strField,
 }
 
 static
-void read_list_double_feature(FeatureVector &fv, std::string &strField, 
-            FeatureInfo &ftInfo, const std::size_t lineno, FeatureInfoSet &fiSet)
+void read_list_double_feature(FeatureVector &fv, 
+            FeatureInfo &fi, const std::size_t lineno, FeatureInfoSet &fiSet)
 {
     using namespace std;
 
-    boost::trim_if(strField, boost::is_any_of(ftInfo.sep() + SPACES));
-    THROW_RUNTIME_ERROR_IF(strField.empty(), "read_list_double_feature in line "
-            << lineno << ", empty field of \"" << ftInfo.name() << "\"!");
-
     FeatureVectorHandle hFv(fv, fiSet);
 
-    vector<string> strValues;
-    const string sep = (ftInfo.sep().empty() ? SPACES : ftInfo.sep());
-    boost::split(strValues, strField, boost::is_any_of(sep), boost::token_compress_on);
-    vector<double> values(strValues.size(), 0.0);
-
-    for (size_t i = 0; i < values.size(); ++i) {
-        THROW_RUNTIME_ERROR_IF(!boost::conversion::try_lexical_convert(strValues[i], values[i]),
-                "read_list_double_feature in line " << lineno << " for feature \""
-                << ftInfo.name() << "\" cannot covert \"" << strValues[i] << "\" to double!");
-    } // for
-
-    hFv.setFeature(ftInfo.name(), values);
+    vector<double> vec;
+    fi.readDense(vec);
+    hFv.setFeature(fi.name(), vec);
 }
 
 static
@@ -228,9 +283,7 @@ void read_feature(FeatureVector &fv, std::string &strField,
         read_string_feature(fv, strField, ftInfo, lineno, fiSet);
     } else if (ftInfo.type() == "double") {
         read_double_feature(fv, strField, ftInfo, lineno, fiSet);
-    } else if (ftInfo.type() == "list_double") {
-        read_list_double_feature(fv, strField, ftInfo, lineno, fiSet);
-    } else if (ftInfo.type() == "datetime") {
+    }  else if (ftInfo.type() == "datetime") {
         read_datetime_feature(fv, strField, ftInfo, lineno, fiSet);
     } else {
         THROW_RUNTIME_ERROR("read_feature in line " << lineno << 
@@ -273,15 +326,18 @@ void load_data(const std::string &ifname, const std::string &ofname, FeatureInfo
         if (line.empty()) continue;
         vector<string> strValues;
         boost::split(strValues, line, boost::is_any_of(g_strSep), boost::token_compress_on);
-        // for (auto &s : strValues)
-            // cout << s << endl;
-        THROW_RUNTIME_ERROR_IF(strValues.size() != nFeatures,
-                "Error when processing data file in line " << lineCnt 
-                << ", nFeatures not match! " << nFeatures << " expected but " 
-                << strValues.size() << " detected.");
         FeatureVector fv;
-        for (size_t i = 0; i < nFeatures; ++i)
-            read_feature(fv, strValues[i], *fiSet[i], lineCnt, fiSet);
+        uint32_t i = 0, j = 0;
+        while (i < strValues.size() && j < nFeatures) {
+            FeatureInfo &fi = *fiSet[j];
+            if (fi.type() == "list_double") {
+                read_list_double_feature(fv, fi, lineCnt, fiSet);
+                ++j;
+            } else {
+                read_feature(fv, strValues[i], fi, lineCnt, fiSet);
+                ++i; ++j;
+            } // if
+        } // while
         fv.write(protocol.get());
     } // while
 
@@ -291,8 +347,13 @@ void load_data(const std::string &ifname, const std::string &ofname, FeatureInfo
     uint32_t idx = 0;
     for (auto &pf : fiSet.arrFeature()) {
         if (!pf->isKeep()) continue;
-        for (auto &subftKv : pf->subFeatures())
-            subftKv.second.setIndex(idx++);
+        if (pf->type() == "list_double") {
+            pf->startIdx() = idx;
+            idx += pf->denseLen();
+        } else {
+            for (auto &subftKv : pf->subFeatures())
+                subftKv.second.setIndex(idx++);
+        } // if
     } // for
 }
 

@@ -15,5 +15,6 @@ include_directories(${INCLUDE})
 file(GLOB SRC ${SRC_DIR}/*.cpp ${SRC_DIR}/gen-cpp/*.cpp)
 
 add_executable(${target} ${SRC})
-target_link_libraries(${target} glog gflags jsoncpp thrift thriftz z)
+target_link_libraries(${target} glog gflags jsoncpp boost_filesystem 
+                    boost_system boost_iostreams thrift thriftz z)
 

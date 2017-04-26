@@ -5,7 +5,9 @@
 #include <memory>
 #include <limits>
 #include <json/json.h>
+#include <boost/filesystem.hpp>
 #include <example_types.h>
+#include <gflags/gflags.h>
 #include "CommDef.h"
 
 
@@ -71,9 +73,11 @@ public:
     typedef std::map<std::string, SubFeatureInfo>   SubFeatureTable;
 
 public:
-    FeatureInfo() : m_bMulti(false), m_bKeep(true) {}
+    FeatureInfo() : m_bMulti(false), m_bKeep(true)
+            , m_nIdxStart(0), m_nDenseLen(0) {}
     FeatureInfo(const std::string &_Name, const std::string &_Type)
-            : m_strName(_Name), m_strType(_Type), m_bMulti(false), m_bKeep(true) {}
+            : m_strName(_Name), m_strType(_Type), m_bMulti(false), m_bKeep(true) 
+            , m_nIdxStart(0), m_nDenseLen(0) {}
 
     std::string& name() { return m_strName; }
     const std::string& name() const { return m_strName; }
@@ -147,6 +151,14 @@ public:
         return it->second.index();
     }
 
+    // for dense feature
+    std::string& densePath() { return m_strDenseFilePath; }
+    const std::string& densePath() const { return m_strDenseFilePath; }
+    uint32_t& startIdx() { return m_nIdxStart; }
+    const uint32_t& startIdx() const { return m_nIdxStart; }
+    uint32_t& denseLen() { return m_nDenseLen; }
+    const uint32_t& denseLen() const { return m_nDenseLen; }
+
     void toJson(Json::Value &jv) const
     {
         jv.clear();
@@ -155,6 +167,13 @@ public:
         if (isMulti()) jv["multi"] = true;
         if (!isKeep()) jv["keep"] = false;
         if (!sep().empty()) jv["sep"] = sep();
+        
+        if (type() == "list_double") {
+            jv["filepath"] = densePath();
+            jv["startIdx"] = startIdx();
+            jv["length"] = denseLen();
+        } // if
+
         for (const auto &kv : subFeatures()) {
             auto &back = jv["subfeatures"].append(Json::Value());
             kv.second.toJson(back, type());
@@ -172,6 +191,14 @@ public:
         auto &jSep = jv["sep"];
         if (!!jSep) sep() = jSep.asString();
 
+        if (type() == "list_double") {
+            densePath() = jv["filepath"].asString();
+            startIdx() = jv["startIdx"].asUInt();
+            denseLen() = jv["length"].asUInt();
+            if (!denseLen())
+                parseDense();
+        } // if list_double
+
         // sub features
         for (const auto &jSubFt : jv["subfeatures"]) {
             SubFeatureInfo subFt;
@@ -180,6 +207,13 @@ public:
         } // for
     }
 
+    // for dense feature
+    void readDense(std::vector<double> &vec);
+
+private:
+    // for dense feature
+    void parseDense();
+
 private:
     std::string                 m_strName;
     std::string                 m_strType;
@@ -187,6 +221,11 @@ private:
     bool                        m_bKeep;
     std::string                 m_strSep;    // empty means default SPACE
     SubFeatureTable             m_mapSubFeature;
+    // for dense feature (list double)
+    std::string                 m_strDenseFilePath;
+    boost::filesystem::path     m_pathDense;
+    std::shared_ptr<std::istream>   m_pDenseFile;
+    uint32_t                    m_nIdxStart, m_nDenseLen;
 
 public:
     friend std::ostream& operator << (std::ostream &os, const FeatureInfo &fi)
@@ -380,7 +419,6 @@ public:
         auto ret = m_refFv.denseFeatures.insert(std::make_pair(name, ListDouble()));
         auto &arr = ret.first->second;
         arr.swap(val);
-        pfi->addSubFeature("");
         m_refFv.__isset.denseFeatures = true;
     }
 
@@ -434,6 +472,7 @@ private:
 };
 
 
+DECLARE_string(conf);
 extern FeatureInfoSet                       g_ftInfoSet;
 extern std::string                          g_strSep;
 
