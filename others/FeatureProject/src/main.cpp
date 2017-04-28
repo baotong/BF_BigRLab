@@ -1,6 +1,6 @@
 /*
  * # just storing feature vector data
- * GLOG_logtostderr=1 ./feature.bin -op store -raw ../data/adult.data -conf ../data/adult_conf.json -newconf ../data/adult_conf_updated.json -fv ../data/adult.fv
+ * GLOG_logtostderr=1 ./feature.bin -op raw2fv -raw ../data/adult.data -conf ../data/adult_conf.json -newconf ../data/adult_conf_updated.json -fv ../data/adult.fv
  *
  * # normalize
  * GLOG_logtostderr=1 ./feature.bin -op normalize -conf ../data/adult_conf_updated.json -fv ../data/adult.fv -o ../data/adult.normalized
@@ -16,6 +16,20 @@
  * ./Feature.bin ../data/adult.data ../data/adult_conf.json ../data/out.txt
  * ./Feature.bin ../data/search_no_id.data ../data/search_conf.json ../data/out.txt
  */
+
+/*
+ * 原始数据转存feature vector
+ * GLOG_logtostderr=1 ./feature.bin -op raw2fv -raw ../data/adult.data.1000 -conf ../data/adult_conf.json -newconf ../data/adult_conf_updated.json -fv ../data/adult.fv.1000
+ * 归一化
+ * GLOG_logtostderr=1 ./feature.bin -op normalize -conf ../data/adult_conf_updated.json -fv ../data/adult.fv.1000 -o ../data/adult.normalized.1000
+ * 查看 fv
+ * GLOG_logtostderr=1 ./feature.bin -op dump:100 -fv ../data/adult.normalized.1000 -o /tmp/out.txt
+ * 转换为xgboost所用格式
+ * GLOG_logtostderr=1 ./feature.bin -op fmt:xgboost -conf ../data/adult_conf_updated.json -fv ../data/adult.normalized.1000 -o ../data/adult.xgboost.1000
+ * 用训练数据得到的新conf，将测试数据转存为feature vector
+ * GLOG_logtostderr=1 ./feature.bin -op raw2fv -raw ../data/adult.data.1000 -conf ../data/adult_conf_updated.json -fv ../data/adult.test.fv
+ */
+
 /*
  * trim sep+SPACES, split only sep
  */
@@ -139,7 +153,7 @@ void update_feature_info(const std::string &fname, const FeatureInfoSet &fiSet)
 
 
 static
-void do_store(std::istringstream&)
+void do_raw2fv(std::istringstream&)
 {
     THROW_RUNTIME_ERROR_IF(FLAGS_raw.empty(), "No raw data file specified!");
     THROW_RUNTIME_ERROR_IF(FLAGS_conf.empty(), "No conf file specified!");
@@ -150,8 +164,22 @@ void do_store(std::istringstream&)
     load_data(FLAGS_raw, FLAGS_fv, g_ftInfoSet);
     LOG(INFO) << "Feature vectors stored in " << FLAGS_fv;
     // Test::print_feature_info();
-    if (FLAGS_newconf.empty()) FLAGS_newconf = FLAGS_conf;
-    update_feature_info(FLAGS_newconf, g_ftInfoSet);
+    
+    if (!FLAGS_newconf.empty()) {
+        // build index
+        uint32_t idx = 0;
+        for (auto &pf : g_ftInfoSet.arrFeature()) {
+            if (!pf->isKeep()) continue;
+            if (pf->type() == "list_double") {
+                pf->startIdx() = idx;
+                idx += pf->denseLen();
+            } else {
+                for (auto &subftKv : pf->subFeatures())
+                    subftKv.second.setIndex(idx++);
+            } // if
+        } // for
+        update_feature_info(FLAGS_newconf, g_ftInfoSet);
+    } // if
 }
 
 
@@ -362,7 +390,7 @@ try {
     typedef std::function<void(istringstream&)>     OpFunc;
     typedef std::map<std::string, OpFunc>           OpTable;
     OpTable     opTable;
-    opTable["store"] = do_store;
+    opTable["raw2fv"] = do_raw2fv;
     opTable["fmt"] = do_format;
     opTable["normalize"] = do_normalize;
     opTable["dump"] = do_dump;

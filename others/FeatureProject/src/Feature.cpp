@@ -73,12 +73,21 @@ void FeatureInfo::parseDense()
 
 void FeatureInfo::readDense(std::vector<double> &vec)
 {
+    namespace fs = boost::filesystem;
     using namespace std;
 
     if (!m_pDenseFile) {
+        if (m_pathDense.empty()) {
+            fs::path filePath(FLAGS_conf);
+            filePath = filePath.parent_path();
+            filePath /= densePath();
+            m_pathDense.swap(filePath); 
+        } // if
         m_pDenseFile.reset(new ifstream(m_pathDense.c_str(), ios::in));
         THROW_RUNTIME_ERROR_IF(!m_pDenseFile, "readDense() cannot open " << m_pathDense << " for reading!");
     } // if
+
+    // DLOG(INFO) << "readDense() loading " << m_pathDense;
 
     istream& ifs = *m_pDenseFile;
     
@@ -342,19 +351,6 @@ void load_data(const std::string &ifname, const std::string &ofname, FeatureInfo
     } // while
 
     transport->finish();
-
-    // build index
-    uint32_t idx = 0;
-    for (auto &pf : fiSet.arrFeature()) {
-        if (!pf->isKeep()) continue;
-        if (pf->type() == "list_double") {
-            pf->startIdx() = idx;
-            idx += pf->denseLen();
-        } else {
-            for (auto &subftKv : pf->subFeatures())
-                subftKv.second.setIndex(idx++);
-        } // if
-    } // for
 }
 
 
