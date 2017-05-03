@@ -28,6 +28,9 @@
  * GLOG_logtostderr=1 ./feature.bin -op fmt:xgboost -conf ../data/adult_conf_updated.json -fv ../data/adult.normalized.1000 -o ../data/adult.xgboost.1000
  * 用训练数据得到的新conf，将测试数据转存为feature vector
  * GLOG_logtostderr=1 ./feature.bin -op raw2fv -raw ../data/adult.data.1000 -conf ../data/adult_conf_updated.json -fv ../data/adult.test.fv
+ *
+ * With id
+ * GLOG_logtostderr=1 ./feature.bin -op raw2fv -raw ../data/adult.data.id.1000 -hasid -conf ../data/adult_conf.json -newconf ../data/adult_conf_updated.json -fv ../data/adult.fv.id.1000
  */
 
 /*
@@ -53,6 +56,7 @@ DEFINE_string(conf, "", "Info about raw data in json format");
 DEFINE_string(newconf, "", "Updated conf file");
 DEFINE_string(fv, "", "Serialized feature vector file");
 DEFINE_string(o, "", "output file");
+DEFINE_bool(hasid, false, "Whether input data has id (1st column)");
 
 
 namespace Test {
@@ -365,9 +369,9 @@ void do_dump(std::istringstream &iss)
     auto transport = boost::make_shared<TZlibTransport>(_transport2);
     auto protocol = boost::make_shared<TBinaryProtocol>(transport);
 
-    FeatureVector fv;
     for (uint32_t i = 0; i < cnt; ++i) {
         try {
+            FeatureVector fv;   // NOTE!!! 必须放在循环内，否则__isset不能初始化，沿用上一次的。
             fv.read(protocol.get());
             ofs << fv << endl;
         } catch (const apache::thrift::transport::TTransportException&) {

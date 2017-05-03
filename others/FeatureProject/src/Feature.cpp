@@ -67,11 +67,13 @@ void FeatureInfo::parseDense()
     iss >> denseLen();
     THROW_RUNTIME_ERROR_IF(!iss, "Read dense len fail!");
 
+    if (FLAGS_hasid) --denseLen();
+
     DLOG(INFO) << "Dense length is: " << denseLen();
 }
 
 
-void FeatureInfo::readDense(std::vector<double> &vec)
+bool FeatureInfo::readDense(std::vector<double> &vec)
 {
     namespace fs = boost::filesystem;
     using namespace std;
@@ -95,14 +97,57 @@ void FeatureInfo::readDense(std::vector<double> &vec)
     vec.reserve(denseLen());
 
     string line;
-    getline(ifs, line);
-    THROW_RUNTIME_ERROR_IF(ifs.fail() || ifs.bad(), "readDense() fail to read!");
+    if (!getline(ifs, line))
+        return false;
 
     istringstream iss(line);
     std::copy(istream_iterator<double>(iss), istream_iterator<double>(),
             std::back_inserter(vec));
 
     LOG_IF(WARNING, vec.size() != denseLen()) << "read vector size " << vec.size() << " not equal to parsed size " << denseLen();
+
+    return true;
+}
+
+
+bool FeatureInfo::readDenseId(std::string &id, std::vector<double> &vec)
+{
+    namespace fs = boost::filesystem;
+    using namespace std;
+
+    DLOG(INFO) << "readDenseId()...";
+
+    if (!m_pDenseFile) {
+        if (m_pathDense.empty()) {
+            fs::path filePath(FLAGS_conf);
+            filePath = filePath.parent_path();
+            filePath /= densePath();
+            m_pathDense.swap(filePath); 
+        } // if
+        DLOG(INFO) << "New dense file obj";
+        m_pDenseFile.reset(new ifstream(m_pathDense.c_str(), ios::in));
+        THROW_RUNTIME_ERROR_IF(!m_pDenseFile, "readDense() cannot open " << m_pathDense << " for reading!");
+    } // if
+
+    // DLOG(INFO) << "readDense() loading " << m_pathDense;
+
+    istream& ifs = *m_pDenseFile;
+    
+    vec.clear();
+    vec.reserve(denseLen());
+
+    string line;
+    if (!getline(ifs, line))
+        return false;
+
+    DLOG(INFO) << "Read line: " << line;
+    istringstream iss(line);
+    iss >> id;
+    std::copy(istream_iterator<double>(iss), istream_iterator<double>(),
+            std::back_inserter(vec));
+
+    LOG_IF(WARNING, vec.size() != denseLen()) << "read vector size " << vec.size() << " not equal to parsed size " << denseLen();
+    return true;
 }
 
 
@@ -258,8 +303,36 @@ void read_list_double_feature(FeatureVector &fv,
 
     vector<double> vec;
     fi.readDense(vec);
-    hFv.setFeature(fi.name(), vec);
+
+    if (!vec.empty())
+        hFv.setFeature(fi.name(), vec);
 }
+
+
+static std::string          s_strDenseId;
+static std::vector<double>  s_arrDenseVec;
+static
+void read_list_double_feature_id(FeatureVector &fv, 
+            FeatureInfo &fi, const std::size_t lineno, FeatureInfoSet &fiSet)
+{
+    using namespace std;
+
+    FeatureVectorHandle hFv(fv, fiSet);
+
+    DLOG(INFO) << "read_list_double_feature_id() for " << hFv.id();
+
+    if (s_strDenseId.empty())
+        fi.readDenseId(s_strDenseId, s_arrDenseVec);
+
+    while (s_strDenseId < hFv.id()) {
+        if (!fi.readDenseId(s_strDenseId, s_arrDenseVec))
+            break;
+    } // while
+
+    if (s_strDenseId == hFv.id())
+        hFv.setFeature(fi.name(), s_arrDenseVec);
+}
+
 
 static
 void read_datetime_feature(FeatureVector &fv, std::string &strField, 
@@ -301,12 +374,15 @@ void read_feature(FeatureVector &fv, std::string &strField,
 }
 
 
-void load_data(const std::string &ifname, const std::string &ofname, FeatureInfoSet &fiSet)
+static
+void load_data_noid(const std::string &ifname, const std::string &ofname, FeatureInfoSet &fiSet)
 {
     using namespace std;
     using namespace apache::thrift;
     using namespace apache::thrift::protocol;
     using namespace apache::thrift::transport;
+
+    DLOG(INFO) << "Loading data without id...";
 
     ifstream ifs(ifname, ios::in);
     THROW_RUNTIME_ERROR_IF(!ifs, "load_data cannot open " << ifname << " for reading!");
@@ -353,6 +429,77 @@ void load_data(const std::string &ifname, const std::string &ofname, FeatureInfo
     transport->finish();
 }
 
+// raw源文件中，id和其他data用指定分割符号分割，
+// list_double中用tab分割
+static
+void load_data_id(const std::string &ifname, const std::string &ofname, FeatureInfoSet &fiSet)
+{
+    using namespace std;
+    using namespace apache::thrift;
+    using namespace apache::thrift::protocol;
+    using namespace apache::thrift::transport;
+
+    DLOG(INFO) << "Loading data with id...";
+
+    s_strDenseId.clear();
+
+    ifstream ifs(ifname, ios::in);
+    THROW_RUNTIME_ERROR_IF(!ifs, "load_data cannot open " << ifname << " for reading!");
+
+    // check & trunc out file
+    {
+        ofstream ofs(ofname, ios::out | ios::trunc);
+        THROW_RUNTIME_ERROR_IF(!ofs, "load_data cannot open " << ofname << " for writting!");
+    }
+
+    auto _transport1 = boost::make_shared<TFileTransport>(ofname);
+    auto _transport2 = boost::make_shared<TBufferedTransport>(_transport1);
+    auto transport = boost::make_shared<TZlibTransport>(_transport2,
+            128, 1024,
+            128, 1024,
+            Z_BEST_COMPRESSION);
+    auto protocol = boost::make_shared<TBinaryProtocol>(transport);
+
+    const size_t nFeatures = fiSet.size();
+
+    string line;
+    size_t lineCnt = 0;
+    while (getline(ifs, line)) {
+        ++lineCnt;
+        boost::trim_if(line, boost::is_any_of(g_strSep + SPACES));  // NOTE!!! 整行trim应该去掉分割符和默认trim空白字符
+        if (line.empty()) continue;
+        vector<string> strValues;
+        boost::split(strValues, line, boost::is_any_of(g_strSep), boost::token_compress_on);
+        FeatureVector fv;
+        DLOG(INFO) << "__isset denseFeatures: " << fv.__isset.denseFeatures;
+        FeatureVectorHandle hFv(fv, fiSet);
+        hFv.setId(strValues[0]);
+        uint32_t i = 1, j = 0;
+        while (i < strValues.size() && j < nFeatures) {
+            FeatureInfo &fi = *fiSet[j];
+            if (fi.type() == "list_double") {
+                read_list_double_feature_id(fv, fi, lineCnt, fiSet);
+                ++j;
+            } else {
+                read_feature(fv, strValues[i], fi, lineCnt, fiSet);
+                ++i; ++j;
+            } // if
+        } // while
+        DLOG(INFO) << fv;
+        DLOG(INFO) << "__isset denseFeatures: " << fv.__isset.denseFeatures;
+        fv.write(protocol.get());
+    } // while
+
+    transport->finish();
+}
+
+void load_data(const std::string &ifname, const std::string &ofname, FeatureInfoSet &fiSet)
+{
+    if (FLAGS_hasid)
+        load_data_id(ifname, ofname, fiSet);
+    else
+        load_data_noid(ifname, ofname, fiSet);
+}
 
 #if 0
 void load_data(const std::string &fname, Example &exp)

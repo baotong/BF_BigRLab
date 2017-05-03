@@ -63,7 +63,7 @@
       {
          "name" : "search_text",
          "type" : "list_double",
-         "filepath" : "vectors.txt"
+         "filepath" : "vectors.id.1000"
       },
       {
          "name" : "income",

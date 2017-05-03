@@ -24,7 +24,8 @@ class FeatureVector;
 class Example;
 
 typedef struct _FeatureVector__isset {
-  _FeatureVector__isset() : stringFeatures(false), floatFeatures(false), denseFeatures(false) {}
+  _FeatureVector__isset() : id(false), stringFeatures(false), floatFeatures(false), denseFeatures(false) {}
+  bool id :1;
   bool stringFeatures :1;
   bool floatFeatures :1;
   bool denseFeatures :1;
@@ -37,15 +38,18 @@ class FeatureVector {
   FeatureVector(FeatureVector&&);
   FeatureVector& operator=(const FeatureVector&);
   FeatureVector& operator=(FeatureVector&&);
-  FeatureVector() {
+  FeatureVector() : id() {
   }
 
   virtual ~FeatureVector() throw();
+  std::string id;
   std::map<std::string, std::set<std::string> >  stringFeatures;
   std::map<std::string, std::map<std::string, double> >  floatFeatures;
   std::map<std::string, std::vector<double> >  denseFeatures;
 
   _FeatureVector__isset __isset;
+
+  void __set_id(const std::string& val);
 
   void __set_stringFeatures(const std::map<std::string, std::set<std::string> > & val);
 

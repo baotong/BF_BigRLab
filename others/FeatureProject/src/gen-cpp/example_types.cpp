@@ -18,6 +18,11 @@ FeatureVector::~FeatureVector() throw() {
 }
 
 
+void FeatureVector::__set_id(const std::string& val) {
+  this->id = val;
+__isset.id = true;
+}
+
 void FeatureVector::__set_stringFeatures(const std::map<std::string, std::set<std::string> > & val) {
   this->stringFeatures = val;
 __isset.stringFeatures = true;
@@ -35,6 +40,7 @@ __isset.denseFeatures = true;
 
 void swap(FeatureVector &a, FeatureVector &b) {
   using ::std::swap;
+  swap(a.id, b.id);
   swap(a.stringFeatures, b.stringFeatures);
   swap(a.floatFeatures, b.floatFeatures);
   swap(a.denseFeatures, b.denseFeatures);
@@ -42,18 +48,21 @@ void swap(FeatureVector &a, FeatureVector &b) {
 }
 
 FeatureVector::FeatureVector(const FeatureVector& other45) {
+  id = other45.id;
   stringFeatures = other45.stringFeatures;
   floatFeatures = other45.floatFeatures;
   denseFeatures = other45.denseFeatures;
   __isset = other45.__isset;
 }
 FeatureVector::FeatureVector( FeatureVector&& other46) {
+  id = std::move(other46.id);
   stringFeatures = std::move(other46.stringFeatures);
   floatFeatures = std::move(other46.floatFeatures);
   denseFeatures = std::move(other46.denseFeatures);
   __isset = std::move(other46.__isset);
 }
 FeatureVector& FeatureVector::operator=(const FeatureVector& other47) {
+  id = other47.id;
   stringFeatures = other47.stringFeatures;
   floatFeatures = other47.floatFeatures;
   denseFeatures = other47.denseFeatures;
@@ -61,6 +70,7 @@ FeatureVector& FeatureVector::operator=(const FeatureVector& other47) {
   return *this;
 }
 FeatureVector& FeatureVector::operator=(FeatureVector&& other48) {
+  id = std::move(other48.id);
   stringFeatures = std::move(other48.stringFeatures);
   floatFeatures = std::move(other48.floatFeatures);
   denseFeatures = std::move(other48.denseFeatures);
@@ -70,7 +80,8 @@ FeatureVector& FeatureVector::operator=(FeatureVector&& other48) {
 void FeatureVector::printTo(std::ostream& out) const {
   using ::apache::thrift::to_string;
   out << "FeatureVector(";
-  out << "stringFeatures="; (__isset.stringFeatures ? (out << to_string(stringFeatures)) : (out << "<null>"));
+  out << "id="; (__isset.id ? (out << to_string(id)) : (out << "<null>"));
+  out << ", " << "stringFeatures="; (__isset.stringFeatures ? (out << to_string(stringFeatures)) : (out << "<null>"));
   out << ", " << "floatFeatures="; (__isset.floatFeatures ? (out << to_string(floatFeatures)) : (out << "<null>"));
   out << ", " << "denseFeatures="; (__isset.denseFeatures ? (out << to_string(denseFeatures)) : (out << "<null>"));
   out << ")";

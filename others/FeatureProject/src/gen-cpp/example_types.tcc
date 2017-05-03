@@ -34,6 +34,14 @@ uint32_t FeatureVector::read(Protocol_* iprot) {
     switch (fid)
     {
       case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRING) {
+          xfer += iprot->readString(this->id);
+          this->__isset.id = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 2:
         if (ftype == ::apache::thrift::protocol::T_MAP) {
           {
             this->stringFeatures.clear();
@@ -69,7 +77,7 @@ uint32_t FeatureVector::read(Protocol_* iprot) {
           xfer += iprot->skip(ftype);
         }
         break;
-      case 2:
+      case 3:
         if (ftype == ::apache::thrift::protocol::T_MAP) {
           {
             this->floatFeatures.clear();
@@ -107,7 +115,7 @@ uint32_t FeatureVector::read(Protocol_* iprot) {
           xfer += iprot->skip(ftype);
         }
         break;
-      case 3:
+      case 4:
         if (ftype == ::apache::thrift::protocol::T_MAP) {
           {
             this->denseFeatures.clear();
@@ -160,8 +168,13 @@ uint32_t FeatureVector::write(Protocol_* oprot) const {
   apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
   xfer += oprot->writeStructBegin("FeatureVector");
 
+  if (this->__isset.id) {
+    xfer += oprot->writeFieldBegin("id", ::apache::thrift::protocol::T_STRING, 1);
+    xfer += oprot->writeString(this->id);
+    xfer += oprot->writeFieldEnd();
+  }
   if (this->__isset.stringFeatures) {
-    xfer += oprot->writeFieldBegin("stringFeatures", ::apache::thrift::protocol::T_MAP, 1);
+    xfer += oprot->writeFieldBegin("stringFeatures", ::apache::thrift::protocol::T_MAP, 2);
     {
       xfer += oprot->writeMapBegin(::apache::thrift::protocol::T_STRING, ::apache::thrift::protocol::T_SET, static_cast<uint32_t>(this->stringFeatures.size()));
       std::map<std::string, std::set<std::string> > ::const_iterator _iter39;
@@ -183,7 +196,7 @@ uint32_t FeatureVector::write(Protocol_* oprot) const {
     xfer += oprot->writeFieldEnd();
   }
   if (this->__isset.floatFeatures) {
-    xfer += oprot->writeFieldBegin("floatFeatures", ::apache::thrift::protocol::T_MAP, 2);
+    xfer += oprot->writeFieldBegin("floatFeatures", ::apache::thrift::protocol::T_MAP, 3);
     {
       xfer += oprot->writeMapBegin(::apache::thrift::protocol::T_STRING, ::apache::thrift::protocol::T_MAP, static_cast<uint32_t>(this->floatFeatures.size()));
       std::map<std::string, std::map<std::string, double> > ::const_iterator _iter41;
@@ -206,7 +219,7 @@ uint32_t FeatureVector::write(Protocol_* oprot) const {
     xfer += oprot->writeFieldEnd();
   }
   if (this->__isset.denseFeatures) {
-    xfer += oprot->writeFieldBegin("denseFeatures", ::apache::thrift::protocol::T_MAP, 3);
+    xfer += oprot->writeFieldBegin("denseFeatures", ::apache::thrift::protocol::T_MAP, 4);
     {
       xfer += oprot->writeMapBegin(::apache::thrift::protocol::T_STRING, ::apache::thrift::protocol::T_LIST, static_cast<uint32_t>(this->denseFeatures.size()));
       std::map<std::string, std::vector<double> > ::const_iterator _iter43;

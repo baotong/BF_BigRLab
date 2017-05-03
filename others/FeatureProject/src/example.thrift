@@ -3,9 +3,10 @@
  */
 
 struct FeatureVector {
-    1: optional map<string, set<string>>          stringFeatures;
-    2: optional map<string, map<string, double>>  floatFeatures;
-    3: optional map<string, list<double>>         denseFeatures;
+    1: optional string                            id;
+    2: optional map<string, set<string>>          stringFeatures;
+    3: optional map<string, map<string, double>>  floatFeatures;
+    4: optional map<string, list<double>>         denseFeatures;
 }
 
 

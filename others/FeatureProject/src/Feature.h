@@ -208,7 +208,8 @@ public:
     }
 
     // for dense feature
-    void readDense(std::vector<double> &vec);
+    bool readDense(std::vector<double> &vec);
+    bool readDenseId(std::string &id, std::vector<double> &vec);
 
 private:
     // for dense feature
@@ -308,6 +309,14 @@ public:
             : m_refFv(fv), m_refFiSet(fiSet) {}
 
     operator FeatureVector& () { return m_refFv; }
+
+    const std::string& id() const { return m_refFv.id; }
+
+    void setId(const std::string &_Id)
+    {
+        m_refFv.id = _Id;
+        m_refFv.__isset.id = true;
+    }
 
     // string feature
     bool getFeature(const std::string &name, StringSet *&pRet)
@@ -473,6 +482,7 @@ private:
 
 
 DECLARE_string(conf);
+DECLARE_bool(hasid);
 extern FeatureInfoSet                       g_ftInfoSet;
 extern std::string                          g_strSep;
 
