@@ -113,9 +113,9 @@ namespace Test {
 
         auto &arr = exp.example;
 
-        FeatureVector fv;
         while (true) {
             try {
+                FeatureVector fv;
                 fv.read(protocol.get());
                 arr.emplace_back(std::move(fv));
             } catch (const apache::thrift::transport::TTransportException&) {
@@ -257,9 +257,9 @@ void do_format(std::istringstream &iss)
 
     LOG(INFO) << "Formatting data into " << fmt;
 
-    FeatureVector fv;
     while (true) {
         try {
+            FeatureVector fv;
             fv.read(protocol.get());
             for (auto &pfi : g_ftInfoSet.arrFeature())
                 print_xgboost(ofs, fv, *pfi);           // TODO only support xgboost now
@@ -307,9 +307,9 @@ void do_normalize(std::istringstream &iss)
     auto wrProtocol = boost::make_shared<TBinaryProtocol>(wrTransport);
 
     LOG(INFO) << "Processing data...";
-    FeatureVector fv;
     while (true) {
         try {
+            FeatureVector fv;
             fv.read(rdProtocol.get());
             // k:string; v:map<string, double>
             for (auto &kv : fv.floatFeatures) {
