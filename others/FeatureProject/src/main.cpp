@@ -31,6 +31,9 @@
  *
  * With id
  * GLOG_logtostderr=1 ./feature.bin -op raw2fv -raw ../data/adult.data.id.1000 -hasid -conf ../data/adult_conf.json -newconf ../data/adult_conf_updated.json -fv ../data/adult.fv.id.1000
+ *
+ * xgboost with concur table
+ * GLOG_logtostderr=1 ./feature.bin -op fmt_concur:../data/adult.concur -conf ../data/adult_conf_updated.json -fv ../data/adult.fv.id.1000 -o ../data/adult.xgboost
  */
 
 /*
@@ -47,6 +50,7 @@
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <glog/logging.h>
+#include "concur_table.hpp"
 #include "Feature.h"
 
 
@@ -226,6 +230,49 @@ void print_xgboost(std::ostream &os, const FeatureVector &fv, const FeatureInfo 
 
 
 static
+void print_xgboost_concur(std::ostream &os, const FeatureVector &fv, const FeatureInfo &fi,
+                        const std::map<std::string, double> &probTable)
+{
+    if (!fi.isKeep()) return;
+    if (fi.type() == "string") {
+        const auto it = fv.stringFeatures.find(fi.name());
+        if (it == fv.stringFeatures.end())
+            return;
+        for (const auto &s : it->second) {
+            const auto pSubFt = fi.subFeature(s);
+            if (!pSubFt) continue;
+            auto idx = pSubFt->index();
+            const auto it = probTable.find(pSubFt->name());
+            if (it == probTable.end()) {
+                LOG(ERROR) << "Cannot find " << pSubFt->name() << " in probTable";
+                continue;
+            } // if
+            os << idx << ":" << it->second << " ";
+        } // for
+    } else if (fi.type() == "double" || fi.type() == "datetime") {
+        const auto it = fv.floatFeatures.find(fi.name());
+        if (it == fv.floatFeatures.end())
+            return;
+        for (const auto &kv : it->second) {
+            const auto pSubFt = fi.subFeature(kv.first);
+            if (!pSubFt) continue;
+            auto idx = pSubFt->index();
+            os << idx << ":" << kv.second << " ";
+        } // for
+    } else if (fi.type() == "list_double") {
+        const auto it = fv.denseFeatures.find(fi.name());
+        if (it == fv.denseFeatures.end())
+            return;
+        const auto &arr = it->second;
+        for (std::size_t i = 0; i < arr.size(); ++i) {
+            if (arr[i])
+                os << i + fi.startIdx() << ":" << arr[i] << " ";
+        } // for i
+    } // if
+}
+
+
+static
 void do_format(std::istringstream &iss)
 {
     using namespace std;
@@ -245,7 +292,6 @@ void do_format(std::istringstream &iss)
 
     LOG(INFO) << "Loading data...";
     load_feature_info(FLAGS_conf, g_ftInfoSet);
-    // load_fv(FLAGS_fv);
 
     ofstream ofs(FLAGS_o, ios::out | ios::trunc);
     THROW_RUNTIME_ERROR_IF(!ofs, "do_format() cannot open " << FLAGS_o << " for writtingt!");
@@ -263,6 +309,62 @@ void do_format(std::istringstream &iss)
             fv.read(protocol.get());
             for (auto &pfi : g_ftInfoSet.arrFeature())
                 print_xgboost(ofs, fv, *pfi);           // TODO only support xgboost now
+            ofs << endl;
+        } catch (const apache::thrift::transport::TTransportException&) {
+            break;
+        } // try
+    } // while
+
+    LOG(INFO) << "Formatted data stored in " << FLAGS_o;
+}
+
+
+static
+void do_format_concur(std::istringstream &iss)
+{
+    using namespace std;
+    using namespace apache::thrift;
+    using namespace apache::thrift::protocol;
+    using namespace apache::thrift::transport;
+
+    string      concurFile;
+
+    getline(iss, concurFile, ':');
+    THROW_RUNTIME_ERROR_IF(iss.fail() || iss.bad() || concurFile.empty(),
+            "do_format_concur() cannot read concur file name!");
+
+    THROW_RUNTIME_ERROR_IF(FLAGS_conf.empty(), "No conf file specified!");
+    THROW_RUNTIME_ERROR_IF(FLAGS_fv.empty(), "No fv data file specified!");
+    THROW_RUNTIME_ERROR_IF(FLAGS_o.empty(), "No output data file specified!");
+
+    LOG(INFO) << "Loading concur table...";
+    auto pConcurTable = std::make_shared<ConcurTable>();
+    pConcurTable->loadFromFile(concurFile);
+    std::map<std::string, double>   itemProbTable;
+    pConcurTable->getItemProb(itemProbTable, "_1");
+    pConcurTable.reset();
+    // for (auto &kv : itemProbTable)
+        // cout << kv.first << " : " << kv.second << endl;
+    // exit(0);
+
+    LOG(INFO) << "Loading data...";
+    load_feature_info(FLAGS_conf, g_ftInfoSet);
+
+    ofstream ofs(FLAGS_o, ios::out | ios::trunc);
+    THROW_RUNTIME_ERROR_IF(!ofs, "do_format() cannot open " << FLAGS_o << " for writtingt!");
+
+    auto _transport1 = boost::make_shared<TFileTransport>(FLAGS_fv, true);
+    auto _transport2 = boost::make_shared<TBufferedTransport>(_transport1);
+    auto transport = boost::make_shared<TZlibTransport>(_transport2);
+    auto protocol = boost::make_shared<TBinaryProtocol>(transport);
+
+    g_ftInfoSet.buildIndices();
+    while (true) {
+        try {
+            FeatureVector fv;
+            fv.read(protocol.get());
+            for (auto &pfi : g_ftInfoSet.arrFeature())
+                print_xgboost_concur(ofs, fv, *pfi, itemProbTable);
             ofs << endl;
         } catch (const apache::thrift::transport::TTransportException&) {
             break;
@@ -396,6 +498,7 @@ try {
     OpTable     opTable;
     opTable["raw2fv"] = do_raw2fv;
     opTable["fmt"] = do_format;
+    opTable["fmt_concur"] = do_format_concur;
     opTable["normalize"] = do_normalize;
     opTable["dump"] = do_dump;
 

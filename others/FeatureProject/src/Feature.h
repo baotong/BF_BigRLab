@@ -291,9 +291,43 @@ public:
     std::size_t size() const
     { return m_arrFeatureInfo.size(); }
 
+    std::vector<FeatureInfo::SubFeatureInfo*>& indices()
+    { return m_arrIdxSubFeatures; }
+    const std::vector<FeatureInfo::SubFeatureInfo*>& indices() const
+    { return m_arrIdxSubFeatures; }
+
+    FeatureInfo::SubFeatureInfo* getByIndex(uint32_t idx)
+    {
+        THROW_RUNTIME_ERROR_IF(idx >= size(), "FeatureInfoSet::getByIndex() idx out of range!");
+        return m_arrIdxSubFeatures[idx];
+    }
+
+    void buildIndices()
+    {
+        std::size_t reserveSz = 256;
+
+        auto &pLastFt = m_arrFeatureInfo.back();
+        if (pLastFt->type() == "list_double") {
+            reserveSz = pLastFt->startIdx();
+        } else if (!pLastFt->subFeatures().empty()) {
+            reserveSz = pLastFt->subFeatures().rbegin()->second.index() + 1;
+        } // if
+
+        m_arrIdxSubFeatures.reserve(reserveSz);
+
+        for (auto &pfi : arrFeature()) {
+            for (auto &kv : pfi->subFeatures()) {
+                uint32_t idx = kv.second.index();
+                m_arrIdxSubFeatures.resize(idx + 1, NULL);
+                m_arrIdxSubFeatures[idx] = &(kv.second);
+            } // for kv
+        } // for
+    }
+
 private:
     std::vector<FeatureInfo::pointer>             m_arrFeatureInfo;
     std::map<std::string, FeatureInfo::pointer>   m_mapFeatureInfo;
+    std::vector<FeatureInfo::SubFeatureInfo*>     m_arrIdxSubFeatures;
 };
 
 
