@@ -72,14 +72,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/CMakeFiles /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/CMakeFiles/progress.marks
-	$(MAKE) -f CMakeFiles/Makefile2 all
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/CMakeFiles /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/libs/CMakeFiles/progress.marks
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	$(MAKE) -f CMakeFiles/Makefile2 clean
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/clean
 .PHONY : clean
 
 # The main clean target
@@ -88,31 +88,18 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	$(MAKE) -f CMakeFiles/Makefile2 preinstall
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	$(MAKE) -f CMakeFiles/Makefile2 preinstall
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
-
-#=============================================================================
-# Target rules for targets named feature.bin
-
-# Build rule for target.
-feature.bin: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 feature.bin
-.PHONY : feature.bin
-
-# fast build rule for target.
-feature.bin/fast:
-	$(MAKE) -f main/CMakeFiles/feature.bin.dir/build.make main/CMakeFiles/feature.bin.dir/build
-.PHONY : feature.bin/fast
 
 # Help Target
 help:
@@ -122,7 +109,6 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... feature.bin"
 .PHONY : help
 
 
@@ -134,6 +120,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	$(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

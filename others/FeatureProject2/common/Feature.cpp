@@ -46,107 +46,17 @@ int read_cmd(const std::string &cmd, std::string &output)
 
 void FeatureInfo::parseDense()
 {
-    namespace fs = boost::filesystem;
-    using namespace std;
-
-    fs::path filePath(FLAGS_conf);
-    filePath = filePath.parent_path();
-    filePath /= densePath();
-    m_pathDense.swap(filePath);
-
-    DLOG(INFO) << "Parsing dense file: " << m_pathDense;
-
-    std::ostringstream oss;
-    oss << "tail -1 " << m_pathDense << " | awk \'{print NF}\'" << std::flush;
-
-    string output;
-    int retcode = read_cmd(oss.str(), output);
-    THROW_RUNTIME_ERROR_IF(retcode, "Parse dense file fail!");
-
-    std::istringstream iss(output);
-    iss >> denseLen();
-    THROW_RUNTIME_ERROR_IF(!iss, "Read dense len fail!");
-
-    if (FLAGS_hasid) --denseLen();
-
-    DLOG(INFO) << "Dense length is: " << denseLen();
 }
 
 
 bool FeatureInfo::readDense(std::vector<double> &vec)
 {
-    namespace fs = boost::filesystem;
-    using namespace std;
-
-    if (!m_pDenseFile) {
-        if (m_pathDense.empty()) {
-            fs::path filePath(FLAGS_conf);
-            filePath = filePath.parent_path();
-            filePath /= densePath();
-            m_pathDense.swap(filePath); 
-        } // if
-        m_pDenseFile.reset(new ifstream(m_pathDense.c_str(), ios::in));
-        THROW_RUNTIME_ERROR_IF(!m_pDenseFile, "readDense() cannot open " << m_pathDense << " for reading!");
-    } // if
-
-    // DLOG(INFO) << "readDense() loading " << m_pathDense;
-
-    istream& ifs = *m_pDenseFile;
-    
-    vec.clear();
-    vec.reserve(denseLen());
-
-    string line;
-    if (!getline(ifs, line))
-        return false;
-
-    istringstream iss(line);
-    std::copy(istream_iterator<double>(iss), istream_iterator<double>(),
-            std::back_inserter(vec));
-
-    LOG_IF(WARNING, vec.size() != denseLen()) << "read vector size " << vec.size() << " not equal to parsed size " << denseLen();
-
     return true;
 }
 
 
 bool FeatureInfo::readDenseId(std::string &id, std::vector<double> &vec)
 {
-    namespace fs = boost::filesystem;
-    using namespace std;
-
-    DLOG(INFO) << "readDenseId()...";
-
-    if (!m_pDenseFile) {
-        if (m_pathDense.empty()) {
-            fs::path filePath(FLAGS_conf);
-            filePath = filePath.parent_path();
-            filePath /= densePath();
-            m_pathDense.swap(filePath); 
-        } // if
-        DLOG(INFO) << "New dense file obj";
-        m_pDenseFile.reset(new ifstream(m_pathDense.c_str(), ios::in));
-        THROW_RUNTIME_ERROR_IF(!m_pDenseFile, "readDense() cannot open " << m_pathDense << " for reading!");
-    } // if
-
-    // DLOG(INFO) << "readDense() loading " << m_pathDense;
-
-    istream& ifs = *m_pDenseFile;
-    
-    vec.clear();
-    vec.reserve(denseLen());
-
-    string line;
-    if (!getline(ifs, line))
-        return false;
-
-    DLOG(INFO) << "Read line: " << line;
-    istringstream iss(line);
-    iss >> id;
-    std::copy(istream_iterator<double>(iss), istream_iterator<double>(),
-            std::back_inserter(vec));
-
-    LOG_IF(WARNING, vec.size() != denseLen()) << "read vector size " << vec.size() << " not equal to parsed size " << denseLen();
     return true;
 }
 
@@ -495,10 +405,6 @@ void load_data_id(const std::string &ifname, const std::string &ofname, FeatureI
 
 void load_data(const std::string &ifname, const std::string &ofname, FeatureInfoSet &fiSet)
 {
-    if (FLAGS_hasid)
-        load_data_id(ifname, ofname, fiSet);
-    else
-        load_data_noid(ifname, ofname, fiSet);
 }
 
 #if 0
