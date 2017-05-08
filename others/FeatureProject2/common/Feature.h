@@ -7,7 +7,6 @@
 #include <json/json.h>
 #include <boost/filesystem.hpp>
 #include <FeatureVector_types.h>
-#include <gflags/gflags.h>
 #include "CommDef.h"
 
 

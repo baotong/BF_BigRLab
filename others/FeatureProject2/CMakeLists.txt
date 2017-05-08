@@ -63,12 +63,12 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_DIR}/bin)
 # set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 # set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set(COMM_DIR ${PROJECT_DIR}/common)
-set(COMM_SRC ${COMM_DIR}/*.cpp ${COMM_DIR}gen-cpp/*.cpp)
+set(COMM_SRC ${COMM_DIR}/*.cpp ${COMM_DIR}/gen-cpp/*.cpp)
 
 set(INCLUDE ${COMM_DIR} ${COMM_DIR}/gen-cpp)
 include_directories(${INCLUDE})
 
-set(COMM_LIBS glog jsoncpp)
+set(COMM_LIBS glog jsoncpp boost_filesystem boost_system thrift thriftz z)
 
 add_subdirectory(main)
 add_subdirectory(libs)

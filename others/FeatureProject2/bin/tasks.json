@@ -1,0 +1,10 @@
+{
+    "datadir" : "../data",
+    "tasks" : [
+        {
+            "name" : "raw2fv",
+            "lib"  : "raw2fv.so"
+        }
+    ]
+}
+

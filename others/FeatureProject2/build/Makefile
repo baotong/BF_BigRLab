@@ -114,6 +114,19 @@ feature.bin/fast:
 	$(MAKE) -f main/CMakeFiles/feature.bin.dir/build.make main/CMakeFiles/feature.bin.dir/build
 .PHONY : feature.bin/fast
 
+#=============================================================================
+# Target rules for targets named raw2fv
+
+# Build rule for target.
+raw2fv: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 raw2fv
+.PHONY : raw2fv
+
+# fast build rule for target.
+raw2fv/fast:
+	$(MAKE) -f libs/raw2fv/CMakeFiles/raw2fv.dir/build.make libs/raw2fv/CMakeFiles/raw2fv.dir/build
+.PHONY : raw2fv/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -123,6 +136,7 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... feature.bin"
+	@echo "... raw2fv"
 .PHONY : help
 
 

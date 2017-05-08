@@ -13,8 +13,13 @@
 // # <boost/lexical_cast.hpp>
 // # <glog/logging.h>
 // # "Feature.h"
+#include <glog/logging.h>
+#include <gflags/gflags.h>
 #include "CommDef.h"
-#include <json/json.h>
+#include "FeatureTask.h"
+
+
+DEFINE_string(conf, "", "Info about raw data in json format");
 
 
 namespace Test {
@@ -25,6 +30,14 @@ namespace Test {
 int main(int argc, char **argv)
 try {
     using namespace std;
+
+    google::InitGoogleLogging(argv[0]);
+    gflags::ParseCommandLineFlags(&argc, &argv, true);
+
+
+    auto pTaskMgr = std::make_shared<FeatureTaskMgr>();
+    pTaskMgr->loadConf(FLAGS_conf);
+    pTaskMgr->start();
 
     return 0;
 
