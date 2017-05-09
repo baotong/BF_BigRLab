@@ -15,21 +15,14 @@ class FeatureTaskMgr;
 class FeatureTask {
 public:
     typedef std::shared_ptr<FeatureTask>    pointer;
-public:
-    enum TaskType {OTHER, RAW2FV};
 
 public:
     FeatureTask( const std::string &_Name, FeatureTaskMgr *_Mgr )
-            : m_pTaskMgr(_Mgr), m_enumType(OTHER), m_strName(_Name) {}
+            : m_pTaskMgr(_Mgr), m_strName(_Name) {}
     virtual ~FeatureTask() = default;
 
     virtual void init(const Json::Value &conf);
     virtual void run() = 0;
-
-    void setType(TaskType tp)
-    { m_enumType = tp; }
-    TaskType type() const
-    { return m_enumType; }
 
     const std::string& name() const
     { return m_strName; }
@@ -46,7 +39,6 @@ public:
 
 protected:  
     FeatureTaskMgr      *m_pTaskMgr;
-    TaskType            m_enumType;
     std::string         m_strName, m_strInput, m_strOutput;
 };
 
@@ -74,8 +66,6 @@ public:
     void loadConf(const std::string &fname);
     void start();
 
-    // void setDataDir(const std::string &val)
-    // { m_strDataDir = val; }
     const std::string& dataDir() const
     { return m_strDataDir; }
 
@@ -84,9 +74,9 @@ public:
     const std::string& lastOutput() const
     { return m_strLastOutput; }
 
-    void setFeatureInfoSet(const std::shared_ptr<FeatureInfoSet> &ptr)
+    void setGlobalDesc(const std::shared_ptr<FeatureInfoSet> &ptr)
     { m_pFeatureInfoSet = ptr; }
-    std::shared_ptr<FeatureInfoSet> featureInfoSet() const
+    std::shared_ptr<FeatureInfoSet> globalDesc() const
     { return m_pFeatureInfoSet; }
 
 private:

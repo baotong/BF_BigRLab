@@ -110,4 +110,8 @@ void FeatureTaskMgr::start()
 void FeatureTask::init(const Json::Value &conf)
 {
     DLOG(INFO) << "FeatureTask " << name() << " init...";
+    m_strInput = conf["input"].asString();
+    if (m_strInput.empty())
+        m_strInput = m_pTaskMgr->lastOutput();
+    m_strOutput = conf["output"].asString();
 }

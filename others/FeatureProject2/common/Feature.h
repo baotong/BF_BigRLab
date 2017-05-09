@@ -153,6 +153,11 @@ public:
     // for dense feature
     std::string& densePath() { return m_strDenseFilePath; }
     const std::string& densePath() const { return m_strDenseFilePath; }
+    // boost::filesystem::path& pathDense()
+    // { return m_pathDense; }
+    // std::shared_ptr<std::istream>& denseFile()
+    // { return m_pDenseFile; }
+    // init at building index
     uint32_t& startIdx() { return m_nIdxStart; }
     const uint32_t& startIdx() const { return m_nIdxStart; }
     uint32_t& denseLen() { return m_nDenseLen; }
@@ -194,8 +199,6 @@ public:
             densePath() = jv["filepath"].asString();
             startIdx() = jv["startIdx"].asUInt();
             denseLen() = jv["length"].asUInt();
-            if (!denseLen())
-                parseDense();
         } // if list_double
 
         // sub features
@@ -206,14 +209,6 @@ public:
         } // for
     }
 
-    // for dense feature
-    bool readDense(std::vector<double> &vec);
-    bool readDenseId(std::string &id, std::vector<double> &vec);
-
-private:
-    // for dense feature
-    void parseDense();
-
 private:
     std::string                 m_strName;
     std::string                 m_strType;
@@ -223,8 +218,8 @@ private:
     SubFeatureTable             m_mapSubFeature;
     // for dense feature (list double)
     std::string                 m_strDenseFilePath;
-    boost::filesystem::path     m_pathDense;
-    std::shared_ptr<std::istream>   m_pDenseFile;
+    // boost::filesystem::path     m_pathDense;
+    // std::shared_ptr<std::istream>   m_pDenseFile;
     uint32_t                    m_nIdxStart, m_nDenseLen;
 
 public:

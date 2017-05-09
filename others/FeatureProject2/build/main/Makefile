@@ -115,30 +115,6 @@ feature.bin/fast:
 	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f main/CMakeFiles/feature.bin.dir/build.make main/CMakeFiles/feature.bin.dir/build
 .PHONY : feature.bin/fast
 
-__/common/Feature.o: __/common/Feature.cpp.o
-.PHONY : __/common/Feature.o
-
-# target to build an object file
-__/common/Feature.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f main/CMakeFiles/feature.bin.dir/build.make main/CMakeFiles/feature.bin.dir/__/common/Feature.cpp.o
-.PHONY : __/common/Feature.cpp.o
-
-__/common/Feature.i: __/common/Feature.cpp.i
-.PHONY : __/common/Feature.i
-
-# target to preprocess a source file
-__/common/Feature.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f main/CMakeFiles/feature.bin.dir/build.make main/CMakeFiles/feature.bin.dir/__/common/Feature.cpp.i
-.PHONY : __/common/Feature.cpp.i
-
-__/common/Feature.s: __/common/Feature.cpp.s
-.PHONY : __/common/Feature.s
-
-# target to generate assembly for a file
-__/common/Feature.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f main/CMakeFiles/feature.bin.dir/build.make main/CMakeFiles/feature.bin.dir/__/common/Feature.cpp.s
-.PHONY : __/common/Feature.cpp.s
-
 __/common/FeatureTask.o: __/common/FeatureTask.cpp.o
 .PHONY : __/common/FeatureTask.o
 
@@ -244,9 +220,6 @@ help:
 	@echo "... edit_cache"
 	@echo "... feature.bin"
 	@echo "... rebuild_cache"
-	@echo "... __/common/Feature.o"
-	@echo "... __/common/Feature.i"
-	@echo "... __/common/Feature.s"
 	@echo "... __/common/FeatureTask.o"
 	@echo "... __/common/FeatureTask.i"
 	@echo "... __/common/FeatureTask.s"

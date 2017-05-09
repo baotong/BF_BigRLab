@@ -309,6 +309,7 @@ void read_list_double_feature(FeatureVector &fv,
 }
 
 
+// TODO multi list_double
 static std::string          s_strDenseId;
 static std::vector<double>  s_arrDenseVec;
 static
@@ -321,6 +322,7 @@ void read_list_double_feature_id(FeatureVector &fv,
 
     DLOG(INFO) << "read_list_double_feature_id() for " << hFv.id();
 
+    // 1st time
     if (s_strDenseId.empty())
         fi.readDenseId(s_strDenseId, s_arrDenseVec);
 
