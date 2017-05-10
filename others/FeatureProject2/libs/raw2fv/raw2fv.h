@@ -53,9 +53,8 @@ private:
                 FeatureInfo &ftInfo, const std::size_t lineno);
     void read_list_double_feature_id(FeatureVector &fv, 
                 FeatureInfo &fi, const std::size_t lineno, DenseInfo &denseInfo);
-    // void parseDense(FeatureInfo &fi);
-    // bool readDense(std::vector<double> &vec, FeatureInfo &fi);
-    // bool readDenseId(std::string &id, std::vector<double> &vec, FeatureInfo &fi);
+    void read_list_double_feature(FeatureVector &fv, 
+                FeatureInfo &fi, const std::size_t lineno, DenseInfo &denseInfo);
 
 private:
     std::string         m_strDesc, m_strNewDesc, m_strSep;

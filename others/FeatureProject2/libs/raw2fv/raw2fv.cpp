@@ -159,6 +159,7 @@ void Raw2Fv::run()
     else
         loadDataWithoutId();
     LOG(INFO) << "Feature vector data has written to " << m_strOutput;
+    m_pTaskMgr->setLastOutput(m_strOutput);
 
     // gen index
     LOG(INFO) << "Generating index...";
@@ -338,6 +339,53 @@ void Raw2Fv::loadDataWithId()
 }
 
 
+void Raw2Fv::loadDataWithoutId()
+{
+    using namespace std;
+
+    DLOG(INFO) << "Raw2Fv::loadDataWithId()";
+
+    // s_strDenseId.clear();
+    
+    ifstream ifs(m_strInput, ios::in);
+    THROW_RUNTIME_ERROR_IF(!ifs, 
+            "Raw2Fv::loadDataWithId() cannot open " << m_strInput << " for reading!");
+
+    assert(m_pFeatureInfoSet);
+
+    auto &fiSet = *m_pFeatureInfoSet;
+    const size_t nFeatures = fiSet.size();
+
+    OFvFile ofile(m_strOutput);
+
+    string line;
+    size_t lineCnt = 0;
+    while (getline(ifs, line)) {
+        ++lineCnt;
+        boost::trim_if(line, boost::is_any_of(m_strSep + SPACES));  // NOTE!!! 整行trim应该去掉分割符和默认trim空白字符
+        if (line.empty()) continue;
+        vector<string> strValues;
+        boost::split(strValues, line, boost::is_any_of(m_strSep), boost::token_compress_on);
+        FeatureVector fv;
+        FeatureVectorHandle hFv(fv, fiSet);
+        uint32_t i = 0, j = 0;
+        while (i < strValues.size() && j < nFeatures) {
+            FeatureInfo &fi = *fiSet[j];
+            if (fi.type() == "list_double") {
+                assert(m_arrDenseInfo[j]);
+                read_list_double_feature(fv, fi, lineCnt, *m_arrDenseInfo[j]);
+                ++j;
+            } else {
+                read_feature(fv, strValues[i], fi, lineCnt);
+                ++i; ++j;
+            } // if
+        } // while
+        // DLOG(INFO) << fv;
+        ofile.writeOne(fv);
+    } // while
+}
+
+
 void Raw2Fv::read_feature(FeatureVector &fv, std::string &strField,
             FeatureInfo &ftInfo, const std::size_t lineno)
 {
@@ -472,4 +520,20 @@ void Raw2Fv::read_list_double_feature_id(FeatureVector &fv,
         hFv.setFeature(fi.name(), denseInfo.data());
 }
 
+
+void Raw2Fv::read_list_double_feature(FeatureVector &fv,
+            FeatureInfo &fi, const std::size_t lineno, DenseInfo &denseInfo)
+{
+    using namespace std;
+
+    auto &fiSet = *m_pFeatureInfoSet;
+    FeatureVectorHandle hFv(fv, fiSet);
+
+    // DLOG(INFO) << "Raw2Fv::read_list_double_feature() for " << fi.name();
+
+    denseInfo.readData();
+
+    if (!denseInfo.data().empty())
+        hFv.setFeature(fi.name(), denseInfo.data());
+}
 

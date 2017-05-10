@@ -115,6 +115,19 @@ feature.bin/fast:
 .PHONY : feature.bin/fast
 
 #=============================================================================
+# Target rules for targets named normalize
+
+# Build rule for target.
+normalize: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 normalize
+.PHONY : normalize
+
+# fast build rule for target.
+normalize/fast:
+	$(MAKE) -f libs/normalize/CMakeFiles/normalize.dir/build.make libs/normalize/CMakeFiles/normalize.dir/build
+.PHONY : normalize/fast
+
+#=============================================================================
 # Target rules for targets named raw2fv
 
 # Build rule for target.
@@ -136,6 +149,7 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... feature.bin"
+	@echo "... normalize"
 	@echo "... raw2fv"
 .PHONY : help
 
