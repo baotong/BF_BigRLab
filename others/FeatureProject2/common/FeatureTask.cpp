@@ -57,9 +57,6 @@ void FeatureTaskMgr::loadConf(const std::string &fname)
 {
     DLOG(INFO) << "FeatureTaskMgr::loadConf() " << fname;
 
-    THROW_RUNTIME_ERROR_IF(fname.empty(),
-            "FeatureTaskMgr::loadConf() conf file cannot be empty!");
-
     // read json file
     {
         ifstream ifs(fname, ios::in);

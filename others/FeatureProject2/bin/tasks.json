@@ -4,7 +4,7 @@
         {
             "name" : "raw2fv",
             "lib"  : "raw2fv.so",
-            "input" : "adult.data.1000",
+            "input" : "adult.data.id.1000",
             "output" : "adult.fv.id.1000",
             "desc" : "adult_conf.json",
             "new_desc" : "adult_conf_update.json",

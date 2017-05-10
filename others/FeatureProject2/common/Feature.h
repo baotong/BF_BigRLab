@@ -6,7 +6,7 @@
 #include <limits>
 #include <json/json.h>
 #include <boost/filesystem.hpp>
-#include <FeatureVector_types.h>
+#include "FeatureVector_types.h"
 #include "CommDef.h"
 
 

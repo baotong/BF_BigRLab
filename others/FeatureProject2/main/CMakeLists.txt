@@ -9,5 +9,5 @@ file(GLOB SRC ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp ${COMM_SRC})
 # message(STATUS "SRC=${SRC}")
 
 add_executable(${target} ${SRC})
-target_link_libraries(${target} glog gflags boost_system jsoncpp dl)
+target_link_libraries(${target} ${COMM_LIBS} gflags dl)
 

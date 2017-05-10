@@ -139,6 +139,30 @@ __/common/FeatureTask.cpp.s:
 	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f main/CMakeFiles/feature.bin.dir/build.make main/CMakeFiles/feature.bin.dir/__/common/FeatureTask.cpp.s
 .PHONY : __/common/FeatureTask.cpp.s
 
+__/common/FvFile.o: __/common/FvFile.cpp.o
+.PHONY : __/common/FvFile.o
+
+# target to build an object file
+__/common/FvFile.cpp.o:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f main/CMakeFiles/feature.bin.dir/build.make main/CMakeFiles/feature.bin.dir/__/common/FvFile.cpp.o
+.PHONY : __/common/FvFile.cpp.o
+
+__/common/FvFile.i: __/common/FvFile.cpp.i
+.PHONY : __/common/FvFile.i
+
+# target to preprocess a source file
+__/common/FvFile.cpp.i:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f main/CMakeFiles/feature.bin.dir/build.make main/CMakeFiles/feature.bin.dir/__/common/FvFile.cpp.i
+.PHONY : __/common/FvFile.cpp.i
+
+__/common/FvFile.s: __/common/FvFile.cpp.s
+.PHONY : __/common/FvFile.s
+
+# target to generate assembly for a file
+__/common/FvFile.cpp.s:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f main/CMakeFiles/feature.bin.dir/build.make main/CMakeFiles/feature.bin.dir/__/common/FvFile.cpp.s
+.PHONY : __/common/FvFile.cpp.s
+
 __/common/gen-cpp/FeatureVector_constants.o: __/common/gen-cpp/FeatureVector_constants.cpp.o
 .PHONY : __/common/gen-cpp/FeatureVector_constants.o
 
@@ -223,6 +247,9 @@ help:
 	@echo "... __/common/FeatureTask.o"
 	@echo "... __/common/FeatureTask.i"
 	@echo "... __/common/FeatureTask.s"
+	@echo "... __/common/FvFile.o"
+	@echo "... __/common/FvFile.i"
+	@echo "... __/common/FvFile.s"
 	@echo "... __/common/gen-cpp/FeatureVector_constants.o"
 	@echo "... __/common/gen-cpp/FeatureVector_constants.i"
 	@echo "... __/common/gen-cpp/FeatureVector_constants.s"
