@@ -37,9 +37,13 @@ public:
     const std::string& output() const
     { return m_strOutput; }
 
+// public:
+    // static std::shared_ptr<FeatureInfoSet> LoadDesc(const std::string &fname);
+
 protected:  
     FeatureTaskMgr      *m_pTaskMgr;
     std::string         m_strName, m_strInput, m_strOutput;
+    std::shared_ptr<FeatureInfoSet>     m_pFeatureInfoSet;
 };
 
 

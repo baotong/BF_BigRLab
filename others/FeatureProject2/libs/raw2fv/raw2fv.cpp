@@ -1,10 +1,10 @@
 #include <glog/logging.h>
 #include <fstream>
 #include <cassert>
-#include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
+#include <boost/filesystem.hpp>
 #include "utils/str2time.hpp"
 #include "utils/read_cmd.h"
 #include "CommDef.h"
@@ -128,20 +128,17 @@ void Raw2Fv::init(const Json::Value &conf)
     fs::path dataPath(m_pTaskMgr->dataDir());
 
     THROW_RUNTIME_ERROR_IF(input().empty(), "Raw2Fv::init() input file not specified!");
-    m_strInput = (dataPath / m_strInput).c_str();
-
     THROW_RUNTIME_ERROR_IF(output().empty(), "Raw2Fv::init() output file not specified!");
-    m_strOutput = (dataPath / m_strOutput).c_str();
 
     m_strDesc = conf["desc"].asString();
     THROW_RUNTIME_ERROR_IF(m_strDesc.empty(), "Raw2Fv::init() data desc file not specified!");
-    m_strNewDesc = conf["new_desc"].asString();
-    if (m_strNewDesc.empty()) m_strNewDesc = m_strDesc;
     m_strDesc = (dataPath / m_strDesc).c_str();
-    m_strNewDesc = (dataPath / m_strNewDesc).c_str();
+
+    m_strNewDesc = conf["new_desc"].asString();
+    if (!m_strNewDesc.empty())
+        m_strNewDesc = (dataPath / m_strNewDesc).c_str();
 
     m_bHasId = conf["hasid"].asBool();
-    m_bSetGlobalDesc = conf["set_global_desc"].asBool();
 }
 
 
@@ -161,18 +158,17 @@ void Raw2Fv::run()
     LOG(INFO) << "Feature vector data has written to " << m_strOutput;
     m_pTaskMgr->setLastOutput(m_strOutput);
 
-    // gen index
-    LOG(INFO) << "Generating index...";
-    genIdx();
+    if (!m_strNewDesc.empty()) {
+        // gen index
+        LOG(INFO) << "Generating index...";
+        genIdx();
 
-    if (m_bSetGlobalDesc) {
         LOG(INFO) << "Updating global data description...";
         m_pTaskMgr->setGlobalDesc(m_pFeatureInfoSet);
+        // dump new desc
+        writeDesc();
+        LOG(INFO) << "New data description file has written to " << m_strNewDesc;
     } // if
-
-    // dump new desc
-    writeDesc();
-    LOG(INFO) << "New data description file has written to " << m_strNewDesc;
 }
 
 
@@ -218,7 +214,6 @@ void Raw2Fv::genIdx()
 
 void Raw2Fv::loadDesc()
 {
-    namespace fs = boost::filesystem;
     using namespace std;
 
     DLOG(INFO) << "Raw2Fv::loadDesc() " << m_strDesc;

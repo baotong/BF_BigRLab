@@ -8,8 +8,25 @@
             "output" : "adult.fv.id.1000",
             "desc" : "adult_conf.json",
             "new_desc" : "adult_conf_update.json",
-            "hasid" : true,
-            "set_global_desc" : true
+            "hasid" : true
+        },
+        {
+            "name" : "normalize",
+            "lib" : "normalize.so",
+            "output" : "adult.fv.id.1000.normalized"
+        },
+        {
+            "name" : "format output xgboost",
+            "lib" : "format_output.so",
+            "output" : "adult.id.1000.formatted"
+        },
+        {
+            "name" : "format output xgboost concur",
+            "lib" : "format_output_concur.so",
+            "input" : "adult.fv.id.1000.normalized",
+            "output" : "adult.id.1000.formatted.concur",
+            "concur_file" : "adult.concur",
+            "mark" : "_1"
         }
     ]
 }

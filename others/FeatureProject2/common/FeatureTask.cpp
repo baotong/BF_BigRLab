@@ -1,5 +1,6 @@
 #include <fstream>
 #include <glog/logging.h>
+#include <boost/filesystem.hpp>
 #include <dlfcn.h>
 #include "FeatureTask.h"
 
@@ -106,9 +107,21 @@ void FeatureTaskMgr::start()
 
 void FeatureTask::init(const Json::Value &conf)
 {
+    namespace fs = boost::filesystem;
+
     DLOG(INFO) << "FeatureTask " << name() << " init...";
+
+    fs::path dataPath(m_pTaskMgr->dataDir());
+
     m_strInput = conf["input"].asString();
     if (m_strInput.empty())
         m_strInput = m_pTaskMgr->lastOutput();
+    else
+        m_strInput = (dataPath / m_strInput).c_str();
+
     m_strOutput = conf["output"].asString();
+    if (!m_strOutput.empty())
+        m_strOutput = (dataPath / m_strOutput).c_str();
+
+    m_pFeatureInfoSet = m_pTaskMgr->globalDesc();
 }

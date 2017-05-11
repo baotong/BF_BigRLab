@@ -1,18 +1,7 @@
 /*
- * trim sep+SPACES, split only sep
+ * GLOG_logtostderr=1 ./feature.bin -conf tasks.json
+ * GLOG_logtostderr=1 ./feature.bin -dump xx.fv [-top 100]
  */
-// # <fstream>
-// # <boost/smart_ptr.hpp>
-// # <thrift/protocol/TBinaryProtocol.h>
-// # <thrift/protocol/TCompactProtocol.h>
-// # <thrift/transport/TFileTransport.h>
-// # <thrift/transport/TFDTransport.h>
-// # <thrift/transport/TBufferTransports.h>
-// # <thrift/transport/TZlibTransport.h>
-// # <boost/format.hpp>
-// # <boost/lexical_cast.hpp>
-// # <glog/logging.h>
-// # "Feature.h"
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 #include <climits>

@@ -115,6 +115,32 @@ feature.bin/fast:
 .PHONY : feature.bin/fast
 
 #=============================================================================
+# Target rules for targets named format_output
+
+# Build rule for target.
+format_output: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 format_output
+.PHONY : format_output
+
+# fast build rule for target.
+format_output/fast:
+	$(MAKE) -f libs/format_output/CMakeFiles/format_output.dir/build.make libs/format_output/CMakeFiles/format_output.dir/build
+.PHONY : format_output/fast
+
+#=============================================================================
+# Target rules for targets named format_output_concur
+
+# Build rule for target.
+format_output_concur: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 format_output_concur
+.PHONY : format_output_concur
+
+# fast build rule for target.
+format_output_concur/fast:
+	$(MAKE) -f libs/format_output_concur/CMakeFiles/format_output_concur.dir/build.make libs/format_output_concur/CMakeFiles/format_output_concur.dir/build
+.PHONY : format_output_concur/fast
+
+#=============================================================================
 # Target rules for targets named normalize
 
 # Build rule for target.
@@ -149,6 +175,8 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... feature.bin"
+	@echo "... format_output"
+	@echo "... format_output_concur"
 	@echo "... normalize"
 	@echo "... raw2fv"
 .PHONY : help
