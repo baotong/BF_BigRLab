@@ -6,8 +6,9 @@
 /*
  * TODO
  * autoremove
- * update global FeatureInfoSet
  */
+
+namespace FeatureProject {
 
 
 class FeatureTaskMgr;
@@ -90,6 +91,8 @@ private:
     std::shared_ptr<FeatureInfoSet>     m_pFeatureInfoSet;
 };
 
+
+} // namespace FeatureProject
 
 
 #endif /* _FEATURE_TASK_H_ */

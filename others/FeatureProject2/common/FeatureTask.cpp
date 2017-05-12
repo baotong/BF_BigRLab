@@ -5,8 +5,6 @@
 #include "FeatureTask.h"
 
 
-using namespace std;
-
 // 要求函数指针名和库中的函数sym名一样
 #define LOAD_FUNC( handle, name ) \
     do { \
@@ -19,6 +17,10 @@ using namespace std;
         } \
     } while(0) 
 
+
+namespace FeatureProject {
+
+using namespace std;
 
 FeatureTaskMgr::TaskLib::~TaskLib()
 {
@@ -125,3 +127,7 @@ void FeatureTask::init(const Json::Value &conf)
 
     m_pFeatureInfoSet = m_pTaskMgr->globalDesc();
 }
+
+
+} // namespace FeatureProject
+

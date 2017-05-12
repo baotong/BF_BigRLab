@@ -9,7 +9,7 @@
 
 #include "FeatureVector_types.h"
 
-
+namespace FeatureProject {
 
 template <class Protocol_>
 uint32_t FeatureVector::read(Protocol_* iprot) {
@@ -245,6 +245,6 @@ uint32_t FeatureVector::write(Protocol_* oprot) const {
   return xfer;
 }
 
-
+} // namespace
 
 #endif

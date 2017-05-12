@@ -14,6 +14,9 @@
 #define VALID_TYPES     {"string", "double", "list_double", "datetime"}
 
 
+namespace FeatureProject {
+
+
 class FeatureInfo {
 public:
     typedef std::shared_ptr<FeatureInfo>  pointer;
@@ -466,14 +469,7 @@ private:
 
 
 
-// DECLARE_string(conf);
-// DECLARE_bool(hasid);
-// extern FeatureInfoSet                       g_ftInfoSet;
-// extern std::string                          g_strSep;
-
-// extern void load_feature_info(const std::string &fname, FeatureInfoSet &fiSet);
-// extern void update_feature_info(const std::string &fname, const FeatureInfoSet &fiSet);
-// extern void load_data(const std::string &ifname, const std::string &ofname, FeatureInfoSet &fiSet);
+} // namespace FeatureProject
 
 
 #endif /* ifndef _FEATURE_H_ */

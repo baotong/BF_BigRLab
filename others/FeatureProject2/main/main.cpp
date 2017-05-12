@@ -9,6 +9,8 @@
 #include "FeatureTask.h"
 #include "FvFile.h"
 
+using namespace FeatureProject;
+
 
 DEFINE_string(conf, "", "Info about raw data in json format");
 DEFINE_string(dump, "", "Print fv file");

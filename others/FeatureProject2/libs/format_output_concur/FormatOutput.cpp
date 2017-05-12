@@ -65,14 +65,12 @@ void FormatOutput::doWork()
     ofstream ofs(m_strOutput, ios::out | ios::trunc);
     THROW_RUNTIME_ERROR_IF(!ofs, "FormatOutput::doWork() cannot open " << m_strOutput << " for writtingt!");
 
-    std::shared_ptr<FeatureVector> pfv(new FeatureVector);
-
+    FeatureVector fv;
     IFvFile ifv(m_strInput);
-    while (ifv.readOne(*pfv)) {
+    while (ifv.readOne(fv)) {
         for (auto &pfi : m_pFeatureInfoSet->arrFeature())
-            printFeature(ofs, *pfv, *pfi);
+            printFeature(ofs, fv, *pfi);
         ofs << endl;
-        pfv.reset(new FeatureVector);
     } // while
 }
 

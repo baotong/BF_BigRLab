@@ -19,7 +19,7 @@ protected:
 class IFvFile : public FvFile {
 public:
     IFvFile(const std::string &fname);
-    bool readOne(FeatureVector &out) const;
+    bool readOne(FeatureProject::FeatureVector &out) const;
 };
 
 
@@ -27,7 +27,7 @@ class OFvFile : public FvFile {
 public:
     OFvFile(const std::string &fname);
     ~OFvFile();
-    void writeOne(const FeatureVector &fv) const;
+    void writeOne(const FeatureProject::FeatureVector &fv) const;
     void finish();
 private:
     bool    m_bFinish;

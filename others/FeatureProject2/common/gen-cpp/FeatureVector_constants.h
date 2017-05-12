@@ -9,7 +9,7 @@
 
 #include "FeatureVector_types.h"
 
-
+namespace FeatureProject {
 
 class FeatureVectorConstants {
  public:
@@ -19,6 +19,6 @@ class FeatureVectorConstants {
 
 extern const FeatureVectorConstants g_FeatureVector_constants;
 
-
+} // namespace
 
 #endif

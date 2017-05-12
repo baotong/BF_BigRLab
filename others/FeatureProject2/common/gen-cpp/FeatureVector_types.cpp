@@ -11,7 +11,7 @@
 
 #include <thrift/TToString.h>
 
-
+namespace FeatureProject {
 
 
 FeatureVector::~FeatureVector() throw() {
@@ -87,4 +87,4 @@ void FeatureVector::printTo(std::ostream& out) const {
   out << ")";
 }
 
-
+} // namespace

@@ -3,6 +3,8 @@
 
 #include "FeatureTask.h"
 
+using namespace FeatureProject;
+
 extern "C" {
     extern FeatureTask* create_instance(const std::string &name, FeatureTaskMgr *mgr);
 }

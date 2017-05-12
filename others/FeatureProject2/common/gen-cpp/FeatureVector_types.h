@@ -17,7 +17,7 @@
 #include <thrift/cxxfunctional.h>
 
 
-
+namespace FeatureProject {
 
 class FeatureVector;
 
@@ -71,7 +71,7 @@ inline std::ostream& operator<<(std::ostream& out, const FeatureVector& obj)
   return out;
 }
 
-
+} // namespace
 
 #include "FeatureVector_types.tcc"
 

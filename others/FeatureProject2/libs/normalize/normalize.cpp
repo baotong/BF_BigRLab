@@ -47,13 +47,12 @@ void Normalize::doNormalize()
 {
     using namespace std;
 
-    std::shared_ptr<FeatureVector> pfv(new FeatureVector);
-
     IFvFile ifv(m_strInput);
     OFvFile ofv(m_strOutput);
 
-    while (ifv.readOne(*pfv)) {
-        for (auto &kv : pfv->floatFeatures) {
+    FeatureVector fv;
+    while (ifv.readOne(fv)) {
+        for (auto &kv : fv.floatFeatures) {
             const string &ftName = kv.first;
             auto pFtInfo = m_pFeatureInfoSet->get(ftName);
             THROW_RUNTIME_ERROR_IF(!pFtInfo,
@@ -74,8 +73,7 @@ void Normalize::doNormalize()
                 } // if range
             } // for subkv
         } // for kv
-        ofv.writeOne(*pfv);
-        pfv.reset(new FeatureVector);
+        ofv.writeOne(fv);
     } // while
 }
 

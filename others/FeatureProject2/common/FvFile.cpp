@@ -6,6 +6,9 @@
 #include <thrift/transport/TZlibTransport.h>
 
 
+using namespace FeatureProject;
+
+
 IFvFile::IFvFile(const std::string &fname) : FvFile(fname)
 {
     using namespace std;
@@ -23,7 +26,9 @@ IFvFile::IFvFile(const std::string &fname) : FvFile(fname)
 bool IFvFile::readOne(FeatureVector &out) const
 {
     try {
-        out.read(m_pProtocol.get());
+        FeatureVector fv;
+        fv.read(m_pProtocol.get());
+        FeatureProject::swap(fv, out);
     } catch (const apache::thrift::transport::TTransportException&) {
         return false;
     } // try

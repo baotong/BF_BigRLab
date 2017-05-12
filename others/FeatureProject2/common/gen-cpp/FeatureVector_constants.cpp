@@ -6,12 +6,12 @@
  */
 #include "FeatureVector_constants.h"
 
-
+namespace FeatureProject {
 
 const FeatureVectorConstants g_FeatureVector_constants;
 
 FeatureVectorConstants::FeatureVectorConstants() {
 }
 
-
+} // namespace
 

@@ -3,6 +3,8 @@
 
 #include "FeatureTask.h"
 
+using namespace FeatureProject;
+
 extern "C" {
     extern FeatureTask* create_instance(const std::string &name, FeatureTaskMgr *mgr);
 }
@@ -20,8 +22,6 @@ private:
     void printFeature(std::ostream &os, const FeatureVector &fv, const FeatureInfo &fi);
     void loadDesc(const std::string &fname);
 };
-
-
 
 
 #endif /* _FORMAT_OUTPUT_H_ */

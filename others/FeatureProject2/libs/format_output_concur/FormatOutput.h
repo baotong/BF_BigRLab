@@ -3,6 +3,8 @@
 
 #include "FeatureTask.h"
 
+using namespace FeatureProject;
+
 extern "C" {
     extern FeatureTask* create_instance(const std::string &name, FeatureTaskMgr *mgr);
 }
@@ -23,8 +25,6 @@ private:
     std::string     m_strConcur, m_strMark;
     std::map<std::string, double>   m_ItemProbTable;
 };
-
-
 
 
 #endif /* _FORMAT_OUTPUT_H_ */
