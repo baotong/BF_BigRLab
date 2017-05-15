@@ -1,8 +1,8 @@
 /*
  * c++ -o /tmp/test article2vec.cpp -lglog -lgflags -std=c++11 -pthread -g
  *
- * GLOG_log_dir="." ./article2vec.bin -method wordvec -input tagresult.txt -ref vectors.txt -nclasses 500 -output article_vectors.txt
- * GLOG_log_dir="." ./article2vec.bin -method cluster -input tagresult.txt -ref classes.txt -nclasses 500 -output article_vectors.txt
+ * GLOG_log_dir="." ./article2vec.bin -method wordvec -input tagresult.txt -ref vectors.txt -output article_vectors.txt
+ * GLOG_log_dir="." ./article2vec.bin -method cluster -input tagresult.txt -ref classes.txt -output article_vectors.txt -hasid true
  *
  * For DEBUG cluster
  * GLOG_logtostderr=1 ./article2vec.bin -method cluster -input test.input -ref classes.txt -nclasses 500 -output article_vectors.txt
@@ -51,18 +51,11 @@ DEFINE_string(method, "", "wordvec, cluster, or tfidf");
 DEFINE_string(input, "", "segmented corpus filename");
 DEFINE_string(ref, "", "ref file contains word vectors or word clusterids or word idf");
 DEFINE_string(output, "", "file to keep the result");
+DEFINE_bool(hasid, false, "Whether has id or not");
 
 namespace {
 
 using namespace std;
-
-static
-bool validate_nclasses(const char *flagname, gflags::int32 value)
-{
-    RET_MSG_VAL_IF(value <= 0, false, "Invalid value for " << flagname);
-    return true;
-}
-static bool nclasses_dummy = gflags::RegisterFlagValidator(&FLAGS_nclasses, &validate_nclasses);
 
 static
 bool validate_string_args(const char *flagname, const std::string &value)
@@ -238,12 +231,19 @@ void do_with_wordvec( WordVecTable &wordVecTable )
     // 重复单词重复统计 yes
     // 若出现vector表中没有的单词，不计入求均值的size分母 yes
     // 空行直接跳过，还是返回全0? yes
-    string line;
+    string line, id;
     vector<float> result;
     result.reserve(FLAGS_nclasses);
     while (getline(*ifs, line)) {
+        if (FLAGS_hasid) {
+            istringstream iss(line);
+            iss >> id;
+            getline(iss, line);
+        } // if
         boost::trim(line);
         processLine(line, result);
+        if (FLAGS_hasid) 
+            *ofs << id << "\t";
         print_container(*ofs, result);
     } // while
 }
@@ -298,12 +298,19 @@ void do_with_cluster(WordClusterTable &clusterTable)
             v.get<1>() = (float)(v.get<0>());
     };
 
-    string line;
+    string line, id;
     vector<float> result;
     result.reserve(FLAGS_nclasses);
     while (getline(*ifs, line)) {
+        if (FLAGS_hasid) {
+            istringstream iss(line);
+            iss >> id;
+            getline(iss, line);
+        } // if
         boost::trim(line);
         processLine(line, result);
+        if (FLAGS_hasid) 
+            *ofs << id << "\t";
         print_container(*ofs, result);
     } // while
 }
@@ -456,7 +463,7 @@ int main(int argc, char **argv)
     };
 
     try {
-        get_nclasses();
+        FLAGS_nclasses = get_nclasses();
         switch (g_eMethod) {
         case WORD_VECTOR:
             _do_with_wordvec();

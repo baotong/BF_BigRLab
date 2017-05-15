@@ -1,0 +1,15 @@
+{
+    "datadir" : "../data",
+    "tasks" : [
+        {
+            "name" : "article2vec",
+            "lib"  : "article2vec.so",
+            "input" : "user_search_content.txt",
+            "output" : "user_search_vector.txt",
+            "hasid" : true,
+            "method" : "cluster",
+            "ref" : "rnn_clusterID_index.txt"
+        }
+    ]
+}
+
