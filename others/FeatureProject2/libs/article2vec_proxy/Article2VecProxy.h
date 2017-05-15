@@ -13,13 +13,12 @@ extern "C" {
 class Article2vecProxy : public FeatureTask {
 public:
     Article2vecProxy(const std::string &name, FeatureTaskMgr *mgr)
-            : FeatureTask(name, mgr), m_bHasId(true) {}
+            : FeatureTask(name, mgr) {}
 
     void init(const Json::Value &conf) override;
     void run() override;
 private:
     std::string     m_strMethod, m_strRef;
-    bool            m_bHasId;
 };
 
 #endif /* _ARTICLE2VEC_PROXY_H_ */

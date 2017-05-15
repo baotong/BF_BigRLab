@@ -19,7 +19,7 @@ public:
 
 public:
     FeatureTask( const std::string &_Name, FeatureTaskMgr *_Mgr )
-            : m_pTaskMgr(_Mgr), m_strName(_Name) {}
+            : m_pTaskMgr(_Mgr), m_strName(_Name), m_bAutoRemove(false), m_bHasId(true) {}
     virtual ~FeatureTask() = default;
 
     virtual void init(const Json::Value &conf);
@@ -38,13 +38,21 @@ public:
     const std::string& output() const
     { return m_strOutput; }
 
-// public:
-    // static std::shared_ptr<FeatureInfoSet> LoadDesc(const std::string &fname);
+    bool autoRemove() const { return m_bAutoRemove; }
+    void setAutoRemove(bool flag)
+    { m_bAutoRemove = flag; }
+
+    bool hasId() const { return m_bHasId; }
+
+protected:
+    static std::string gen_tmp_output(const std::string &baseName);
+    static void remove_file(const std::string &path);
 
 protected:  
     FeatureTaskMgr      *m_pTaskMgr;
     std::string         m_strName, m_strInput, m_strOutput;
     std::shared_ptr<FeatureInfoSet>     m_pFeatureInfoSet;
+    bool                m_bAutoRemove, m_bHasId;
 };
 
 
@@ -66,7 +74,8 @@ public:
     }; // TaskLib
 
 public:
-    FeatureTaskMgr() : m_strDataDir(".") {}
+    FeatureTaskMgr() : m_strDataDir("."), 
+                m_bGlobalAutoRemove(false), m_bGlobalHasId(true) {}
 
     void loadConf(const std::string &fname);
     void start();
@@ -84,10 +93,14 @@ public:
     std::shared_ptr<FeatureInfoSet> globalDesc() const
     { return m_pFeatureInfoSet; }
 
+    bool globalAutoRemove() const { return m_bGlobalAutoRemove; }
+    bool globalHasId() const { return m_bGlobalHasId; }
+
 private:
     Json::Value         m_jsConf;
     std::string         m_strDataDir;
     std::string         m_strLastOutput;    // 上一个task的输出文件
+    bool                m_bGlobalAutoRemove, m_bGlobalHasId;
     std::shared_ptr<FeatureInfoSet>     m_pFeatureInfoSet;
 };
 

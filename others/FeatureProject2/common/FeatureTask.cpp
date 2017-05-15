@@ -1,6 +1,8 @@
 #include <fstream>
 #include <glog/logging.h>
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
+#include <algorithm>
 #include <dlfcn.h>
 #include "FeatureTask.h"
 
@@ -79,6 +81,15 @@ void FeatureTaskMgr::loadConf(const std::string &fname)
         if (!str.empty())
             m_strDataDir = str;
     } // datadir
+
+    // autoremove default false
+    m_bGlobalAutoRemove = m_jsConf["autoremove"].asBool();
+
+    // hasId default true
+    {
+        auto &jv = m_jsConf["hasid"];
+        if (!!jv) m_bGlobalHasId = jv.asBool();
+    } // hasid
 }
 
 
@@ -103,7 +114,38 @@ void FeatureTaskMgr::start()
         LOG(INFO) << "Processing task " << pTask->name() << "...";
         pTask->run();
         LOG(INFO) << "Task " << pTask->name() << " done!";
+        LOG(INFO) << endl;
     } // for i
+
+    LOG(INFO) << "All tasks done successfully!";
+}
+
+
+std::string FeatureTask::gen_tmp_output(const std::string &baseName)
+{
+    using namespace std;
+
+    static uint32_t     no = 0;
+
+    string name = baseName;
+    std::replace_if(name.begin(), name.end(), boost::is_any_of(SPACES), '_');
+    ostringstream oss;
+    oss << name << "_" << ++no << ".out" << flush;
+
+    return oss.str();
+}
+
+
+void FeatureTask::remove_file(const std::string &path)
+{
+    namespace fs = boost::filesystem;
+
+    boost::system::error_code ec;
+    try {
+        fs::remove(path, ec);
+    } catch (const std::exception &ex) {
+        LOG(ERROR) << "Cannot remove " << path << " " << ec;
+    } // try
 }
 
 
@@ -122,8 +164,23 @@ void FeatureTask::init(const Json::Value &conf)
         m_strInput = (dataPath / m_strInput).c_str();
 
     m_strOutput = conf["output"].asString();
-    if (!m_strOutput.empty())
-        m_strOutput = (dataPath / m_strOutput).c_str();
+    if (m_strOutput.empty())
+        m_strOutput = gen_tmp_output(name());
+    m_strOutput = (dataPath / m_strOutput).c_str();
+
+    // auto remove
+    {
+        const auto &jv = conf["autoremove"];
+        if (!jv) m_bAutoRemove = m_pTaskMgr->globalAutoRemove();
+        else m_bAutoRemove = jv.asBool();
+    } // auto remove
+
+    // hasid
+    {
+        const auto &jv = conf["hasid"];
+        if (!jv) m_bHasId = m_pTaskMgr->globalHasId();
+        else m_bHasId = jv.asBool();
+    } // hasid
 
     m_pFeatureInfoSet = m_pTaskMgr->globalDesc();
 }

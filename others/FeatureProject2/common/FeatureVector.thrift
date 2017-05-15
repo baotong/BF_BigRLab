@@ -11,3 +11,8 @@ struct FeatureVector {
     4: optional map<string, list<double>>         denseFeatures;
 }
 
+
+struct FeatureIndex {
+    1: map<string, map<string, i32>>    index;
+}
+

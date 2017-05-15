@@ -137,8 +137,6 @@ void Raw2Fv::init(const Json::Value &conf)
     m_strNewDesc = conf["new_desc"].asString();
     if (!m_strNewDesc.empty())
         m_strNewDesc = (dataPath / m_strNewDesc).c_str();
-
-    m_bHasId = conf["hasid"].asBool();
 }
 
 

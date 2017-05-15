@@ -23,12 +23,6 @@ void Article2vecProxy::init(const Json::Value &conf)
     THROW_RUNTIME_ERROR_IF(input().empty(), "Article2vecProxy::init() input file not specified!");
     THROW_RUNTIME_ERROR_IF(output().empty(), "Article2vecProxy::init() output file not specified!");
 
-    // hasid
-    {
-        const auto &jv = conf["hasid"];
-        if (!!jv) m_bHasId = jv.asBool();
-    } // hasid
-
     fs::path dataPath(m_pTaskMgr->dataDir());
 
     m_strRef = conf["ref"].asString();

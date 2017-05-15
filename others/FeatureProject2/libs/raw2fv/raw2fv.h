@@ -34,7 +34,7 @@ private:
 class Raw2Fv : public FeatureTask {
 public:
     Raw2Fv(const std::string &name, FeatureTaskMgr *mgr)
-            : FeatureTask(name, mgr), m_bHasId(false) {}
+            : FeatureTask(name, mgr) {}
 
     void init(const Json::Value &conf) override;
     void run() override;
@@ -60,7 +60,6 @@ private:
 
 private:
     std::string         m_strDesc, m_strNewDesc, m_strSep;
-    bool                m_bHasId;
     std::vector<DenseInfo::pointer>     m_arrDenseInfo;
 };
 

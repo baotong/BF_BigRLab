@@ -18,6 +18,14 @@ DEFINE_int32(top, 0, "dump top k lines");
 
 
 namespace Test {
+using namespace std;
+
+// void test_gen_tmp_output()
+// {
+    // cout << FeatureTask::gen_tmp_output("format output") << endl;
+    // cout << FeatureTask::gen_tmp_output("format output concur") << endl;
+    // cout << FeatureTask::gen_tmp_output("formatOutput") << endl;
+// }
 } // namespace Test
 
 
@@ -41,6 +49,9 @@ void do_dump(const std::string &fname, int _TopK)
 int main(int argc, char **argv)
 try {
     using namespace std;
+
+    // Test::test_gen_tmp_output();
+    // exit(0);
 
     google::InitGoogleLogging(argv[0]);
     gflags::ParseCommandLineFlags(&argc, &argv, true);

@@ -41,6 +41,11 @@ void FormatOutput::run()
     doWork();
     LOG(INFO) << "Result data has written to " << m_strOutput;
     // m_pTaskMgr->setLastOutput(m_strOutput);
+
+    if (autoRemove()) {
+        LOG(INFO) << "Removing " << m_strInput;
+        remove_file(m_strInput);
+    } // if
 }
 
 
