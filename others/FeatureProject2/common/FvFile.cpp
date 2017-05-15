@@ -5,8 +5,7 @@
 #include <thrift/transport/TBufferTransports.h>
 #include <thrift/transport/TZlibTransport.h>
 
-
-using namespace FeatureProject;
+namespace FeatureProject {
 
 
 IFvFile::IFvFile(const std::string &fname) : FvFile(fname)
@@ -79,4 +78,8 @@ void OFvFile::finish()
 
 void OFvFile::writeOne(const FeatureVector &fv) const
 { fv.write(m_pProtocol.get()); }
+
+
+} // namespace FeatureProject
+
 

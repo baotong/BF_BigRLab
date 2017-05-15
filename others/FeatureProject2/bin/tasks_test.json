@@ -2,6 +2,12 @@
     "datadir" : "../data",
     "tasks" : [
         {
+            "name" : "article2vec",
+            "lib" : "article2vec.so",
+            "input" : "search_txt",
+            "output" : "vectors.txt"
+        },
+        {
             "name" : "raw2fv",
             "lib"  : "raw2fv.so",
             "input" : "adult.data.id.1000",

@@ -115,6 +115,19 @@ feature.bin/fast:
 .PHONY : feature.bin/fast
 
 #=============================================================================
+# Target rules for targets named article2vec.bin
+
+# Build rule for target.
+article2vec.bin: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 article2vec.bin
+.PHONY : article2vec.bin
+
+# fast build rule for target.
+article2vec.bin/fast:
+	$(MAKE) -f libs/article2vec/CMakeFiles/article2vec.bin.dir/build.make libs/article2vec/CMakeFiles/article2vec.bin.dir/build
+.PHONY : article2vec.bin/fast
+
+#=============================================================================
 # Target rules for targets named format_output
 
 # Build rule for target.
@@ -175,6 +188,7 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... feature.bin"
+	@echo "... article2vec.bin"
 	@echo "... format_output"
 	@echo "... format_output_concur"
 	@echo "... normalize"

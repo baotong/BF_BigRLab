@@ -5,6 +5,7 @@
 #include <boost/smart_ptr.hpp>
 #include <thrift/protocol/TBinaryProtocol.h>
 
+namespace FeatureProject {
 
 class FvFile {
 public:
@@ -33,6 +34,8 @@ private:
     bool    m_bFinish;
 };
 
+
+} // namespace FeatureProject
 
 #endif /* _FV_FILE_H_ */
 
