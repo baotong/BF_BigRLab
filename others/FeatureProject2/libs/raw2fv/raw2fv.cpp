@@ -16,108 +16,6 @@ FeatureTask* create_instance(const std::string &name, FeatureTaskMgr *mgr)
 { return new Raw2Fv(name, mgr); }
 
 
-DenseInfo::DenseInfo(FeatureInfo &fi, const std::string &dataDir, bool _HasId)
-        : m_bHasId(_HasId)
-{
-    namespace fs = boost::filesystem;
-    using namespace std;
-
-    fs::path densePath(dataDir);
-    densePath /= fi.densePath();
-
-    m_nLen = fi.denseLen();
-    if (!m_nLen) {
-        m_nLen = getDenseLen(densePath.c_str());
-        fi.denseLen() = m_nLen;
-    } // if
-
-    m_pDenseFile.reset(new ifstream(densePath.c_str(), ios::in));
-    THROW_RUNTIME_ERROR_IF(!(*m_pDenseFile),
-            "DenseInfo constructor cannot open " << densePath << " for reading!");
-}
-
-
-uint32_t DenseInfo::getDenseLen(const char *fname)
-{
-    using namespace std;
-
-    DLOG(INFO) << "DenseInfo::getDenseLen() " << fname;
-
-    uint32_t retval = 0;
-
-    std::ostringstream oss;
-    oss << "head -1 " << fname << " | awk \'{print NF}\'" << std::flush;
-
-    string output;
-    int retcode = Utils::read_cmd(oss.str(), output);
-    THROW_RUNTIME_ERROR_IF(retcode, "Parse dense file fail!");
-
-    std::istringstream iss(output);
-    iss >> retval;
-    THROW_RUNTIME_ERROR_IF(!iss, "Read dense len fail!");
-
-    if (m_bHasId) --retval;
-
-    DLOG(INFO) << "Dense length is: " << retval;
-    return retval;
-}
-
-
-bool DenseInfo::readData()
-{
-    if (m_bHasId)
-        return readDataId();
-    else
-        return readDataNoId();
-}
-
-
-bool DenseInfo::readDataNoId()
-{
-    using namespace std;
-
-    m_vecData.clear();
-    m_vecData.reserve(m_nLen);
-
-    string line;
-    if (!getline(*m_pDenseFile, line))
-        return false;
-
-    istringstream iss(line);
-    std::copy(istream_iterator<double>(iss), istream_iterator<double>(),
-            std::back_inserter(m_vecData));
-
-    LOG_IF(WARNING, m_vecData.size() != m_nLen) <<
-        "read vector size " << m_vecData.size() << " not equal to parsed size " << m_nLen;
-
-    return true;
-}
-
-
-bool DenseInfo::readDataId()
-{
-    using namespace std;
-
-    m_vecData.clear();
-    m_vecData.reserve(m_nLen);
-
-    string line;
-    if (!getline(*m_pDenseFile, line))
-        return false;
-
-    istringstream iss(line);
-    iss >> m_strId;
-    if (!iss) return false;
-    std::copy(istream_iterator<double>(iss), istream_iterator<double>(),
-            std::back_inserter(m_vecData));
-
-    LOG_IF(WARNING, m_vecData.size() != m_nLen) <<
-        "read vector size " << m_vecData.size() << " not equal to parsed size " << m_nLen;
-
-    return true;
-}
-
-
 void Raw2Fv::init(const Json::Value &conf)
 {
     namespace fs = boost::filesystem;
@@ -133,10 +31,6 @@ void Raw2Fv::init(const Json::Value &conf)
     m_strDesc = conf["desc"].asString();
     THROW_RUNTIME_ERROR_IF(m_strDesc.empty(), "Raw2Fv::init() data desc file not specified!");
     m_strDesc = (dataPath / m_strDesc).c_str();
-
-    m_strNewDesc = conf["new_desc"].asString();
-    if (!m_strNewDesc.empty())
-        m_strNewDesc = (dataPath / m_strNewDesc).c_str();
 }
 
 
@@ -155,58 +49,6 @@ void Raw2Fv::run()
         loadDataWithoutId();
     LOG(INFO) << "Feature vector data has written to " << m_strOutput;
     m_pTaskMgr->setLastOutput(m_strOutput);
-
-    if (!m_strNewDesc.empty()) {
-        // gen index
-        LOG(INFO) << "Generating index...";
-        genIdx();
-
-        LOG(INFO) << "Updating global data description...";
-        m_pTaskMgr->setGlobalDesc(m_pFeatureInfoSet);
-        // dump new desc
-        writeDesc();
-        LOG(INFO) << "New data description file has written to " << m_strNewDesc;
-    } // if
-}
-
-
-void Raw2Fv::writeDesc()
-{
-    using namespace std;
-
-    ofstream ofs(m_strNewDesc, ios::out | ios::trunc);
-    THROW_RUNTIME_ERROR_IF(!ofs, "Raw2Fv::writeDesc() cannot open " << m_strNewDesc << " for writting!");
-
-    auto& fiSet = *m_pFeatureInfoSet;
-
-    Json::Value root;
-    root["nfeatures"] = Json::Value::UInt64(fiSet.size());
-    if (!m_strSep.empty()) root["sep"] = m_strSep;
-
-    for (const auto &pfi : fiSet.arrFeature()) {
-        auto &back = root["features"].append(Json::Value());
-        pfi->toJson(back);
-    } // for
-
-    Json::StyledWriter writer;
-    string outStr = writer.write(root);
-    ofs << outStr << flush;
-}
-
-
-void Raw2Fv::genIdx()
-{
-    uint32_t idx = 0;
-    for (auto &pf : m_pFeatureInfoSet->arrFeature()) {
-        if (!pf->isKeep()) continue;
-        if (pf->type() == "list_double") {
-            pf->startIdx() = idx;
-            idx += pf->denseLen();
-        } else {
-            for (auto &subftKv : pf->subFeatures())
-                subftKv.second.setIndex(idx++);
-        } // if
-    } // for
 }
 
 
@@ -274,13 +116,6 @@ void Raw2Fv::loadDesc()
             m_pFeatureInfoSet->add(pf);
         } // for
     } // read features
-
-    m_arrDenseInfo.resize(m_pFeatureInfoSet->size());
-    for (size_t i = 0; i < m_arrDenseInfo.size(); ++i) {
-        if ((*m_pFeatureInfoSet)[i]->type() == "list_double")
-            m_arrDenseInfo[i].reset(new DenseInfo(*((*m_pFeatureInfoSet)[i]),
-                        m_pTaskMgr->dataDir(), m_bHasId));
-    } // for
 }
 
 
@@ -290,16 +125,11 @@ void Raw2Fv::loadDataWithId()
 
     DLOG(INFO) << "Raw2Fv::loadDataWithId()";
 
-    // s_strDenseId.clear();
-    
     ifstream ifs(m_strInput, ios::in);
     THROW_RUNTIME_ERROR_IF(!ifs, 
             "Raw2Fv::loadDataWithId() cannot open " << m_strInput << " for reading!");
 
-    assert(m_pFeatureInfoSet);
-
     auto &fiSet = *m_pFeatureInfoSet;
-    const size_t nFeatures = fiSet.size();
 
     OFvFile ofile(m_strOutput);
 
@@ -311,23 +141,28 @@ void Raw2Fv::loadDataWithId()
         if (line.empty()) continue;
         vector<string> strValues;
         boost::split(strValues, line, boost::is_any_of(m_strSep), boost::token_compress_on);
+        if (strValues.size() - 1 != m_pFeatureInfoSet->size()) {
+            LOG(ERROR) << "Line " << lineCnt << ", size mismatch! line size "
+                << strValues.size() << " != nFeatures " << m_pFeatureInfoSet->size();
+            continue;
+        } // if
         FeatureVector fv;
-        FeatureVectorHandle hFv(fv, fiSet);
+        FeatureVectorHandle hFv(fv);
         hFv.setId(strValues[0]);
-        uint32_t i = 1, j = 0;
-        while (i < strValues.size() && j < nFeatures) {
-            FeatureInfo &fi = *fiSet[j];
-            if (fi.type() == "list_double") {
-                assert(m_arrDenseInfo[j]);
-                read_list_double_feature_id(fv, fi, lineCnt, *m_arrDenseInfo[j]);
-                ++j;
-            } else {
-                read_feature(fv, strValues[i], fi, lineCnt);
-                ++i; ++j;
+        bool success = true;
+        for (size_t i = 0; i < m_pFeatureInfoSet->size(); ++i) {
+            FeatureInfo &fi = *fiSet[i];
+            if (!read_feature(fv, strValues[i+1], fi, lineCnt)) {
+                success = false;
+                break;
             } // if
-        } // while
+        } // for
         // DLOG(INFO) << fv;
-        ofile.writeOne(fv);
+        if (success) {
+            ofile.writeOne(fv);
+        } else {
+            LOG(ERROR) << "Process line " << lineCnt << " fail! skipping!";
+        } // if success
     } // while
 }
 
@@ -338,8 +173,6 @@ void Raw2Fv::loadDataWithoutId()
 
     DLOG(INFO) << "Raw2Fv::loadDataWithId()";
 
-    // s_strDenseId.clear();
-    
     ifstream ifs(m_strInput, ios::in);
     THROW_RUNTIME_ERROR_IF(!ifs, 
             "Raw2Fv::loadDataWithId() cannot open " << m_strInput << " for reading!");
@@ -347,7 +180,6 @@ void Raw2Fv::loadDataWithoutId()
     assert(m_pFeatureInfoSet);
 
     auto &fiSet = *m_pFeatureInfoSet;
-    const size_t nFeatures = fiSet.size();
 
     OFvFile ofile(m_strOutput);
 
@@ -359,55 +191,61 @@ void Raw2Fv::loadDataWithoutId()
         if (line.empty()) continue;
         vector<string> strValues;
         boost::split(strValues, line, boost::is_any_of(m_strSep), boost::token_compress_on);
+        if (strValues.size() != m_pFeatureInfoSet->size()) {
+            LOG(ERROR) << "Line " << lineCnt << ", size mismatch! line size "
+                << strValues.size() << " != nFeatures " << m_pFeatureInfoSet->size();
+            continue;
+        } // if
         FeatureVector fv;
-        FeatureVectorHandle hFv(fv, fiSet);
-        uint32_t i = 0, j = 0;
-        while (i < strValues.size() && j < nFeatures) {
-            FeatureInfo &fi = *fiSet[j];
-            if (fi.type() == "list_double") {
-                assert(m_arrDenseInfo[j]);
-                read_list_double_feature(fv, fi, lineCnt, *m_arrDenseInfo[j]);
-                ++j;
-            } else {
-                read_feature(fv, strValues[i], fi, lineCnt);
-                ++i; ++j;
+        FeatureVectorHandle hFv(fv);
+        bool success = true;
+        for (size_t i = 0; i < strValues.size(); ++i) {
+            FeatureInfo &fi = *fiSet[i];
+            if (!read_feature(fv, strValues[i], fi, lineCnt)) {
+                success = false;
+                break;
             } // if
-        } // while
+        } // for
         // DLOG(INFO) << fv;
-        ofile.writeOne(fv);
+        if (success) {
+            ofile.writeOne(fv);
+        } else {
+            LOG(ERROR) << "Process line " << lineCnt << " fail! skipping!";
+        } // if success
     } // while
 }
 
 
-void Raw2Fv::read_feature(FeatureVector &fv, std::string &strField,
+bool Raw2Fv::read_feature(FeatureVector &fv, std::string &strField,
             FeatureInfo &ftInfo, const std::size_t lineno)
 {
-    if (!ftInfo.isKeep()) return;
+    if (!ftInfo.isKeep()) return true;
     if (ftInfo.type() == "string") {
-        read_string_feature(fv, strField, ftInfo, lineno);
+        return read_string_feature(fv, strField, ftInfo, lineno);
     } else if (ftInfo.type() == "double") {
-        read_double_feature(fv, strField, ftInfo, lineno);
-    }  else if (ftInfo.type() == "datetime") {
-        read_datetime_feature(fv, strField, ftInfo, lineno);
-    } else {
-        THROW_RUNTIME_ERROR("read_feature in line " << lineno <<
-                ", feature type \"" << ftInfo.type() << "\" is invalid!");
-    } // if
+        return read_double_feature(fv, strField, ftInfo, lineno);
+    } else if (ftInfo.type() == "datetime") {
+        return read_datetime_feature(fv, strField, ftInfo, lineno);
+    } // if 
+    LOG(ERROR) << "read_feature in line " << lineno <<
+            ", feature type \"" << ftInfo.type() << "\" is invalid!";
+    return false;
 }
 
 
-void Raw2Fv::read_string_feature(FeatureVector &fv, std::string &strField,
+bool Raw2Fv::read_string_feature(FeatureVector &fv, std::string &strField,
             FeatureInfo &ftInfo, const std::size_t lineno)
 {
     using namespace std;
 
-    auto &fiSet = *m_pFeatureInfoSet;
-
     boost::trim_if(strField, boost::is_any_of(ftInfo.sep() + SPACES));
-    LOG_IF(WARNING, strField.empty()) << "read_string_feature in line " << lineno
-            << " empty feature " << ftInfo.name();
+    if (strField.empty()) {
+        LOG(ERROR) << "read_string_feature in line " << lineno
+                << " empty feature " << ftInfo.name();
+        return false;
+    } // if
 
-    FeatureVectorHandle hFv(fv, fiSet);
+    FeatureVectorHandle hFv(fv);
 
     if (ftInfo.isMulti()) {
         vector<string> strValues;
@@ -420,21 +258,25 @@ void Raw2Fv::read_string_feature(FeatureVector &fv, std::string &strField,
     } else {
         hFv.setFeature(ftInfo.name(), strField);
     } // if
+
+    return true;
 }
 
 
-void Raw2Fv::read_double_feature(FeatureVector &fv, std::string &strField,
+bool Raw2Fv::read_double_feature(FeatureVector &fv, std::string &strField,
             FeatureInfo &ftInfo, const std::size_t lineno)
 {
     using namespace std;
 
-    auto &fiSet = *m_pFeatureInfoSet;
+    // boost::trim(strField);
+    boost::trim_if(strField, boost::is_any_of(ftInfo.sep() + SPACES));
+    if (strField.empty()) {
+        LOG(ERROR) << "read_double_feature in line "
+            << lineno << ", empty field of \"" << ftInfo.name() << "\"!";
+        return false;
+    } // if
 
-    boost::trim(strField);
-    THROW_RUNTIME_ERROR_IF(strField.empty(), "read_double_feature in line "
-            << lineno << ", empty field of \"" << ftInfo.name() << "\"!");
-
-    FeatureVectorHandle hFv(fv, fiSet);
+    FeatureVectorHandle hFv(fv);
 
     if (ftInfo.isMulti()) {
         vector<string> strValues;
@@ -450,83 +292,52 @@ void Raw2Fv::read_double_feature(FeatureVector &fv, std::string &strField,
             string value(v, pos+1);
             boost::trim(key); boost::trim(value);
             double val = 0.0;
-            THROW_RUNTIME_ERROR_IF(!boost::conversion::try_lexical_convert(value, val),
-                    "read_double_feature in line " << lineno << " for feature \""
-                    << ftInfo.name() << "\" cannot covert \"" << value << "\" to double!");
+            if (!boost::conversion::try_lexical_convert(value, val)) {
+                LOG(ERROR) << "read_double_feature in line " << lineno << " for feature \""
+                        << ftInfo.name() << "\" cannot covert \"" << value << "\" to double!";
+                return false;
+            } // if
             hFv.setFeature(val, ftInfo.name(), key);
-            ftInfo.setMinMax(val, key);
         } // for
     } else {
         double val = 0.0;
-        THROW_RUNTIME_ERROR_IF(!boost::conversion::try_lexical_convert(strField, val),
-                "read_double_feature in line " << lineno << " for feature \""
-                << ftInfo.name() << "\" cannot covert \"" << strField << "\" to double!");
+        if (!boost::conversion::try_lexical_convert(strField, val)) {
+            LOG(ERROR) << "read_double_feature in line " << lineno << " for feature \""
+                    << ftInfo.name() << "\" cannot covert \"" << strField << "\" to double!";
+            return false;
+        } // if
         hFv.setFeature(val, ftInfo.name());
-        ftInfo.setMinMax(val);
     } // if
+
+    return true;
 }
 
 
-void Raw2Fv::read_datetime_feature(FeatureVector &fv, std::string &strField,
+bool Raw2Fv::read_datetime_feature(FeatureVector &fv, std::string &strField,
             FeatureInfo &ftInfo, const std::size_t lineno)
 {
     using namespace std;
 
-    auto &fiSet = *m_pFeatureInfoSet;
-
     boost::trim(strField);
-    THROW_RUNTIME_ERROR_IF(strField.empty(), "read_datetime_feature in line "
-            << lineno << ", empty field of \"" << ftInfo.name() << "\"!");
+    if (strField.empty()) {
+        LOG(ERROR) << "read_datetime_feature in line "
+            << lineno << ", empty field of \"" << ftInfo.name() << "\"!";
+        return false;
+    } // if
 
-    FeatureVectorHandle hFv(fv, fiSet);
+    FeatureVectorHandle hFv(fv);
 
     string fmt = "%Y-%m-%d %H:%M:%S";       // TODO 日期时间格式
     time_t tm = 0;
-    THROW_RUNTIME_ERROR_IF(!Utils::str2time(strField, tm, fmt),
-            "read_datetime_feature in line " << lineno << " for feature \""
-            << ftInfo.name() << "\" cannot covert \"" << strField << "\" to datetime!");
+    if (!Utils::str2time(strField, tm, fmt)) {
+        LOG(ERROR) << "read_datetime_feature in line " << lineno << " for feature \""
+                << ftInfo.name() << "\" cannot covert \"" << strField << "\" to datetime!";
+        return false;
+    } // if
 
     hFv.setFeature((double)tm, ftInfo.name());
-    ftInfo.setMinMax((double)tm);
+
+    return true;
 }
 
-
-void Raw2Fv::read_list_double_feature_id(FeatureVector &fv,
-            FeatureInfo &fi, const std::size_t lineno, DenseInfo &denseInfo)
-{
-    using namespace std;
-
-    auto &fiSet = *m_pFeatureInfoSet;
-    FeatureVectorHandle hFv(fv, fiSet);
-
-    // DLOG(INFO) << "Raw2Fv::read_list_double_feature_id() for " << fi.name();
-
-    if (denseInfo.id().empty())
-        denseInfo.readData();
-
-    while (denseInfo.id() < hFv.id()) {
-        if (!denseInfo.readData())
-            break;
-    } // while
-
-    if (hFv.id() == denseInfo.id())
-        hFv.setFeature(fi.name(), denseInfo.data());
-}
-
-
-void Raw2Fv::read_list_double_feature(FeatureVector &fv,
-            FeatureInfo &fi, const std::size_t lineno, DenseInfo &denseInfo)
-{
-    using namespace std;
-
-    auto &fiSet = *m_pFeatureInfoSet;
-    FeatureVectorHandle hFv(fv, fiSet);
-
-    // DLOG(INFO) << "Raw2Fv::read_list_double_feature() for " << fi.name();
-
-    denseInfo.readData();
-
-    if (!denseInfo.data().empty())
-        hFv.setFeature(fi.name(), denseInfo.data());
-}
 

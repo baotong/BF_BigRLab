@@ -2,8 +2,7 @@
    "features" : [
       {
          "name" : "age",
-         "type" : "double",
-         "keep" : false
+         "type" : "double"
       },
       {
          "name" : "workclass",
@@ -11,8 +10,8 @@
       },
       {
          "name" : "fnlwgt",
-         "type" : "double",
-         "keep" : false
+         "keep" : false,
+         "type" : "double"
       },
       {
          "name" : "education",
@@ -61,15 +60,10 @@
          "type" : "string"
       },
       {
-         "name" : "search_text",
-         "type" : "list_double",
-         "filepath" : "vectors.id.1000"
-      },
-      {
          "name" : "income",
          "type" : "string"
       }
    ],
-   "nfeatures" : 16,
+   "nfeatures" : 15,
    "sep" : ","
 }

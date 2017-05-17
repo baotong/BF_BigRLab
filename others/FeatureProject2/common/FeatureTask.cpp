@@ -102,10 +102,12 @@ void FeatureTaskMgr::start()
 
     for (Json::ArrayIndex i = 0; i < jsTaskArr.size(); ++i) {
         const auto &jsTask = jsTaskArr[i];
-        const string &strName = jsTask["name"].asString();
+        string strName = jsTask["name"].asString();
+        boost::trim(strName);
         THROW_RUNTIME_ERROR_IF(strName.empty(), "name not specified in task " << (i+1));
-        const string &strLib = jsTask["lib"].asString();
-        THROW_RUNTIME_ERROR_IF(strLib.empty(), "lib not specified in task " << (i+1));
+        string strLib = jsTask["lib"].asString();
+        boost::trim(strLib);
+        if (strLib.empty()) strLib = strName + ".so";
 
         TaskLib tLib(strLib);
         tLib.loadLib();
@@ -158,12 +160,14 @@ void FeatureTask::init(const Json::Value &conf)
     fs::path dataPath(m_pTaskMgr->dataDir());
 
     m_strInput = conf["input"].asString();
+    boost::trim(m_strInput);
     if (m_strInput.empty())
         m_strInput = m_pTaskMgr->lastOutput();
     else
         m_strInput = (dataPath / m_strInput).c_str();
 
     m_strOutput = conf["output"].asString();
+    boost::trim(m_strOutput);
     if (m_strOutput.empty())
         m_strOutput = gen_tmp_output(name());
     m_strOutput = (dataPath / m_strOutput).c_str();
@@ -182,7 +186,7 @@ void FeatureTask::init(const Json::Value &conf)
         else m_bHasId = jv.asBool();
     } // hasid
 
-    m_pFeatureInfoSet = m_pTaskMgr->globalDesc();
+    // m_pFeatureInfoSet = m_pTaskMgr->globalDesc();
 }
 
 

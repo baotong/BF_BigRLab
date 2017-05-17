@@ -5,27 +5,15 @@
     "tasks" : [
         {
             "name" : "raw2fv",
-            "lib"  : "raw2fv.so",
             "input" : "adult.data.id.1000",
-            "desc" : "adult_conf.json",
-            "new_desc" : "adult_conf_update.json"
+            "output" : "adult.data.id.1000.fv",
+            "desc" : "adult_conf.json"
         },
         {
-            "name" : "normalize",
-            "lib" : "normalize.so"  // 输入用上一步输出，输出文件名自动生成
-        },
-        {
-            "name" : "format output xgboost",
-            "lib" : "format_output.so",
-            "autoremove" : false,   // 覆盖全局设置
-            "output" : "adult.id.1000.formatted"
-        },
-        {
-            "name" : "format output xgboost concur",
-            "lib" : "format_output_concur.so",
-            "output" : "adult.id.1000.formatted.concur",
-            "concur_file" : "adult.concur",
-            "mark" : "_1"
+            "name" : "merge_dense",
+            "output" : "/tmp/adult.fv",
+            "dense" : "vectors.id.1000",
+            "feature" : "search_text"
         }
     ]
 }

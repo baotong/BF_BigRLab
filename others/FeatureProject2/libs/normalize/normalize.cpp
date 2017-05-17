@@ -1,7 +1,6 @@
 #include "normalize.h"
 #include <glog/logging.h>
 #include <cassert>
-#include <boost/filesystem.hpp>
 #include "CommDef.h"
 #include "FvFile.h"
 
@@ -12,23 +11,11 @@ FeatureTask* create_instance(const std::string &name, FeatureTaskMgr *mgr)
 
 void Normalize::init(const Json::Value &conf)
 {
-    namespace fs = boost::filesystem;
     using namespace std;
 
     FeatureTask::init(conf);
-
     DLOG(INFO) << "Normalize::init()";
-
     THROW_RUNTIME_ERROR_IF(input().empty(), "Normalize::init() input file not specified!");
-    THROW_RUNTIME_ERROR_IF(output().empty(), "Normalize::init() output file not specified!");
-
-    fs::path dataPath(m_pTaskMgr->dataDir());
-    if (!m_pFeatureInfoSet) {
-        string descFile = conf["desc"].asString();
-        THROW_RUNTIME_ERROR_IF(descFile.empty(), "No data desc loaded!");
-        descFile = (dataPath / descFile).c_str();
-        loadDesc(descFile);
-    } // if
 }
 
 
@@ -82,9 +69,4 @@ void Normalize::doNormalize()
     } // while
 }
 
-
-void Normalize::loadDesc(const std::string &fname)
-{
-    THROW_RUNTIME_ERROR("Normalize::loadDesc() TODO");
-}
 

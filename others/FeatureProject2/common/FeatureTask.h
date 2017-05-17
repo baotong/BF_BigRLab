@@ -51,7 +51,7 @@ protected:
 protected:  
     FeatureTaskMgr      *m_pTaskMgr;
     std::string         m_strName, m_strInput, m_strOutput;
-    std::shared_ptr<FeatureInfoSet>     m_pFeatureInfoSet;
+    // std::shared_ptr<FeatureInfoSet>     m_pFeatureInfoSet;
     bool                m_bAutoRemove, m_bHasId;
 };
 
@@ -88,10 +88,10 @@ public:
     const std::string& lastOutput() const
     { return m_strLastOutput; }
 
-    void setGlobalDesc(const std::shared_ptr<FeatureInfoSet> &ptr)
-    { m_pFeatureInfoSet = ptr; }
-    std::shared_ptr<FeatureInfoSet> globalDesc() const
-    { return m_pFeatureInfoSet; }
+    // void setGlobalDesc(const std::shared_ptr<FeatureInfoSet> &ptr)
+    // { m_pFeatureInfoSet = ptr; }
+    // std::shared_ptr<FeatureInfoSet> globalDesc() const
+    // { return m_pFeatureInfoSet; }
 
     bool globalAutoRemove() const { return m_bGlobalAutoRemove; }
     bool globalHasId() const { return m_bGlobalHasId; }
@@ -101,7 +101,7 @@ private:
     std::string         m_strDataDir;
     std::string         m_strLastOutput;    // 上一个task的输出文件
     bool                m_bGlobalAutoRemove, m_bGlobalHasId;
-    std::shared_ptr<FeatureInfoSet>     m_pFeatureInfoSet;
+    // std::shared_ptr<FeatureInfoSet>     m_pFeatureInfoSet;
 };
 
 
