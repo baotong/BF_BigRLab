@@ -2,6 +2,7 @@
 #include <glog/logging.h>
 #include <cassert>
 #include <iterator>
+#include <fstream>
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
@@ -65,18 +66,29 @@ void MergeDense::mergeWithId()
     auto readLine = [&](string &id, vector<double> &vec)->bool {
         while (true) {
             string line;
-            if (!getline(ifs, line))
+            if (!getline(ifs, line)) {
+                // DLOG(INFO) << "getline fail";
                 return false;
+            } // if
             istringstream iss(line);
             iss >> id;
             if (!iss) continue;
             vec.clear();
             std::copy(istream_iterator<double>(iss), istream_iterator<double>(), 
                     back_inserter(vec));
-            if (iss.fail()) continue;
+            // DLOG(INFO) << "vec size = " << vec.size();
+            if (!vec.size()) { /* DLOG(INFO) << "read fail"; */ continue; }
+            else { /* DLOG(INFO) << "read success"; */ return true; }
         } // while
         return true;
     };
+
+    string          id;
+    vector<double>  vec;
+    if (!readLine(id, vec)) {
+        LOG(ERROR) << m_strDense << " does not contains any valid dense data!";
+        return;
+    } // if
 
     IFvFile ifv(m_strInput);
     OFvFile ofv(m_strOutput);
@@ -84,14 +96,17 @@ void MergeDense::mergeWithId()
     FeatureVector fv;
     while (ifv.readOne(fv)) {
         FeatureVectorHandle hfv(fv);
-        string          id;
-        vector<double>  vec;
-        do {
+
+        while (id < hfv.id()) {
             if (!readLine(id, vec))
-                break;
-            
-        } while (hfv.id() < id);
-    } // while
+                break;    
+        } // while id
+
+        if (id == hfv.id())
+            hfv.setFeature(m_strFeature, vec);
+
+        ofv.writeOne(fv);
+    } // while fv
 }
 
 

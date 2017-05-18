@@ -87,4 +87,177 @@ void FeatureVector::printTo(std::ostream& out) const {
   out << ")";
 }
 
+
+FloatInfo::~FloatInfo() throw() {
+}
+
+
+void FloatInfo::__set_index(const int32_t val) {
+  this->index = val;
+}
+
+void FloatInfo::__set_minVal(const double val) {
+  this->minVal = val;
+}
+
+void FloatInfo::__set_maxVal(const double val) {
+  this->maxVal = val;
+}
+
+void swap(FloatInfo &a, FloatInfo &b) {
+  using ::std::swap;
+  swap(a.index, b.index);
+  swap(a.minVal, b.minVal);
+  swap(a.maxVal, b.maxVal);
+  swap(a.__isset, b.__isset);
+}
+
+FloatInfo::FloatInfo(const FloatInfo& other49) {
+  index = other49.index;
+  minVal = other49.minVal;
+  maxVal = other49.maxVal;
+  __isset = other49.__isset;
+}
+FloatInfo::FloatInfo( FloatInfo&& other50) {
+  index = std::move(other50.index);
+  minVal = std::move(other50.minVal);
+  maxVal = std::move(other50.maxVal);
+  __isset = std::move(other50.__isset);
+}
+FloatInfo& FloatInfo::operator=(const FloatInfo& other51) {
+  index = other51.index;
+  minVal = other51.minVal;
+  maxVal = other51.maxVal;
+  __isset = other51.__isset;
+  return *this;
+}
+FloatInfo& FloatInfo::operator=(FloatInfo&& other52) {
+  index = std::move(other52.index);
+  minVal = std::move(other52.minVal);
+  maxVal = std::move(other52.maxVal);
+  __isset = std::move(other52.__isset);
+  return *this;
+}
+void FloatInfo::printTo(std::ostream& out) const {
+  using ::apache::thrift::to_string;
+  out << "FloatInfo(";
+  out << "index=" << to_string(index);
+  out << ", " << "minVal=" << to_string(minVal);
+  out << ", " << "maxVal=" << to_string(maxVal);
+  out << ")";
+}
+
+
+DenseInfo::~DenseInfo() throw() {
+}
+
+
+void DenseInfo::__set_startIdx(const int32_t val) {
+  this->startIdx = val;
+}
+
+void DenseInfo::__set_len(const int32_t val) {
+  this->len = val;
+}
+
+void swap(DenseInfo &a, DenseInfo &b) {
+  using ::std::swap;
+  swap(a.startIdx, b.startIdx);
+  swap(a.len, b.len);
+  swap(a.__isset, b.__isset);
+}
+
+DenseInfo::DenseInfo(const DenseInfo& other53) {
+  startIdx = other53.startIdx;
+  len = other53.len;
+  __isset = other53.__isset;
+}
+DenseInfo::DenseInfo( DenseInfo&& other54) {
+  startIdx = std::move(other54.startIdx);
+  len = std::move(other54.len);
+  __isset = std::move(other54.__isset);
+}
+DenseInfo& DenseInfo::operator=(const DenseInfo& other55) {
+  startIdx = other55.startIdx;
+  len = other55.len;
+  __isset = other55.__isset;
+  return *this;
+}
+DenseInfo& DenseInfo::operator=(DenseInfo&& other56) {
+  startIdx = std::move(other56.startIdx);
+  len = std::move(other56.len);
+  __isset = std::move(other56.__isset);
+  return *this;
+}
+void DenseInfo::printTo(std::ostream& out) const {
+  using ::apache::thrift::to_string;
+  out << "DenseInfo(";
+  out << "startIdx=" << to_string(startIdx);
+  out << ", " << "len=" << to_string(len);
+  out << ")";
+}
+
+
+FeatureIndex::~FeatureIndex() throw() {
+}
+
+
+void FeatureIndex::__set_stringIndices(const std::map<std::string, std::map<std::string, int32_t> > & val) {
+  this->stringIndices = val;
+__isset.stringIndices = true;
+}
+
+void FeatureIndex::__set_floatInfo(const std::map<std::string, std::map<std::string, FloatInfo> > & val) {
+  this->floatInfo = val;
+__isset.floatInfo = true;
+}
+
+void FeatureIndex::__set_denseInfo(const std::map<std::string, DenseInfo> & val) {
+  this->denseInfo = val;
+__isset.denseInfo = true;
+}
+
+void swap(FeatureIndex &a, FeatureIndex &b) {
+  using ::std::swap;
+  swap(a.stringIndices, b.stringIndices);
+  swap(a.floatInfo, b.floatInfo);
+  swap(a.denseInfo, b.denseInfo);
+  swap(a.__isset, b.__isset);
+}
+
+FeatureIndex::FeatureIndex(const FeatureIndex& other97) {
+  stringIndices = other97.stringIndices;
+  floatInfo = other97.floatInfo;
+  denseInfo = other97.denseInfo;
+  __isset = other97.__isset;
+}
+FeatureIndex::FeatureIndex( FeatureIndex&& other98) {
+  stringIndices = std::move(other98.stringIndices);
+  floatInfo = std::move(other98.floatInfo);
+  denseInfo = std::move(other98.denseInfo);
+  __isset = std::move(other98.__isset);
+}
+FeatureIndex& FeatureIndex::operator=(const FeatureIndex& other99) {
+  stringIndices = other99.stringIndices;
+  floatInfo = other99.floatInfo;
+  denseInfo = other99.denseInfo;
+  __isset = other99.__isset;
+  return *this;
+}
+FeatureIndex& FeatureIndex::operator=(FeatureIndex&& other100) {
+  stringIndices = std::move(other100.stringIndices);
+  floatInfo = std::move(other100.floatInfo);
+  denseInfo = std::move(other100.denseInfo);
+  __isset = std::move(other100.__isset);
+  return *this;
+}
+void FeatureIndex::printTo(std::ostream& out) const {
+  using ::apache::thrift::to_string;
+  out << "FeatureIndex(";
+  out << "stringIndices="; (__isset.stringIndices ? (out << to_string(stringIndices)) : (out << "<null>"));
+  out << ", " << "floatInfo="; (__isset.floatInfo ? (out << to_string(floatInfo)) : (out << "<null>"));
+  out << ", " << "denseInfo="; (__isset.denseInfo ? (out << to_string(denseInfo)) : (out << "<null>"));
+  out << ")";
+}
+
 } // namespace

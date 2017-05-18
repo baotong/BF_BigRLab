@@ -141,6 +141,19 @@ article2vec/fast:
 .PHONY : article2vec/fast
 
 #=============================================================================
+# Target rules for targets named build_index
+
+# Build rule for target.
+build_index: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 build_index
+.PHONY : build_index
+
+# fast build rule for target.
+build_index/fast:
+	$(MAKE) -f libs/build_index/CMakeFiles/build_index.dir/build.make libs/build_index/CMakeFiles/build_index.dir/build
+.PHONY : build_index/fast
+
+#=============================================================================
 # Target rules for targets named format_output
 
 # Build rule for target.
@@ -165,6 +178,19 @@ format_output_concur: cmake_check_build_system
 format_output_concur/fast:
 	$(MAKE) -f libs/format_output_concur/CMakeFiles/format_output_concur.dir/build.make libs/format_output_concur/CMakeFiles/format_output_concur.dir/build
 .PHONY : format_output_concur/fast
+
+#=============================================================================
+# Target rules for targets named merge_dense
+
+# Build rule for target.
+merge_dense: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 merge_dense
+.PHONY : merge_dense
+
+# fast build rule for target.
+merge_dense/fast:
+	$(MAKE) -f libs/merge_dense/CMakeFiles/merge_dense.dir/build.make libs/merge_dense/CMakeFiles/merge_dense.dir/build
+.PHONY : merge_dense/fast
 
 #=============================================================================
 # Target rules for targets named normalize
@@ -203,8 +229,10 @@ help:
 	@echo "... feature.bin"
 	@echo "... article2vec.bin"
 	@echo "... article2vec"
+	@echo "... build_index"
 	@echo "... format_output"
 	@echo "... format_output_concur"
+	@echo "... merge_dense"
 	@echo "... normalize"
 	@echo "... raw2fv"
 .PHONY : help

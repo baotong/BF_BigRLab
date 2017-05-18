@@ -26,6 +26,14 @@ using namespace std;
     // cout << FeatureTask::gen_tmp_output("format output concur") << endl;
     // cout << FeatureTask::gen_tmp_output("formatOutput") << endl;
 // }
+
+// void test()
+// {
+    // ifstream ifs("../data/adult.fi", ios::in);
+    // FeatureIndex fidx;
+    // ifs >> fidx;
+// }
+
 } // namespace Test
 
 
@@ -51,6 +59,7 @@ try {
     using namespace std;
 
     // Test::test_gen_tmp_output();
+    // Test::test();
     // exit(0);
 
     google::InitGoogleLogging(argv[0]);

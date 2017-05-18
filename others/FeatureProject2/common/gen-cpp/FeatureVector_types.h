@@ -8,6 +8,7 @@
 #define FeatureVector_TYPES_H
 
 #include <iosfwd>
+#include <limits>
 
 #include <thrift/Thrift.h>
 #include <thrift/TApplicationException.h>
@@ -20,6 +21,12 @@
 namespace FeatureProject {
 
 class FeatureVector;
+
+class FloatInfo;
+
+class DenseInfo;
+
+class FeatureIndex;
 
 typedef struct _FeatureVector__isset {
   _FeatureVector__isset() : id(false), stringFeatures(false), floatFeatures(false), denseFeatures(false) {}
@@ -66,6 +73,142 @@ class FeatureVector {
 void swap(FeatureVector &a, FeatureVector &b);
 
 inline std::ostream& operator<<(std::ostream& out, const FeatureVector& obj)
+{
+  obj.printTo(out);
+  return out;
+}
+
+typedef struct _FloatInfo__isset {
+  _FloatInfo__isset() : index(false), minVal(false), maxVal(false) {}
+  bool index :1;
+  bool minVal :1;
+  bool maxVal :1;
+} _FloatInfo__isset;
+
+class FloatInfo {
+ public:
+
+  FloatInfo(const FloatInfo&);
+  FloatInfo(FloatInfo&&);
+  FloatInfo& operator=(const FloatInfo&);
+  FloatInfo& operator=(FloatInfo&&);
+  FloatInfo() : index(0), 
+        minVal(std::numeric_limits<double>::max()), 
+        maxVal(std::numeric_limits<double>::min()) {
+  }
+
+  virtual ~FloatInfo() throw();
+  int32_t index;
+  double minVal;
+  double maxVal;
+
+  _FloatInfo__isset __isset;
+
+  void __set_index(const int32_t val);
+
+  void __set_minVal(const double val);
+
+  void __set_maxVal(const double val);
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+  virtual void printTo(std::ostream& out) const;
+};
+
+void swap(FloatInfo &a, FloatInfo &b);
+
+inline std::ostream& operator<<(std::ostream& out, const FloatInfo& obj)
+{
+  obj.printTo(out);
+  return out;
+}
+
+typedef struct _DenseInfo__isset {
+  _DenseInfo__isset() : startIdx(false), len(false) {}
+  bool startIdx :1;
+  bool len :1;
+} _DenseInfo__isset;
+
+class DenseInfo {
+ public:
+
+  DenseInfo(const DenseInfo&);
+  DenseInfo(DenseInfo&&);
+  DenseInfo& operator=(const DenseInfo&);
+  DenseInfo& operator=(DenseInfo&&);
+  DenseInfo() : startIdx(0), len(0) {
+  }
+
+  virtual ~DenseInfo() throw();
+  int32_t startIdx;
+  int32_t len;
+
+  _DenseInfo__isset __isset;
+
+  void __set_startIdx(const int32_t val);
+
+  void __set_len(const int32_t val);
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+  virtual void printTo(std::ostream& out) const;
+};
+
+void swap(DenseInfo &a, DenseInfo &b);
+
+inline std::ostream& operator<<(std::ostream& out, const DenseInfo& obj)
+{
+  obj.printTo(out);
+  return out;
+}
+
+typedef struct _FeatureIndex__isset {
+  _FeatureIndex__isset() : stringIndices(false), floatInfo(false), denseInfo(false) {}
+  bool stringIndices :1;
+  bool floatInfo :1;
+  bool denseInfo :1;
+} _FeatureIndex__isset;
+
+class FeatureIndex {
+ public:
+
+  FeatureIndex(const FeatureIndex&);
+  FeatureIndex(FeatureIndex&&);
+  FeatureIndex& operator=(const FeatureIndex&);
+  FeatureIndex& operator=(FeatureIndex&&);
+  FeatureIndex() {
+  }
+
+  virtual ~FeatureIndex() throw();
+  std::map<std::string, std::map<std::string, int32_t> >  stringIndices;
+  std::map<std::string, std::map<std::string, FloatInfo> >  floatInfo;
+  std::map<std::string, DenseInfo>  denseInfo;
+
+  _FeatureIndex__isset __isset;
+
+  void __set_stringIndices(const std::map<std::string, std::map<std::string, int32_t> > & val);
+
+  void __set_floatInfo(const std::map<std::string, std::map<std::string, FloatInfo> > & val);
+
+  void __set_denseInfo(const std::map<std::string, DenseInfo> & val);
+
+  template <class Protocol_>
+  uint32_t read(Protocol_* iprot);
+  template <class Protocol_>
+  uint32_t write(Protocol_* oprot) const;
+
+  virtual void printTo(std::ostream& out) const;
+};
+
+void swap(FeatureIndex &a, FeatureIndex &b);
+
+inline std::ostream& operator<<(std::ostream& out, const FeatureIndex& obj)
 {
   obj.printTo(out);
   return out;

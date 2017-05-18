@@ -245,6 +245,360 @@ uint32_t FeatureVector::write(Protocol_* oprot) const {
   return xfer;
 }
 
+template <class Protocol_>
+uint32_t FloatInfo::read(Protocol_* iprot) {
+
+  apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->index);
+          this->__isset.index = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 2:
+        if (ftype == ::apache::thrift::protocol::T_DOUBLE) {
+          xfer += iprot->readDouble(this->minVal);
+          this->__isset.minVal = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 3:
+        if (ftype == ::apache::thrift::protocol::T_DOUBLE) {
+          xfer += iprot->readDouble(this->maxVal);
+          this->__isset.maxVal = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+template <class Protocol_>
+uint32_t FloatInfo::write(Protocol_* oprot) const {
+  uint32_t xfer = 0;
+  apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
+  xfer += oprot->writeStructBegin("FloatInfo");
+
+  xfer += oprot->writeFieldBegin("index", ::apache::thrift::protocol::T_I32, 1);
+  xfer += oprot->writeI32(this->index);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("minVal", ::apache::thrift::protocol::T_DOUBLE, 2);
+  xfer += oprot->writeDouble(this->minVal);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("maxVal", ::apache::thrift::protocol::T_DOUBLE, 3);
+  xfer += oprot->writeDouble(this->maxVal);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+template <class Protocol_>
+uint32_t DenseInfo::read(Protocol_* iprot) {
+
+  apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->startIdx);
+          this->__isset.startIdx = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 2:
+        if (ftype == ::apache::thrift::protocol::T_I32) {
+          xfer += iprot->readI32(this->len);
+          this->__isset.len = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+template <class Protocol_>
+uint32_t DenseInfo::write(Protocol_* oprot) const {
+  uint32_t xfer = 0;
+  apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
+  xfer += oprot->writeStructBegin("DenseInfo");
+
+  xfer += oprot->writeFieldBegin("startIdx", ::apache::thrift::protocol::T_I32, 1);
+  xfer += oprot->writeI32(this->startIdx);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldBegin("len", ::apache::thrift::protocol::T_I32, 2);
+  xfer += oprot->writeI32(this->len);
+  xfer += oprot->writeFieldEnd();
+
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
+template <class Protocol_>
+uint32_t FeatureIndex::read(Protocol_* iprot) {
+
+  apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
+  uint32_t xfer = 0;
+  std::string fname;
+  ::apache::thrift::protocol::TType ftype;
+  int16_t fid;
+
+  xfer += iprot->readStructBegin(fname);
+
+  using ::apache::thrift::protocol::TProtocolException;
+
+
+  while (true)
+  {
+    xfer += iprot->readFieldBegin(fname, ftype, fid);
+    if (ftype == ::apache::thrift::protocol::T_STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_MAP) {
+          {
+            this->stringIndices.clear();
+            uint32_t _size57;
+            ::apache::thrift::protocol::TType _ktype58;
+            ::apache::thrift::protocol::TType _vtype59;
+            xfer += iprot->readMapBegin(_ktype58, _vtype59, _size57);
+            uint32_t _i61;
+            for (_i61 = 0; _i61 < _size57; ++_i61)
+            {
+              std::string _key62;
+              xfer += iprot->readString(_key62);
+              std::map<std::string, int32_t> & _val63 = this->stringIndices[_key62];
+              {
+                _val63.clear();
+                uint32_t _size64;
+                ::apache::thrift::protocol::TType _ktype65;
+                ::apache::thrift::protocol::TType _vtype66;
+                xfer += iprot->readMapBegin(_ktype65, _vtype66, _size64);
+                uint32_t _i68;
+                for (_i68 = 0; _i68 < _size64; ++_i68)
+                {
+                  std::string _key69;
+                  xfer += iprot->readString(_key69);
+                  int32_t& _val70 = _val63[_key69];
+                  xfer += iprot->readI32(_val70);
+                }
+                xfer += iprot->readMapEnd();
+              }
+            }
+            xfer += iprot->readMapEnd();
+          }
+          this->__isset.stringIndices = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 2:
+        if (ftype == ::apache::thrift::protocol::T_MAP) {
+          {
+            this->floatInfo.clear();
+            uint32_t _size71;
+            ::apache::thrift::protocol::TType _ktype72;
+            ::apache::thrift::protocol::TType _vtype73;
+            xfer += iprot->readMapBegin(_ktype72, _vtype73, _size71);
+            uint32_t _i75;
+            for (_i75 = 0; _i75 < _size71; ++_i75)
+            {
+              std::string _key76;
+              xfer += iprot->readString(_key76);
+              std::map<std::string, FloatInfo> & _val77 = this->floatInfo[_key76];
+              {
+                _val77.clear();
+                uint32_t _size78;
+                ::apache::thrift::protocol::TType _ktype79;
+                ::apache::thrift::protocol::TType _vtype80;
+                xfer += iprot->readMapBegin(_ktype79, _vtype80, _size78);
+                uint32_t _i82;
+                for (_i82 = 0; _i82 < _size78; ++_i82)
+                {
+                  std::string _key83;
+                  xfer += iprot->readString(_key83);
+                  FloatInfo& _val84 = _val77[_key83];
+                  xfer += _val84.read(iprot);
+                }
+                xfer += iprot->readMapEnd();
+              }
+            }
+            xfer += iprot->readMapEnd();
+          }
+          this->__isset.floatInfo = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 3:
+        if (ftype == ::apache::thrift::protocol::T_MAP) {
+          {
+            this->denseInfo.clear();
+            uint32_t _size85;
+            ::apache::thrift::protocol::TType _ktype86;
+            ::apache::thrift::protocol::TType _vtype87;
+            xfer += iprot->readMapBegin(_ktype86, _vtype87, _size85);
+            uint32_t _i89;
+            for (_i89 = 0; _i89 < _size85; ++_i89)
+            {
+              std::string _key90;
+              xfer += iprot->readString(_key90);
+              DenseInfo& _val91 = this->denseInfo[_key90];
+              xfer += _val91.read(iprot);
+            }
+            xfer += iprot->readMapEnd();
+          }
+          this->__isset.denseInfo = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      default:
+        xfer += iprot->skip(ftype);
+        break;
+    }
+    xfer += iprot->readFieldEnd();
+  }
+
+  xfer += iprot->readStructEnd();
+
+  return xfer;
+}
+
+template <class Protocol_>
+uint32_t FeatureIndex::write(Protocol_* oprot) const {
+  uint32_t xfer = 0;
+  apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
+  xfer += oprot->writeStructBegin("FeatureIndex");
+
+  if (this->__isset.stringIndices) {
+    xfer += oprot->writeFieldBegin("stringIndices", ::apache::thrift::protocol::T_MAP, 1);
+    {
+      xfer += oprot->writeMapBegin(::apache::thrift::protocol::T_STRING, ::apache::thrift::protocol::T_MAP, static_cast<uint32_t>(this->stringIndices.size()));
+      std::map<std::string, std::map<std::string, int32_t> > ::const_iterator _iter92;
+      for (_iter92 = this->stringIndices.begin(); _iter92 != this->stringIndices.end(); ++_iter92)
+      {
+        xfer += oprot->writeString(_iter92->first);
+        {
+          xfer += oprot->writeMapBegin(::apache::thrift::protocol::T_STRING, ::apache::thrift::protocol::T_I32, static_cast<uint32_t>(_iter92->second.size()));
+          std::map<std::string, int32_t> ::const_iterator _iter93;
+          for (_iter93 = _iter92->second.begin(); _iter93 != _iter92->second.end(); ++_iter93)
+          {
+            xfer += oprot->writeString(_iter93->first);
+            xfer += oprot->writeI32(_iter93->second);
+          }
+          xfer += oprot->writeMapEnd();
+        }
+      }
+      xfer += oprot->writeMapEnd();
+    }
+    xfer += oprot->writeFieldEnd();
+  }
+  if (this->__isset.floatInfo) {
+    xfer += oprot->writeFieldBegin("floatInfo", ::apache::thrift::protocol::T_MAP, 2);
+    {
+      xfer += oprot->writeMapBegin(::apache::thrift::protocol::T_STRING, ::apache::thrift::protocol::T_MAP, static_cast<uint32_t>(this->floatInfo.size()));
+      std::map<std::string, std::map<std::string, FloatInfo> > ::const_iterator _iter94;
+      for (_iter94 = this->floatInfo.begin(); _iter94 != this->floatInfo.end(); ++_iter94)
+      {
+        xfer += oprot->writeString(_iter94->first);
+        {
+          xfer += oprot->writeMapBegin(::apache::thrift::protocol::T_STRING, ::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(_iter94->second.size()));
+          std::map<std::string, FloatInfo> ::const_iterator _iter95;
+          for (_iter95 = _iter94->second.begin(); _iter95 != _iter94->second.end(); ++_iter95)
+          {
+            xfer += oprot->writeString(_iter95->first);
+            xfer += _iter95->second.write(oprot);
+          }
+          xfer += oprot->writeMapEnd();
+        }
+      }
+      xfer += oprot->writeMapEnd();
+    }
+    xfer += oprot->writeFieldEnd();
+  }
+  if (this->__isset.denseInfo) {
+    xfer += oprot->writeFieldBegin("denseInfo", ::apache::thrift::protocol::T_MAP, 3);
+    {
+      xfer += oprot->writeMapBegin(::apache::thrift::protocol::T_STRING, ::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->denseInfo.size()));
+      std::map<std::string, DenseInfo> ::const_iterator _iter96;
+      for (_iter96 = this->denseInfo.begin(); _iter96 != this->denseInfo.end(); ++_iter96)
+      {
+        xfer += oprot->writeString(_iter96->first);
+        xfer += _iter96->second.write(oprot);
+      }
+      xfer += oprot->writeMapEnd();
+    }
+    xfer += oprot->writeFieldEnd();
+  }
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
+  return xfer;
+}
+
 } // namespace
 
 #endif

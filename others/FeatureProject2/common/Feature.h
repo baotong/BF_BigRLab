@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <memory>
-#include <limits>
 #include <json/json.h>
 #include <boost/filesystem.hpp>
 #include "FeatureVector_types.h"
@@ -243,6 +242,50 @@ public:
 
 private:
     FeatureVector&      m_refFv;
+};
+
+
+class FeatureIndexHandle {
+public:
+    typedef std::map<std::string, std::map<std::string, int32_t> >      StringIndexMap;
+    typedef std::map<std::string, std::map<std::string, FloatInfo> >    FloatInfoMap;
+    typedef std::map<std::string, DenseInfo>                            DenseInfoMap;
+
+public:
+    FeatureIndexHandle( FeatureIndex &fi )
+            : m_refFi(fi) {}
+
+    operator FeatureIndex& () { return m_refFi; }
+
+    void setStringIndices( StringIndexMap &sIdx )
+    {
+        m_refFi.stringIndices.swap(sIdx);
+        m_refFi.__isset.stringIndices = true;
+    }
+
+    StringIndexMap& stringIndices() 
+    { return m_refFi.stringIndices; }
+
+    void setFloatInfo( FloatInfoMap &fiMap )
+    {
+        m_refFi.floatInfo.swap(fiMap);
+        m_refFi.__isset.floatInfo = true;
+    }
+
+    FloatInfoMap& floatInfo()
+    { return m_refFi.floatInfo; }
+
+    void setDenseInfo( DenseInfoMap &diMap )
+    {
+        m_refFi.denseInfo.swap(diMap);
+        m_refFi.__isset.denseInfo = true;
+    }
+
+    DenseInfoMap& denseInfo()
+    { return m_refFi.denseInfo; }
+
+private:
+    FeatureIndex&    m_refFi;
 };
 
 

@@ -3,17 +3,22 @@
     "hasid" : true,
     "autoremove" : true, // 执行完任务后删除输入文件
     "tasks" : [
+        // {
+            // "name" : "raw2fv",
+            // "input" : "adult.data.id.1000",
+            // "output" : "adult.data.id.1000.fv",
+            // "desc" : "adult_conf.json"
+        // },
+        // {
+            // "name" : "merge_dense",
+            // "output" : "adult.fv",
+            // "dense" : "vectors.id.1000",
+            // "feature" : "search_text"
+        // },
         {
-            "name" : "raw2fv",
-            "input" : "adult.data.id.1000",
-            "output" : "adult.data.id.1000.fv",
-            "desc" : "adult_conf.json"
-        },
-        {
-            "name" : "merge_dense",
-            "output" : "/tmp/adult.fv",
-            "dense" : "vectors.id.1000",
-            "feature" : "search_text"
+            "name" : "build_index",
+            "input" : "adult.fv",
+            "output" : "adult.fi"
         }
     ]
 }
