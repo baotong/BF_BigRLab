@@ -284,6 +284,44 @@ public:
     DenseInfoMap& denseInfo()
     { return m_refFi.denseInfo; }
 
+    bool getInfo(const std::string &key, const std::string &subkey, FloatInfo *&pInfo)
+    {
+        FloatInfoMap &infoMap = floatInfo();
+        auto it1 = infoMap.find(key);
+        if (it1 == infoMap.end())
+            return false;
+        auto &subMap = it1->second;
+        auto it2 = subMap.find(subkey);
+        if (it2 == subMap.end())
+            return false;
+        pInfo = &(it2->second);
+        return true;
+    }
+
+    bool getInfo(const std::string &key, const std::string &val, int32_t &idx)
+    {
+        StringIndexMap &infoMap = stringIndices();
+        auto it1 = infoMap.find(key);
+        if (it1 == infoMap.end())
+            return false;
+        auto &subMap = it1->second;
+        auto it2 = subMap.find(val);
+        if (it2 == subMap.end())
+            return false;
+        idx = it2->second;
+        return true;
+    }
+
+    bool getInfo(const std::string &key, DenseInfo *&pInfo)
+    {
+        DenseInfoMap &infoMap = denseInfo();
+        auto it1 = infoMap.find(key);
+        if (it1 == infoMap.end())
+            return false;
+        pInfo = &(it1->second);
+        return true;
+    }
+
 private:
     FeatureIndex&    m_refFi;
 };

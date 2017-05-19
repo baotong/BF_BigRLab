@@ -1,7 +1,7 @@
 {
     "datadir" : "../data",
     "hasid" : true,
-    "autoremove" : true, // 执行完任务后删除输入文件
+    // "autoremove" : true, // 执行完任务后删除输入文件
     "tasks" : [
         // {
             // "name" : "raw2fv",
@@ -15,10 +15,22 @@
             // "dense" : "vectors.id.1000",
             // "feature" : "search_text"
         // },
+        // {
+            // "name" : "build_index",
+            // "input" : "adult.fv",
+            // "output" : "adult.fi"
+        // },
+        // {
+            // "name" : "normalize",
+            // "info" : "adult.fi",
+            // "input" : "adult.fv",
+            // "output" : "adult.normalized.fv"
+        // },
         {
-            "name" : "build_index",
-            "input" : "adult.fv",
-            "output" : "adult.fi"
+            "name" : "format_output",
+            "info" : "adult.fi",
+            "input" : "adult.normalized.fv",
+            "output" : "adult.formatted.txt"
         }
     ]
 }

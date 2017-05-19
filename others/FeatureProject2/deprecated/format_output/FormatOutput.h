@@ -17,13 +17,10 @@ public:
 
     void init(const Json::Value &conf) override;
     void run() override;
-
 private:
     void doWork();
-
-private:
-    std::string     m_strInfo;
-    std::shared_ptr<FeatureIndex>   m_pFtIdx;
+    void printFeature(std::ostream &os, const FeatureVector &fv, const FeatureInfo &fi);
+    void loadDesc(const std::string &fname);
 };
 
 

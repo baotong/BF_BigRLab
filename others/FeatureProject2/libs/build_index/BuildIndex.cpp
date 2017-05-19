@@ -16,7 +16,7 @@ FeatureTask* create_instance(const std::string &name, FeatureTaskMgr *mgr)
 
 void BuildIndex::init(const Json::Value &conf)
 {
-    namespace fs = boost::filesystem;
+    // namespace fs = boost::filesystem;
     using namespace std;
 
     FeatureTask::init(conf);

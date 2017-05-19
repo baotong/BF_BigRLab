@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <dlfcn.h>
 #include "FeatureTask.h"
+#include "ThriftFile.hpp"
 
 
 // 要求函数指针名和库中的函数sym名一样
@@ -148,6 +149,18 @@ void FeatureTask::remove_file(const std::string &path)
     } catch (const std::exception &ex) {
         LOG(ERROR) << "Cannot remove " << path << " " << ec;
     } // try
+}
+
+
+std::shared_ptr<FeatureIndex> FeatureTask::load_info(const std::string &fname)
+{
+    IThriftFile<FeatureIndex> iFile(fname);
+    std::shared_ptr<FeatureIndex> ret = std::make_shared<FeatureIndex>();
+    // THROW_RUNTIME_ERROR_IF(iFile.readOne(*ret),
+            // "Normalize cannot load info from file " << m_strInfo);
+    iFile.readOne(*ret);
+    // std::cout << *ret << std::endl;
+    return ret;
 }
 
 

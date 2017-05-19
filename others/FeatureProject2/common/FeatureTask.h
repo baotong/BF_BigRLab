@@ -47,6 +47,7 @@ public:
 protected:
     static std::string gen_tmp_output(const std::string &baseName);
     static void remove_file(const std::string &path);
+    static std::shared_ptr<FeatureIndex> load_info(const std::string &fname);
 
 protected:  
     FeatureTaskMgr      *m_pTaskMgr;

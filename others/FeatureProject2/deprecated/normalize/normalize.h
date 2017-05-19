@@ -17,13 +17,8 @@ public:
 
     void init(const Json::Value &conf) override;
     void run() override;
-
 private:
     void doNormalize();
-
-private:
-    std::string         m_strInfo;
-    std::shared_ptr<FeatureIndex>   m_pFtIdx;
 };
 
 #endif /* _NORMALIZE_H_ */
