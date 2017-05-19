@@ -19,10 +19,11 @@ public:
     void run() override;
 private:
     void doWork();
+    void printFeature(std::ostream &os, const FeatureVector &fv, const FeatureInfo &fi);
+    void loadDesc(const std::string &fname);
 private:
-    std::string     m_strConcur, m_strMark, m_strInfo;
+    std::string     m_strConcur, m_strMark;
     std::map<std::string, double>   m_ItemProbTable;
-    std::shared_ptr<FeatureIndex>   m_pFtIdx;
 };
 
 
