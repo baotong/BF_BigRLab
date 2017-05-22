@@ -41,7 +41,11 @@ namespace BigRLab {
 class ConsoleWriter : public Writer {
 public:  
     virtual bool readLine( std::string &line )
-    { return std::getline(std::cin, line); }
+    { 
+        auto &stream = std::getline(std::cin, line); 
+        if (!stream) return false;
+        return true;
+    }
 
     virtual void writeLine( const std::string &msg )
     { std::cout << boost::trim_copy(msg) << std::endl; }
