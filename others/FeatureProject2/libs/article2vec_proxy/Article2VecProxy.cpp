@@ -2,7 +2,7 @@
 #include <glog/logging.h>
 #include <cassert>
 #include <sstream>
-#include <boost/filesystem.hpp>
+// #include <boost/filesystem.hpp>
 #include "CommDef.h"
 #include "utils/read_cmd.h"
 

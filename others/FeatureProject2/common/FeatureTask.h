@@ -3,13 +3,7 @@
 
 #include "Feature.h"
 
-/*
- * TODO
- * autoremove
- */
-
 namespace FeatureProject {
-
 
 class FeatureTaskMgr;
 

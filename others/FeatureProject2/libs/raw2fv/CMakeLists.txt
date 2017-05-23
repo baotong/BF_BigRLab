@@ -11,3 +11,7 @@ add_library(${target} SHARED ${SRC})
 target_link_libraries(${target} ${COMM_LIBS} boost_iostreams)
 set_target_properties(${target} PROPERTIES PREFIX "")
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    # message("This is Apple OS.")
+    set_target_properties(${target} PROPERTIES SUFFIX ".so")
+endif()
