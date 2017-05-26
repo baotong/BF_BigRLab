@@ -120,6 +120,8 @@ void IvWoe::caculateIV()
             uint32_t nBad  = valueCnt.negCnt();
             double dGood = (double)(nGood + 1) / (nTotalGood + 1);
             double dBad  = (double)(nBad  + 1) / (nTotalBad  + 1);
+            // double dGood = (double)(nGood) / (nTotalGood);
+            // double dBad  = (double)(nBad) / (nTotalBad);
             valueCnt.woe_ = std::log(dGood / dBad);
             valueCnt.iv_  = valueCnt.woe_ * (dGood - dBad);
             featureCnt.totalIV_ += valueCnt.iv_;

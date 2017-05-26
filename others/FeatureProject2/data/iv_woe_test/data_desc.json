@@ -1,0 +1,9 @@
+{
+   "features" : [
+      {
+         "name" : "AgeGroup",
+         "type" : "string"
+      }
+   ],
+   "nfeatures" : 1
+}
