@@ -4,42 +4,51 @@
     // "autoremove" : true, // 执行完任务后删除输入文件
     "tasks" : [
         {
-            "name" : "raw2fv",
-            "input" : "adult.data.id.1000",
-            "output" : "adult.data.id.1000.fv",
-            "desc" : "adult_conf.json"
-        },
-        {
-            "name" : "merge_dense",
-            "output" : "adult.fv",
-            "dense" : "vectors.id.1000",
-            "feature" : "search_text"
-        },
-        {
-            "name" : "build_index",
-            "input" : "adult.fv",
-            "output" : "adult.fi"
-        },
-        {
-            "name" : "normalize",
-            "info" : "adult.fi",
-            "input" : "adult.fv",
-            "output" : "adult.normalized.fv"
-        },
-        {
-            "name" : "format_output",
-            "info" : "adult.fi",
-            "input" : "adult.normalized.fv",
-            "output" : "adult.formatted.txt"
-        },
-        {
-            "name" : "format_output_concur",
-            "info" : "adult.fi",
-            "concur" : "adult.concur",
-            "input" : "adult.normalized.fv",
-            "output" : "adult.formatted.concur.txt",
-            "mark" : "_1"
+            "name" : "iv_woe",
+            "input" : "adult.data.id.1000.fv",
+            "output" : "iv_woe.txt",
+            "target" : "target.txt"
         }
+        // {
+            // "name" : "raw2fv",
+            // "input" : "adult.data.id.1000",
+            // "output" : "adult.data.id.1000.fv",
+            // "desc" : "adult_conf.json"
+        // },
+        // {
+            // "name" : "merge_dense",
+            // "dense" : "vectors.id.1000",
+            // "feature" : "search_text"
+        // },
+        // {
+            // "name" : "discretize",
+            // "output" : "adult.fv"
+        // },
+        // {
+            // "name" : "build_index",
+            // "input" : "adult.fv",
+            // "output" : "adult.fi"
+        // },
+        // {
+            // "name" : "normalize",
+            // "info" : "adult.fi",
+            // "input" : "adult.fv",
+            // "output" : "adult.normalized.fv"
+        // },
+        // {
+            // "name" : "format_output",
+            // "info" : "adult.fi",
+            // "input" : "adult.normalized.fv",
+            // "output" : "adult.formatted.txt"
+        // },
+        // {
+            // "name" : "format_output_concur",
+            // "info" : "adult.fi",
+            // "concur" : "adult.concur",
+            // "input" : "adult.normalized.fv",
+            // "output" : "adult.formatted.concur.txt",
+            // "mark" : "_1"
+        // }
     ]
 }
 
