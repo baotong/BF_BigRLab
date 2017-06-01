@@ -10,7 +10,7 @@
       },
       {
          "name" : "fnlwgt",
-         "keep" : false,
+         // "keep" : false,
          "type" : "double"
       },
       {
@@ -28,7 +28,7 @@
       {
          "name" : "occupation",
          "type" : "string",
-         "multi" : true,
+         // "multi" : true,
          "sep" : ":"
       },
       {

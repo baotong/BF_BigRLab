@@ -22,7 +22,7 @@ private:
     void buildIdx();
 
 private:
-    // FeatureIndex        m_FeatureIdx;
+    std::string     m_strInfo;
 };
 
 #endif /* _BUILD_INDEX_H_ */

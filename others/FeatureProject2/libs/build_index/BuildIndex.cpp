@@ -5,6 +5,7 @@
 #include <fstream>
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 #include "CommDef.h"
 #include "FvFile.h"
 #include "ThriftFile.hpp"
@@ -16,13 +17,20 @@ FeatureTask* create_instance(const std::string &name, FeatureTaskMgr *mgr)
 
 void BuildIndex::init(const Json::Value &conf)
 {
-    // namespace fs = boost::filesystem;
+    namespace fs = boost::filesystem;
     using namespace std;
 
     FeatureTask::init(conf);
 
     DLOG(INFO) << "BuildIndex::init()";
     THROW_RUNTIME_ERROR_IF(input().empty(), "BuildIndex::init() input file not specified!");
+
+    fs::path dataPath(m_pTaskMgr->dataDir());
+
+    m_strInfo = conf["info"].asString();
+    boost::trim(m_strInfo);
+    THROW_RUNTIME_ERROR_IF(m_strInfo.empty(), "BuildIndex::init() info file not specified!");
+    m_strInfo = (dataPath / m_strInfo).c_str();
 }
 
 
@@ -32,7 +40,7 @@ void BuildIndex::run()
 
     LOG(INFO) << "Building index for " << m_strInput << " ...";
     buildIdx();
-    LOG(INFO) << "Index file has written to " << m_strOutput;
+    LOG(INFO) << "Index file has written to " << m_strInfo;
 }
 
 
@@ -156,11 +164,11 @@ void BuildIndex::buildIdx()
     hFtIdx.setFloatInfo(floatInfo);
     hFtIdx.setDenseInfo(denseInfo);
 
-    // ofstream ofs(m_strOutput, ios::out);
-    // THROW_RUNTIME_ERROR_IF(!ofs, "BuildIndex cannot open " << m_strOutput << " for writting!");
+    // ofstream ofs(m_strInfo, ios::out);
+    // THROW_RUNTIME_ERROR_IF(!ofs, "BuildIndex cannot open " << m_strInfo << " for writting!");
     // ofs << ftIdx << flush;
     
-    OThriftFile<FeatureIndex>    ofi(m_strOutput);
+    OThriftFile<FeatureIndex>    ofi(m_strInfo);
     ofi.writeOne(ftIdx);
 }
 
