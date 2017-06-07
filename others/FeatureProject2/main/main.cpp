@@ -5,9 +5,11 @@
 #include <glog/logging.h>
 #include <gflags/gflags.h>
 #include <climits>
+#include <fstream>
 #include "CommDef.h"
 #include "FeatureTask.h"
 #include "FvFile.h"
+#include "main_fun.h"
 
 using namespace FeatureProject;
 
@@ -15,6 +17,7 @@ using namespace FeatureProject;
 DEFINE_string(conf, "", "Info about raw data in json format");
 DEFINE_string(dump, "", "Print fv file");
 DEFINE_int32(top, 0, "dump top k lines");
+DEFINE_bool(gen_data_desc, false, "Run as generating data description");
 
 
 namespace Test {
@@ -73,6 +76,9 @@ try {
     } else if (!FLAGS_dump.empty()) {
         do_dump(FLAGS_dump, FLAGS_top);
 
+    } else if (FLAGS_gen_data_desc) {
+        gen_data_desc();
+    
     } else {
         cerr << "Wrong command!" << endl;
         return -1;

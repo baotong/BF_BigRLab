@@ -211,6 +211,30 @@ __/common/gen-cpp/FeatureVector_types.cpp.s:
 	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f main/CMakeFiles/feature.bin.dir/build.make main/CMakeFiles/feature.bin.dir/__/common/gen-cpp/FeatureVector_types.cpp.s
 .PHONY : __/common/gen-cpp/FeatureVector_types.cpp.s
 
+gen_data_desc.o: gen_data_desc.cpp.o
+.PHONY : gen_data_desc.o
+
+# target to build an object file
+gen_data_desc.cpp.o:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f main/CMakeFiles/feature.bin.dir/build.make main/CMakeFiles/feature.bin.dir/gen_data_desc.cpp.o
+.PHONY : gen_data_desc.cpp.o
+
+gen_data_desc.i: gen_data_desc.cpp.i
+.PHONY : gen_data_desc.i
+
+# target to preprocess a source file
+gen_data_desc.cpp.i:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f main/CMakeFiles/feature.bin.dir/build.make main/CMakeFiles/feature.bin.dir/gen_data_desc.cpp.i
+.PHONY : gen_data_desc.cpp.i
+
+gen_data_desc.s: gen_data_desc.cpp.s
+.PHONY : gen_data_desc.s
+
+# target to generate assembly for a file
+gen_data_desc.cpp.s:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f main/CMakeFiles/feature.bin.dir/build.make main/CMakeFiles/feature.bin.dir/gen_data_desc.cpp.s
+.PHONY : gen_data_desc.cpp.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -256,6 +280,9 @@ help:
 	@echo "... __/common/gen-cpp/FeatureVector_types.o"
 	@echo "... __/common/gen-cpp/FeatureVector_types.i"
 	@echo "... __/common/gen-cpp/FeatureVector_types.s"
+	@echo "... gen_data_desc.o"
+	@echo "... gen_data_desc.i"
+	@echo "... gen_data_desc.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

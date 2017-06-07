@@ -6,6 +6,8 @@
 #include <stdexcept>
 
 
+#define SPACES                " \t\f\r\v\n"
+
 #define THROW_RUNTIME_ERROR(args) \
     do { \
         std::ostringstream __err_stream; \

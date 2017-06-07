@@ -9,7 +9,6 @@
 #include "CommDef.h"
 
 
-#define SPACES                " \t\f\r\v\n"
 #define VALID_TYPES     {"string", "double", "list_double", "datetime"}
 
 
