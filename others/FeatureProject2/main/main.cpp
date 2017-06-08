@@ -5,10 +5,12 @@
  * GLOG_logtostderr=1 ./feature.bin -dump xx.fv [-top 100]
  * 
  * 自动生成data描述
- * GLOG_logtostderr=1 ./feature.bin -gen_data_desc -data $datafile -desc $descFile [-head $headFile] [-hasid true] [-sep "$sepchar"]
+ * GLOG_logtostderr=1 ./feature.bin -gen_data_desc -data $datafile -desc $descFile [-head $headFile] [-hasid true] [-sep "$sepchar"] [-nsample [100]]
+ * -nsample 取多少样本分析，默认100个
+ *  
  * example:
  * GLOG_logtostderr=1 ./feature.bin -gen_data_desc -data ../data/adult.txt -desc ../data/adult.json -hasid true -sep ","
- * GLOG_logtostderr=1 ./feature.bin -gen_data_desc -data ../data/adult.txt -desc ../data/adult.json -head ../data/head.txt -hasid true -sep ","
+ * GLOG_logtostderr=1 ./feature.bin -gen_data_desc -data ../data/adult.txt -desc ../data/adult.json -head ../data/head.txt -hasid true -sep "," -nsample 500
  */
 #include <glog/logging.h>
 #include <gflags/gflags.h>
