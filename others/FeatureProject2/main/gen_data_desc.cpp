@@ -2,6 +2,7 @@
 #include <gflags/gflags.h>
 #include <fstream>
 #include <algorithm>
+#include <iterator>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <json/json.h>
@@ -60,12 +61,14 @@ void gen_data_desc()
     // read head
     vector<string>  arrFeature;
     if (!FLAGS_head.empty()) {
+        DLOG(INFO) << "Reading head from " << FLAGS_head;
         ifstream ifs(FLAGS_head, ios::in);
         THROW_RUNTIME_ERROR_IF(!ifs, "Cannot open specified -head file " << FLAGS_head);
-        ostringstream oss;
-        oss << ifs.rdbuf() << flush;
-        string strHead = oss.str();
-        boost::split(arrFeature, strHead, boost::is_any_of(SPACES), boost::token_compress_on);
+        // ostringstream oss;
+        // oss << ifs.rdbuf() << flush;
+        // string strHead = oss.str();
+        std::copy(istream_iterator<string>(ifs), istream_iterator<string>(), back_inserter(arrFeature));
+        // boost::split(arrFeature, strHead, boost::is_any_of(SPACES), boost::token_compress_on);
     } // if
 
     // for debug

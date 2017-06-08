@@ -1,6 +1,14 @@
 /*
+ * 执行任务
  * GLOG_logtostderr=1 ./feature.bin -conf tasks.json
+ * 查看fv文件
  * GLOG_logtostderr=1 ./feature.bin -dump xx.fv [-top 100]
+ * 
+ * 自动生成data描述
+ * GLOG_logtostderr=1 ./feature.bin -gen_data_desc -data $datafile -desc $descFile [-head $headFile] [-hasid true] [-sep "$sepchar"]
+ * example:
+ * GLOG_logtostderr=1 ./feature.bin -gen_data_desc -data ../data/adult.txt -desc ../data/adult.json -hasid true -sep ","
+ * GLOG_logtostderr=1 ./feature.bin -gen_data_desc -data ../data/adult.txt -desc ../data/adult.json -head ../data/head.txt -hasid true -sep ","
  */
 #include <glog/logging.h>
 #include <gflags/gflags.h>
