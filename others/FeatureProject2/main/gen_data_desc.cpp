@@ -72,8 +72,8 @@ void gen_data_desc()
     } // if
 
     // for debug
-    for (auto &v : arrFeature)
-        DLOG(INFO) << v;
+    // for (auto &v : arrFeature)
+        // DLOG(INFO) << v;
 
     uint32_t nFeatures = arrFeature.size() ? (uint32_t)(arrFeature.size()) : 0;
     LOG_IF(INFO, nFeatures) << "Detected " << nFeatures << " features from head file.";
