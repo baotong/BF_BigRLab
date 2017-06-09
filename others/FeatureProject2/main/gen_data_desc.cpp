@@ -7,6 +7,7 @@
 #include <boost/lexical_cast.hpp>
 #include <json/json.h>
 #include "CommDef.h"
+#include "utils/read_sep.hpp"
 #include "main_fun.h"
 
 DEFINE_string(data, "", "data file to generate description");
@@ -29,6 +30,7 @@ void detect_type(const StringMatrix &samples, const uint32_t col, std::string &t
     bool isDouble = true;
     double fVal = 0.0;
     for (uint32_t i = 0; i < samples.size(); ++i) {
+        if (samples[i][col].empty()) continue;
         const string& val = samples[i][col];
         if (!boost::conversion::try_lexical_convert(val, fVal)) {
             isDouble = false;
@@ -51,6 +53,9 @@ void gen_data_desc()
         FLAGS_desc = FLAGS_data + ".json";
         LOG(WARNING) << "description file not specified, use auto " << FLAGS_desc;
     } // if
+
+    string seperator = FLAGS_sep;
+    Utils::read_sep(seperator);
 
     DLOG(INFO) << "gen_data_desc() data = " << FLAGS_data << ", desc = " << FLAGS_desc;
     DLOG(INFO) << "FLAGS_sep = " << FLAGS_sep;
@@ -81,7 +86,7 @@ void gen_data_desc()
         THROW_RUNTIME_ERROR_IF(!ifs, "gen_data_desc() cannot open -data file!");
         string line;
         for (int lineno = 0; lineno < FLAGS_nsample && getline(ifs, line); ++lineno) {
-            boost::trim_if(line, boost::is_any_of(FLAGS_sep + SPACES));
+            // boost::trim_if(line, boost::is_any_of(seperator + SPACES));
             if (line.empty()) {
                 LOG(WARNING) << "Line " << (lineno + 1) << " is empty, skip.";
                 continue;
@@ -89,7 +94,8 @@ void gen_data_desc()
 
             vector<string>      record;
             record.reserve(nFeatures + 1);
-            boost::split(record, line, boost::is_any_of(FLAGS_sep), boost::token_compress_on);
+            // boost::split(record, line, boost::is_any_of(seperator), boost::token_compress_on);
+            boost::split(record, line, boost::is_any_of(seperator));
             
             // remove id
             if (FLAGS_hasid) record.erase(record.begin());

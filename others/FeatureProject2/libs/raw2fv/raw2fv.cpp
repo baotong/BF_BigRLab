@@ -1,12 +1,14 @@
 #include <glog/logging.h>
 #include <fstream>
 #include <cassert>
+#include <algorithm>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 #include <boost/filesystem.hpp>
 #include "utils/str2time.hpp"
 #include "utils/read_cmd.h"
+#include "utils/read_sep.hpp"
 #include "CommDef.h"
 #include "FvFile.h"
 #include "raw2fv.h"
@@ -87,7 +89,7 @@ void Raw2Fv::loadDesc()
     } // read nFeatures
 
     // split 用 sep, trim 用 SPACES
-    // read gSep
+    // read Sep
     {
         Json::Value &jv = root["sep"];
         if (!jv) {
@@ -95,7 +97,9 @@ void Raw2Fv::loadDesc()
         } else {
             m_strSep = jv.asString();
         } // jv
-    } // read gSep
+    } // read Sep
+
+    Utils::read_sep(m_strSep);
 
     // read features
     {
@@ -137,15 +141,19 @@ void Raw2Fv::loadDataWithId()
     size_t lineCnt = 0;
     while (getline(ifs, line)) {
         ++lineCnt;
-        boost::trim_if(line, boost::is_any_of(m_strSep + SPACES));  // NOTE!!! 整行trim应该去掉分割符和默认trim空白字符
+        // boost::trim_if(line, boost::is_any_of(m_strSep + SPACES));  // NOTE!!! 整行trim应该去掉分割符和默认trim空白字符
         if (line.empty()) continue;
         vector<string> strValues;
-        boost::split(strValues, line, boost::is_any_of(m_strSep), boost::token_compress_on);
+        // boost::split(strValues, line, boost::is_any_of(m_strSep), boost::token_compress_on);
+        boost::split(strValues, line, boost::is_any_of(m_strSep));
         if (strValues.size() - 1 != m_pFeatureInfoSet->size()) {
             LOG(ERROR) << "Line " << lineCnt << ", size mismatch! line size "
                 << strValues.size() << " != nFeatures " << m_pFeatureInfoSet->size();
             continue;
         } // if
+        std::for_each(strValues.begin(), strValues.end(), [](string &s){
+            boost::trim(s);
+        });
         FeatureVector fv;
         FeatureVectorHandle hFv(fv);
         hFv.setId(strValues[0]);
@@ -187,15 +195,19 @@ void Raw2Fv::loadDataWithoutId()
     size_t lineCnt = 0;
     while (getline(ifs, line)) {
         ++lineCnt;
-        boost::trim_if(line, boost::is_any_of(m_strSep + SPACES));  // NOTE!!! 整行trim应该去掉分割符和默认trim空白字符
+        // boost::trim_if(line, boost::is_any_of(m_strSep + SPACES));  // NOTE!!! 整行trim应该去掉分割符和默认trim空白字符
         if (line.empty()) continue;
         vector<string> strValues;
-        boost::split(strValues, line, boost::is_any_of(m_strSep), boost::token_compress_on);
+        // boost::split(strValues, line, boost::is_any_of(m_strSep), boost::token_compress_on);
+        boost::split(strValues, line, boost::is_any_of(m_strSep));
         if (strValues.size() != m_pFeatureInfoSet->size()) {
             LOG(ERROR) << "Line " << lineCnt << ", size mismatch! line size "
                 << strValues.size() << " != nFeatures " << m_pFeatureInfoSet->size();
             continue;
         } // if
+        std::for_each(strValues.begin(), strValues.end(), [](string &s){
+            boost::trim(s);
+        });
         FeatureVector fv;
         FeatureVectorHandle hFv(fv);
         bool success = true;
@@ -227,6 +239,7 @@ bool Raw2Fv::read_feature(FeatureVector &fv, std::string &strField,
     } else if (ftInfo.type() == "datetime") {
         return read_datetime_feature(fv, strField, ftInfo, lineno);
     } // if 
+    // invalid type
     LOG(ERROR) << "read_feature in line " << lineno <<
             ", feature type \"" << ftInfo.type() << "\" is invalid!";
     return false;
@@ -238,22 +251,23 @@ bool Raw2Fv::read_string_feature(FeatureVector &fv, std::string &strField,
 {
     using namespace std;
 
-    boost::trim_if(strField, boost::is_any_of(ftInfo.sep() + SPACES));
+    // boost::trim_if(strField, boost::is_any_of(ftInfo.sep() + SPACES));
     if (strField.empty()) {
-        LOG(ERROR) << "read_string_feature in line " << lineno
-                << " empty feature " << ftInfo.name();
-        return false;
+        return true;
     } // if
 
     FeatureVectorHandle hFv(fv);
 
     if (ftInfo.isMulti()) {
         vector<string> strValues;
-        const string sep = (ftInfo.sep().empty() ? SPACES : ftInfo.sep());
-        boost::split(strValues, strField, boost::is_any_of(sep), boost::token_compress_on);
+        // const string sep = (ftInfo.sep().empty() ? SPACES : ftInfo.sep());
+        string strSep = ftInfo.sep();
+        Utils::read_sep(strSep);
+        boost::split(strValues, strField, boost::is_any_of(strSep));
         for (auto &v : strValues) {
             boost::trim(v);
-            hFv.addFeature(ftInfo.name(), v);
+            if (!v.empty())
+                hFv.addFeature(ftInfo.name(), v);
         } // for
     } else {
         hFv.setFeature(ftInfo.name(), strField);
@@ -269,21 +283,22 @@ bool Raw2Fv::read_double_feature(FeatureVector &fv, std::string &strField,
     using namespace std;
 
     // boost::trim(strField);
-    boost::trim_if(strField, boost::is_any_of(ftInfo.sep() + SPACES));
+    // boost::trim_if(strField, boost::is_any_of(ftInfo.sep() + SPACES));
     if (strField.empty()) {
-        LOG(ERROR) << "read_double_feature in line "
-            << lineno << ", empty field of \"" << ftInfo.name() << "\"!";
-        return false;
+        return true;
     } // if
 
     FeatureVectorHandle hFv(fv);
 
     if (ftInfo.isMulti()) {
         vector<string> strValues;
-        const string sep = (ftInfo.sep().empty() ? SPACES : ftInfo.sep());
-        boost::split(strValues, strField, boost::is_any_of(sep), boost::token_compress_on);
+        // const string sep = (ftInfo.sep().empty() ? SPACES : ftInfo.sep());
+        string strSep = ftInfo.sep();
+        Utils::read_sep(strSep);
+        boost::split(strValues, strField, boost::is_any_of(strSep));
         for (auto &v : strValues) {
             boost::trim(v);
+            if (v.empty()) continue;
             auto pos = v.rfind('=');
             THROW_RUNTIME_ERROR_IF(string::npos == pos,
                     "read_double_feature in line " << lineno << " for feature \""
@@ -318,7 +333,7 @@ bool Raw2Fv::read_datetime_feature(FeatureVector &fv, std::string &strField,
 {
     using namespace std;
 
-    boost::trim(strField);
+    // boost::trim(strField);
     if (strField.empty()) {
         LOG(ERROR) << "read_datetime_feature in line "
             << lineno << ", empty field of \"" << ftInfo.name() << "\"!";

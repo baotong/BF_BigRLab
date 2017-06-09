@@ -16,10 +16,14 @@
 #include <gflags/gflags.h>
 #include <climits>
 #include <fstream>
+#include <boost/algorithm/string.hpp>
+// #include <boost/format.hpp>
 #include "CommDef.h"
 #include "FeatureTask.h"
 #include "FvFile.h"
 #include "main_fun.h"
+#include "utils/read_sep.hpp"
+
 
 using namespace FeatureProject;
 
@@ -47,6 +51,48 @@ using namespace std;
     // ifs >> fidx;
 // }
 
+#if 0
+void test1(const std::string &fname)
+{
+    ifstream ifs(fname, ios::in);
+    string line;
+    while (getline(ifs, line)) {
+        vector<string> record;
+        boost::split(record, line, boost::is_any_of("\t"));
+        cout << record.size() << endl;
+    } // while
+}
+#endif
+
+#if 0
+void test_read_sep()
+{
+    string sep = ",|blanks";
+    Utils::read_sep(sep);
+    cout << sep.length() << endl;
+    for (char ch : sep)
+        cout << ch << " ";
+        // printf("%2u ", (uint8_t)ch);
+        // cout << boost::format("%02u") % (uint8_t)ch << " ";
+    cout << endl;
+}
+#endif
+
+void test1()
+{
+    ifstream ifs("../data/adult.txt", ios::in);
+    string line;
+    vector<string> strValues;
+
+    string sep = ",";
+    Utils::read_sep(sep);
+    cout << sep.length() << endl;
+    cout << sep << endl;
+    getline(ifs, line);
+    boost::split(strValues, line, boost::is_any_of(sep));
+    cout << strValues.size() << endl;
+}
+
 } // namespace Test
 
 
@@ -73,6 +119,9 @@ try {
 
     // Test::test_gen_tmp_output();
     // Test::test();
+    // Test::test1("../wm_data/singlevalue.dat");
+    // Test::test_read_sep();
+    // Test::test1();
     // exit(0);
 
     google::InitGoogleLogging(argv[0]);
