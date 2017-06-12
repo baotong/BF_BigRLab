@@ -1,7 +1,7 @@
 {
     "datadir" : "../wm_data",
     "hasid" : true,
-    "autoremove" : true, // 执行完任务后删除输入文件
+    "autoremove" : false,
     "tasks" : [
         {
             "name" : "raw2fv",
@@ -10,27 +10,25 @@
             "desc" : "singlevalue.json"
         },
         {
+            "name" : "iv_woe",
+            "input" : "singlevalue.fv",
+            "output" : "singlevalue.iv_woe",
+            "target" : "target.dat"
+        },
+        {
             "name" : "build_index",
             "info" : "singlevalue.fi"
         },
         {
             "name" : "normalize",
             "info" : "singlevalue.fi",
-            "output" : "singlevalue.normalized.fv",
-            "autoremove" : false
+            "output" : "singlevalue.normalized.fv"
         },
         {
             "name" : "format_output",
             "info" : "singlevalue.fi",
             "input" : "singlevalue.normalized.fv",
-            "output" : "singlevalue.formatted.txt",
-            "autoremove" : false
-        },
-        {
-            "name" : "iv_woe",
-            "input" : "singlevalue.normalized.fv",
-            "output" : "singlevalue.iv_woe",
-            "target" : "target.dat"
+            "output" : "singlevalue.formatted.txt"
         }
     ]
 }

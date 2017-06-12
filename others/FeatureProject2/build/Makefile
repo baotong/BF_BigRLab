@@ -111,7 +111,7 @@ feature.bin: cmake_check_build_system
 
 # fast build rule for target.
 feature.bin/fast:
-	$(MAKE) -f main/CMakeFiles/feature.bin.dir/build.make main/CMakeFiles/feature.bin.dir/build
+	$(MAKE) -f src/main/CMakeFiles/feature.bin.dir/build.make src/main/CMakeFiles/feature.bin.dir/build
 .PHONY : feature.bin/fast
 
 #=============================================================================
@@ -124,7 +124,7 @@ article2vec.bin: cmake_check_build_system
 
 # fast build rule for target.
 article2vec.bin/fast:
-	$(MAKE) -f libs/article2vec/CMakeFiles/article2vec.bin.dir/build.make libs/article2vec/CMakeFiles/article2vec.bin.dir/build
+	$(MAKE) -f src/libs/article2vec/CMakeFiles/article2vec.bin.dir/build.make src/libs/article2vec/CMakeFiles/article2vec.bin.dir/build
 .PHONY : article2vec.bin/fast
 
 #=============================================================================
@@ -137,7 +137,7 @@ article2vec: cmake_check_build_system
 
 # fast build rule for target.
 article2vec/fast:
-	$(MAKE) -f libs/article2vec_proxy/CMakeFiles/article2vec.dir/build.make libs/article2vec_proxy/CMakeFiles/article2vec.dir/build
+	$(MAKE) -f src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/build.make src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/build
 .PHONY : article2vec/fast
 
 #=============================================================================
@@ -150,7 +150,7 @@ build_index: cmake_check_build_system
 
 # fast build rule for target.
 build_index/fast:
-	$(MAKE) -f libs/build_index/CMakeFiles/build_index.dir/build.make libs/build_index/CMakeFiles/build_index.dir/build
+	$(MAKE) -f src/libs/build_index/CMakeFiles/build_index.dir/build.make src/libs/build_index/CMakeFiles/build_index.dir/build
 .PHONY : build_index/fast
 
 #=============================================================================
@@ -163,7 +163,7 @@ format_output: cmake_check_build_system
 
 # fast build rule for target.
 format_output/fast:
-	$(MAKE) -f libs/format_output/CMakeFiles/format_output.dir/build.make libs/format_output/CMakeFiles/format_output.dir/build
+	$(MAKE) -f src/libs/format_output/CMakeFiles/format_output.dir/build.make src/libs/format_output/CMakeFiles/format_output.dir/build
 .PHONY : format_output/fast
 
 #=============================================================================
@@ -176,7 +176,7 @@ format_output_concur: cmake_check_build_system
 
 # fast build rule for target.
 format_output_concur/fast:
-	$(MAKE) -f libs/format_output_concur/CMakeFiles/format_output_concur.dir/build.make libs/format_output_concur/CMakeFiles/format_output_concur.dir/build
+	$(MAKE) -f src/libs/format_output_concur/CMakeFiles/format_output_concur.dir/build.make src/libs/format_output_concur/CMakeFiles/format_output_concur.dir/build
 .PHONY : format_output_concur/fast
 
 #=============================================================================
@@ -189,7 +189,7 @@ iv_woe: cmake_check_build_system
 
 # fast build rule for target.
 iv_woe/fast:
-	$(MAKE) -f libs/iv_woe/CMakeFiles/iv_woe.dir/build.make libs/iv_woe/CMakeFiles/iv_woe.dir/build
+	$(MAKE) -f src/libs/iv_woe/CMakeFiles/iv_woe.dir/build.make src/libs/iv_woe/CMakeFiles/iv_woe.dir/build
 .PHONY : iv_woe/fast
 
 #=============================================================================
@@ -202,7 +202,7 @@ merge_dense: cmake_check_build_system
 
 # fast build rule for target.
 merge_dense/fast:
-	$(MAKE) -f libs/merge_dense/CMakeFiles/merge_dense.dir/build.make libs/merge_dense/CMakeFiles/merge_dense.dir/build
+	$(MAKE) -f src/libs/merge_dense/CMakeFiles/merge_dense.dir/build.make src/libs/merge_dense/CMakeFiles/merge_dense.dir/build
 .PHONY : merge_dense/fast
 
 #=============================================================================
@@ -215,7 +215,7 @@ normalize: cmake_check_build_system
 
 # fast build rule for target.
 normalize/fast:
-	$(MAKE) -f libs/normalize/CMakeFiles/normalize.dir/build.make libs/normalize/CMakeFiles/normalize.dir/build
+	$(MAKE) -f src/libs/normalize/CMakeFiles/normalize.dir/build.make src/libs/normalize/CMakeFiles/normalize.dir/build
 .PHONY : normalize/fast
 
 #=============================================================================
@@ -228,7 +228,7 @@ raw2fv: cmake_check_build_system
 
 # fast build rule for target.
 raw2fv/fast:
-	$(MAKE) -f libs/raw2fv/CMakeFiles/raw2fv.dir/build.make libs/raw2fv/CMakeFiles/raw2fv.dir/build
+	$(MAKE) -f src/libs/raw2fv/CMakeFiles/raw2fv.dir/build.make src/libs/raw2fv/CMakeFiles/raw2fv.dir/build
 .PHONY : raw2fv/fast
 
 # Help Target

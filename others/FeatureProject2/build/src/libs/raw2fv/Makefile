@@ -72,14 +72,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/CMakeFiles /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/libs/build_index/CMakeFiles/progress.marks
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/build_index/all
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/CMakeFiles /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/src/libs/raw2fv/CMakeFiles/progress.marks
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/raw2fv/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/build_index/clean
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/raw2fv/clean
 .PHONY : clean
 
 # The main clean target
@@ -88,12 +88,12 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/build_index/preinstall
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/raw2fv/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/build_index/preinstall
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/raw2fv/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
@@ -102,49 +102,25 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-libs/build_index/CMakeFiles/build_index.dir/rule:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/build_index/CMakeFiles/build_index.dir/rule
-.PHONY : libs/build_index/CMakeFiles/build_index.dir/rule
+src/libs/raw2fv/CMakeFiles/raw2fv.dir/rule:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/raw2fv/CMakeFiles/raw2fv.dir/rule
+.PHONY : src/libs/raw2fv/CMakeFiles/raw2fv.dir/rule
 
 # Convenience name for target.
-build_index: libs/build_index/CMakeFiles/build_index.dir/rule
-.PHONY : build_index
+raw2fv: src/libs/raw2fv/CMakeFiles/raw2fv.dir/rule
+.PHONY : raw2fv
 
 # fast build rule for target.
-build_index/fast:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/build_index/CMakeFiles/build_index.dir/build.make libs/build_index/CMakeFiles/build_index.dir/build
-.PHONY : build_index/fast
-
-BuildIndex.o: BuildIndex.cpp.o
-.PHONY : BuildIndex.o
-
-# target to build an object file
-BuildIndex.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/build_index/CMakeFiles/build_index.dir/build.make libs/build_index/CMakeFiles/build_index.dir/BuildIndex.cpp.o
-.PHONY : BuildIndex.cpp.o
-
-BuildIndex.i: BuildIndex.cpp.i
-.PHONY : BuildIndex.i
-
-# target to preprocess a source file
-BuildIndex.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/build_index/CMakeFiles/build_index.dir/build.make libs/build_index/CMakeFiles/build_index.dir/BuildIndex.cpp.i
-.PHONY : BuildIndex.cpp.i
-
-BuildIndex.s: BuildIndex.cpp.s
-.PHONY : BuildIndex.s
-
-# target to generate assembly for a file
-BuildIndex.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/build_index/CMakeFiles/build_index.dir/build.make libs/build_index/CMakeFiles/build_index.dir/BuildIndex.cpp.s
-.PHONY : BuildIndex.cpp.s
+raw2fv/fast:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/raw2fv/CMakeFiles/raw2fv.dir/build.make src/libs/raw2fv/CMakeFiles/raw2fv.dir/build
+.PHONY : raw2fv/fast
 
 __/__/common/FeatureTask.o: __/__/common/FeatureTask.cpp.o
 .PHONY : __/__/common/FeatureTask.o
 
 # target to build an object file
 __/__/common/FeatureTask.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/build_index/CMakeFiles/build_index.dir/build.make libs/build_index/CMakeFiles/build_index.dir/__/__/common/FeatureTask.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/raw2fv/CMakeFiles/raw2fv.dir/build.make src/libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/FeatureTask.cpp.o
 .PHONY : __/__/common/FeatureTask.cpp.o
 
 __/__/common/FeatureTask.i: __/__/common/FeatureTask.cpp.i
@@ -152,7 +128,7 @@ __/__/common/FeatureTask.i: __/__/common/FeatureTask.cpp.i
 
 # target to preprocess a source file
 __/__/common/FeatureTask.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/build_index/CMakeFiles/build_index.dir/build.make libs/build_index/CMakeFiles/build_index.dir/__/__/common/FeatureTask.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/raw2fv/CMakeFiles/raw2fv.dir/build.make src/libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/FeatureTask.cpp.i
 .PHONY : __/__/common/FeatureTask.cpp.i
 
 __/__/common/FeatureTask.s: __/__/common/FeatureTask.cpp.s
@@ -160,7 +136,7 @@ __/__/common/FeatureTask.s: __/__/common/FeatureTask.cpp.s
 
 # target to generate assembly for a file
 __/__/common/FeatureTask.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/build_index/CMakeFiles/build_index.dir/build.make libs/build_index/CMakeFiles/build_index.dir/__/__/common/FeatureTask.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/raw2fv/CMakeFiles/raw2fv.dir/build.make src/libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/FeatureTask.cpp.s
 .PHONY : __/__/common/FeatureTask.cpp.s
 
 __/__/common/FvFile.o: __/__/common/FvFile.cpp.o
@@ -168,7 +144,7 @@ __/__/common/FvFile.o: __/__/common/FvFile.cpp.o
 
 # target to build an object file
 __/__/common/FvFile.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/build_index/CMakeFiles/build_index.dir/build.make libs/build_index/CMakeFiles/build_index.dir/__/__/common/FvFile.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/raw2fv/CMakeFiles/raw2fv.dir/build.make src/libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/FvFile.cpp.o
 .PHONY : __/__/common/FvFile.cpp.o
 
 __/__/common/FvFile.i: __/__/common/FvFile.cpp.i
@@ -176,7 +152,7 @@ __/__/common/FvFile.i: __/__/common/FvFile.cpp.i
 
 # target to preprocess a source file
 __/__/common/FvFile.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/build_index/CMakeFiles/build_index.dir/build.make libs/build_index/CMakeFiles/build_index.dir/__/__/common/FvFile.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/raw2fv/CMakeFiles/raw2fv.dir/build.make src/libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/FvFile.cpp.i
 .PHONY : __/__/common/FvFile.cpp.i
 
 __/__/common/FvFile.s: __/__/common/FvFile.cpp.s
@@ -184,7 +160,7 @@ __/__/common/FvFile.s: __/__/common/FvFile.cpp.s
 
 # target to generate assembly for a file
 __/__/common/FvFile.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/build_index/CMakeFiles/build_index.dir/build.make libs/build_index/CMakeFiles/build_index.dir/__/__/common/FvFile.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/raw2fv/CMakeFiles/raw2fv.dir/build.make src/libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/FvFile.cpp.s
 .PHONY : __/__/common/FvFile.cpp.s
 
 __/__/common/gen-cpp/FeatureVector_constants.o: __/__/common/gen-cpp/FeatureVector_constants.cpp.o
@@ -192,7 +168,7 @@ __/__/common/gen-cpp/FeatureVector_constants.o: __/__/common/gen-cpp/FeatureVect
 
 # target to build an object file
 __/__/common/gen-cpp/FeatureVector_constants.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/build_index/CMakeFiles/build_index.dir/build.make libs/build_index/CMakeFiles/build_index.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/raw2fv/CMakeFiles/raw2fv.dir/build.make src/libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.o
 .PHONY : __/__/common/gen-cpp/FeatureVector_constants.cpp.o
 
 __/__/common/gen-cpp/FeatureVector_constants.i: __/__/common/gen-cpp/FeatureVector_constants.cpp.i
@@ -200,7 +176,7 @@ __/__/common/gen-cpp/FeatureVector_constants.i: __/__/common/gen-cpp/FeatureVect
 
 # target to preprocess a source file
 __/__/common/gen-cpp/FeatureVector_constants.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/build_index/CMakeFiles/build_index.dir/build.make libs/build_index/CMakeFiles/build_index.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/raw2fv/CMakeFiles/raw2fv.dir/build.make src/libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.i
 .PHONY : __/__/common/gen-cpp/FeatureVector_constants.cpp.i
 
 __/__/common/gen-cpp/FeatureVector_constants.s: __/__/common/gen-cpp/FeatureVector_constants.cpp.s
@@ -208,7 +184,7 @@ __/__/common/gen-cpp/FeatureVector_constants.s: __/__/common/gen-cpp/FeatureVect
 
 # target to generate assembly for a file
 __/__/common/gen-cpp/FeatureVector_constants.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/build_index/CMakeFiles/build_index.dir/build.make libs/build_index/CMakeFiles/build_index.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/raw2fv/CMakeFiles/raw2fv.dir/build.make src/libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.s
 .PHONY : __/__/common/gen-cpp/FeatureVector_constants.cpp.s
 
 __/__/common/gen-cpp/FeatureVector_types.o: __/__/common/gen-cpp/FeatureVector_types.cpp.o
@@ -216,7 +192,7 @@ __/__/common/gen-cpp/FeatureVector_types.o: __/__/common/gen-cpp/FeatureVector_t
 
 # target to build an object file
 __/__/common/gen-cpp/FeatureVector_types.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/build_index/CMakeFiles/build_index.dir/build.make libs/build_index/CMakeFiles/build_index.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/raw2fv/CMakeFiles/raw2fv.dir/build.make src/libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.o
 .PHONY : __/__/common/gen-cpp/FeatureVector_types.cpp.o
 
 __/__/common/gen-cpp/FeatureVector_types.i: __/__/common/gen-cpp/FeatureVector_types.cpp.i
@@ -224,7 +200,7 @@ __/__/common/gen-cpp/FeatureVector_types.i: __/__/common/gen-cpp/FeatureVector_t
 
 # target to preprocess a source file
 __/__/common/gen-cpp/FeatureVector_types.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/build_index/CMakeFiles/build_index.dir/build.make libs/build_index/CMakeFiles/build_index.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/raw2fv/CMakeFiles/raw2fv.dir/build.make src/libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.i
 .PHONY : __/__/common/gen-cpp/FeatureVector_types.cpp.i
 
 __/__/common/gen-cpp/FeatureVector_types.s: __/__/common/gen-cpp/FeatureVector_types.cpp.s
@@ -232,8 +208,56 @@ __/__/common/gen-cpp/FeatureVector_types.s: __/__/common/gen-cpp/FeatureVector_t
 
 # target to generate assembly for a file
 __/__/common/gen-cpp/FeatureVector_types.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/build_index/CMakeFiles/build_index.dir/build.make libs/build_index/CMakeFiles/build_index.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/raw2fv/CMakeFiles/raw2fv.dir/build.make src/libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.s
 .PHONY : __/__/common/gen-cpp/FeatureVector_types.cpp.s
+
+__/__/common/utils/read_cmd.o: __/__/common/utils/read_cmd.cpp.o
+.PHONY : __/__/common/utils/read_cmd.o
+
+# target to build an object file
+__/__/common/utils/read_cmd.cpp.o:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/raw2fv/CMakeFiles/raw2fv.dir/build.make src/libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/utils/read_cmd.cpp.o
+.PHONY : __/__/common/utils/read_cmd.cpp.o
+
+__/__/common/utils/read_cmd.i: __/__/common/utils/read_cmd.cpp.i
+.PHONY : __/__/common/utils/read_cmd.i
+
+# target to preprocess a source file
+__/__/common/utils/read_cmd.cpp.i:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/raw2fv/CMakeFiles/raw2fv.dir/build.make src/libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/utils/read_cmd.cpp.i
+.PHONY : __/__/common/utils/read_cmd.cpp.i
+
+__/__/common/utils/read_cmd.s: __/__/common/utils/read_cmd.cpp.s
+.PHONY : __/__/common/utils/read_cmd.s
+
+# target to generate assembly for a file
+__/__/common/utils/read_cmd.cpp.s:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/raw2fv/CMakeFiles/raw2fv.dir/build.make src/libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/utils/read_cmd.cpp.s
+.PHONY : __/__/common/utils/read_cmd.cpp.s
+
+raw2fv.o: raw2fv.cpp.o
+.PHONY : raw2fv.o
+
+# target to build an object file
+raw2fv.cpp.o:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/raw2fv/CMakeFiles/raw2fv.dir/build.make src/libs/raw2fv/CMakeFiles/raw2fv.dir/raw2fv.cpp.o
+.PHONY : raw2fv.cpp.o
+
+raw2fv.i: raw2fv.cpp.i
+.PHONY : raw2fv.i
+
+# target to preprocess a source file
+raw2fv.cpp.i:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/raw2fv/CMakeFiles/raw2fv.dir/build.make src/libs/raw2fv/CMakeFiles/raw2fv.dir/raw2fv.cpp.i
+.PHONY : raw2fv.cpp.i
+
+raw2fv.s: raw2fv.cpp.s
+.PHONY : raw2fv.s
+
+# target to generate assembly for a file
+raw2fv.cpp.s:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/raw2fv/CMakeFiles/raw2fv.dir/build.make src/libs/raw2fv/CMakeFiles/raw2fv.dir/raw2fv.cpp.s
+.PHONY : raw2fv.cpp.s
 
 # Help Target
 help:
@@ -241,12 +265,9 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... build_index"
 	@echo "... edit_cache"
+	@echo "... raw2fv"
 	@echo "... rebuild_cache"
-	@echo "... BuildIndex.o"
-	@echo "... BuildIndex.i"
-	@echo "... BuildIndex.s"
 	@echo "... __/__/common/FeatureTask.o"
 	@echo "... __/__/common/FeatureTask.i"
 	@echo "... __/__/common/FeatureTask.s"
@@ -259,6 +280,12 @@ help:
 	@echo "... __/__/common/gen-cpp/FeatureVector_types.o"
 	@echo "... __/__/common/gen-cpp/FeatureVector_types.i"
 	@echo "... __/__/common/gen-cpp/FeatureVector_types.s"
+	@echo "... __/__/common/utils/read_cmd.o"
+	@echo "... __/__/common/utils/read_cmd.i"
+	@echo "... __/__/common/utils/read_cmd.s"
+	@echo "... raw2fv.o"
+	@echo "... raw2fv.i"
+	@echo "... raw2fv.s"
 .PHONY : help
 
 

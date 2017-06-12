@@ -72,14 +72,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/CMakeFiles /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/libs/article2vec/CMakeFiles/progress.marks
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/article2vec/all
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/CMakeFiles /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/src/libs/article2vec/CMakeFiles/progress.marks
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/article2vec/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/article2vec/clean
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/article2vec/clean
 .PHONY : clean
 
 # The main clean target
@@ -88,12 +88,12 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/article2vec/preinstall
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/article2vec/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/article2vec/preinstall
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/article2vec/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
@@ -102,17 +102,17 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-libs/article2vec/CMakeFiles/article2vec.bin.dir/rule:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/article2vec/CMakeFiles/article2vec.bin.dir/rule
-.PHONY : libs/article2vec/CMakeFiles/article2vec.bin.dir/rule
+src/libs/article2vec/CMakeFiles/article2vec.bin.dir/rule:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/article2vec/CMakeFiles/article2vec.bin.dir/rule
+.PHONY : src/libs/article2vec/CMakeFiles/article2vec.bin.dir/rule
 
 # Convenience name for target.
-article2vec.bin: libs/article2vec/CMakeFiles/article2vec.bin.dir/rule
+article2vec.bin: src/libs/article2vec/CMakeFiles/article2vec.bin.dir/rule
 .PHONY : article2vec.bin
 
 # fast build rule for target.
 article2vec.bin/fast:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/article2vec/CMakeFiles/article2vec.bin.dir/build.make libs/article2vec/CMakeFiles/article2vec.bin.dir/build
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec/CMakeFiles/article2vec.bin.dir/build.make src/libs/article2vec/CMakeFiles/article2vec.bin.dir/build
 .PHONY : article2vec.bin/fast
 
 __/__/common/utils/read_cmd.o: __/__/common/utils/read_cmd.cpp.o
@@ -120,7 +120,7 @@ __/__/common/utils/read_cmd.o: __/__/common/utils/read_cmd.cpp.o
 
 # target to build an object file
 __/__/common/utils/read_cmd.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/article2vec/CMakeFiles/article2vec.bin.dir/build.make libs/article2vec/CMakeFiles/article2vec.bin.dir/__/__/common/utils/read_cmd.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec/CMakeFiles/article2vec.bin.dir/build.make src/libs/article2vec/CMakeFiles/article2vec.bin.dir/__/__/common/utils/read_cmd.cpp.o
 .PHONY : __/__/common/utils/read_cmd.cpp.o
 
 __/__/common/utils/read_cmd.i: __/__/common/utils/read_cmd.cpp.i
@@ -128,7 +128,7 @@ __/__/common/utils/read_cmd.i: __/__/common/utils/read_cmd.cpp.i
 
 # target to preprocess a source file
 __/__/common/utils/read_cmd.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/article2vec/CMakeFiles/article2vec.bin.dir/build.make libs/article2vec/CMakeFiles/article2vec.bin.dir/__/__/common/utils/read_cmd.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec/CMakeFiles/article2vec.bin.dir/build.make src/libs/article2vec/CMakeFiles/article2vec.bin.dir/__/__/common/utils/read_cmd.cpp.i
 .PHONY : __/__/common/utils/read_cmd.cpp.i
 
 __/__/common/utils/read_cmd.s: __/__/common/utils/read_cmd.cpp.s
@@ -136,7 +136,7 @@ __/__/common/utils/read_cmd.s: __/__/common/utils/read_cmd.cpp.s
 
 # target to generate assembly for a file
 __/__/common/utils/read_cmd.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/article2vec/CMakeFiles/article2vec.bin.dir/build.make libs/article2vec/CMakeFiles/article2vec.bin.dir/__/__/common/utils/read_cmd.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec/CMakeFiles/article2vec.bin.dir/build.make src/libs/article2vec/CMakeFiles/article2vec.bin.dir/__/__/common/utils/read_cmd.cpp.s
 .PHONY : __/__/common/utils/read_cmd.cpp.s
 
 article2vec.o: article2vec.cpp.o
@@ -144,7 +144,7 @@ article2vec.o: article2vec.cpp.o
 
 # target to build an object file
 article2vec.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/article2vec/CMakeFiles/article2vec.bin.dir/build.make libs/article2vec/CMakeFiles/article2vec.bin.dir/article2vec.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec/CMakeFiles/article2vec.bin.dir/build.make src/libs/article2vec/CMakeFiles/article2vec.bin.dir/article2vec.cpp.o
 .PHONY : article2vec.cpp.o
 
 article2vec.i: article2vec.cpp.i
@@ -152,7 +152,7 @@ article2vec.i: article2vec.cpp.i
 
 # target to preprocess a source file
 article2vec.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/article2vec/CMakeFiles/article2vec.bin.dir/build.make libs/article2vec/CMakeFiles/article2vec.bin.dir/article2vec.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec/CMakeFiles/article2vec.bin.dir/build.make src/libs/article2vec/CMakeFiles/article2vec.bin.dir/article2vec.cpp.i
 .PHONY : article2vec.cpp.i
 
 article2vec.s: article2vec.cpp.s
@@ -160,7 +160,7 @@ article2vec.s: article2vec.cpp.s
 
 # target to generate assembly for a file
 article2vec.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/article2vec/CMakeFiles/article2vec.bin.dir/build.make libs/article2vec/CMakeFiles/article2vec.bin.dir/article2vec.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec/CMakeFiles/article2vec.bin.dir/build.make src/libs/article2vec/CMakeFiles/article2vec.bin.dir/article2vec.cpp.s
 .PHONY : article2vec.cpp.s
 
 # Help Target

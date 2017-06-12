@@ -72,14 +72,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/CMakeFiles /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/libs/iv_woe/CMakeFiles/progress.marks
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/iv_woe/all
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/CMakeFiles /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/src/libs/iv_woe/CMakeFiles/progress.marks
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/iv_woe/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/iv_woe/clean
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/iv_woe/clean
 .PHONY : clean
 
 # The main clean target
@@ -88,12 +88,12 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/iv_woe/preinstall
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/iv_woe/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/iv_woe/preinstall
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/iv_woe/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
@@ -102,17 +102,17 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-libs/iv_woe/CMakeFiles/iv_woe.dir/rule:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/iv_woe/CMakeFiles/iv_woe.dir/rule
-.PHONY : libs/iv_woe/CMakeFiles/iv_woe.dir/rule
+src/libs/iv_woe/CMakeFiles/iv_woe.dir/rule:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/iv_woe/CMakeFiles/iv_woe.dir/rule
+.PHONY : src/libs/iv_woe/CMakeFiles/iv_woe.dir/rule
 
 # Convenience name for target.
-iv_woe: libs/iv_woe/CMakeFiles/iv_woe.dir/rule
+iv_woe: src/libs/iv_woe/CMakeFiles/iv_woe.dir/rule
 .PHONY : iv_woe
 
 # fast build rule for target.
 iv_woe/fast:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/iv_woe/CMakeFiles/iv_woe.dir/build.make libs/iv_woe/CMakeFiles/iv_woe.dir/build
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/iv_woe/CMakeFiles/iv_woe.dir/build.make src/libs/iv_woe/CMakeFiles/iv_woe.dir/build
 .PHONY : iv_woe/fast
 
 IvWoe.o: IvWoe.cpp.o
@@ -120,7 +120,7 @@ IvWoe.o: IvWoe.cpp.o
 
 # target to build an object file
 IvWoe.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/iv_woe/CMakeFiles/iv_woe.dir/build.make libs/iv_woe/CMakeFiles/iv_woe.dir/IvWoe.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/iv_woe/CMakeFiles/iv_woe.dir/build.make src/libs/iv_woe/CMakeFiles/iv_woe.dir/IvWoe.cpp.o
 .PHONY : IvWoe.cpp.o
 
 IvWoe.i: IvWoe.cpp.i
@@ -128,7 +128,7 @@ IvWoe.i: IvWoe.cpp.i
 
 # target to preprocess a source file
 IvWoe.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/iv_woe/CMakeFiles/iv_woe.dir/build.make libs/iv_woe/CMakeFiles/iv_woe.dir/IvWoe.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/iv_woe/CMakeFiles/iv_woe.dir/build.make src/libs/iv_woe/CMakeFiles/iv_woe.dir/IvWoe.cpp.i
 .PHONY : IvWoe.cpp.i
 
 IvWoe.s: IvWoe.cpp.s
@@ -136,7 +136,7 @@ IvWoe.s: IvWoe.cpp.s
 
 # target to generate assembly for a file
 IvWoe.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/iv_woe/CMakeFiles/iv_woe.dir/build.make libs/iv_woe/CMakeFiles/iv_woe.dir/IvWoe.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/iv_woe/CMakeFiles/iv_woe.dir/build.make src/libs/iv_woe/CMakeFiles/iv_woe.dir/IvWoe.cpp.s
 .PHONY : IvWoe.cpp.s
 
 __/__/common/FeatureTask.o: __/__/common/FeatureTask.cpp.o
@@ -144,7 +144,7 @@ __/__/common/FeatureTask.o: __/__/common/FeatureTask.cpp.o
 
 # target to build an object file
 __/__/common/FeatureTask.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/iv_woe/CMakeFiles/iv_woe.dir/build.make libs/iv_woe/CMakeFiles/iv_woe.dir/__/__/common/FeatureTask.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/iv_woe/CMakeFiles/iv_woe.dir/build.make src/libs/iv_woe/CMakeFiles/iv_woe.dir/__/__/common/FeatureTask.cpp.o
 .PHONY : __/__/common/FeatureTask.cpp.o
 
 __/__/common/FeatureTask.i: __/__/common/FeatureTask.cpp.i
@@ -152,7 +152,7 @@ __/__/common/FeatureTask.i: __/__/common/FeatureTask.cpp.i
 
 # target to preprocess a source file
 __/__/common/FeatureTask.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/iv_woe/CMakeFiles/iv_woe.dir/build.make libs/iv_woe/CMakeFiles/iv_woe.dir/__/__/common/FeatureTask.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/iv_woe/CMakeFiles/iv_woe.dir/build.make src/libs/iv_woe/CMakeFiles/iv_woe.dir/__/__/common/FeatureTask.cpp.i
 .PHONY : __/__/common/FeatureTask.cpp.i
 
 __/__/common/FeatureTask.s: __/__/common/FeatureTask.cpp.s
@@ -160,7 +160,7 @@ __/__/common/FeatureTask.s: __/__/common/FeatureTask.cpp.s
 
 # target to generate assembly for a file
 __/__/common/FeatureTask.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/iv_woe/CMakeFiles/iv_woe.dir/build.make libs/iv_woe/CMakeFiles/iv_woe.dir/__/__/common/FeatureTask.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/iv_woe/CMakeFiles/iv_woe.dir/build.make src/libs/iv_woe/CMakeFiles/iv_woe.dir/__/__/common/FeatureTask.cpp.s
 .PHONY : __/__/common/FeatureTask.cpp.s
 
 __/__/common/FvFile.o: __/__/common/FvFile.cpp.o
@@ -168,7 +168,7 @@ __/__/common/FvFile.o: __/__/common/FvFile.cpp.o
 
 # target to build an object file
 __/__/common/FvFile.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/iv_woe/CMakeFiles/iv_woe.dir/build.make libs/iv_woe/CMakeFiles/iv_woe.dir/__/__/common/FvFile.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/iv_woe/CMakeFiles/iv_woe.dir/build.make src/libs/iv_woe/CMakeFiles/iv_woe.dir/__/__/common/FvFile.cpp.o
 .PHONY : __/__/common/FvFile.cpp.o
 
 __/__/common/FvFile.i: __/__/common/FvFile.cpp.i
@@ -176,7 +176,7 @@ __/__/common/FvFile.i: __/__/common/FvFile.cpp.i
 
 # target to preprocess a source file
 __/__/common/FvFile.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/iv_woe/CMakeFiles/iv_woe.dir/build.make libs/iv_woe/CMakeFiles/iv_woe.dir/__/__/common/FvFile.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/iv_woe/CMakeFiles/iv_woe.dir/build.make src/libs/iv_woe/CMakeFiles/iv_woe.dir/__/__/common/FvFile.cpp.i
 .PHONY : __/__/common/FvFile.cpp.i
 
 __/__/common/FvFile.s: __/__/common/FvFile.cpp.s
@@ -184,7 +184,7 @@ __/__/common/FvFile.s: __/__/common/FvFile.cpp.s
 
 # target to generate assembly for a file
 __/__/common/FvFile.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/iv_woe/CMakeFiles/iv_woe.dir/build.make libs/iv_woe/CMakeFiles/iv_woe.dir/__/__/common/FvFile.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/iv_woe/CMakeFiles/iv_woe.dir/build.make src/libs/iv_woe/CMakeFiles/iv_woe.dir/__/__/common/FvFile.cpp.s
 .PHONY : __/__/common/FvFile.cpp.s
 
 __/__/common/gen-cpp/FeatureVector_constants.o: __/__/common/gen-cpp/FeatureVector_constants.cpp.o
@@ -192,7 +192,7 @@ __/__/common/gen-cpp/FeatureVector_constants.o: __/__/common/gen-cpp/FeatureVect
 
 # target to build an object file
 __/__/common/gen-cpp/FeatureVector_constants.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/iv_woe/CMakeFiles/iv_woe.dir/build.make libs/iv_woe/CMakeFiles/iv_woe.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/iv_woe/CMakeFiles/iv_woe.dir/build.make src/libs/iv_woe/CMakeFiles/iv_woe.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.o
 .PHONY : __/__/common/gen-cpp/FeatureVector_constants.cpp.o
 
 __/__/common/gen-cpp/FeatureVector_constants.i: __/__/common/gen-cpp/FeatureVector_constants.cpp.i
@@ -200,7 +200,7 @@ __/__/common/gen-cpp/FeatureVector_constants.i: __/__/common/gen-cpp/FeatureVect
 
 # target to preprocess a source file
 __/__/common/gen-cpp/FeatureVector_constants.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/iv_woe/CMakeFiles/iv_woe.dir/build.make libs/iv_woe/CMakeFiles/iv_woe.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/iv_woe/CMakeFiles/iv_woe.dir/build.make src/libs/iv_woe/CMakeFiles/iv_woe.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.i
 .PHONY : __/__/common/gen-cpp/FeatureVector_constants.cpp.i
 
 __/__/common/gen-cpp/FeatureVector_constants.s: __/__/common/gen-cpp/FeatureVector_constants.cpp.s
@@ -208,7 +208,7 @@ __/__/common/gen-cpp/FeatureVector_constants.s: __/__/common/gen-cpp/FeatureVect
 
 # target to generate assembly for a file
 __/__/common/gen-cpp/FeatureVector_constants.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/iv_woe/CMakeFiles/iv_woe.dir/build.make libs/iv_woe/CMakeFiles/iv_woe.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/iv_woe/CMakeFiles/iv_woe.dir/build.make src/libs/iv_woe/CMakeFiles/iv_woe.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.s
 .PHONY : __/__/common/gen-cpp/FeatureVector_constants.cpp.s
 
 __/__/common/gen-cpp/FeatureVector_types.o: __/__/common/gen-cpp/FeatureVector_types.cpp.o
@@ -216,7 +216,7 @@ __/__/common/gen-cpp/FeatureVector_types.o: __/__/common/gen-cpp/FeatureVector_t
 
 # target to build an object file
 __/__/common/gen-cpp/FeatureVector_types.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/iv_woe/CMakeFiles/iv_woe.dir/build.make libs/iv_woe/CMakeFiles/iv_woe.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/iv_woe/CMakeFiles/iv_woe.dir/build.make src/libs/iv_woe/CMakeFiles/iv_woe.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.o
 .PHONY : __/__/common/gen-cpp/FeatureVector_types.cpp.o
 
 __/__/common/gen-cpp/FeatureVector_types.i: __/__/common/gen-cpp/FeatureVector_types.cpp.i
@@ -224,7 +224,7 @@ __/__/common/gen-cpp/FeatureVector_types.i: __/__/common/gen-cpp/FeatureVector_t
 
 # target to preprocess a source file
 __/__/common/gen-cpp/FeatureVector_types.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/iv_woe/CMakeFiles/iv_woe.dir/build.make libs/iv_woe/CMakeFiles/iv_woe.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/iv_woe/CMakeFiles/iv_woe.dir/build.make src/libs/iv_woe/CMakeFiles/iv_woe.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.i
 .PHONY : __/__/common/gen-cpp/FeatureVector_types.cpp.i
 
 __/__/common/gen-cpp/FeatureVector_types.s: __/__/common/gen-cpp/FeatureVector_types.cpp.s
@@ -232,7 +232,7 @@ __/__/common/gen-cpp/FeatureVector_types.s: __/__/common/gen-cpp/FeatureVector_t
 
 # target to generate assembly for a file
 __/__/common/gen-cpp/FeatureVector_types.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/iv_woe/CMakeFiles/iv_woe.dir/build.make libs/iv_woe/CMakeFiles/iv_woe.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/iv_woe/CMakeFiles/iv_woe.dir/build.make src/libs/iv_woe/CMakeFiles/iv_woe.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.s
 .PHONY : __/__/common/gen-cpp/FeatureVector_types.cpp.s
 
 # Help Target

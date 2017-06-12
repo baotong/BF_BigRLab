@@ -168,10 +168,13 @@ void Raw2Fv::loadDataWithId()
         // DLOG(INFO) << fv;
         if (success) {
             ofile.writeOne(fv);
+            LOG_IF(INFO, lineCnt % 100000 == 0) << "Processed " << lineCnt << " records.";
         } else {
             LOG(ERROR) << "Process line " << lineCnt << " fail! skipping!";
         } // if success
     } // while
+
+    LOG(INFO) << "Totally processed " << lineCnt << " records.";
 }
 
 
@@ -354,5 +357,4 @@ bool Raw2Fv::read_datetime_feature(FeatureVector &fv, std::string &strField,
 
     return true;
 }
-
 

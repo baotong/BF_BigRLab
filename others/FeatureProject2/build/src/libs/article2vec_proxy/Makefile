@@ -72,14 +72,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/CMakeFiles /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/libs/normalize/CMakeFiles/progress.marks
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/normalize/all
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/CMakeFiles /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/src/libs/article2vec_proxy/CMakeFiles/progress.marks
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/article2vec_proxy/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/normalize/clean
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/article2vec_proxy/clean
 .PHONY : clean
 
 # The main clean target
@@ -88,12 +88,12 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/normalize/preinstall
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/article2vec_proxy/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/normalize/preinstall
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/article2vec_proxy/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
@@ -102,25 +102,49 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-libs/normalize/CMakeFiles/normalize.dir/rule:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/normalize/CMakeFiles/normalize.dir/rule
-.PHONY : libs/normalize/CMakeFiles/normalize.dir/rule
+src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/rule:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/rule
+.PHONY : src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/rule
 
 # Convenience name for target.
-normalize: libs/normalize/CMakeFiles/normalize.dir/rule
-.PHONY : normalize
+article2vec: src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/rule
+.PHONY : article2vec
 
 # fast build rule for target.
-normalize/fast:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/normalize/CMakeFiles/normalize.dir/build.make libs/normalize/CMakeFiles/normalize.dir/build
-.PHONY : normalize/fast
+article2vec/fast:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/build.make src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/build
+.PHONY : article2vec/fast
+
+Article2VecProxy.o: Article2VecProxy.cpp.o
+.PHONY : Article2VecProxy.o
+
+# target to build an object file
+Article2VecProxy.cpp.o:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/build.make src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/Article2VecProxy.cpp.o
+.PHONY : Article2VecProxy.cpp.o
+
+Article2VecProxy.i: Article2VecProxy.cpp.i
+.PHONY : Article2VecProxy.i
+
+# target to preprocess a source file
+Article2VecProxy.cpp.i:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/build.make src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/Article2VecProxy.cpp.i
+.PHONY : Article2VecProxy.cpp.i
+
+Article2VecProxy.s: Article2VecProxy.cpp.s
+.PHONY : Article2VecProxy.s
+
+# target to generate assembly for a file
+Article2VecProxy.cpp.s:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/build.make src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/Article2VecProxy.cpp.s
+.PHONY : Article2VecProxy.cpp.s
 
 __/__/common/FeatureTask.o: __/__/common/FeatureTask.cpp.o
 .PHONY : __/__/common/FeatureTask.o
 
 # target to build an object file
 __/__/common/FeatureTask.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/normalize/CMakeFiles/normalize.dir/build.make libs/normalize/CMakeFiles/normalize.dir/__/__/common/FeatureTask.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/build.make src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/__/__/common/FeatureTask.cpp.o
 .PHONY : __/__/common/FeatureTask.cpp.o
 
 __/__/common/FeatureTask.i: __/__/common/FeatureTask.cpp.i
@@ -128,7 +152,7 @@ __/__/common/FeatureTask.i: __/__/common/FeatureTask.cpp.i
 
 # target to preprocess a source file
 __/__/common/FeatureTask.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/normalize/CMakeFiles/normalize.dir/build.make libs/normalize/CMakeFiles/normalize.dir/__/__/common/FeatureTask.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/build.make src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/__/__/common/FeatureTask.cpp.i
 .PHONY : __/__/common/FeatureTask.cpp.i
 
 __/__/common/FeatureTask.s: __/__/common/FeatureTask.cpp.s
@@ -136,7 +160,7 @@ __/__/common/FeatureTask.s: __/__/common/FeatureTask.cpp.s
 
 # target to generate assembly for a file
 __/__/common/FeatureTask.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/normalize/CMakeFiles/normalize.dir/build.make libs/normalize/CMakeFiles/normalize.dir/__/__/common/FeatureTask.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/build.make src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/__/__/common/FeatureTask.cpp.s
 .PHONY : __/__/common/FeatureTask.cpp.s
 
 __/__/common/FvFile.o: __/__/common/FvFile.cpp.o
@@ -144,7 +168,7 @@ __/__/common/FvFile.o: __/__/common/FvFile.cpp.o
 
 # target to build an object file
 __/__/common/FvFile.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/normalize/CMakeFiles/normalize.dir/build.make libs/normalize/CMakeFiles/normalize.dir/__/__/common/FvFile.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/build.make src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/__/__/common/FvFile.cpp.o
 .PHONY : __/__/common/FvFile.cpp.o
 
 __/__/common/FvFile.i: __/__/common/FvFile.cpp.i
@@ -152,7 +176,7 @@ __/__/common/FvFile.i: __/__/common/FvFile.cpp.i
 
 # target to preprocess a source file
 __/__/common/FvFile.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/normalize/CMakeFiles/normalize.dir/build.make libs/normalize/CMakeFiles/normalize.dir/__/__/common/FvFile.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/build.make src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/__/__/common/FvFile.cpp.i
 .PHONY : __/__/common/FvFile.cpp.i
 
 __/__/common/FvFile.s: __/__/common/FvFile.cpp.s
@@ -160,7 +184,7 @@ __/__/common/FvFile.s: __/__/common/FvFile.cpp.s
 
 # target to generate assembly for a file
 __/__/common/FvFile.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/normalize/CMakeFiles/normalize.dir/build.make libs/normalize/CMakeFiles/normalize.dir/__/__/common/FvFile.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/build.make src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/__/__/common/FvFile.cpp.s
 .PHONY : __/__/common/FvFile.cpp.s
 
 __/__/common/gen-cpp/FeatureVector_constants.o: __/__/common/gen-cpp/FeatureVector_constants.cpp.o
@@ -168,7 +192,7 @@ __/__/common/gen-cpp/FeatureVector_constants.o: __/__/common/gen-cpp/FeatureVect
 
 # target to build an object file
 __/__/common/gen-cpp/FeatureVector_constants.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/normalize/CMakeFiles/normalize.dir/build.make libs/normalize/CMakeFiles/normalize.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/build.make src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.o
 .PHONY : __/__/common/gen-cpp/FeatureVector_constants.cpp.o
 
 __/__/common/gen-cpp/FeatureVector_constants.i: __/__/common/gen-cpp/FeatureVector_constants.cpp.i
@@ -176,7 +200,7 @@ __/__/common/gen-cpp/FeatureVector_constants.i: __/__/common/gen-cpp/FeatureVect
 
 # target to preprocess a source file
 __/__/common/gen-cpp/FeatureVector_constants.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/normalize/CMakeFiles/normalize.dir/build.make libs/normalize/CMakeFiles/normalize.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/build.make src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.i
 .PHONY : __/__/common/gen-cpp/FeatureVector_constants.cpp.i
 
 __/__/common/gen-cpp/FeatureVector_constants.s: __/__/common/gen-cpp/FeatureVector_constants.cpp.s
@@ -184,7 +208,7 @@ __/__/common/gen-cpp/FeatureVector_constants.s: __/__/common/gen-cpp/FeatureVect
 
 # target to generate assembly for a file
 __/__/common/gen-cpp/FeatureVector_constants.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/normalize/CMakeFiles/normalize.dir/build.make libs/normalize/CMakeFiles/normalize.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/build.make src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.s
 .PHONY : __/__/common/gen-cpp/FeatureVector_constants.cpp.s
 
 __/__/common/gen-cpp/FeatureVector_types.o: __/__/common/gen-cpp/FeatureVector_types.cpp.o
@@ -192,7 +216,7 @@ __/__/common/gen-cpp/FeatureVector_types.o: __/__/common/gen-cpp/FeatureVector_t
 
 # target to build an object file
 __/__/common/gen-cpp/FeatureVector_types.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/normalize/CMakeFiles/normalize.dir/build.make libs/normalize/CMakeFiles/normalize.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/build.make src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.o
 .PHONY : __/__/common/gen-cpp/FeatureVector_types.cpp.o
 
 __/__/common/gen-cpp/FeatureVector_types.i: __/__/common/gen-cpp/FeatureVector_types.cpp.i
@@ -200,7 +224,7 @@ __/__/common/gen-cpp/FeatureVector_types.i: __/__/common/gen-cpp/FeatureVector_t
 
 # target to preprocess a source file
 __/__/common/gen-cpp/FeatureVector_types.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/normalize/CMakeFiles/normalize.dir/build.make libs/normalize/CMakeFiles/normalize.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/build.make src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.i
 .PHONY : __/__/common/gen-cpp/FeatureVector_types.cpp.i
 
 __/__/common/gen-cpp/FeatureVector_types.s: __/__/common/gen-cpp/FeatureVector_types.cpp.s
@@ -208,32 +232,32 @@ __/__/common/gen-cpp/FeatureVector_types.s: __/__/common/gen-cpp/FeatureVector_t
 
 # target to generate assembly for a file
 __/__/common/gen-cpp/FeatureVector_types.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/normalize/CMakeFiles/normalize.dir/build.make libs/normalize/CMakeFiles/normalize.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/build.make src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.s
 .PHONY : __/__/common/gen-cpp/FeatureVector_types.cpp.s
 
-normalize.o: normalize.cpp.o
-.PHONY : normalize.o
+__/__/common/utils/read_cmd.o: __/__/common/utils/read_cmd.cpp.o
+.PHONY : __/__/common/utils/read_cmd.o
 
 # target to build an object file
-normalize.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/normalize/CMakeFiles/normalize.dir/build.make libs/normalize/CMakeFiles/normalize.dir/normalize.cpp.o
-.PHONY : normalize.cpp.o
+__/__/common/utils/read_cmd.cpp.o:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/build.make src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/__/__/common/utils/read_cmd.cpp.o
+.PHONY : __/__/common/utils/read_cmd.cpp.o
 
-normalize.i: normalize.cpp.i
-.PHONY : normalize.i
+__/__/common/utils/read_cmd.i: __/__/common/utils/read_cmd.cpp.i
+.PHONY : __/__/common/utils/read_cmd.i
 
 # target to preprocess a source file
-normalize.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/normalize/CMakeFiles/normalize.dir/build.make libs/normalize/CMakeFiles/normalize.dir/normalize.cpp.i
-.PHONY : normalize.cpp.i
+__/__/common/utils/read_cmd.cpp.i:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/build.make src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/__/__/common/utils/read_cmd.cpp.i
+.PHONY : __/__/common/utils/read_cmd.cpp.i
 
-normalize.s: normalize.cpp.s
-.PHONY : normalize.s
+__/__/common/utils/read_cmd.s: __/__/common/utils/read_cmd.cpp.s
+.PHONY : __/__/common/utils/read_cmd.s
 
 # target to generate assembly for a file
-normalize.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/normalize/CMakeFiles/normalize.dir/build.make libs/normalize/CMakeFiles/normalize.dir/normalize.cpp.s
-.PHONY : normalize.cpp.s
+__/__/common/utils/read_cmd.cpp.s:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/build.make src/libs/article2vec_proxy/CMakeFiles/article2vec.dir/__/__/common/utils/read_cmd.cpp.s
+.PHONY : __/__/common/utils/read_cmd.cpp.s
 
 # Help Target
 help:
@@ -241,9 +265,12 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
+	@echo "... article2vec"
 	@echo "... edit_cache"
-	@echo "... normalize"
 	@echo "... rebuild_cache"
+	@echo "... Article2VecProxy.o"
+	@echo "... Article2VecProxy.i"
+	@echo "... Article2VecProxy.s"
 	@echo "... __/__/common/FeatureTask.o"
 	@echo "... __/__/common/FeatureTask.i"
 	@echo "... __/__/common/FeatureTask.s"
@@ -256,9 +283,9 @@ help:
 	@echo "... __/__/common/gen-cpp/FeatureVector_types.o"
 	@echo "... __/__/common/gen-cpp/FeatureVector_types.i"
 	@echo "... __/__/common/gen-cpp/FeatureVector_types.s"
-	@echo "... normalize.o"
-	@echo "... normalize.i"
-	@echo "... normalize.s"
+	@echo "... __/__/common/utils/read_cmd.o"
+	@echo "... __/__/common/utils/read_cmd.i"
+	@echo "... __/__/common/utils/read_cmd.s"
 .PHONY : help
 
 

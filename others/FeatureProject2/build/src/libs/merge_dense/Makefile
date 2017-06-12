@@ -72,14 +72,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/CMakeFiles /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/libs/raw2fv/CMakeFiles/progress.marks
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/raw2fv/all
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/CMakeFiles /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/src/libs/merge_dense/CMakeFiles/progress.marks
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/merge_dense/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/raw2fv/clean
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/merge_dense/clean
 .PHONY : clean
 
 # The main clean target
@@ -88,12 +88,12 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/raw2fv/preinstall
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/merge_dense/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/raw2fv/preinstall
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/merge_dense/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
@@ -102,25 +102,49 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-libs/raw2fv/CMakeFiles/raw2fv.dir/rule:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/raw2fv/CMakeFiles/raw2fv.dir/rule
-.PHONY : libs/raw2fv/CMakeFiles/raw2fv.dir/rule
+src/libs/merge_dense/CMakeFiles/merge_dense.dir/rule:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/merge_dense/CMakeFiles/merge_dense.dir/rule
+.PHONY : src/libs/merge_dense/CMakeFiles/merge_dense.dir/rule
 
 # Convenience name for target.
-raw2fv: libs/raw2fv/CMakeFiles/raw2fv.dir/rule
-.PHONY : raw2fv
+merge_dense: src/libs/merge_dense/CMakeFiles/merge_dense.dir/rule
+.PHONY : merge_dense
 
 # fast build rule for target.
-raw2fv/fast:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/raw2fv/CMakeFiles/raw2fv.dir/build.make libs/raw2fv/CMakeFiles/raw2fv.dir/build
-.PHONY : raw2fv/fast
+merge_dense/fast:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/merge_dense/CMakeFiles/merge_dense.dir/build.make src/libs/merge_dense/CMakeFiles/merge_dense.dir/build
+.PHONY : merge_dense/fast
+
+MergeDense.o: MergeDense.cpp.o
+.PHONY : MergeDense.o
+
+# target to build an object file
+MergeDense.cpp.o:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/merge_dense/CMakeFiles/merge_dense.dir/build.make src/libs/merge_dense/CMakeFiles/merge_dense.dir/MergeDense.cpp.o
+.PHONY : MergeDense.cpp.o
+
+MergeDense.i: MergeDense.cpp.i
+.PHONY : MergeDense.i
+
+# target to preprocess a source file
+MergeDense.cpp.i:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/merge_dense/CMakeFiles/merge_dense.dir/build.make src/libs/merge_dense/CMakeFiles/merge_dense.dir/MergeDense.cpp.i
+.PHONY : MergeDense.cpp.i
+
+MergeDense.s: MergeDense.cpp.s
+.PHONY : MergeDense.s
+
+# target to generate assembly for a file
+MergeDense.cpp.s:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/merge_dense/CMakeFiles/merge_dense.dir/build.make src/libs/merge_dense/CMakeFiles/merge_dense.dir/MergeDense.cpp.s
+.PHONY : MergeDense.cpp.s
 
 __/__/common/FeatureTask.o: __/__/common/FeatureTask.cpp.o
 .PHONY : __/__/common/FeatureTask.o
 
 # target to build an object file
 __/__/common/FeatureTask.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/raw2fv/CMakeFiles/raw2fv.dir/build.make libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/FeatureTask.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/merge_dense/CMakeFiles/merge_dense.dir/build.make src/libs/merge_dense/CMakeFiles/merge_dense.dir/__/__/common/FeatureTask.cpp.o
 .PHONY : __/__/common/FeatureTask.cpp.o
 
 __/__/common/FeatureTask.i: __/__/common/FeatureTask.cpp.i
@@ -128,7 +152,7 @@ __/__/common/FeatureTask.i: __/__/common/FeatureTask.cpp.i
 
 # target to preprocess a source file
 __/__/common/FeatureTask.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/raw2fv/CMakeFiles/raw2fv.dir/build.make libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/FeatureTask.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/merge_dense/CMakeFiles/merge_dense.dir/build.make src/libs/merge_dense/CMakeFiles/merge_dense.dir/__/__/common/FeatureTask.cpp.i
 .PHONY : __/__/common/FeatureTask.cpp.i
 
 __/__/common/FeatureTask.s: __/__/common/FeatureTask.cpp.s
@@ -136,7 +160,7 @@ __/__/common/FeatureTask.s: __/__/common/FeatureTask.cpp.s
 
 # target to generate assembly for a file
 __/__/common/FeatureTask.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/raw2fv/CMakeFiles/raw2fv.dir/build.make libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/FeatureTask.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/merge_dense/CMakeFiles/merge_dense.dir/build.make src/libs/merge_dense/CMakeFiles/merge_dense.dir/__/__/common/FeatureTask.cpp.s
 .PHONY : __/__/common/FeatureTask.cpp.s
 
 __/__/common/FvFile.o: __/__/common/FvFile.cpp.o
@@ -144,7 +168,7 @@ __/__/common/FvFile.o: __/__/common/FvFile.cpp.o
 
 # target to build an object file
 __/__/common/FvFile.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/raw2fv/CMakeFiles/raw2fv.dir/build.make libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/FvFile.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/merge_dense/CMakeFiles/merge_dense.dir/build.make src/libs/merge_dense/CMakeFiles/merge_dense.dir/__/__/common/FvFile.cpp.o
 .PHONY : __/__/common/FvFile.cpp.o
 
 __/__/common/FvFile.i: __/__/common/FvFile.cpp.i
@@ -152,7 +176,7 @@ __/__/common/FvFile.i: __/__/common/FvFile.cpp.i
 
 # target to preprocess a source file
 __/__/common/FvFile.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/raw2fv/CMakeFiles/raw2fv.dir/build.make libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/FvFile.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/merge_dense/CMakeFiles/merge_dense.dir/build.make src/libs/merge_dense/CMakeFiles/merge_dense.dir/__/__/common/FvFile.cpp.i
 .PHONY : __/__/common/FvFile.cpp.i
 
 __/__/common/FvFile.s: __/__/common/FvFile.cpp.s
@@ -160,7 +184,7 @@ __/__/common/FvFile.s: __/__/common/FvFile.cpp.s
 
 # target to generate assembly for a file
 __/__/common/FvFile.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/raw2fv/CMakeFiles/raw2fv.dir/build.make libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/FvFile.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/merge_dense/CMakeFiles/merge_dense.dir/build.make src/libs/merge_dense/CMakeFiles/merge_dense.dir/__/__/common/FvFile.cpp.s
 .PHONY : __/__/common/FvFile.cpp.s
 
 __/__/common/gen-cpp/FeatureVector_constants.o: __/__/common/gen-cpp/FeatureVector_constants.cpp.o
@@ -168,7 +192,7 @@ __/__/common/gen-cpp/FeatureVector_constants.o: __/__/common/gen-cpp/FeatureVect
 
 # target to build an object file
 __/__/common/gen-cpp/FeatureVector_constants.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/raw2fv/CMakeFiles/raw2fv.dir/build.make libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/merge_dense/CMakeFiles/merge_dense.dir/build.make src/libs/merge_dense/CMakeFiles/merge_dense.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.o
 .PHONY : __/__/common/gen-cpp/FeatureVector_constants.cpp.o
 
 __/__/common/gen-cpp/FeatureVector_constants.i: __/__/common/gen-cpp/FeatureVector_constants.cpp.i
@@ -176,7 +200,7 @@ __/__/common/gen-cpp/FeatureVector_constants.i: __/__/common/gen-cpp/FeatureVect
 
 # target to preprocess a source file
 __/__/common/gen-cpp/FeatureVector_constants.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/raw2fv/CMakeFiles/raw2fv.dir/build.make libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/merge_dense/CMakeFiles/merge_dense.dir/build.make src/libs/merge_dense/CMakeFiles/merge_dense.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.i
 .PHONY : __/__/common/gen-cpp/FeatureVector_constants.cpp.i
 
 __/__/common/gen-cpp/FeatureVector_constants.s: __/__/common/gen-cpp/FeatureVector_constants.cpp.s
@@ -184,7 +208,7 @@ __/__/common/gen-cpp/FeatureVector_constants.s: __/__/common/gen-cpp/FeatureVect
 
 # target to generate assembly for a file
 __/__/common/gen-cpp/FeatureVector_constants.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/raw2fv/CMakeFiles/raw2fv.dir/build.make libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/merge_dense/CMakeFiles/merge_dense.dir/build.make src/libs/merge_dense/CMakeFiles/merge_dense.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.s
 .PHONY : __/__/common/gen-cpp/FeatureVector_constants.cpp.s
 
 __/__/common/gen-cpp/FeatureVector_types.o: __/__/common/gen-cpp/FeatureVector_types.cpp.o
@@ -192,7 +216,7 @@ __/__/common/gen-cpp/FeatureVector_types.o: __/__/common/gen-cpp/FeatureVector_t
 
 # target to build an object file
 __/__/common/gen-cpp/FeatureVector_types.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/raw2fv/CMakeFiles/raw2fv.dir/build.make libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/merge_dense/CMakeFiles/merge_dense.dir/build.make src/libs/merge_dense/CMakeFiles/merge_dense.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.o
 .PHONY : __/__/common/gen-cpp/FeatureVector_types.cpp.o
 
 __/__/common/gen-cpp/FeatureVector_types.i: __/__/common/gen-cpp/FeatureVector_types.cpp.i
@@ -200,7 +224,7 @@ __/__/common/gen-cpp/FeatureVector_types.i: __/__/common/gen-cpp/FeatureVector_t
 
 # target to preprocess a source file
 __/__/common/gen-cpp/FeatureVector_types.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/raw2fv/CMakeFiles/raw2fv.dir/build.make libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/merge_dense/CMakeFiles/merge_dense.dir/build.make src/libs/merge_dense/CMakeFiles/merge_dense.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.i
 .PHONY : __/__/common/gen-cpp/FeatureVector_types.cpp.i
 
 __/__/common/gen-cpp/FeatureVector_types.s: __/__/common/gen-cpp/FeatureVector_types.cpp.s
@@ -208,56 +232,8 @@ __/__/common/gen-cpp/FeatureVector_types.s: __/__/common/gen-cpp/FeatureVector_t
 
 # target to generate assembly for a file
 __/__/common/gen-cpp/FeatureVector_types.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/raw2fv/CMakeFiles/raw2fv.dir/build.make libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/merge_dense/CMakeFiles/merge_dense.dir/build.make src/libs/merge_dense/CMakeFiles/merge_dense.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.s
 .PHONY : __/__/common/gen-cpp/FeatureVector_types.cpp.s
-
-__/__/common/utils/read_cmd.o: __/__/common/utils/read_cmd.cpp.o
-.PHONY : __/__/common/utils/read_cmd.o
-
-# target to build an object file
-__/__/common/utils/read_cmd.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/raw2fv/CMakeFiles/raw2fv.dir/build.make libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/utils/read_cmd.cpp.o
-.PHONY : __/__/common/utils/read_cmd.cpp.o
-
-__/__/common/utils/read_cmd.i: __/__/common/utils/read_cmd.cpp.i
-.PHONY : __/__/common/utils/read_cmd.i
-
-# target to preprocess a source file
-__/__/common/utils/read_cmd.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/raw2fv/CMakeFiles/raw2fv.dir/build.make libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/utils/read_cmd.cpp.i
-.PHONY : __/__/common/utils/read_cmd.cpp.i
-
-__/__/common/utils/read_cmd.s: __/__/common/utils/read_cmd.cpp.s
-.PHONY : __/__/common/utils/read_cmd.s
-
-# target to generate assembly for a file
-__/__/common/utils/read_cmd.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/raw2fv/CMakeFiles/raw2fv.dir/build.make libs/raw2fv/CMakeFiles/raw2fv.dir/__/__/common/utils/read_cmd.cpp.s
-.PHONY : __/__/common/utils/read_cmd.cpp.s
-
-raw2fv.o: raw2fv.cpp.o
-.PHONY : raw2fv.o
-
-# target to build an object file
-raw2fv.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/raw2fv/CMakeFiles/raw2fv.dir/build.make libs/raw2fv/CMakeFiles/raw2fv.dir/raw2fv.cpp.o
-.PHONY : raw2fv.cpp.o
-
-raw2fv.i: raw2fv.cpp.i
-.PHONY : raw2fv.i
-
-# target to preprocess a source file
-raw2fv.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/raw2fv/CMakeFiles/raw2fv.dir/build.make libs/raw2fv/CMakeFiles/raw2fv.dir/raw2fv.cpp.i
-.PHONY : raw2fv.cpp.i
-
-raw2fv.s: raw2fv.cpp.s
-.PHONY : raw2fv.s
-
-# target to generate assembly for a file
-raw2fv.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/raw2fv/CMakeFiles/raw2fv.dir/build.make libs/raw2fv/CMakeFiles/raw2fv.dir/raw2fv.cpp.s
-.PHONY : raw2fv.cpp.s
 
 # Help Target
 help:
@@ -266,8 +242,11 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... edit_cache"
-	@echo "... raw2fv"
+	@echo "... merge_dense"
 	@echo "... rebuild_cache"
+	@echo "... MergeDense.o"
+	@echo "... MergeDense.i"
+	@echo "... MergeDense.s"
 	@echo "... __/__/common/FeatureTask.o"
 	@echo "... __/__/common/FeatureTask.i"
 	@echo "... __/__/common/FeatureTask.s"
@@ -280,12 +259,6 @@ help:
 	@echo "... __/__/common/gen-cpp/FeatureVector_types.o"
 	@echo "... __/__/common/gen-cpp/FeatureVector_types.i"
 	@echo "... __/__/common/gen-cpp/FeatureVector_types.s"
-	@echo "... __/__/common/utils/read_cmd.o"
-	@echo "... __/__/common/utils/read_cmd.i"
-	@echo "... __/__/common/utils/read_cmd.s"
-	@echo "... raw2fv.o"
-	@echo "... raw2fv.i"
-	@echo "... raw2fv.s"
 .PHONY : help
 
 

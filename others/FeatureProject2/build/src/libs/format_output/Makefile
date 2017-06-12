@@ -72,14 +72,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/CMakeFiles /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/libs/merge_dense/CMakeFiles/progress.marks
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/merge_dense/all
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/CMakeFiles /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/src/libs/format_output/CMakeFiles/progress.marks
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/format_output/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/merge_dense/clean
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/format_output/clean
 .PHONY : clean
 
 # The main clean target
@@ -88,12 +88,12 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/merge_dense/preinstall
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/format_output/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/merge_dense/preinstall
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/format_output/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
@@ -102,49 +102,49 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-libs/merge_dense/CMakeFiles/merge_dense.dir/rule:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 libs/merge_dense/CMakeFiles/merge_dense.dir/rule
-.PHONY : libs/merge_dense/CMakeFiles/merge_dense.dir/rule
+src/libs/format_output/CMakeFiles/format_output.dir/rule:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f CMakeFiles/Makefile2 src/libs/format_output/CMakeFiles/format_output.dir/rule
+.PHONY : src/libs/format_output/CMakeFiles/format_output.dir/rule
 
 # Convenience name for target.
-merge_dense: libs/merge_dense/CMakeFiles/merge_dense.dir/rule
-.PHONY : merge_dense
+format_output: src/libs/format_output/CMakeFiles/format_output.dir/rule
+.PHONY : format_output
 
 # fast build rule for target.
-merge_dense/fast:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/merge_dense/CMakeFiles/merge_dense.dir/build.make libs/merge_dense/CMakeFiles/merge_dense.dir/build
-.PHONY : merge_dense/fast
+format_output/fast:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/format_output/CMakeFiles/format_output.dir/build.make src/libs/format_output/CMakeFiles/format_output.dir/build
+.PHONY : format_output/fast
 
-MergeDense.o: MergeDense.cpp.o
-.PHONY : MergeDense.o
+FormatOutput.o: FormatOutput.cpp.o
+.PHONY : FormatOutput.o
 
 # target to build an object file
-MergeDense.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/merge_dense/CMakeFiles/merge_dense.dir/build.make libs/merge_dense/CMakeFiles/merge_dense.dir/MergeDense.cpp.o
-.PHONY : MergeDense.cpp.o
+FormatOutput.cpp.o:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/format_output/CMakeFiles/format_output.dir/build.make src/libs/format_output/CMakeFiles/format_output.dir/FormatOutput.cpp.o
+.PHONY : FormatOutput.cpp.o
 
-MergeDense.i: MergeDense.cpp.i
-.PHONY : MergeDense.i
+FormatOutput.i: FormatOutput.cpp.i
+.PHONY : FormatOutput.i
 
 # target to preprocess a source file
-MergeDense.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/merge_dense/CMakeFiles/merge_dense.dir/build.make libs/merge_dense/CMakeFiles/merge_dense.dir/MergeDense.cpp.i
-.PHONY : MergeDense.cpp.i
+FormatOutput.cpp.i:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/format_output/CMakeFiles/format_output.dir/build.make src/libs/format_output/CMakeFiles/format_output.dir/FormatOutput.cpp.i
+.PHONY : FormatOutput.cpp.i
 
-MergeDense.s: MergeDense.cpp.s
-.PHONY : MergeDense.s
+FormatOutput.s: FormatOutput.cpp.s
+.PHONY : FormatOutput.s
 
 # target to generate assembly for a file
-MergeDense.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/merge_dense/CMakeFiles/merge_dense.dir/build.make libs/merge_dense/CMakeFiles/merge_dense.dir/MergeDense.cpp.s
-.PHONY : MergeDense.cpp.s
+FormatOutput.cpp.s:
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/format_output/CMakeFiles/format_output.dir/build.make src/libs/format_output/CMakeFiles/format_output.dir/FormatOutput.cpp.s
+.PHONY : FormatOutput.cpp.s
 
 __/__/common/FeatureTask.o: __/__/common/FeatureTask.cpp.o
 .PHONY : __/__/common/FeatureTask.o
 
 # target to build an object file
 __/__/common/FeatureTask.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/merge_dense/CMakeFiles/merge_dense.dir/build.make libs/merge_dense/CMakeFiles/merge_dense.dir/__/__/common/FeatureTask.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/format_output/CMakeFiles/format_output.dir/build.make src/libs/format_output/CMakeFiles/format_output.dir/__/__/common/FeatureTask.cpp.o
 .PHONY : __/__/common/FeatureTask.cpp.o
 
 __/__/common/FeatureTask.i: __/__/common/FeatureTask.cpp.i
@@ -152,7 +152,7 @@ __/__/common/FeatureTask.i: __/__/common/FeatureTask.cpp.i
 
 # target to preprocess a source file
 __/__/common/FeatureTask.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/merge_dense/CMakeFiles/merge_dense.dir/build.make libs/merge_dense/CMakeFiles/merge_dense.dir/__/__/common/FeatureTask.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/format_output/CMakeFiles/format_output.dir/build.make src/libs/format_output/CMakeFiles/format_output.dir/__/__/common/FeatureTask.cpp.i
 .PHONY : __/__/common/FeatureTask.cpp.i
 
 __/__/common/FeatureTask.s: __/__/common/FeatureTask.cpp.s
@@ -160,7 +160,7 @@ __/__/common/FeatureTask.s: __/__/common/FeatureTask.cpp.s
 
 # target to generate assembly for a file
 __/__/common/FeatureTask.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/merge_dense/CMakeFiles/merge_dense.dir/build.make libs/merge_dense/CMakeFiles/merge_dense.dir/__/__/common/FeatureTask.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/format_output/CMakeFiles/format_output.dir/build.make src/libs/format_output/CMakeFiles/format_output.dir/__/__/common/FeatureTask.cpp.s
 .PHONY : __/__/common/FeatureTask.cpp.s
 
 __/__/common/FvFile.o: __/__/common/FvFile.cpp.o
@@ -168,7 +168,7 @@ __/__/common/FvFile.o: __/__/common/FvFile.cpp.o
 
 # target to build an object file
 __/__/common/FvFile.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/merge_dense/CMakeFiles/merge_dense.dir/build.make libs/merge_dense/CMakeFiles/merge_dense.dir/__/__/common/FvFile.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/format_output/CMakeFiles/format_output.dir/build.make src/libs/format_output/CMakeFiles/format_output.dir/__/__/common/FvFile.cpp.o
 .PHONY : __/__/common/FvFile.cpp.o
 
 __/__/common/FvFile.i: __/__/common/FvFile.cpp.i
@@ -176,7 +176,7 @@ __/__/common/FvFile.i: __/__/common/FvFile.cpp.i
 
 # target to preprocess a source file
 __/__/common/FvFile.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/merge_dense/CMakeFiles/merge_dense.dir/build.make libs/merge_dense/CMakeFiles/merge_dense.dir/__/__/common/FvFile.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/format_output/CMakeFiles/format_output.dir/build.make src/libs/format_output/CMakeFiles/format_output.dir/__/__/common/FvFile.cpp.i
 .PHONY : __/__/common/FvFile.cpp.i
 
 __/__/common/FvFile.s: __/__/common/FvFile.cpp.s
@@ -184,7 +184,7 @@ __/__/common/FvFile.s: __/__/common/FvFile.cpp.s
 
 # target to generate assembly for a file
 __/__/common/FvFile.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/merge_dense/CMakeFiles/merge_dense.dir/build.make libs/merge_dense/CMakeFiles/merge_dense.dir/__/__/common/FvFile.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/format_output/CMakeFiles/format_output.dir/build.make src/libs/format_output/CMakeFiles/format_output.dir/__/__/common/FvFile.cpp.s
 .PHONY : __/__/common/FvFile.cpp.s
 
 __/__/common/gen-cpp/FeatureVector_constants.o: __/__/common/gen-cpp/FeatureVector_constants.cpp.o
@@ -192,7 +192,7 @@ __/__/common/gen-cpp/FeatureVector_constants.o: __/__/common/gen-cpp/FeatureVect
 
 # target to build an object file
 __/__/common/gen-cpp/FeatureVector_constants.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/merge_dense/CMakeFiles/merge_dense.dir/build.make libs/merge_dense/CMakeFiles/merge_dense.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/format_output/CMakeFiles/format_output.dir/build.make src/libs/format_output/CMakeFiles/format_output.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.o
 .PHONY : __/__/common/gen-cpp/FeatureVector_constants.cpp.o
 
 __/__/common/gen-cpp/FeatureVector_constants.i: __/__/common/gen-cpp/FeatureVector_constants.cpp.i
@@ -200,7 +200,7 @@ __/__/common/gen-cpp/FeatureVector_constants.i: __/__/common/gen-cpp/FeatureVect
 
 # target to preprocess a source file
 __/__/common/gen-cpp/FeatureVector_constants.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/merge_dense/CMakeFiles/merge_dense.dir/build.make libs/merge_dense/CMakeFiles/merge_dense.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/format_output/CMakeFiles/format_output.dir/build.make src/libs/format_output/CMakeFiles/format_output.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.i
 .PHONY : __/__/common/gen-cpp/FeatureVector_constants.cpp.i
 
 __/__/common/gen-cpp/FeatureVector_constants.s: __/__/common/gen-cpp/FeatureVector_constants.cpp.s
@@ -208,7 +208,7 @@ __/__/common/gen-cpp/FeatureVector_constants.s: __/__/common/gen-cpp/FeatureVect
 
 # target to generate assembly for a file
 __/__/common/gen-cpp/FeatureVector_constants.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/merge_dense/CMakeFiles/merge_dense.dir/build.make libs/merge_dense/CMakeFiles/merge_dense.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/format_output/CMakeFiles/format_output.dir/build.make src/libs/format_output/CMakeFiles/format_output.dir/__/__/common/gen-cpp/FeatureVector_constants.cpp.s
 .PHONY : __/__/common/gen-cpp/FeatureVector_constants.cpp.s
 
 __/__/common/gen-cpp/FeatureVector_types.o: __/__/common/gen-cpp/FeatureVector_types.cpp.o
@@ -216,7 +216,7 @@ __/__/common/gen-cpp/FeatureVector_types.o: __/__/common/gen-cpp/FeatureVector_t
 
 # target to build an object file
 __/__/common/gen-cpp/FeatureVector_types.cpp.o:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/merge_dense/CMakeFiles/merge_dense.dir/build.make libs/merge_dense/CMakeFiles/merge_dense.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.o
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/format_output/CMakeFiles/format_output.dir/build.make src/libs/format_output/CMakeFiles/format_output.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.o
 .PHONY : __/__/common/gen-cpp/FeatureVector_types.cpp.o
 
 __/__/common/gen-cpp/FeatureVector_types.i: __/__/common/gen-cpp/FeatureVector_types.cpp.i
@@ -224,7 +224,7 @@ __/__/common/gen-cpp/FeatureVector_types.i: __/__/common/gen-cpp/FeatureVector_t
 
 # target to preprocess a source file
 __/__/common/gen-cpp/FeatureVector_types.cpp.i:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/merge_dense/CMakeFiles/merge_dense.dir/build.make libs/merge_dense/CMakeFiles/merge_dense.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.i
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/format_output/CMakeFiles/format_output.dir/build.make src/libs/format_output/CMakeFiles/format_output.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.i
 .PHONY : __/__/common/gen-cpp/FeatureVector_types.cpp.i
 
 __/__/common/gen-cpp/FeatureVector_types.s: __/__/common/gen-cpp/FeatureVector_types.cpp.s
@@ -232,7 +232,7 @@ __/__/common/gen-cpp/FeatureVector_types.s: __/__/common/gen-cpp/FeatureVector_t
 
 # target to generate assembly for a file
 __/__/common/gen-cpp/FeatureVector_types.cpp.s:
-	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f libs/merge_dense/CMakeFiles/merge_dense.dir/build.make libs/merge_dense/CMakeFiles/merge_dense.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.s
+	cd /mnt/hgfs/BF_BigRLab/others/FeatureProject2/build && $(MAKE) -f src/libs/format_output/CMakeFiles/format_output.dir/build.make src/libs/format_output/CMakeFiles/format_output.dir/__/__/common/gen-cpp/FeatureVector_types.cpp.s
 .PHONY : __/__/common/gen-cpp/FeatureVector_types.cpp.s
 
 # Help Target
@@ -242,11 +242,11 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... edit_cache"
-	@echo "... merge_dense"
+	@echo "... format_output"
 	@echo "... rebuild_cache"
-	@echo "... MergeDense.o"
-	@echo "... MergeDense.i"
-	@echo "... MergeDense.s"
+	@echo "... FormatOutput.o"
+	@echo "... FormatOutput.i"
+	@echo "... FormatOutput.s"
 	@echo "... __/__/common/FeatureTask.o"
 	@echo "... __/__/common/FeatureTask.i"
 	@echo "... __/__/common/FeatureTask.s"

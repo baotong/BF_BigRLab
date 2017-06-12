@@ -62,7 +62,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_DIR}/bin)
 ## PROJECT_BINARY_DIR where run cmake i.e. build
 # set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 # set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
-set(COMM_DIR ${PROJECT_DIR}/common)
+set(COMM_DIR ${PROJECT_DIR}/src/common)
 set(UTILS_DIR ${COMM_DIR}/utils)
 set(COMM_SRC ${COMM_DIR}/*.cpp ${COMM_DIR}/gen-cpp/*.cpp)
 
@@ -71,8 +71,8 @@ include_directories(${INCLUDE})
 
 set(COMM_LIBS glog jsoncpp boost_filesystem boost_system thrift thriftz z)
 
-add_subdirectory(main)
-add_subdirectory(libs)
+add_subdirectory(src/main)
+add_subdirectory(src/libs)
 
 
 
