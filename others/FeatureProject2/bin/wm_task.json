@@ -5,6 +5,7 @@
     "tasks" : [
         {
             "name" : "raw2fv",
+            "lib"  : "raw2fv_mt.so",
             "input" : "singlevalue.dat",
             "output" : "singlevalue.fv",
             "desc" : "singlevalue.json"

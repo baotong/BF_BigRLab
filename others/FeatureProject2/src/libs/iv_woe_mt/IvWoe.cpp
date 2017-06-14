@@ -31,6 +31,18 @@ void IvWoe::init(const Json::Value &conf)
 
     fs::path dataPath(m_pTaskMgr->dataDir());
     m_strTargetFile = (dataPath / m_strTargetFile).c_str();
+
+    m_nWorkers = conf["workers"].asUInt();
+    if (!m_nWorkers) {
+        m_nWorkers = std::thread::hardware_concurrency();
+        LOG(INFO) << "Number of workers not set, auto set to " << m_nWorkers;
+    } // if
+    DLOG(INFO) << "nWorkers = " << m_nWorkers; 
+
+    uint32_t iBufSz = conf["input_buf"].asUInt();
+    if (!iBufSz) iBufSz = 15000;
+    m_pInputBuffer.reset(new SharedQueue<InputPtr>(iBufSz));
+    DLOG(INFO) << "Input buffer size = " << iBufSz;
 }
 
 
@@ -51,26 +63,6 @@ void IvWoe::run()
 void IvWoe::writeResult()
 {
     using namespace std;
-
-#if 0
-    // dump FeatureCntMgr for debug
-    for (auto &kv : m_pFeatureMgr->featureCnt()) {
-        const string &key = kv.first;
-        auto &featureCnt = kv.second;
-        double sumIV = 0.0;
-        cout << key << "\t" << featureCnt.totalPosCnt() << "\t" << featureCnt.totalNegCnt() 
-                << "\t" << featureCnt.totalIV() << endl;
-        for (auto &subkv : featureCnt.values()) {
-            const string &val = subkv.first;
-            auto &valCnt = subkv.second;
-            cout << val << "\t" << valCnt.posCnt() << "\t" << valCnt.negCnt() 
-                    << "\t" << valCnt.woe() << "\t" << valCnt.iv() << endl;
-            sumIV += valCnt.iv();
-        } // for subkv
-        assert(sumIV == featureCnt.totalIV());
-        cout << endl;
-    } // for kv
-#endif
 
     ofstream ofs(m_strOutput, ios::out);
     THROW_RUNTIME_ERROR_IF(!ofs, "IvWoe cannot open " << m_strOutput << " for writting!");
@@ -127,7 +119,6 @@ void IvWoe::caculateIV()
             featureCnt.totalIV_ += valueCnt.iv_;
         } // for subkv
     } // for kv
-
 }
 
 
@@ -140,51 +131,51 @@ void IvWoe::loadData()
             << m_strTargetFile << " for reading!");
 
     IFvFile     ifv(m_strInput);
-    string      line;
-    bool        targetVal = false;
-    size_t      recordCnt = 0;
-    FeatureVector fv;
-
     m_pFeatureMgr.reset(new FeatureCntMgr);
 
-    while (ifv.readOne(fv)) {
-        if (!getline(ifs, line)) {
-            LOG(ERROR) << "Read target file fail for " << recordCnt+1 << " record!";
-            continue;
-        } // if
-        boost::trim(line);
-        if (!boost::conversion::try_lexical_convert(line, targetVal)) {
-            LOG(ERROR) << "Read target value fail for " << recordCnt+1 << " record! line = " << line;
-            continue;
-        } // if
+    m_pThrReader.reset(new std::thread([&, this]{
+        size_t      recordCnt = 0;
+        auto pInput = std::make_shared<Input>();
 
-        for (auto &kv : fv.stringFeatures) {
-            const string &key = kv.first;
-            for (const string &val : kv.second) {
-                m_pFeatureMgr->addRecord(key, val, targetVal);
-            } // for val
-        } // for kv
+        while (ifv.readOne(pInput->fv_)) {
+            if (!getline(ifs, pInput->target_)) {
+                LOG(ERROR) << "Read target file fail for " << recordCnt+1 << " record!";
+                continue;
+            } // if
 
-        ++recordCnt;
-    } // while
+            m_pInputBuffer->push(pInput);
 
-#if 0
-    // dump FeatureCntMgr for debug
-    for (auto &kv : m_pFeatureMgr->featureCnt()) {
-        uint32_t    sum = 0;
-        const string &key = kv.first;
-        auto &featureCnt = kv.second;
-        cout << key << "\t" << featureCnt.totalPosCnt() << "\t" << featureCnt.totalNegCnt() << endl;
-        assert(featureCnt.totalPosCnt() + featureCnt.totalNegCnt() == recordCnt);
-        for (auto &subkv : featureCnt.values()) {
-            const string &val = subkv.first;
-            auto &valCnt = subkv.second;
-            cout << val << "\t" << valCnt.posCnt() << "\t" << valCnt.negCnt() << endl;
-            sum += valCnt.posCnt(); sum += valCnt.negCnt();
-        } // for subkv
-        cout << endl;
-        assert(sum == recordCnt);
-    } // for kv
-#endif
+            pInput = std::make_shared<Input>();
+            ++recordCnt;
+        } // while
+    }));
+
+    for (uint32_t i = 0; i < m_nWorkers; ++i) {
+        m_ThrWorkers.create_thread([&, this]{
+            InputPtr pInput;
+            while (pInput = m_pInputBuffer->pop()) {
+                FeatureVector &fv = pInput->fv_;
+                string &line = pInput->target_;
+                bool        targetVal = false;
+
+                boost::trim(line);
+                if (!boost::conversion::try_lexical_convert(line, targetVal)) {
+                    continue;
+                } // if
+
+                for (auto &kv : fv.stringFeatures) {
+                    const string &key = kv.first;
+                    for (const string &val : kv.second) {
+                        m_pFeatureMgr->addRecord(key, val, targetVal);
+                    } // for val
+                } // for kv
+            } // while 
+        });
+    } // for i
+
+    m_pThrReader->join();
+    for (uint32_t i = 0; i < m_nWorkers; ++i)
+        m_pInputBuffer->push(nullptr);
+    m_ThrWorkers.join_all();
 }
 
