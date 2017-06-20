@@ -1,0 +1,15 @@
+{
+    "datadir" : "../data",
+    "hasid" : true,
+    "autoremove" : true, // 执行完任务后删除输入文件
+    "tasks" : [
+        {
+            "name" : "iv_woe",
+            "lib"  : "iv_woe_float.so",
+            "input" : "adult.fv",
+            "output" : "adult_float.iv_woe",
+            "target" : "target.txt"
+        }
+    ]
+}
+
