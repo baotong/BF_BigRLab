@@ -71,25 +71,6 @@ void IvWoe::writeResult()
         cout << endl;
     } // for kv
 #endif
-    // dump FloatFeatureCntMgr for debug
-#if 0
-    for (auto &kv : m_pFloatFeatureMgr->featureCnt()) {
-        const string &key = kv.first;
-        auto &featureCnt = kv.second;
-        double sumIV = 0.0;
-        cout << key << "\t" << featureCnt.totalPosCnt() << "\t" << featureCnt.totalNegCnt() 
-                << "\t" << featureCnt.totalIV() << endl;
-        for (auto &subkv : featureCnt.values()) {
-            const string &val = subkv.first;
-            auto &valCnt = subkv.second;
-            cout << val << "\t" << valCnt.posCnt() << "\t" << valCnt.negCnt() 
-                    << "\t" << valCnt.woe() << "\t" << valCnt.iv() << endl;
-            sumIV += valCnt.iv();
-        } // for subkv
-        assert(sumIV == featureCnt.totalIV());
-        cout << endl;
-    } // for kv
-#endif
 
     ofstream ofs(m_strOutput, ios::out);
     THROW_RUNTIME_ERROR_IF(!ofs, "IvWoe cannot open " << m_strOutput << " for writting!");
@@ -123,20 +104,6 @@ void IvWoe::writeResult()
 
         ofs << endl;
     } // for kv
-
-    // sort float featureCnt
-    // boost::ptr_vector<FeatureCntMapValue, boost::view_clone_allocator> 
-            // pArrFloatFeatureCnt(m_pFloatFeatureMgr->featureCnt().begin(), m_pFloatFeatureMgr->featureCnt().end());
-    // pArrFloatFeatureCnt.sort([](const FeatureCntMapValue &lhs, const FeatureCntMapValue &rhs)->bool {
-        // return lhs.second.totalIV() > rhs.second.totalIV();
-    // });
-
-    // for (auto &kv : pArrFloatFeatureCnt) {
-        // const string &key = kv.first;
-        // auto &featureCnt = kv.second;
-        // ofs << "FeatureName: " << key << "\tTotalIV: " << featureCnt.totalIV() << endl;
-        // ofs << endl;
-    // } // for kv
 }
 
 
@@ -161,25 +128,6 @@ void IvWoe::caculateIV()
         } // for subkv
     } // for kv
 
-#if 0
-    for (auto &kv : m_pFloatFeatureMgr->featureCnt()) {
-        auto &featureCnt = kv.second;
-        uint32_t nTotalGood = featureCnt.totalPosCnt();
-        uint32_t nTotalBad  = featureCnt.totalNegCnt();
-        for (auto &subkv : featureCnt.values()) {
-            auto &valueCnt = subkv.second;
-            uint32_t nGood = valueCnt.posCnt();
-            uint32_t nBad  = valueCnt.negCnt();
-            double dGood = (double)(nGood + 1) / (nTotalGood + 1);
-            double dBad  = (double)(nBad  + 1) / (nTotalBad  + 1);
-            // double dGood = (double)(nGood) / (nTotalGood);
-            // double dBad  = (double)(nBad) / (nTotalBad);
-            valueCnt.woe_ = std::log(dGood / dBad);
-            valueCnt.iv_  = valueCnt.woe_ * (dGood - dBad);
-            featureCnt.totalIV_ += valueCnt.iv_;
-        } // for subkv
-    } // for kv
-#endif
 }
 
 
@@ -198,7 +146,6 @@ void IvWoe::loadData()
     FeatureVector fv;
 
     m_pFeatureMgr.reset(new FeatureCntMgr);
-    // m_pFloatFeatureMgr.reset(new FeatureCntMgr);
 
     while (ifv.readOne(fv)) {
         if (!getline(ifs, line)) {
@@ -218,25 +165,6 @@ void IvWoe::loadData()
             } // for val
         } // for kv
 
-        // only deal with single value
-        for (auto &kv : fv.floatFeatures) {
-            const string &key = kv.first;
-            auto &subMap = kv.second;
-            auto it = subMap.find("");
-            if (it == subMap.end()) continue;
-            double &val = it->second;
-            m_pFeatureMgr->addRecord(key, std::to_string(val), targetVal);
-        } // for kv
-#if 0
-        for (auto &kv : fv.floatFeatures) {
-            const string &key = kv.first;
-            auto &subMap = kv.second;
-            auto it = subMap.find("");
-            if (it == subMap.end()) continue;
-            double &val = it->second;
-            m_pFloatFeatureMgr->addRecord(key, std::to_string(val), targetVal);
-        } // for kv
-#endif
         ++recordCnt;
     } // while
 

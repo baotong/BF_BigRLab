@@ -1,0 +1,14 @@
+{
+    "datadir" : "../wm_data",
+    "hasid" : true,
+    "autoremove" : false,
+    "tasks" : [
+        {
+            "name" : "raw2fv",
+            "input" : "small.dat",
+            "output" : "small.fv",
+            "desc" : "singlevalue.json"
+        }
+    ]
+}
+

@@ -83,7 +83,6 @@ private:
 private:
     std::string                         m_strTargetFile;
     std::shared_ptr<FeatureCntMgr>      m_pFeatureMgr;
-    // std::shared_ptr<FeatureCntMgr>      m_pFloatFeatureMgr;
 };
 
 #endif /* _IV_WOE_H_ */

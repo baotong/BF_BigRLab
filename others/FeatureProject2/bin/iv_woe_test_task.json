@@ -2,15 +2,15 @@
     "datadir" : "../data/iv_woe_test",
     "hasid" : false,
     "tasks" : [
-        // {
-            // "name" : "raw2fv",
-            // "input" : "raw.txt",
-            // "output" : "test.fv",
-            // "desc" : "data_desc.json"
-        // }
+        {
+            "name" : "raw2fv",
+            "input" : "raw.txt",
+            "output" : "test.fv",
+            "desc" : "data_desc.json"
+        },
         {
             "name" : "iv_woe",
-            "input" : "test.fv",
+            // "input" : "test.fv",
             "output" : "iv_woe.txt",
             "target" : "target.txt"
         }
