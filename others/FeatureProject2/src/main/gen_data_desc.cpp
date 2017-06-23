@@ -3,6 +3,7 @@
 #include <fstream>
 #include <algorithm>
 #include <iterator>
+#include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <json/json.h>
@@ -46,12 +47,20 @@ void detect_type(const StringMatrix &samples, const uint32_t col, std::string &t
 void gen_data_desc()
 {
     using namespace std;
+    namespace fs = boost::filesystem;
 
     THROW_RUNTIME_ERROR_IF(FLAGS_data.empty(), "-data arg must be specified!");
 
     if (FLAGS_desc.empty()) {
         FLAGS_desc = FLAGS_data + ".json";
         LOG(WARNING) << "description file not specified, use auto " << FLAGS_desc;
+    } // if
+
+    if (!FLAGS_dir.empty()) {
+        fs::path baseDir(FLAGS_dir);
+        FLAGS_data = (baseDir / FLAGS_data).c_str();
+        FLAGS_desc = (baseDir / FLAGS_desc).c_str();
+        FLAGS_head = (baseDir / FLAGS_head).c_str();
     } // if
 
     string seperator = FLAGS_sep;

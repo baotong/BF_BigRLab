@@ -17,6 +17,7 @@
 #include <climits>
 #include <fstream>
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 // #include <boost/format.hpp>
 #include "CommDef.h"
 #include "FeatureTask.h"
@@ -29,6 +30,7 @@ using namespace FeatureProject;
 
 
 DEFINE_string(conf, "", "Info about raw data in json format");
+DEFINE_string(dir, "", "Data dir");
 DEFINE_string(dump, "", "Print fv file");
 DEFINE_int32(top, 0, "dump top k lines");
 DEFINE_bool(gen_data_desc, false, "Run as generating data description");
@@ -100,6 +102,12 @@ static
 void do_dump(const std::string &fname, int _TopK)
 {
     using namespace std;
+    namespace fs = boost::filesystem;
+
+    if (!FLAGS_dir.empty()) {
+        fs::path baseDir(FLAGS_dir);
+        FLAGS_dump = (baseDir / FLAGS_dump).c_str();
+    } // if
 
     uint32_t topk = _TopK ? (uint32_t)_TopK : std::numeric_limits<uint32_t>::max();
 
