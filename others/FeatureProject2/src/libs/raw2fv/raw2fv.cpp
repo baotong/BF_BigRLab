@@ -157,7 +157,7 @@ void Raw2Fv::loadDataWithId()
         FeatureVector fv;
         FeatureVectorHandle hFv(fv);
         hFv.setId(strValues[0]);
-        bool success = true;
+        bool success = true;    // 所有的feature是否正确读入
         for (size_t i = 0; i < m_pFeatureInfoSet->size(); ++i) {
             FeatureInfo &fi = *fiSet[i];
             if (!read_feature(fv, strValues[i+1], fi, lineCnt)) {

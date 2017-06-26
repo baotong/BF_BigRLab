@@ -631,11 +631,15 @@
       },
       {
          "name" : "mindays_var",
-         "type" : "string"
+         "type" : "string",
+         "multi" : true,
+         "sep" : ","
       },
       {
          "name" : "max_var",
-         "type" : "string"
+         "type" : "string",
+         "multi" : true,
+         "sep" : ","
       },
       {
          "name" : "mon_days",
