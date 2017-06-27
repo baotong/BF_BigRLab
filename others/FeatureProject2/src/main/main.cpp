@@ -11,6 +11,7 @@
  * example:
  * GLOG_logtostderr=1 ./feature.bin -gen_data_desc -data ../data/adult.txt -desc ../data/adult.json -hasid true -sep ","
  * GLOG_logtostderr=1 ./feature.bin -gen_data_desc -data ../data/adult.txt -desc ../data/adult.json -head ../data/head.txt -hasid true -sep "," -nsample 500
+ * GLOG_logtostderr=1 ./feature.bin -gen_data_desc -dir ../wm_data/newdata -data newdata.dat -head head.txt -hasid true -sep "^" -nsample 1000
  */
 #include <glog/logging.h>
 #include <gflags/gflags.h>

@@ -151,8 +151,10 @@ void IvWoe::caculateIV()
             auto &valueCnt = subkv.second;
             uint32_t nGood = valueCnt.posCnt();
             uint32_t nBad  = valueCnt.negCnt();
-            double dGood = (double)(nGood + 1) / (nTotalGood + 1);
-            double dBad  = (double)(nBad  + 1) / (nTotalBad  + 1);
+            double dGood = ((double)nGood + 0.01) / ((double)nTotalGood + 0.01);
+            double dBad  = ((double)nBad  + 0.01) / ((double)nTotalBad  + 0.01);
+            // double dGood = (double)(nGood + 1) / (nTotalGood + 1);
+            // double dBad  = (double)(nBad  + 1) / (nTotalBad  + 1);
             // double dGood = (double)(nGood) / (nTotalGood);
             // double dBad  = (double)(nBad) / (nTotalBad);
             valueCnt.woe_ = std::log(dGood / dBad);

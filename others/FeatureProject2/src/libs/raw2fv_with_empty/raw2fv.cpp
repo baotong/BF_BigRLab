@@ -231,28 +231,39 @@ void Raw2Fv::loadDataWithoutId()
 }
 
 
+bool Raw2Fv::read_feature(FeatureVector &fv, std::string &strField,
+            FeatureInfo &ftInfo, const std::size_t lineno)
+{
+    if (!ftInfo.isKeep()) return true;
+    if (ftInfo.type() == "string") {
+        return read_string_feature(fv, strField, ftInfo, lineno);
+    } else if (ftInfo.type() == "double") {
+        return read_double_feature(fv, strField, ftInfo, lineno);
+    } else if (ftInfo.type() == "datetime") {
+        return read_datetime_feature(fv, strField, ftInfo, lineno);
+    } // if 
+    // invalid type
+    LOG(ERROR) << "read_feature in line " << lineno <<
+            ", feature type \"" << ftInfo.type() << "\" is invalid!";
+    return false;
+}
+
+
 bool Raw2Fv::read_string_feature(FeatureVector &fv, std::string &strField,
             FeatureInfo &ftInfo, const std::size_t lineno)
 {
     using namespace std;
 
-    // boost::trim_if(strField, boost::is_any_of(ftInfo.sep() + SPACES));
-    if (strField.empty()) {
-        return true;
-    } // if
-
     FeatureVectorHandle hFv(fv);
 
     if (ftInfo.isMulti()) {
         vector<string> strValues;
-        // const string sep = (ftInfo.sep().empty() ? SPACES : ftInfo.sep());
         string strSep = ftInfo.sep();
         Utils::read_sep(strSep);
         boost::split(strValues, strField, boost::is_any_of(strSep));
         for (auto &v : strValues) {
             boost::trim(v);
-            if (!v.empty())
-                hFv.addFeature(ftInfo.name(), v);
+            hFv.addFeature(ftInfo.name(), v);
         } // for
     } else {
         hFv.setFeature(ftInfo.name(), strField);
@@ -266,12 +277,6 @@ bool Raw2Fv::read_double_feature(FeatureVector &fv, std::string &strField,
             FeatureInfo &ftInfo, const std::size_t lineno)
 {
     using namespace std;
-
-    // boost::trim(strField);
-    // boost::trim_if(strField, boost::is_any_of(ftInfo.sep() + SPACES));
-    if (strField.empty()) {
-        return true;
-    } // if
 
     FeatureVectorHandle hFv(fv);
 
@@ -294,7 +299,7 @@ bool Raw2Fv::read_double_feature(FeatureVector &fv, std::string &strField,
             string value(v, pos+1);
             boost::trim(key); boost::trim(value);
             double val = 0.0;
-            if (!boost::conversion::try_lexical_convert(value, val)) {
+            if (!strField.empty() && !boost::conversion::try_lexical_convert(value, val)) {
                 LOG(ERROR) << "read_double_feature in line " << lineno << " for feature \""
                         << ftInfo.name() << "\" cannot covert \"" << value << "\" to double!";
                 return false;
@@ -303,7 +308,7 @@ bool Raw2Fv::read_double_feature(FeatureVector &fv, std::string &strField,
         } // for
     } else {
         double val = 0.0;
-        if (!boost::conversion::try_lexical_convert(strField, val)) {
+        if (!strField.empty() && !boost::conversion::try_lexical_convert(strField, val)) {
             LOG(ERROR) << "read_double_feature in line " << lineno << " for feature \""
                     << ftInfo.name() << "\" cannot covert \"" << strField << "\" to double!";
             return false;
@@ -341,3 +346,4 @@ bool Raw2Fv::read_datetime_feature(FeatureVector &fv, std::string &strField,
 
     return true;
 }
+

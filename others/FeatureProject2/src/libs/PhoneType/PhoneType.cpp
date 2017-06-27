@@ -51,8 +51,9 @@ void PhoneType::doWork()
         } else {
             const string &oldVal = *(valSet.begin());
             if (!m_setKnownTypes.count(oldVal)) {
+                string newVal = oldVal.empty() ? "UNKNOWN" : "OTHER";
                 valSet.erase(oldVal);
-                valSet.emplace("OTHER");
+                valSet.emplace(newVal);
             } // if
         } // if
         fv.__isset.stringFeatures = true;
