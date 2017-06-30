@@ -239,6 +239,15 @@ public:
         m_refFv.__isset.denseFeatures = true;
     }
 
+    // remove floatfeature
+    bool removeFeature(const std::string &name, const double&)
+    {
+        auto retval = m_refFv.floatFeatures.erase(name);
+        if (m_refFv.floatFeatures.empty())
+            m_refFv.__isset.floatFeatures = false;
+        return (retval ? true : false);
+    }
+
 private:
     FeatureVector&      m_refFv;
 };

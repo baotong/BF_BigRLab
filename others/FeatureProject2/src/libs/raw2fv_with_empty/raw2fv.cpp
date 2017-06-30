@@ -273,6 +273,7 @@ bool Raw2Fv::read_string_feature(FeatureVector &fv, std::string &strField,
 }
 
 
+// 目前方案：空字符串默认0.0
 bool Raw2Fv::read_double_feature(FeatureVector &fv, std::string &strField,
             FeatureInfo &ftInfo, const std::size_t lineno)
 {
