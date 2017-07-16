@@ -6,6 +6,7 @@
 
 namespace BigRLab {
 
+// 两个map，service 和 servicelib
 class ServiceManager {
 public:
     typedef boost::shared_ptr<ServiceManager> pointer;

@@ -22,6 +22,7 @@ public:
         }
     };
 
+    // 用于存储rpc client对象，在派生类中实现
     struct ServerAttr {
         typedef boost::shared_ptr<ServerAttr> Pointer;
         virtual ~ServerAttr() = default;

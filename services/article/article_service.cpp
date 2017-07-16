@@ -40,6 +40,7 @@ ArticleService::ArticleClientArr::ArticleClientArr(const BigRLab::AlgSvrInfo &sv
     // DLOG(INFO) << "ArticleClientArr constructor " << svr.addr << ":" << svr.port
             // << " n = " << n;
     
+    // create n conns to svr
     clients.reserve(n);
     for (int i = 0; i < n; ++i) {
         auto pClient = boost::make_shared<ArticleClient>(svr.addr, (uint16_t)(svr.port));

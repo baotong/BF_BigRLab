@@ -18,7 +18,7 @@ int32_t AlgMgrServiceHandler::addSvr(const std::string& algName, const AlgSvrInf
     auto it = m_mapSvrTable.find( algName );
     // algName not exist
     if ( it == m_mapSvrTable.end() ) {
-        ret = ServiceManager::getInstance()->addAlgServer( algName, svrInfo );
+        ret = ServiceManager::getInstance()->addAlgServer( algName, svrInfo ); // ★
         if (SUCCESS == ret) {
             boost::upgrade_to_unique_lock< AlgSvrTable > uLock(sLock);
             m_mapSvrTable[algName].insert( std::make_pair(svrInfo.addr,
@@ -82,7 +82,7 @@ void AlgMgrServiceHandler::rmSvr(const std::string& algName, const AlgSvrInfo& s
         } // if
     } // for
 
-    ServiceManager::getInstance()->rmAlgServer( algName, svrInfo );
+    ServiceManager::getInstance()->rmAlgServer( algName, svrInfo );     // ★
 }
 
 void AlgMgrServiceHandler::informAlive(const std::string& algName, const AlgSvrInfo& svrInfo)

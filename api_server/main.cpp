@@ -1,7 +1,7 @@
 /*
  * GLOG_logtostderr=1 ./apiserver.bin
  */
-/*
+/* 
  * TODO list
  */
 /*
@@ -125,29 +125,6 @@ static const bool n_io_threads_dummy = gflags::RegisterFlagValidator(&FLAGS_n_io
 
 
 namespace Test {
-
-    void test()
-    {
-        using namespace std;
-
-        SharedQueue<int> que;
-
-        boost::thread thr1([&]{
-                SLEEP_SECONDS(7);    
-                que.push(501);
-            });
-
-        int x;
-        if (que.timed_pop(x, 5000))
-            cout << "Successfully get value " << x << endl;
-        else
-            cout << "timeout" << endl;
-
-        thr1.join();
-
-        exit(0);
-    }
-
 } // namespace Test
 
 static
@@ -158,11 +135,13 @@ void init()
     g_pWork = boost::make_shared<boost::asio::io_service::work>(std::ref(*g_pIoService));
     g_pIoThrgrp = boost::make_shared<ThreadGroup>();
 
+    // 初始化http server (APIServer)
     APIServerHandler handler;
     ServerType::options opts(handler);
     g_pApiServer.reset(new APIServer(g_nApiSvrPort, FLAGS_n_io_threads, FLAGS_n_work_threads, 
                     opts, g_pIoService, g_pIoThrgrp));
 
+    // 初始化工作队列
     std::size_t nWorkQueLen = FLAGS_n_work_threads * 100;
     if (nWorkQueLen > 30000) {
         if (FLAGS_n_work_threads > 30000)
@@ -204,6 +183,7 @@ void start_server()
 
     g_pWorkMgr->start();
 
+    // 启动ApiServer
     g_pRunServerThread.reset(new boost::thread([]{
                 try {
                     g_pApiServer->run();
@@ -215,6 +195,7 @@ void start_server()
 
     cout << "API server ready!" << endl;
 
+    // 启动AlgMgr
     cout << "Launching Algorithm Manager server..." << endl;
     start_alg_mgr();
     cout << "Algorithm Manager server ready!" << endl;
@@ -232,22 +213,7 @@ void start_shell()
     typedef std::function<bool(std::stringstream&)> CmdProcessor;
     typedef std::map< std::string, CmdProcessor > CmdProcessTable;
 
-    // auto autorun = [] {
-        // ifstream ifs("autoload.conf", ios::in);
-        // if (!ifs)
-            // ERR_RET("No autorun.conf found.");
-
-        // string path;
-        // while (getline(ifs, path)) {
-            // try {
-                // cout << "Loading lib " << path << endl;
-                // ServiceManager::getInstance()->loadServiceLib(path);
-            // } catch (const std::exception &ex) {
-                // cerr << ex.what() << endl;
-            // } // try
-        // } // while
-    // };
-
+    // 加载service lib
     auto autorun = [] {
         namespace fs = boost::filesystem;
 
@@ -264,32 +230,13 @@ void start_shell()
                 cout << "Loading service lib " << it->path().filename() << endl;
                 try {
                     // NOTE!!! 不可以用path().string()，会导致double free core dump!
-                    ServiceManager::getInstance()->loadServiceLib(it->path().c_str());
+                    ServiceManager::getInstance()->loadServiceLib(it->path().c_str());  // ★
                 } catch (const std::exception &ex) {
                     cerr << ex.what() << endl;
                 } // try
             } // if
         } // if
     };
-
-    // auto loadLib = [&](stringstream &stream)->bool {
-        // string path;
-        // stream >> path;
-        // if (bad_stream(stream)) {
-            // WRITE_LINE("Usage: loadlib path");
-            // return false;
-        // } // if
-
-        // try {
-            // ServiceManager::getInstance()->loadServiceLib(path);
-        // } catch (const std::exception &ex) {
-            // WRITE_LINE(ex.what());
-        // } // try
-
-        // WRITE_LINE("loadlib done!");
-
-        // return true;
-    // };
 
     auto greet = [&](stringstream &stream)->bool {
         WRITE_LINE("BigRLab APIServer is running...");
@@ -478,7 +425,7 @@ try {
     signals.async_wait( [](const boost::system::error_code& error, int signal)
             { try {stop_server();} catch (...) {} } );
 
-    start_server();
+    start_server(); // 在单独线程中启动 ApiServer 和 AlgMgr
     start_shell();
 
     cout << "Terminating server program..." << endl;

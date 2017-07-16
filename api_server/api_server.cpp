@@ -79,6 +79,7 @@ void APIServer::stop()
 }
 
 // run in io thread
+// 只做基本格式检查和读取body，不分析body
 void APIServerHandler::operator()(const ServerType::request& req,
                     ServerType::connection_ptr conn)
 try {
@@ -132,7 +133,7 @@ try {
         return;
     } // if
 
-    WorkItemPtr pWork( new WorkItem(req, conn, nRead) );
+    WorkItemPtr pWork( new WorkItem(req, conn, nRead) );    // ★
     pWork->readBody(conn);
 } catch (const std::exception &ex) {
     LOG(ERROR) << "APIServerHandler exception " << ex.what();
@@ -166,6 +167,7 @@ void WorkItem::readBody( const ServerType::connection_ptr &conn )
                placeholders::_1, placeholders::_2, placeholders::_3, placeholders::_4) );
     else
         g_pWorkMgr->addWork( boost::static_pointer_cast<WorkItemBase>(shared_from_this()) );
+        // 添加新工作到队列
 }
 
 // run in io thread
@@ -188,6 +190,7 @@ void WorkItem::handleRead(ServerType::connection::input_range range,
 }
 
 // run in work thread
+// 这里分析post的内容
 void WorkItem::run()
 {
     using namespace std;
@@ -216,6 +219,7 @@ void WorkItem::run()
     } // if
     
     // LOG(INFO) << "Forwarding request to " << srvName;
+    // 找到对应的service ★
     ServicePtr pSrv;
     if (!ServiceManager::getInstance()->getService(srvName, pSrv)) {
         // LOG(INFO) << "Service " << srvName << " not available!";

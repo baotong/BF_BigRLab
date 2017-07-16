@@ -105,11 +105,6 @@ private:
 
     IoServicePtr        m_pIoService;
     ThreadGroupPtr      m_pIoThrgrp;
-    
-    // AlgMgrSvr
-    // std::string         m_strAlgMgrAddr;
-    // uint16_t            m_nAlgMgrPort;
-    // AlgMgrClient::Pointer    m_pAlgMgrClient;
 };
 
 extern boost::shared_ptr<APIServer>       g_pApiServer;

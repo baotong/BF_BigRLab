@@ -71,7 +71,7 @@ ServiceManager::ServiceLib::~ServiceLib()
     } // if
 }
 
-// run in the shell
+// run in the shell 加载 .so 文件
 void ServiceManager::loadServiceLib( const std::string &path )
 {
     auto p = boost::make_shared<ServiceLib>(path);
