@@ -42,10 +42,10 @@ EQUALS = =
 CMAKE_EDIT_COMMAND = /usr/bin/ccmake
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /mnt/hgfs/BF_BigRLab/services/RunCmd
+CMAKE_SOURCE_DIR = /mnt/hgfs/BF_BigRLab/services/RunApp
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /mnt/hgfs/BF_BigRLab/services/RunCmd/build
+CMAKE_BINARY_DIR = /mnt/hgfs/BF_BigRLab/services/RunApp/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -72,9 +72,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/services/RunCmd/build/CMakeFiles /mnt/hgfs/BF_BigRLab/services/RunCmd/build/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/services/RunApp/build/CMakeFiles /mnt/hgfs/BF_BigRLab/services/RunApp/build/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/services/RunCmd/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/hgfs/BF_BigRLab/services/RunApp/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -102,120 +102,24 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named runcmd
+# Target rules for targets named RunApp
 
 # Build rule for target.
-runcmd: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 runcmd
-.PHONY : runcmd
+RunApp: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 RunApp
+.PHONY : RunApp
 
 # fast build rule for target.
-runcmd/fast:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/build
-.PHONY : runcmd/fast
-
-AlgConfig.o: AlgConfig.cpp.o
-.PHONY : AlgConfig.o
-
-# target to build an object file
-AlgConfig.cpp.o:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/AlgConfig.cpp.o
-.PHONY : AlgConfig.cpp.o
-
-AlgConfig.i: AlgConfig.cpp.i
-.PHONY : AlgConfig.i
-
-# target to preprocess a source file
-AlgConfig.cpp.i:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/AlgConfig.cpp.i
-.PHONY : AlgConfig.cpp.i
-
-AlgConfig.s: AlgConfig.cpp.s
-.PHONY : AlgConfig.s
-
-# target to generate assembly for a file
-AlgConfig.cpp.s:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/AlgConfig.cpp.s
-.PHONY : AlgConfig.cpp.s
-
-KnnConfig.o: KnnConfig.cpp.o
-.PHONY : KnnConfig.o
-
-# target to build an object file
-KnnConfig.cpp.o:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/KnnConfig.cpp.o
-.PHONY : KnnConfig.cpp.o
-
-KnnConfig.i: KnnConfig.cpp.i
-.PHONY : KnnConfig.i
-
-# target to preprocess a source file
-KnnConfig.cpp.i:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/KnnConfig.cpp.i
-.PHONY : KnnConfig.cpp.i
-
-KnnConfig.s: KnnConfig.cpp.s
-.PHONY : KnnConfig.s
-
-# target to generate assembly for a file
-KnnConfig.cpp.s:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/KnnConfig.cpp.s
-.PHONY : KnnConfig.cpp.s
-
-RunCmdServiceSo.o: RunCmdServiceSo.cpp.o
-.PHONY : RunCmdServiceSo.o
-
-# target to build an object file
-RunCmdServiceSo.cpp.o:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/RunCmdServiceSo.cpp.o
-.PHONY : RunCmdServiceSo.cpp.o
-
-RunCmdServiceSo.i: RunCmdServiceSo.cpp.i
-.PHONY : RunCmdServiceSo.i
-
-# target to preprocess a source file
-RunCmdServiceSo.cpp.i:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/RunCmdServiceSo.cpp.i
-.PHONY : RunCmdServiceSo.cpp.i
-
-RunCmdServiceSo.s: RunCmdServiceSo.cpp.s
-.PHONY : RunCmdServiceSo.s
-
-# target to generate assembly for a file
-RunCmdServiceSo.cpp.s:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/RunCmdServiceSo.cpp.s
-.PHONY : RunCmdServiceSo.cpp.s
-
-XgBoostConfig.o: XgBoostConfig.cpp.o
-.PHONY : XgBoostConfig.o
-
-# target to build an object file
-XgBoostConfig.cpp.o:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/XgBoostConfig.cpp.o
-.PHONY : XgBoostConfig.cpp.o
-
-XgBoostConfig.i: XgBoostConfig.cpp.i
-.PHONY : XgBoostConfig.i
-
-# target to preprocess a source file
-XgBoostConfig.cpp.i:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/XgBoostConfig.cpp.i
-.PHONY : XgBoostConfig.cpp.i
-
-XgBoostConfig.s: XgBoostConfig.cpp.s
-.PHONY : XgBoostConfig.s
-
-# target to generate assembly for a file
-XgBoostConfig.cpp.s:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/XgBoostConfig.cpp.s
-.PHONY : XgBoostConfig.cpp.s
+RunApp/fast:
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/build
+.PHONY : RunApp/fast
 
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.o: mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.cpp.o
 .PHONY : mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.o
 
 # target to build an object file
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.cpp.o:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.cpp.o
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.cpp.o
 .PHONY : mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.cpp.o
 
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.i: mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.cpp.i
@@ -223,7 +127,7 @@ mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.i: mnt/hgfs/BF
 
 # target to preprocess a source file
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.cpp.i:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.cpp.i
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.cpp.i
 .PHONY : mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.cpp.i
 
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.s: mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.cpp.s
@@ -231,7 +135,7 @@ mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.s: mnt/hgfs/BF
 
 # target to generate assembly for a file
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.cpp.s:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.cpp.s
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.cpp.s
 .PHONY : mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.cpp.s
 
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_types.o: mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_types.cpp.o
@@ -239,7 +143,7 @@ mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_types.o: mnt/hgfs/BF_Big
 
 # target to build an object file
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_types.cpp.o:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_types.cpp.o
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_types.cpp.o
 .PHONY : mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_types.cpp.o
 
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_types.i: mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_types.cpp.i
@@ -247,7 +151,7 @@ mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_types.i: mnt/hgfs/BF_Big
 
 # target to preprocess a source file
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_types.cpp.i:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_types.cpp.i
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_types.cpp.i
 .PHONY : mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_types.cpp.i
 
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_types.s: mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_types.cpp.s
@@ -255,7 +159,7 @@ mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_types.s: mnt/hgfs/BF_Big
 
 # target to generate assembly for a file
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_types.cpp.s:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_types.cpp.s
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_types.cpp.s
 .PHONY : mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_types.cpp.s
 
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmdService.o: mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmdService.cpp.o
@@ -263,7 +167,7 @@ mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmdService.o: mnt/hgfs/BF_BigRL
 
 # target to build an object file
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmdService.cpp.o:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmdService.cpp.o
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmdService.cpp.o
 .PHONY : mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmdService.cpp.o
 
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmdService.i: mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmdService.cpp.i
@@ -271,7 +175,7 @@ mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmdService.i: mnt/hgfs/BF_BigRL
 
 # target to preprocess a source file
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmdService.cpp.i:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmdService.cpp.i
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmdService.cpp.i
 .PHONY : mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmdService.cpp.i
 
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmdService.s: mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmdService.cpp.s
@@ -279,7 +183,7 @@ mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmdService.s: mnt/hgfs/BF_BigRL
 
 # target to generate assembly for a file
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmdService.cpp.s:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmdService.cpp.s
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmdService.cpp.s
 .PHONY : mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmdService.cpp.s
 
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_constants.o: mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_constants.cpp.o
@@ -287,7 +191,7 @@ mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_constants.o: mnt/hgfs/BF_Bi
 
 # target to build an object file
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_constants.cpp.o:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_constants.cpp.o
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_constants.cpp.o
 .PHONY : mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_constants.cpp.o
 
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_constants.i: mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_constants.cpp.i
@@ -295,7 +199,7 @@ mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_constants.i: mnt/hgfs/BF_Bi
 
 # target to preprocess a source file
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_constants.cpp.i:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_constants.cpp.i
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_constants.cpp.i
 .PHONY : mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_constants.cpp.i
 
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_constants.s: mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_constants.cpp.s
@@ -303,7 +207,7 @@ mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_constants.s: mnt/hgfs/BF_Bi
 
 # target to generate assembly for a file
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_constants.cpp.s:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_constants.cpp.s
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_constants.cpp.s
 .PHONY : mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_constants.cpp.s
 
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_types.o: mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_types.cpp.o
@@ -311,7 +215,7 @@ mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_types.o: mnt/hgfs/BF_BigRLa
 
 # target to build an object file
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_types.cpp.o:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_types.cpp.o
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_types.cpp.o
 .PHONY : mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_types.cpp.o
 
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_types.i: mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_types.cpp.i
@@ -319,7 +223,7 @@ mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_types.i: mnt/hgfs/BF_BigRLa
 
 # target to preprocess a source file
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_types.cpp.i:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_types.cpp.i
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_types.cpp.i
 .PHONY : mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_types.cpp.i
 
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_types.s: mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_types.cpp.s
@@ -327,7 +231,7 @@ mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_types.s: mnt/hgfs/BF_BigRLa
 
 # target to generate assembly for a file
 mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_types.cpp.s:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_types.cpp.s
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_types.cpp.s
 .PHONY : mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/RunCmd_types.cpp.s
 
 mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.o: mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.cpp.o
@@ -335,7 +239,7 @@ mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.o: mnt/hgfs/BF_BigRLab/api_
 
 # target to build an object file
 mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.cpp.o:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.cpp.o
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.cpp.o
 .PHONY : mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.cpp.o
 
 mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.i: mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.cpp.i
@@ -343,7 +247,7 @@ mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.i: mnt/hgfs/BF_BigRLab/api_
 
 # target to preprocess a source file
 mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.cpp.i:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.cpp.i
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.cpp.i
 .PHONY : mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.cpp.i
 
 mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.s: mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.cpp.s
@@ -351,7 +255,7 @@ mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.s: mnt/hgfs/BF_BigRLab/api_
 
 # target to generate assembly for a file
 mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.cpp.s:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.cpp.s
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.cpp.s
 .PHONY : mnt/hgfs/BF_BigRLab/api_server/gen-cpp/AlgMgrService.cpp.s
 
 mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_constants.o: mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_constants.cpp.o
@@ -359,7 +263,7 @@ mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_constants.o: mnt/hgfs/BF_BigRLab/
 
 # target to build an object file
 mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_constants.cpp.o:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_constants.cpp.o
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_constants.cpp.o
 .PHONY : mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_constants.cpp.o
 
 mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_constants.i: mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_constants.cpp.i
@@ -367,7 +271,7 @@ mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_constants.i: mnt/hgfs/BF_BigRLab/
 
 # target to preprocess a source file
 mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_constants.cpp.i:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_constants.cpp.i
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_constants.cpp.i
 .PHONY : mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_constants.cpp.i
 
 mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_constants.s: mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_constants.cpp.s
@@ -375,7 +279,7 @@ mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_constants.s: mnt/hgfs/BF_BigRLab/
 
 # target to generate assembly for a file
 mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_constants.cpp.s:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_constants.cpp.s
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_constants.cpp.s
 .PHONY : mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_constants.cpp.s
 
 mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_types.o: mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_types.cpp.o
@@ -383,7 +287,7 @@ mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_types.o: mnt/hgfs/BF_BigRLab/api_
 
 # target to build an object file
 mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_types.cpp.o:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_types.cpp.o
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_types.cpp.o
 .PHONY : mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_types.cpp.o
 
 mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_types.i: mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_types.cpp.i
@@ -391,7 +295,7 @@ mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_types.i: mnt/hgfs/BF_BigRLab/api_
 
 # target to preprocess a source file
 mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_types.cpp.i:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_types.cpp.i
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_types.cpp.i
 .PHONY : mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_types.cpp.i
 
 mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_types.s: mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_types.cpp.s
@@ -399,8 +303,56 @@ mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_types.s: mnt/hgfs/BF_BigRLab/api_
 
 # target to generate assembly for a file
 mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_types.cpp.s:
-	$(MAKE) -f CMakeFiles/runcmd.dir/build.make CMakeFiles/runcmd.dir/mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_types.cpp.s
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_types.cpp.s
 .PHONY : mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_types.cpp.s
+
+src/RunApp.o: src/RunApp.cpp.o
+.PHONY : src/RunApp.o
+
+# target to build an object file
+src/RunApp.cpp.o:
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/src/RunApp.cpp.o
+.PHONY : src/RunApp.cpp.o
+
+src/RunApp.i: src/RunApp.cpp.i
+.PHONY : src/RunApp.i
+
+# target to preprocess a source file
+src/RunApp.cpp.i:
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/src/RunApp.cpp.i
+.PHONY : src/RunApp.cpp.i
+
+src/RunApp.s: src/RunApp.cpp.s
+.PHONY : src/RunApp.s
+
+# target to generate assembly for a file
+src/RunApp.cpp.s:
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/src/RunApp.cpp.s
+.PHONY : src/RunApp.cpp.s
+
+src/WorkInfo.o: src/WorkInfo.cpp.o
+.PHONY : src/WorkInfo.o
+
+# target to build an object file
+src/WorkInfo.cpp.o:
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/src/WorkInfo.cpp.o
+.PHONY : src/WorkInfo.cpp.o
+
+src/WorkInfo.i: src/WorkInfo.cpp.i
+.PHONY : src/WorkInfo.i
+
+# target to preprocess a source file
+src/WorkInfo.cpp.i:
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/src/WorkInfo.cpp.i
+.PHONY : src/WorkInfo.cpp.i
+
+src/WorkInfo.s: src/WorkInfo.cpp.s
+.PHONY : src/WorkInfo.s
+
+# target to generate assembly for a file
+src/WorkInfo.cpp.s:
+	$(MAKE) -f CMakeFiles/RunApp.dir/build.make CMakeFiles/RunApp.dir/src/WorkInfo.cpp.s
+.PHONY : src/WorkInfo.cpp.s
 
 # Help Target
 help:
@@ -408,21 +360,9 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
+	@echo "... RunApp"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... runcmd"
-	@echo "... AlgConfig.o"
-	@echo "... AlgConfig.i"
-	@echo "... AlgConfig.s"
-	@echo "... KnnConfig.o"
-	@echo "... KnnConfig.i"
-	@echo "... KnnConfig.s"
-	@echo "... RunCmdServiceSo.o"
-	@echo "... RunCmdServiceSo.i"
-	@echo "... RunCmdServiceSo.s"
-	@echo "... XgBoostConfig.o"
-	@echo "... XgBoostConfig.i"
-	@echo "... XgBoostConfig.s"
 	@echo "... mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.o"
 	@echo "... mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.i"
 	@echo "... mnt/hgfs/BF_BigRLab/algorithms/RunCmd/gen-cpp/AlgCommon_constants.s"
@@ -447,6 +387,12 @@ help:
 	@echo "... mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_types.o"
 	@echo "... mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_types.i"
 	@echo "... mnt/hgfs/BF_BigRLab/api_server/gen-cpp/alg_mgr_types.s"
+	@echo "... src/RunApp.o"
+	@echo "... src/RunApp.i"
+	@echo "... src/RunApp.s"
+	@echo "... src/WorkInfo.o"
+	@echo "... src/WorkInfo.i"
+	@echo "... src/WorkInfo.s"
 .PHONY : help
 
 
