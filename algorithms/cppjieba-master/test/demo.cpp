@@ -4,7 +4,9 @@
  * ./demo -algname jieba -algmgr localhost:9001 -port 10080 -vec wordvec -vecdict data/weibo_500w.wordvec -idx data/weibo_1w.sumWordVec.annIdx
  * ./demo -algname jieba -algmgr localhost:9001 -port 10080 -vec wordvec -vecdict data/text_class.wordvec -idx data/text_class.annIdx -label data/text_class.index
  * ./demo -algname jieba -algmgr localhost:9001 -port 10080 -vec wordvec -vecdict data/text_class.wordvec -idx data/text_class.annIdx -score data/text_class.index
- *
+ * 
+ * GLOG_logtostderr=1 ./demo -algname jieba -algmgr localhost:9001 -port 10080 -vec clusterid -vecdict ../../data/text_class_w2v_cluster.txt -idx ../../data/text_class_index.ann
+ * curl -i -X POST -H "Content-Type: BigRLab_Request" -d '{"reqtype":"keyword","topk":5,"content":"我是拖拉机学院手扶拖拉机专业的。不用多久，我就会升职加薪，当上CEO，走上人生巅峰。"}' http://localhost:9000/jieba
  */
 #include "jieba.hpp"
 #include "Article2Vector.h"

@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include <sstream>
 #include <random>
 #include <algorithm>
@@ -57,19 +58,19 @@ void RunAppService::handleRequest(const BigRLab::WorkItemPtr &pWork)
 
     if (!reader.parse(pWork->body, root)) {
         LOG(ERROR) << "json parse fail!";
-        RESPONSE_MSG(pWork->conn, build_resp_json(-1, "json parse fail!"));
+        RESPONSE_MSG(pWork->conn, build_resp_json(2, "json parse fail!"));
         return;
     } // if
 
     string strOp = root["op"].asString();
     if (strOp.empty()) {
-        RESPONSE_MSG(pWork->conn, build_resp_json(-1, "\"op\" not specified!"));
+        RESPONSE_MSG(pWork->conn, build_resp_json(2, "\"op\" not specified!"));
         return;
     } // if
 
     string strName = root["name"].asString();
     if (strName.empty()) {
-        RESPONSE_MSG(pWork->conn, build_resp_json(-1, "\"name\" not specified!"));
+        RESPONSE_MSG(pWork->conn, build_resp_json(2, "\"name\" not specified!"));
         return;
     } // if
 
@@ -79,13 +80,13 @@ void RunAppService::handleRequest(const BigRLab::WorkItemPtr &pWork)
         } catch (const std::exception &ex) {
             string msg("create new work fail ");
             msg.append(ex.what());
-            RESPONSE_MSG(pWork->conn, build_resp_json(-1, msg));
+            RESPONSE_MSG(pWork->conn, build_resp_json(2, msg));
             return;
         } // try
     } else if (strOp == "query") {
         doQuery(strName, pWork);
     } else {
-        RESPONSE_MSG(pWork->conn, build_resp_json(-1, "\"op\" invalid value!"));
+        RESPONSE_MSG(pWork->conn, build_resp_json(2, "\"op\" invalid value!"));
         return;
     } // if
 }
@@ -96,18 +97,21 @@ void RunAppService::createNewWork(const std::string &workName,
 {
     string strType = conf["type"].asString();
     if (strType.empty()) {
-        RESPONSE_MSG(pWork->conn, build_resp_json(-1, "\"type\" not specified!"));
+        RESPONSE_MSG(pWork->conn, build_resp_json(2, "\"type\" not specified!"));
         return;
     } // if
 
     if (strType == "feature") {
+        // killAndRemove(workName);
         WorkInfo::pointer pWorkInfo = std::make_shared<FeatureWorkInfo>(workName);
         pWorkInfo->init(conf);
+        std::unique_lock<std::mutex> lck(m_Mtx);
         m_mapWorkTable[pWorkInfo->name()] = pWorkInfo;
+        lck.unlock();
         pWorkInfo->run();
         RESPONSE_MSG(pWork->conn, build_resp_json(0, "success"));
     } else {
-        RESPONSE_MSG(pWork->conn, build_resp_json(-1, "\"type\" invalid value!"));
+        RESPONSE_MSG(pWork->conn, build_resp_json(2, "\"type\" invalid value!"));
         return;
     } // if
 }
@@ -115,20 +119,25 @@ void RunAppService::createNewWork(const std::string &workName,
 
 void RunAppService::doQuery(const std::string &workName, const BigRLab::WorkItemPtr &pWork)
 {
-    LOG(INFO) << "Query " << workName;
+    LOG(INFO) << "Query " << workName << " m_mapWorkTable.size() = " << m_mapWorkTable.size();
     // DLOG(INFO) << "m_mapWorkTable.size() = " << m_mapWorkTable.size();
 
+    std::unique_lock<std::mutex> lck(m_Mtx);
     auto it = m_mapWorkTable.find(workName);
     if (it == m_mapWorkTable.end()) {
-        RESPONSE_MSG(pWork->conn, build_resp_json(-1, "Not found!"));
+        LOG(INFO) << "No work found name: " << workName;
+        RESPONSE_MSG(pWork->conn, build_resp_json(2, "Not found!"));
         return;
     } // if
-
     auto pWorkInfo = it->second;
+    lck.unlock();
+
     if (pWorkInfo->status() == WorkInfo::RUNNING) {
+        DLOG(INFO) << "Work " << workName << " is still running";
         RESPONSE_MSG(pWork->conn, build_resp_json(1, "still running"));
     } else if (pWorkInfo->status() == WorkInfo::FINISH) {
         if (pWorkInfo->retcode() == 0) {
+            DLOG(INFO) << "Work " << workName << " done successfully";
             Json::Value jv;
             jv["status"] = 0;
             jv["msg"] = pWorkInfo->output();
@@ -137,6 +146,7 @@ void RunAppService::doQuery(const std::string &workName, const BigRLab::WorkItem
             std::string strResp = writer.write(jv);
             send_response(pWork->conn, BigRLab::ServerType::connection::ok, strResp);
         } else {
+            DLOG(INFO) << "Work " << workName << " fail";
             ostringstream oss;
             oss << pWorkInfo->output();
             oss << " retcode = " << pWorkInfo->retcode();
@@ -152,6 +162,23 @@ void RunAppService::doQuery(const std::string &workName, const BigRLab::WorkItem
     } // if
 }
 
+#if 0
+void RunAppService::killAndRemove( string_ref_type workName )
+{
+    // auto it = m_mapWorkTable.find(workName);
+    // if (it == m_mapWorkTable.end())
+        // return;
+    // auto pWorkInfo = it->second;
+    // if (!pWorkInfo->pid())
+        // return;
+    // ostringstream oss;
+    // oss << "kill -9 " << pWorkInfo->pid() << flush;
+    // string cmd = oss.str();
+    // int ret = ::system(cmd.c_str());
+    // (void)ret;
+    system("killall -9 feature.bin");
+}
+#endif
 
 // 新alg server加入时的处理, 不用改
 std::size_t RunAppService::addServer( const BigRLab::AlgSvrInfo& svrInfo, const ServerAttr::Pointer& )

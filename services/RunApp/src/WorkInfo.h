@@ -20,6 +20,7 @@ public:
     const std::string& name() const { return m_strName; }
     int status() const { return m_nStatus; }
     int retcode() const { return m_nAppRetval; }
+    pid_t pid() const { return m_nPid; }
     const std::string& output() const { return m_strAppOutput; }
     uint64_t duration() const { return m_nDuration; }
 

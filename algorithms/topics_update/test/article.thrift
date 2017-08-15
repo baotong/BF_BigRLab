@@ -1,12 +1,11 @@
 /*
+ * thrift --gen cpp:templates,pure_enums,moveable_types,no_default_operators ../../alg_common/AlgCommon.thrift
  * thrift --gen cpp:templates,pure_enums,moveable_types,no_default_operators article.thrift
  */
 
-namespace * Article
+include "../../alg_common/AlgCommon.thrift"
 
-exception InvalidRequest {
-    1: string reason
-}
+namespace * Article
 
 struct KeywordResult {
     1: string word,
@@ -23,13 +22,13 @@ struct KnnResult {
 service ArticleService {
     void setFilter( 1:string filter ),
 
-    list<string> wordSegment( 1:string sentence ) throws (1:InvalidRequest err),
-    list<KeywordResult> keyword( 1:string sentence, 2:i32 k ) throws (1:InvalidRequest err),
+    list<string> wordSegment( 1:string sentence ) throws (1:AlgCommon.InvalidRequest err),
+    list<KeywordResult> keyword( 1:string sentence, 2:i32 k ) throws (1:AlgCommon.InvalidRequest err),
 
-    list<double> toVector( 1:string sentence, 2:bool wordseg ) throws (1:InvalidRequest err),
+    list<double> toVector( 1:string sentence, 2:bool wordseg ) throws (1:AlgCommon.InvalidRequest err),
 
-    list<KnnResult> knn( 1:string sentence, 2:i32 n, 3:i32 searchK, 4:bool wordseg, 5:string reqtype ) throws (1:InvalidRequest err),
+    list<KnnResult> knn( 1:string sentence, 2:i32 n, 3:i32 searchK, 4:bool wordseg, 5:string reqtype ) throws (1:AlgCommon.InvalidRequest err),
 
     // for http request, input: json string; return: json string
-    string handleRequest( 1:string request ) throws (1:InvalidRequest err)
+    string handleRequest( 1:string request ) throws (1:AlgCommon.InvalidRequest err)
 }

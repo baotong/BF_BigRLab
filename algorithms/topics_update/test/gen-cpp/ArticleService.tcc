@@ -258,14 +258,14 @@ uint32_t ArticleService_wordSegment_result::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size12;
-            ::apache::thrift::protocol::TType _etype15;
-            xfer += iprot->readListBegin(_etype15, _size12);
-            this->success.resize(_size12);
-            uint32_t _i16;
-            for (_i16 = 0; _i16 < _size12; ++_i16)
+            uint32_t _size8;
+            ::apache::thrift::protocol::TType _etype11;
+            xfer += iprot->readListBegin(_etype11, _size8);
+            this->success.resize(_size8);
+            uint32_t _i12;
+            for (_i12 = 0; _i12 < _size8; ++_i12)
             {
-              xfer += iprot->readString(this->success[_i16]);
+              xfer += iprot->readString(this->success[_i12]);
             }
             xfer += iprot->readListEnd();
           }
@@ -305,10 +305,10 @@ uint32_t ArticleService_wordSegment_result::write(Protocol_* oprot) const {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRING, static_cast<uint32_t>(this->success.size()));
-      std::vector<std::string> ::const_iterator _iter17;
-      for (_iter17 = this->success.begin(); _iter17 != this->success.end(); ++_iter17)
+      std::vector<std::string> ::const_iterator _iter13;
+      for (_iter13 = this->success.begin(); _iter13 != this->success.end(); ++_iter13)
       {
-        xfer += oprot->writeString((*_iter17));
+        xfer += oprot->writeString((*_iter13));
       }
       xfer += oprot->writeListEnd();
     }
@@ -350,14 +350,14 @@ uint32_t ArticleService_wordSegment_presult::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size18;
-            ::apache::thrift::protocol::TType _etype21;
-            xfer += iprot->readListBegin(_etype21, _size18);
-            (*(this->success)).resize(_size18);
-            uint32_t _i22;
-            for (_i22 = 0; _i22 < _size18; ++_i22)
+            uint32_t _size14;
+            ::apache::thrift::protocol::TType _etype17;
+            xfer += iprot->readListBegin(_etype17, _size14);
+            (*(this->success)).resize(_size14);
+            uint32_t _i18;
+            for (_i18 = 0; _i18 < _size14; ++_i18)
             {
-              xfer += iprot->readString((*(this->success))[_i22]);
+              xfer += iprot->readString((*(this->success))[_i18]);
             }
             xfer += iprot->readListEnd();
           }
@@ -503,14 +503,14 @@ uint32_t ArticleService_keyword_result::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size23;
-            ::apache::thrift::protocol::TType _etype26;
-            xfer += iprot->readListBegin(_etype26, _size23);
-            this->success.resize(_size23);
-            uint32_t _i27;
-            for (_i27 = 0; _i27 < _size23; ++_i27)
+            uint32_t _size19;
+            ::apache::thrift::protocol::TType _etype22;
+            xfer += iprot->readListBegin(_etype22, _size19);
+            this->success.resize(_size19);
+            uint32_t _i23;
+            for (_i23 = 0; _i23 < _size19; ++_i23)
             {
-              xfer += this->success[_i27].read(iprot);
+              xfer += this->success[_i23].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -550,10 +550,10 @@ uint32_t ArticleService_keyword_result::write(Protocol_* oprot) const {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->success.size()));
-      std::vector<KeywordResult> ::const_iterator _iter28;
-      for (_iter28 = this->success.begin(); _iter28 != this->success.end(); ++_iter28)
+      std::vector<KeywordResult> ::const_iterator _iter24;
+      for (_iter24 = this->success.begin(); _iter24 != this->success.end(); ++_iter24)
       {
-        xfer += (*_iter28).write(oprot);
+        xfer += (*_iter24).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -595,14 +595,14 @@ uint32_t ArticleService_keyword_presult::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size29;
-            ::apache::thrift::protocol::TType _etype32;
-            xfer += iprot->readListBegin(_etype32, _size29);
-            (*(this->success)).resize(_size29);
-            uint32_t _i33;
-            for (_i33 = 0; _i33 < _size29; ++_i33)
+            uint32_t _size25;
+            ::apache::thrift::protocol::TType _etype28;
+            xfer += iprot->readListBegin(_etype28, _size25);
+            (*(this->success)).resize(_size25);
+            uint32_t _i29;
+            for (_i29 = 0; _i29 < _size25; ++_i29)
             {
-              xfer += (*(this->success))[_i33].read(iprot);
+              xfer += (*(this->success))[_i29].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -748,14 +748,14 @@ uint32_t ArticleService_toVector_result::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size34;
-            ::apache::thrift::protocol::TType _etype37;
-            xfer += iprot->readListBegin(_etype37, _size34);
-            this->success.resize(_size34);
-            uint32_t _i38;
-            for (_i38 = 0; _i38 < _size34; ++_i38)
+            uint32_t _size30;
+            ::apache::thrift::protocol::TType _etype33;
+            xfer += iprot->readListBegin(_etype33, _size30);
+            this->success.resize(_size30);
+            uint32_t _i34;
+            for (_i34 = 0; _i34 < _size30; ++_i34)
             {
-              xfer += iprot->readDouble(this->success[_i38]);
+              xfer += iprot->readDouble(this->success[_i34]);
             }
             xfer += iprot->readListEnd();
           }
@@ -795,10 +795,10 @@ uint32_t ArticleService_toVector_result::write(Protocol_* oprot) const {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_DOUBLE, static_cast<uint32_t>(this->success.size()));
-      std::vector<double> ::const_iterator _iter39;
-      for (_iter39 = this->success.begin(); _iter39 != this->success.end(); ++_iter39)
+      std::vector<double> ::const_iterator _iter35;
+      for (_iter35 = this->success.begin(); _iter35 != this->success.end(); ++_iter35)
       {
-        xfer += oprot->writeDouble((*_iter39));
+        xfer += oprot->writeDouble((*_iter35));
       }
       xfer += oprot->writeListEnd();
     }
@@ -840,14 +840,14 @@ uint32_t ArticleService_toVector_presult::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size40;
-            ::apache::thrift::protocol::TType _etype43;
-            xfer += iprot->readListBegin(_etype43, _size40);
-            (*(this->success)).resize(_size40);
-            uint32_t _i44;
-            for (_i44 = 0; _i44 < _size40; ++_i44)
+            uint32_t _size36;
+            ::apache::thrift::protocol::TType _etype39;
+            xfer += iprot->readListBegin(_etype39, _size36);
+            (*(this->success)).resize(_size36);
+            uint32_t _i40;
+            for (_i40 = 0; _i40 < _size36; ++_i40)
             {
-              xfer += iprot->readDouble((*(this->success))[_i44]);
+              xfer += iprot->readDouble((*(this->success))[_i40]);
             }
             xfer += iprot->readListEnd();
           }
@@ -1041,14 +1041,14 @@ uint32_t ArticleService_knn_result::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             this->success.clear();
-            uint32_t _size45;
-            ::apache::thrift::protocol::TType _etype48;
-            xfer += iprot->readListBegin(_etype48, _size45);
-            this->success.resize(_size45);
-            uint32_t _i49;
-            for (_i49 = 0; _i49 < _size45; ++_i49)
+            uint32_t _size41;
+            ::apache::thrift::protocol::TType _etype44;
+            xfer += iprot->readListBegin(_etype44, _size41);
+            this->success.resize(_size41);
+            uint32_t _i45;
+            for (_i45 = 0; _i45 < _size41; ++_i45)
             {
-              xfer += this->success[_i49].read(iprot);
+              xfer += this->success[_i45].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -1088,10 +1088,10 @@ uint32_t ArticleService_knn_result::write(Protocol_* oprot) const {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_LIST, 0);
     {
       xfer += oprot->writeListBegin(::apache::thrift::protocol::T_STRUCT, static_cast<uint32_t>(this->success.size()));
-      std::vector<KnnResult> ::const_iterator _iter50;
-      for (_iter50 = this->success.begin(); _iter50 != this->success.end(); ++_iter50)
+      std::vector<KnnResult> ::const_iterator _iter46;
+      for (_iter46 = this->success.begin(); _iter46 != this->success.end(); ++_iter46)
       {
-        xfer += (*_iter50).write(oprot);
+        xfer += (*_iter46).write(oprot);
       }
       xfer += oprot->writeListEnd();
     }
@@ -1133,14 +1133,14 @@ uint32_t ArticleService_knn_presult::read(Protocol_* iprot) {
         if (ftype == ::apache::thrift::protocol::T_LIST) {
           {
             (*(this->success)).clear();
-            uint32_t _size51;
-            ::apache::thrift::protocol::TType _etype54;
-            xfer += iprot->readListBegin(_etype54, _size51);
-            (*(this->success)).resize(_size51);
-            uint32_t _i55;
-            for (_i55 = 0; _i55 < _size51; ++_i55)
+            uint32_t _size47;
+            ::apache::thrift::protocol::TType _etype50;
+            xfer += iprot->readListBegin(_etype50, _size47);
+            (*(this->success)).resize(_size47);
+            uint32_t _i51;
+            for (_i51 = 0; _i51 < _size47; ++_i51)
             {
-              xfer += (*(this->success))[_i55].read(iprot);
+              xfer += (*(this->success))[_i51].read(iprot);
             }
             xfer += iprot->readListEnd();
           }
@@ -1922,7 +1922,7 @@ void ArticleServiceProcessorT<Protocol_>::process_wordSegment(int32_t seqid, ::a
   try {
     iface_->wordSegment(result.success, args.sentence);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -1980,7 +1980,7 @@ void ArticleServiceProcessorT<Protocol_>::process_wordSegment(int32_t seqid, Pro
   try {
     iface_->wordSegment(result.success, args.sentence);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -2038,7 +2038,7 @@ void ArticleServiceProcessorT<Protocol_>::process_keyword(int32_t seqid, ::apach
   try {
     iface_->keyword(result.success, args.sentence, args.k);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -2096,7 +2096,7 @@ void ArticleServiceProcessorT<Protocol_>::process_keyword(int32_t seqid, Protoco
   try {
     iface_->keyword(result.success, args.sentence, args.k);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -2154,7 +2154,7 @@ void ArticleServiceProcessorT<Protocol_>::process_toVector(int32_t seqid, ::apac
   try {
     iface_->toVector(result.success, args.sentence, args.wordseg);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -2212,7 +2212,7 @@ void ArticleServiceProcessorT<Protocol_>::process_toVector(int32_t seqid, Protoc
   try {
     iface_->toVector(result.success, args.sentence, args.wordseg);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -2270,7 +2270,7 @@ void ArticleServiceProcessorT<Protocol_>::process_knn(int32_t seqid, ::apache::t
   try {
     iface_->knn(result.success, args.sentence, args.n, args.searchK, args.wordseg, args.reqtype);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -2328,7 +2328,7 @@ void ArticleServiceProcessorT<Protocol_>::process_knn(int32_t seqid, Protocol_* 
   try {
     iface_->knn(result.success, args.sentence, args.n, args.searchK, args.wordseg, args.reqtype);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -2386,7 +2386,7 @@ void ArticleServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, :
   try {
     iface_->handleRequest(result.success, args.request);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {
@@ -2444,7 +2444,7 @@ void ArticleServiceProcessorT<Protocol_>::process_handleRequest(int32_t seqid, P
   try {
     iface_->handleRequest(result.success, args.request);
     result.__isset.success = true;
-  } catch (InvalidRequest &err) {
+  } catch ( ::AlgCommon::InvalidRequest &err) {
     result.err = err;
     result.__isset.err = true;
   } catch (const std::exception& e) {

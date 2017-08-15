@@ -1,5 +1,6 @@
 /*
  * GLOG_logtostderr=1 ./demo -algname topic_pred -algmgr localhost:9001 -port 10080 -vec clusterid -vecdict ../data/text_class_w2v_cluster.txt -idx ../data/text_class_index.ann -label ../data/text_class.index.cn
+ * curl -i -X POST -H "Content-Type: BigRLab_Request" -d '{"reqtype":"label","topk":5,"text":"石墨烯很坚固，可以导电，弹性十足，许多人认为它是一种革命性电子材料，可以制造可弯曲手机，替代半导体硅芯片。"}' http://localhost:9000/topic_pred
  */
 #include "jieba.hpp"
 #include "Article2Vector.h"

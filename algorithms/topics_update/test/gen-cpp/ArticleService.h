@@ -210,13 +210,13 @@ class ArticleService_wordSegment_result {
 
   virtual ~ArticleService_wordSegment_result() throw();
   std::vector<std::string>  success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _ArticleService_wordSegment_result__isset __isset;
 
   void __set_success(const std::vector<std::string> & val);
 
-  void __set_err(const InvalidRequest& val);
+  void __set_err(const  ::AlgCommon::InvalidRequest& val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -237,7 +237,7 @@ class ArticleService_wordSegment_presult {
 
   virtual ~ArticleService_wordSegment_presult() throw();
   std::vector<std::string> * success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _ArticleService_wordSegment_presult__isset __isset;
 
@@ -311,13 +311,13 @@ class ArticleService_keyword_result {
 
   virtual ~ArticleService_keyword_result() throw();
   std::vector<KeywordResult>  success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _ArticleService_keyword_result__isset __isset;
 
   void __set_success(const std::vector<KeywordResult> & val);
 
-  void __set_err(const InvalidRequest& val);
+  void __set_err(const  ::AlgCommon::InvalidRequest& val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -338,7 +338,7 @@ class ArticleService_keyword_presult {
 
   virtual ~ArticleService_keyword_presult() throw();
   std::vector<KeywordResult> * success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _ArticleService_keyword_presult__isset __isset;
 
@@ -412,13 +412,13 @@ class ArticleService_toVector_result {
 
   virtual ~ArticleService_toVector_result() throw();
   std::vector<double>  success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _ArticleService_toVector_result__isset __isset;
 
   void __set_success(const std::vector<double> & val);
 
-  void __set_err(const InvalidRequest& val);
+  void __set_err(const  ::AlgCommon::InvalidRequest& val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -439,7 +439,7 @@ class ArticleService_toVector_presult {
 
   virtual ~ArticleService_toVector_presult() throw();
   std::vector<double> * success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _ArticleService_toVector_presult__isset __isset;
 
@@ -528,13 +528,13 @@ class ArticleService_knn_result {
 
   virtual ~ArticleService_knn_result() throw();
   std::vector<KnnResult>  success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _ArticleService_knn_result__isset __isset;
 
   void __set_success(const std::vector<KnnResult> & val);
 
-  void __set_err(const InvalidRequest& val);
+  void __set_err(const  ::AlgCommon::InvalidRequest& val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -555,7 +555,7 @@ class ArticleService_knn_presult {
 
   virtual ~ArticleService_knn_presult() throw();
   std::vector<KnnResult> * success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _ArticleService_knn_presult__isset __isset;
 
@@ -624,13 +624,13 @@ class ArticleService_handleRequest_result {
 
   virtual ~ArticleService_handleRequest_result() throw();
   std::string success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _ArticleService_handleRequest_result__isset __isset;
 
   void __set_success(const std::string& val);
 
-  void __set_err(const InvalidRequest& val);
+  void __set_err(const  ::AlgCommon::InvalidRequest& val);
 
   template <class Protocol_>
   uint32_t read(Protocol_* iprot);
@@ -651,7 +651,7 @@ class ArticleService_handleRequest_presult {
 
   virtual ~ArticleService_handleRequest_presult() throw();
   std::string* success;
-  InvalidRequest err;
+   ::AlgCommon::InvalidRequest err;
 
   _ArticleService_handleRequest_presult__isset __isset;
 

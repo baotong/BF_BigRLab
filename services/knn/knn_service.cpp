@@ -355,7 +355,7 @@ void KnnService::handleCommand( std::stringstream &stream )
 // 在apiserver的工作线程中执行
 void KnnService::handleRequest(const BigRLab::WorkItemPtr &pWork)
 {
-    // DLOG(INFO) << "Service " << name() << " received request: " << pWork->body;
+    DLOG(INFO) << "Service " << name() << " received request: " << pWork->body;
 
     bool done = false;
 

@@ -116,8 +116,10 @@ void FeatureWorkInfo::init(const Json::Value &conf)
 
 void FeatureWorkInfo::run()
 {
-    // for debug
-    m_strCmd = "./test.sh 2>&1";
+    using namespace std;
+    ostringstream oss;
+    oss << "./demo.sh " << m_strInput << " 2>&1" << flush;
+    m_strCmd = oss.str();
     m_pWorkThr.reset(new std::thread(&FeatureWorkInfo::workThreadRoutine, this));
     m_pWorkThr->detach();
     m_nStatus = RUNNING;

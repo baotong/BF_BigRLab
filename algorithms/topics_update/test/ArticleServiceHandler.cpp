@@ -134,7 +134,7 @@ void ArticleServiceHandler::knn(std::vector<KnnResult> & _return, const std::str
         DLOG(INFO) << "knn result: " << dbgss.str();
 #endif
 
-    } catch (const InvalidRequest &ex) {
+    } catch (const AlgCommon::InvalidRequest &ex) {
         throw ex;
     } catch (const std::exception &ex) {
         LOG(ERROR) << "ArticleService knn fail: " << ex.what();
@@ -184,7 +184,7 @@ void ArticleServiceHandler::handleRequest(std::string& _return, const std::strin
             resp["result"].append(item);
         } // for
 
-    } catch (const InvalidRequest &err) {
+    } catch (const AlgCommon::InvalidRequest &err) {
         throw err;
     } catch (const std::exception &ex) {
         LOG(ERROR) << "handleRequest fail: " << ex.what();

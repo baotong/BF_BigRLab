@@ -11,9 +11,9 @@
 #include <string>
 #include <set>
 #include <atomic>
+#include <mutex>
 #include <boost/thread/lockable_adapter.hpp>
 #include <boost/thread/condition_variable.hpp>
-#include <boost/utility/string_ref.hpp>
 
 
 extern "C" {
@@ -35,13 +35,16 @@ public:
     static const uint32_t       TIMEOUT = (600 * 1000);     // 10min
 
 public:
-    typedef boost::string_ref       string_ref_type;
     typedef BigRLab::ThriftClient< RunCmd::RunCmdServiceClient >   RunCmdClient;
     typedef RunCmdClient::Pointer                             RunCmdClientPtr;
     typedef boost::weak_ptr<RunCmdClient>                     RunCmdClientWptr;
 
 public:
-    RunAppService( const std::string &name ) : BigRLab::Service(name) {}
+    RunAppService( const std::string &name ) : BigRLab::Service(name) 
+    { DLOG(INFO) << "RunAppService construct"; }
+
+    virtual ~RunAppService()
+    { DLOG(INFO) << "RunAppService destruct"; }
 
     virtual void handleRequest(const BigRLab::WorkItemPtr &pWork);
     virtual void handleCommand( std::stringstream &stream );
@@ -52,13 +55,15 @@ public:
     void createNewWork(const std::string &name, 
                 const Json::Value &conf, const BigRLab::WorkItemPtr &pWork);
     void doQuery(const std::string &workName, const BigRLab::WorkItemPtr &pWork);
+    // void killAndRemove( string_ref_type workName );
 
     static std::string build_resp_json(int statusCode, const std::string &msg);
     static void build_resp_json(int statusCode, const std::string &msg, Json::Value &jv);
 
 private:
     std::map<std::string, RunCmdClientPtr>      m_mapIpClient;
-    std::map<string_ref_type, WorkInfo::pointer>    m_mapWorkTable;
+    std::map<std::string, WorkInfo::pointer>    m_mapWorkTable;
+    std::mutex          m_Mtx;
 };
 
 

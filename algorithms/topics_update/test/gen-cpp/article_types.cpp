@@ -14,57 +14,6 @@
 namespace Article {
 
 
-InvalidRequest::~InvalidRequest() throw() {
-}
-
-
-void InvalidRequest::__set_reason(const std::string& val) {
-  this->reason = val;
-}
-
-void swap(InvalidRequest &a, InvalidRequest &b) {
-  using ::std::swap;
-  swap(a.reason, b.reason);
-  swap(a.__isset, b.__isset);
-}
-
-InvalidRequest::InvalidRequest(const InvalidRequest& other0) : TException() {
-  reason = other0.reason;
-  __isset = other0.__isset;
-}
-InvalidRequest::InvalidRequest( InvalidRequest&& other1) : TException() {
-  reason = std::move(other1.reason);
-  __isset = std::move(other1.__isset);
-}
-InvalidRequest& InvalidRequest::operator=(const InvalidRequest& other2) {
-  reason = other2.reason;
-  __isset = other2.__isset;
-  return *this;
-}
-InvalidRequest& InvalidRequest::operator=(InvalidRequest&& other3) {
-  reason = std::move(other3.reason);
-  __isset = std::move(other3.__isset);
-  return *this;
-}
-void InvalidRequest::printTo(std::ostream& out) const {
-  using ::apache::thrift::to_string;
-  out << "InvalidRequest(";
-  out << "reason=" << to_string(reason);
-  out << ")";
-}
-
-const char* InvalidRequest::what() const throw() {
-  try {
-    std::stringstream ss;
-    ss << "TException - service has thrown: " << *this;
-    this->thriftTExceptionMessageHolder_ = ss.str();
-    return this->thriftTExceptionMessageHolder_.c_str();
-  } catch (const std::exception&) {
-    return "TException - service has thrown: InvalidRequest";
-  }
-}
-
-
 KeywordResult::~KeywordResult() throw() {
 }
 
@@ -84,26 +33,26 @@ void swap(KeywordResult &a, KeywordResult &b) {
   swap(a.__isset, b.__isset);
 }
 
-KeywordResult::KeywordResult(const KeywordResult& other4) {
-  word = other4.word;
-  weight = other4.weight;
-  __isset = other4.__isset;
+KeywordResult::KeywordResult(const KeywordResult& other0) {
+  word = other0.word;
+  weight = other0.weight;
+  __isset = other0.__isset;
 }
-KeywordResult::KeywordResult( KeywordResult&& other5) {
-  word = std::move(other5.word);
-  weight = std::move(other5.weight);
-  __isset = std::move(other5.__isset);
+KeywordResult::KeywordResult( KeywordResult&& other1) {
+  word = std::move(other1.word);
+  weight = std::move(other1.weight);
+  __isset = std::move(other1.__isset);
 }
-KeywordResult& KeywordResult::operator=(const KeywordResult& other6) {
-  word = other6.word;
-  weight = other6.weight;
-  __isset = other6.__isset;
+KeywordResult& KeywordResult::operator=(const KeywordResult& other2) {
+  word = other2.word;
+  weight = other2.weight;
+  __isset = other2.__isset;
   return *this;
 }
-KeywordResult& KeywordResult::operator=(KeywordResult&& other7) {
-  word = std::move(other7.word);
-  weight = std::move(other7.weight);
-  __isset = std::move(other7.__isset);
+KeywordResult& KeywordResult::operator=(KeywordResult&& other3) {
+  word = std::move(other3.word);
+  weight = std::move(other3.weight);
+  __isset = std::move(other3.__isset);
   return *this;
 }
 void KeywordResult::printTo(std::ostream& out) const {
@@ -144,34 +93,34 @@ void swap(KnnResult &a, KnnResult &b) {
   swap(a.__isset, b.__isset);
 }
 
-KnnResult::KnnResult(const KnnResult& other8) {
-  id = other8.id;
-  distance = other8.distance;
-  label = other8.label;
-  score = other8.score;
-  __isset = other8.__isset;
+KnnResult::KnnResult(const KnnResult& other4) {
+  id = other4.id;
+  distance = other4.distance;
+  label = other4.label;
+  score = other4.score;
+  __isset = other4.__isset;
 }
-KnnResult::KnnResult( KnnResult&& other9) {
-  id = std::move(other9.id);
-  distance = std::move(other9.distance);
-  label = std::move(other9.label);
-  score = std::move(other9.score);
-  __isset = std::move(other9.__isset);
+KnnResult::KnnResult( KnnResult&& other5) {
+  id = std::move(other5.id);
+  distance = std::move(other5.distance);
+  label = std::move(other5.label);
+  score = std::move(other5.score);
+  __isset = std::move(other5.__isset);
 }
-KnnResult& KnnResult::operator=(const KnnResult& other10) {
-  id = other10.id;
-  distance = other10.distance;
-  label = other10.label;
-  score = other10.score;
-  __isset = other10.__isset;
+KnnResult& KnnResult::operator=(const KnnResult& other6) {
+  id = other6.id;
+  distance = other6.distance;
+  label = other6.label;
+  score = other6.score;
+  __isset = other6.__isset;
   return *this;
 }
-KnnResult& KnnResult::operator=(KnnResult&& other11) {
-  id = std::move(other11.id);
-  distance = std::move(other11.distance);
-  label = std::move(other11.label);
-  score = std::move(other11.score);
-  __isset = std::move(other11.__isset);
+KnnResult& KnnResult::operator=(KnnResult&& other7) {
+  id = std::move(other7.id);
+  distance = std::move(other7.distance);
+  label = std::move(other7.label);
+  score = std::move(other7.score);
+  __isset = std::move(other7.__isset);
   return *this;
 }
 void KnnResult::printTo(std::ostream& out) const {
