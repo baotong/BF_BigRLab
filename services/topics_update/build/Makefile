@@ -138,6 +138,54 @@ article_service.cpp.s:
 	$(MAKE) -f CMakeFiles/topic_service_update.dir/build.make CMakeFiles/topic_service_update.dir/article_service.cpp.s
 .PHONY : article_service.cpp.s
 
+mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_constants.o: mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_constants.cpp.o
+.PHONY : mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_constants.o
+
+# target to build an object file
+mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_constants.cpp.o:
+	$(MAKE) -f CMakeFiles/topic_service_update.dir/build.make CMakeFiles/topic_service_update.dir/mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_constants.cpp.o
+.PHONY : mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_constants.cpp.o
+
+mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_constants.i: mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_constants.cpp.i
+.PHONY : mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_constants.i
+
+# target to preprocess a source file
+mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_constants.cpp.i:
+	$(MAKE) -f CMakeFiles/topic_service_update.dir/build.make CMakeFiles/topic_service_update.dir/mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_constants.cpp.i
+.PHONY : mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_constants.cpp.i
+
+mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_constants.s: mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_constants.cpp.s
+.PHONY : mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_constants.s
+
+# target to generate assembly for a file
+mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_constants.cpp.s:
+	$(MAKE) -f CMakeFiles/topic_service_update.dir/build.make CMakeFiles/topic_service_update.dir/mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_constants.cpp.s
+.PHONY : mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_constants.cpp.s
+
+mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_types.o: mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_types.cpp.o
+.PHONY : mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_types.o
+
+# target to build an object file
+mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_types.cpp.o:
+	$(MAKE) -f CMakeFiles/topic_service_update.dir/build.make CMakeFiles/topic_service_update.dir/mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_types.cpp.o
+.PHONY : mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_types.cpp.o
+
+mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_types.i: mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_types.cpp.i
+.PHONY : mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_types.i
+
+# target to preprocess a source file
+mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_types.cpp.i:
+	$(MAKE) -f CMakeFiles/topic_service_update.dir/build.make CMakeFiles/topic_service_update.dir/mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_types.cpp.i
+.PHONY : mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_types.cpp.i
+
+mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_types.s: mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_types.cpp.s
+.PHONY : mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_types.s
+
+# target to generate assembly for a file
+mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_types.cpp.s:
+	$(MAKE) -f CMakeFiles/topic_service_update.dir/build.make CMakeFiles/topic_service_update.dir/mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_types.cpp.s
+.PHONY : mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_types.cpp.s
+
 mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/ArticleService.o: mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/ArticleService.cpp.o
 .PHONY : mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/ArticleService.o
 
@@ -294,6 +342,12 @@ help:
 	@echo "... article_service.o"
 	@echo "... article_service.i"
 	@echo "... article_service.s"
+	@echo "... mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_constants.o"
+	@echo "... mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_constants.i"
+	@echo "... mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_constants.s"
+	@echo "... mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_types.o"
+	@echo "... mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_types.i"
+	@echo "... mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/AlgCommon_types.s"
 	@echo "... mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/ArticleService.o"
 	@echo "... mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/ArticleService.i"
 	@echo "... mnt/hgfs/BF_BigRLab/algorithms/topics_update/test/gen-cpp/ArticleService.s"

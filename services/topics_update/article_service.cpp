@@ -121,7 +121,7 @@ struct Doc2VecTask : BigRLab::WorkItemBase {
                 boost::unique_lock<boost::mutex> flk( *mtx );
                 *ofs << output.str() << endl;
 
-            } catch (const Article::InvalidRequest &err) {
+            } catch (const AlgCommon::InvalidRequest &err) {
                 done = true;
                 idleClients->putBack( pClient );
                 LOG(ERROR) << "Service " << srvName << " caught InvalidRequest: "
@@ -195,7 +195,7 @@ struct TopicTask : BigRLab::WorkItemBase {
                 boost::unique_lock<boost::mutex> flk( *mtx );
                 *ofs << output.str() << endl;
 
-            } catch (const Article::InvalidRequest &err) {
+            } catch (const AlgCommon::InvalidRequest &err) {
                 done = true;
                 idleClients->putBack( pClient );
                 LOG(ERROR) << "Service " << srvName << " caught InvalidRequest: "
@@ -288,7 +288,7 @@ struct TopicLabelTask : BigRLab::WorkItemBase {
                 boost::unique_lock<boost::mutex> flk( *mtx );
                 *ofs << oss.str() << endl;
 
-            } catch (const Article::InvalidRequest &err) {
+            } catch (const AlgCommon::InvalidRequest &err) {
                 done = true;
                 idleClients->putBack( pClient );
                 LOG(ERROR) << "Service " << srvName << " caught InvalidRequest: "
@@ -369,7 +369,7 @@ struct TopicScoreTask : BigRLab::WorkItemBase {
                 boost::unique_lock<boost::mutex> flk( *mtx );
                 *ofs << oss.str() << endl;
 
-            } catch (const Article::InvalidRequest &err) {
+            } catch (const AlgCommon::InvalidRequest &err) {
                 done = true;
                 idleClients->putBack( pClient );
                 LOG(ERROR) << "Service " << srvName << " caught InvalidRequest: "
@@ -462,7 +462,7 @@ struct TopicScoreTestTask : BigRLab::WorkItemBase {
                 boost::unique_lock<boost::mutex> flk( *mtx );
                 *ofs << oss.str() << endl;
 
-            } catch (const Article::InvalidRequest &err) {
+            } catch (const AlgCommon::InvalidRequest &err) {
                 done = true;
                 idleClients->putBack( pClient );
                 LOG(ERROR) << "Service " << srvName << " caught InvalidRequest: "
@@ -601,7 +601,7 @@ struct TopicLabelTestTask : BigRLab::WorkItemBase {
                 boost::unique_lock<boost::mutex> flk( *mtx );
                 *ofs << oss.str() << endl;
 
-            } catch (const Article::InvalidRequest &err) {
+            } catch (const AlgCommon::InvalidRequest &err) {
                 done = true;
                 idleClients->putBack( pClient );
                 LOG(ERROR) << "Service " << srvName << " caught InvalidRequest: "
@@ -828,7 +828,7 @@ void ArticleService::handleRequest(const BigRLab::WorkItemPtr &pWork)
             m_queIdleClients.putBack( pClient );
             send_response(pWork->conn, BigRLab::ServerType::connection::ok, result);
 
-        } catch (const Article::InvalidRequest &err) {
+        } catch (const AlgCommon::InvalidRequest &err) {
             done = true;
             m_queIdleClients.putBack( pClient );
             LOG(ERROR) << "Service " << name() << " caught InvalidRequest: "
