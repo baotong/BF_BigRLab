@@ -18,7 +18,7 @@
  * service mode:
  * ./xgboost_svr.bin -model 0002.model -algname booster -algmgr localhost:9001 -port 10080
  * GBDT
- * ./xgboost_svr.bin -model train1.model -model2 train2.model -offset 101 -algname booster -algmgr localhost:9001 -port 10080
+ * ./xgboost_svr.bin -model train1.model -model2 train2.model -offset 201 -algname booster -algmgr localhost:9001 -port 10080
  */
 #include <iostream>
 #include <cstdio>

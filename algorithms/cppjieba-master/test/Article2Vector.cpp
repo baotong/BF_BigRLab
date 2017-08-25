@@ -134,7 +134,7 @@ void Article2VectorByCluster::convert2Vector( const std::vector<std::string> &ar
     double         maxCount = 0.0;
 
     for (const auto& word : article) {
-        auto ret = wordSet.insert(word);
+        auto ret = wordSet.insert(word);    // 生成无重复的词语集合
         // 跳过重复单词
         if (!ret.second)
             continue;
@@ -144,8 +144,8 @@ void Article2VectorByCluster::convert2Vector( const std::vector<std::string> &ar
             // DLOG(INFO) << "no word " << word << " found in cluster table.";
             continue;
         } // if
-        uint32_t id = it->second;
-        workVec[id] += 1.0;
+        uint32_t id = it->second;       // 找出该词所属的classid
+        workVec[id] += 1.0;             // 对应classid下标元素++
         maxCount = workVec[id] > maxCount ? workVec[id] : maxCount;
     } // while
 
@@ -154,6 +154,7 @@ void Article2VectorByCluster::convert2Vector( const std::vector<std::string> &ar
 
     // DLOG(INFO) << "Before normalization:";
     // Test::print_non_zero_vector(cout, workVec);
+    // 归一化
     std::for_each(workVec.begin(), workVec.end(), 
             [&](double &v){ v /= maxCount; });
     // DLOG(INFO) << "After normalization:";

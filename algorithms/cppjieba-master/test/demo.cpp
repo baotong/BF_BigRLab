@@ -474,7 +474,7 @@ void service_init()
             THROW_RUNTIME_ERROR("Cannot get num of classes from file " << FLAGS_vecdict);
         fp.reset();
 
-        --nClasses;
+        --nClasses; // word2vec 转换后数组的维度
 
         LOG(INFO) << "Detected nClasses = " << nClasses << " from file " << FLAGS_vecdict;
 
@@ -496,7 +496,7 @@ void service_init()
             THROW_RUNTIME_ERROR("Cannot get num of classes from file " << FLAGS_vecdict);
         fp.reset();
 
-        ++nClasses;
+        ++nClasses; // 最大的classid编号+1
 
         LOG(INFO) << "Detected nClasses = " << nClasses << " from file " << FLAGS_vecdict;
 
